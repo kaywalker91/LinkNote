@@ -1,0 +1,50 @@
+name: linknote
+description: "A mobile bookmark service to save, organize, and share web links."
+publish_to: 'none'
+version: 0.1.0+1
+
+environment:
+  sdk: ^3.11.1
+
+dependencies:
+  cached_network_image:
+  connectivity_plus:
+  dio:
+  envied:
+  firebase_analytics:
+  firebase_core:
+  firebase_crashlytics:
+  firebase_messaging:
+  flutter:
+    sdk: flutter
+  flutter_riverpod:
+  flutter_secure_storage:
+  freezed_annotation:
+  go_router:
+  hive_ce:
+  hive_ce_flutter:
+  intl:
+  json_annotation:
+  logger:
+  retrofit:
+  riverpod_annotation:
+  supabase_flutter:
+  url_launcher:
+
+dev_dependencies:
+  build_runner:
+  custom_lint:
+  envied_generator:
+  flutter_test:
+    sdk: flutter
+  freezed:
+  hive_ce_generator:
+  json_serializable:
+  mocktail:
+  retrofit_generator:
+  riverpod_generator:
+  riverpod_lint:
+  very_good_analysis:
+
+flutter:
+  uses-material-design: true
