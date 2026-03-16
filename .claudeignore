@@ -1,0 +1,11 @@
+build/
+.dart_tool/
+.pub-cache/
+.pub/
+*.g.dart
+*.freezed.dart
+*.gen.dart
+android/.gradle/
+ios/Pods/
+node_modules/
+coverage/
