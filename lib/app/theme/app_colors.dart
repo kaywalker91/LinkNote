@@ -25,4 +25,14 @@ abstract final class AppColors {
   // Border
   static const Color border = Color(0xFFE2E8F0);
   static const Color borderLight = Color(0xFFF1F5F9);
+
+  // Dark palette
+  static const Color surfaceDark = Color(0xFF0F172A);
+  static const Color surfaceVariantDark = Color(0xFF1E293B);
+  static const Color backgroundDark = Color(0xFF020617);
+  static const Color textPrimaryDark = Color(0xFFF8FAFC);
+  static const Color textSecondaryDark = Color(0xFF94A3B8);
+  static const Color textHintDark = Color(0xFF475569);
+  static const Color borderDark = Color(0xFF334155);
+  static const Color borderLightDark = Color(0xFF1E293B);
 }
