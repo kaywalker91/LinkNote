@@ -12,4 +12,5 @@ FlutterSecureStorage secureStorage(Ref ref) {
 Future<void> initHive() async {
   await Hive.initFlutter();
   // Register adapters here as models are created
+  await Hive.openBox<String>('settings');
 }
