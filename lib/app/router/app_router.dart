@@ -13,9 +13,9 @@ import 'package:linknote/features/link/presentation/screens/link_add_screen.dart
 import 'package:linknote/features/link/presentation/screens/link_detail_screen.dart';
 import 'package:linknote/features/link/presentation/screens/link_edit_screen.dart';
 import 'package:linknote/features/notification/presentation/screens/notification_screen.dart';
-import 'package:linknote/features/search/presentation/screens/search_screen.dart';
 import 'package:linknote/features/profile/presentation/screens/profile_screen.dart';
 import 'package:linknote/features/profile/presentation/screens/settings_screen.dart';
+import 'package:linknote/features/search/presentation/screens/search_screen.dart';
 import 'package:linknote/shared/widgets/app_scaffold_with_nav_bar.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -48,13 +48,21 @@ GoRouter appRouter(Ref ref) {
         return Routes.splash;
       }
 
-      final isAuthenticated = authState.value is Authenticated;
-      final isAuthRoute = location == Routes.login ||
-          location == Routes.signup ||
-          location == Routes.splash;
+      // Error state — treat as unauthenticated, go to login
+      if (authState.hasError) {
+        if (location == Routes.login) return null;
+        return Routes.login;
+      }
 
-      if (!isAuthenticated && !isAuthRoute) return Routes.login;
-      if (isAuthenticated && isAuthRoute) return Routes.home;
+      final isAuthenticated = authState.value is Authenticated;
+      // splash 제외: 미인증 시 login으로, 인증 시 home으로 이동해야 함
+      final isLoginOrSignup =
+          location == Routes.login || location == Routes.signup;
+
+      if (!isAuthenticated && !isLoginOrSignup) return Routes.login;
+      if (isAuthenticated && (isLoginOrSignup || location == Routes.splash)) {
+        return Routes.home;
+      }
       return null;
     },
     routes: [

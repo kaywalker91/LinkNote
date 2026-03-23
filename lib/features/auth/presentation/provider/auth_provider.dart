@@ -9,20 +9,22 @@ part 'auth_provider.g.dart';
 class Auth extends _$Auth with ChangeNotifier {
   @override
   Future<AuthStateEntity> build() async {
-    final client = Supabase.instance.client;
+    // Notify GoRouter's refreshListenable whenever auth state changes.
+    listenSelf((_, next) => notifyListeners());
 
-    // Subscribe to auth state changes and notify GoRouter's refreshListenable
-    final subscription = client.auth.onAuthStateChange.listen((_) {
-      notifyListeners();
-    });
-    ref.onDispose(subscription.cancel);
-
-    final session = client.auth.currentSession;
-    if (session == null) return const AuthStateEntity.unauthenticated();
-    return AuthStateEntity.authenticated(
-      userId: session.user.id,
-      email: session.user.email ?? '',
-    );
+    // TODO(linknote): Replace with real Supabase auth when backend is ready.
+    // final client = Supabase.instance.client;
+    // final subscription = client.auth.onAuthStateChange.listen((_) {
+    //   notifyListeners();
+    // });
+    // ref.onDispose(subscription.cancel);
+    // final session = client.auth.currentSession;
+    // if (session == null) return const AuthStateEntity.unauthenticated();
+    // return AuthStateEntity.authenticated(
+    //   userId: session.user.id,
+    //   email: session.user.email ?? '',
+    // );
+    return const AuthStateEntity.unauthenticated();
   }
 
   Future<void> signIn({
