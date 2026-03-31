@@ -58,6 +58,15 @@ class LinkList extends _$LinkList {
     }
   }
 
+  Future<void> deleteLink(String id) async {
+    final current = state.value;
+    if (current == null) return;
+    state = AsyncData(current.copyWith(
+      items: current.items.where((link) => link.id != id).toList(),
+    ));
+    // TODO(linknote): Call DeleteLinkUsecase
+  }
+
   /// Optimistic favorite toggle — immediately updates UI, rolls back on failure.
   Future<void> toggleFavorite(String id) async {
     final current = state.value;

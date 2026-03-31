@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:linknote/app/theme/app_spacing.dart';
+import 'package:linknote/features/link/domain/entity/tag_entity.dart';
 import 'package:linknote/features/link/presentation/provider/link_form_provider.dart';
 import 'package:linknote/shared/widgets/primary_button_widget.dart';
 
@@ -17,6 +18,7 @@ class _LinkAddScreenState extends ConsumerState<LinkAddScreen> {
   final _titleController = TextEditingController();
   final _descController = TextEditingController();
   final _memoController = TextEditingController();
+  final _tagController = TextEditingController();
 
   @override
   void dispose() {
@@ -24,7 +26,21 @@ class _LinkAddScreenState extends ConsumerState<LinkAddScreen> {
     _titleController.dispose();
     _descController.dispose();
     _memoController.dispose();
+    _tagController.dispose();
     super.dispose();
+  }
+
+  void _addTag() {
+    final text = _tagController.text.trim();
+    if (text.isEmpty) return;
+    ref.read(linkFormProvider(null).notifier).addTag(
+          TagEntity(
+            id: 'tag_${DateTime.now().millisecondsSinceEpoch}',
+            name: text,
+            color: '#6750A4',
+          ),
+        );
+    _tagController.clear();
   }
 
   @override
@@ -106,6 +122,37 @@ class _LinkAddScreenState extends ConsumerState<LinkAddScreen> {
               decoration: const InputDecoration(labelText: 'Notes'),
               onChanged: (v) =>
                   ref.read(linkFormProvider(null).notifier).updateMemo(v),
+            ),
+            const SizedBox(height: AppSpacing.lg),
+            if (formState != null && formState.tags.isNotEmpty) ...[
+              Wrap(
+                spacing: AppSpacing.sm,
+                runSpacing: AppSpacing.xs,
+                children: formState.tags
+                    .map(
+                      (tag) => Chip(
+                        label: Text(tag.name),
+                        onDeleted: () => ref
+                            .read(linkFormProvider(null).notifier)
+                            .removeTag(tag.id),
+                        materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      ),
+                    )
+                    .toList(),
+              ),
+              const SizedBox(height: AppSpacing.sm),
+            ],
+            TextField(
+              controller: _tagController,
+              decoration: InputDecoration(
+                labelText: 'Tags',
+                hintText: 'Add a tag and press enter',
+                suffixIcon: IconButton(
+                  icon: const Icon(Icons.add),
+                  onPressed: _addTag,
+                ),
+              ),
+              onSubmitted: (_) => _addTag(),
             ),
             const SizedBox(height: AppSpacing.lg),
             Row(

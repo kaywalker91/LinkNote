@@ -6,6 +6,7 @@ import 'package:linknote/app/theme/app_spacing.dart';
 import 'package:linknote/features/link/domain/entity/link_entity.dart';
 import 'package:linknote/features/link/presentation/provider/link_filter_provider.dart';
 import 'package:linknote/features/link/presentation/provider/link_list_provider.dart';
+import 'package:linknote/shared/widgets/confirmation_dialog_widget.dart';
 import 'package:linknote/shared/widgets/empty_state_widget.dart';
 import 'package:linknote/shared/widgets/error_state_widget.dart';
 import 'package:linknote/shared/widgets/link_list_tile.dart';
@@ -115,7 +116,7 @@ class _LinkListBody extends ConsumerWidget {
   void _showMoreSheet(BuildContext context, WidgetRef ref, String linkId) {
     showModalBottomSheet<void>(
       context: context,
-      builder: (_) => SafeArea(
+      builder: (sheetContext) => SafeArea(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -123,16 +124,25 @@ class _LinkListBody extends ConsumerWidget {
               leading: const Icon(Icons.edit_outlined),
               title: const Text('Edit'),
               onTap: () {
-                Navigator.of(context).pop();
+                Navigator.of(sheetContext).pop();
                 context.push(Routes.linkEditPath(linkId));
               },
             ),
             ListTile(
               leading: const Icon(Icons.delete_outline, color: Colors.red),
               title: const Text('Delete', style: TextStyle(color: Colors.red)),
-              onTap: () {
-                Navigator.of(context).pop();
-                // TODO(linknote): Confirm and delete
+              onTap: () async {
+                Navigator.of(sheetContext).pop();
+                final confirmed = await ConfirmationDialogWidget.show(
+                  context,
+                  title: 'Delete Link',
+                  message: 'This link will be permanently removed.',
+                  confirmLabel: 'Delete',
+                  isDestructive: true,
+                );
+                if (confirmed ?? false) {
+                  await ref.read(linkListProvider.notifier).deleteLink(linkId);
+                }
               },
             ),
           ],

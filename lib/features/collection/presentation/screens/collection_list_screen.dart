@@ -19,6 +19,10 @@ class CollectionListScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(title: const Text('Collections')),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => context.push(Routes.collectionNew),
+        child: const Icon(Icons.add),
+      ),
       body: collectionsAsync.when(
         loading: () => ListView.builder(
           itemCount: 6,

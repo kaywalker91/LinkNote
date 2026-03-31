@@ -7,6 +7,7 @@ import 'package:linknote/features/auth/presentation/screens/login_screen.dart';
 import 'package:linknote/features/auth/presentation/screens/signup_screen.dart';
 import 'package:linknote/features/auth/presentation/screens/splash_screen.dart';
 import 'package:linknote/features/collection/presentation/screens/collection_detail_screen.dart';
+import 'package:linknote/features/collection/presentation/screens/collection_form_screen.dart';
 import 'package:linknote/features/collection/presentation/screens/collection_list_screen.dart';
 import 'package:linknote/features/link/presentation/screens/home_screen.dart';
 import 'package:linknote/features/link/presentation/screens/link_add_screen.dart';
@@ -77,6 +78,20 @@ GoRouter appRouter(Ref ref) {
       GoRoute(
         path: Routes.signup,
         builder: (context, state) => const SignupScreen(),
+      ),
+
+      // Full-screen collection form routes
+      GoRoute(
+        path: Routes.collectionNew,
+        parentNavigatorKey: _rootNavigatorKey,
+        builder: (context, state) => const CollectionFormScreen(),
+      ),
+      GoRoute(
+        path: Routes.collectionEdit,
+        parentNavigatorKey: _rootNavigatorKey,
+        builder: (context, state) => CollectionFormScreen(
+          collectionId: state.pathParameters['id']!,
+        ),
       ),
 
       // Full-screen link routes accessible from any tab
