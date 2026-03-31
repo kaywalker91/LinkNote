@@ -1,21 +1,23 @@
 # LinkNote — 개발 워크플로우 & 구현 가이드
 
-> **버전:** v1.0.0  
-> **최종 수정:** 2026.03  
-> **목적:** 8주 완성 로드맵 + Git / CI/CD / 코드 컨벤션 기준 정의
+> **버전:** v2.0.0
+> **최종 수정:** 2026.03
+> **목적:** 목업 우선(Mockup-First) 방식 로드맵 + Git / CI/CD / 코드 컨벤션 기준 정의
 
 ---
 
 ## 1. 개발 원칙
 
-### 1.1 핵심 기준 3가지
+### 1.1 핵심 기준 4가지
 
 1. **완성 가능성 우선** — 완벽한 코드보다 돌아가는 MVP가 먼저다. 2주마다 데모 가능한 상태를 유지한다.
-2. **설명 가능한 구조** — 면접에서 "왜 이렇게 만들었나요?"에 답할 수 있는 의도적 설계를 한다.
-3. **점진적 완성** — Phase 1 (MVP) → Phase 2 (확장) 순서를 지키고, 욕심내서 scope를 벌리지 않는다.
+2. **목업 우선 (Mockup-First)** — UI를 먼저 목업 데이터로 완성한 뒤 백엔드를 붙인다. Provider는 처음에 더미 데이터를 반환하고, 백엔드 연동 시 UseCase 호출로 교체한다. 화면이 돌아가는 것을 먼저 확인한 후 실제 데이터로 전환한다.
+3. **설명 가능한 구조** — 면접에서 "왜 이렇게 만들었나요?"에 답할 수 있는 의도적 설계를 한다.
+4. **점진적 완성** — Phase 2 (UI 완성) → Phase 3 (백엔드 연동) 순서를 지키고, 욕심내서 scope를 벌리지 않는다.
 
 ### 1.2 해서는 안 되는 것
 
+- UI 미완성 상태에서 백엔드 연동 먼저 착수
 - MVP 완성 전에 확장 기능 개발 착수
 - 아키텍처 과설계 (e.g., 필요 없는 Use Case 레이어 분리)
 - 디자인 픽셀 맞추기에 시간 낭비
@@ -23,107 +25,148 @@
 
 ---
 
-## 2. 8주 구현 로드맵
+## 2. 구현 로드맵
 
 ### 전체 일정 한눈에 보기
 
 ```
-Week 1-2  [기반]    프로젝트 세팅, 라우팅, 인증
-Week 3-4  [핵심]    링크 CRUD, 목록, 검색
-Week 5    [확장]    컬렉션, 딥링크
-Week 6    [안정화]  로컬 캐시, 성능 최적화
-Week 7    [검증]    테스트 작성
-Week 8    [마무리]  CI/CD, README, 데모 영상
+Phase 0  [✅ 완료]  프로젝트 세팅, 라우팅, 테마, 디자인 시스템
+Phase 1  [✅ 완료]  전체 화면 UI 구현 (목업 데이터)
+Phase 2  [✅ 완료]  UI 완성 & 개선 (누락 기능, UX 다듬기)
+Phase 3  [다음]    백엔드 연동 (Supabase Auth + Data Layer)
+Phase 4  [예정]    로컬 캐시 & 성능 최적화
+Phase 5  [예정]    테스트 작성
+Phase 6  [예정]    CI/CD & 마무리
 ```
 
 ---
 
-### Week 1-2 — 기반 세팅
+### Phase 0 — 기반 세팅 [✅ 완료]
 
-**목표:** 앱 뼈대 완성 + 인증 플로우 작동
+**목표:** 앱 뼈대 완성 + 라우팅 + 디자인 시스템
 
 #### 체크리스트
 
-- [ ] Flutter 프로젝트 생성 및 `pubspec.yaml` 기본 의존성 추가
-- [ ] 폴더 구조 생성 (`app`, `core`, `shared`, `features`)
-- [ ] `go_router` 라우트 정의 (Splash → Login → Home)
-- [ ] 인증 가드 설정 (로그인 여부에 따른 redirect)
-- [ ] Supabase 프로젝트 생성 및 `.env` 연동
-- [ ] 이메일 회원가입 / 로그인 구현
-- [ ] JWT 토큰 SecureStorage 저장 / 불러오기
-- [ ] 앱 시작 시 토큰 유효성 검사 흐름 구현
-- [ ] 디자인 시스템 초안 (Color, Typography, Spacing 상수)
-- [ ] 공통 에러 처리 구조 정의 (`Failure` sealed class)
-
-#### 데모 기준
-
-> 앱 실행 → 회원가입 → 로그인 → 홈 화면 진입 → 재실행 시 자동 로그인
+- [x] Flutter 프로젝트 생성 및 `pubspec.yaml` 기본 의존성 추가
+- [x] 폴더 구조 생성 (`app`, `core`, `shared`, `features`)
+- [x] `go_router` 라우트 정의 (Splash → Login → Home, 5탭 Shell)
+- [x] 인증 가드 설정 (로그인 여부에 따른 redirect)
+- [x] 디자인 시스템 (Color, Typography, Spacing, Shadows, Animations 상수)
+- [x] Light/Dark 테마 (Material 3)
+- [x] 공통 에러 처리 구조 정의 (`Failure` sealed class, `Result<T>` 타입)
+- [x] 공통 유틸리티 (Debouncer, DateTimeExtensions 등)
+- [x] 네트워크 레이어 기반 (DioClient, Interceptor)
+- [x] 로컬 스토리지 기반 (StorageService, Hive CE)
 
 ---
 
-### Week 3-4 — 핵심 기능
+### Phase 1 — 전체 화면 UI 구현 (목업 데이터) [✅ 완료]
 
-**목표:** 링크 저장 / 조회 / 검색 작동
+**목표:** 모든 화면을 목업 데이터로 완성 → 앱의 전체 UX 흐름 검증
 
 #### 체크리스트
 
-**링크 저장**
-
-- [ ] LinkRemoteDataSource (Supabase insert/update/delete)
-- [ ] LinkRepository 인터페이스 및 구현체
-- [ ] CreateLinkUseCase / UpdateLinkUseCase / DeleteLinkUseCase
-- [ ] URL OG Tag 파싱 (제목, 설명, 썸네일 자동 추출)
-- [ ] 태그 추가 / 삭제 UI
-- [ ] 즐겨찾기 토글 (Optimistic update 적용)
-
-**링크 목록**
-
-- [ ] LinkListNotifier (AsyncNotifier) 구현
-- [ ] cursor 기반 무한 스크롤 페이지네이션
-- [ ] 필터 상태 Provider (전체 / 즐겨찾기)
-- [ ] Skeleton loading UI
-- [ ] 링크 상세 화면
-
-**검색**
-
-- [ ] SearchNotifier (debounce 300ms)
-- [ ] 제목 / 태그 검색 API 연동
-- [ ] 최근 검색어 로컬 저장 (Isar)
+- [x] 5탭 네비게이션 쉘 (`StatefulShellRoute.indexedStack`)
+- [x] Home Screen — 링크 목록, 전체/즐겨찾기 필터, 무한 스크롤, FAB
+- [x] Search Screen — debounce 검색, 최근 검색어 표시
+- [x] Collections Screen — 컬렉션 목록 + Collection Detail Screen
+- [x] Notifications Screen — 알림 목록, 읽음/읽지않음 상태
+- [x] Profile Screen + Settings Screen (테마 전환)
+- [x] Link Detail Screen — OG 썸네일, 즐겨찾기 토글, 메모, 태그
+- [x] Link Add Screen — URL 입력, OG 파싱 시뮬레이션
+- [x] Link Edit Screen — 기본 구조
+- [x] 공유 위젯 20+ (Skeleton, EmptyState, ErrorState, OfflineBanner, PaginatedListView 등)
+- [x] Riverpod Provider 전체 구조 (모든 feature, 목업 데이터 기반)
+- [x] Auth Screens (Splash, Login, Signup)
+- [x] Domain Layer (Entity, UseCase, Repository 인터페이스) — auth, link, collection
 
 #### 데모 기준
 
-> 링크 추가 → 썸네일 자동 파싱 → 목록 반영 → 즐겨찾기 → 검색으로 찾기
+> 앱 실행 → 모든 화면 탐색 → 목업 데이터 정상 표시 → 로딩/에러/빈 상태 확인
 
 ---
 
-### Week 5 — 컬렉션 & 딥링크
+### Phase 2 — UI 완성 & 개선 [✅ 완료]
 
-**목표:** 컬렉션 공유 기능 + 딥링크 처리 구현
+**목표:** 누락되거나 미완성인 UI 항목 완료 + UX 다듬기
 
 #### 체크리스트
+
+**링크**
+
+- [x] 링크 삭제 — 확인 다이얼로그 후 Provider에서 목업 삭제 동작
+- [x] 링크 편집 화면 — 기존 데이터 바인딩 완성 (`linkDetailProvider`로 기존 데이터 로드 후 폼 초기화)
+- [x] 태그 추가/삭제 UI (태그 입력 칩 인터랙션 — TextField + Enter/쉼표로 추가, Chip × 버튼으로 삭제)
 
 **컬렉션**
 
-- [ ] 컬렉션 생성 / 수정 / 삭제
-- [ ] 컬렉션에 링크 추가 / 제거
-- [ ] 공개 / 비공개 설정
-- [ ] 다른 사용자 공개 컬렉션 조회
+- [x] Collection Detail Screen — 해당 컬렉션의 링크 목록 표시 (목업, `collectionLinksProvider`)
+- [x] 컬렉션 생성 UI (`CollectionFormScreen` — 이름/설명 입력 폼)
+- [x] 컬렉션 수정/삭제 UI (Detail 앱바 편집/삭제 메뉴, `ConfirmationDialogWidget` 재사용)
 
-**딥링크**
+**검색**
 
-- [ ] `go_router` deep link 스킴 설정 (`linknote://`)
-- [ ] Cold Start 딥링크 처리 큐 구현
-  - 앱 초기화 완료 전 딥링크 수신 시 큐에 보관
-  - 초기화 완료 후 큐 처리 및 화면 이동
-- [ ] 컬렉션 공유 링크 생성 및 수신 처리
+- [x] 검색 결과 없음 상태 UI (EmptyStateWidget 연결)
+
+**공통**
+
+- [x] Deep Link 스킴 설정 (`linknote://` — Android `intent-filter`, iOS `CFBundleURLSchemes`)
+- [x] 오프라인 배너 동작 완성 (ConnectivityProvider 연결)
+- [x] 테스트 계정 자동 로그인 (개발 편의용 — `authProvider`에서 `test@linknote.dev` 자동 인증)
 
 #### 데모 기준
 
-> 컬렉션 생성 → 공유 링크 복사 → 외부에서 링크 열기 → 해당 컬렉션 바로 진입
+> 모든 화면에서 CRUD 동작이 목업 데이터 기준으로 정상 작동 → 삭제/편집/생성 확인 ✅
 
 ---
 
-### Week 6 — 로컬 캐시 & 성능 최적화
+### Phase 3 — 백엔드 연동 [예정]
+
+**목표:** 목업 데이터를 실제 Supabase 백엔드로 교체
+
+> **착수 선행 조건 (사용자 직접 수행):**
+> 1. Supabase 프로젝트 생성
+> 2. `links`, `collections`, `profiles` 테이블 스키마 정의 + RLS 설정
+> 3. `.env` 파일에 `SUPABASE_URL`, `SUPABASE_ANON_KEY` 기입
+> 4. `dart run build_runner build` 로 `env.g.dart` 갱신
+
+#### 체크리스트
+
+**인증**
+
+- [ ] Supabase 프로젝트 생성 및 `.env` 연동 (envied 코드 생성)
+- [ ] `AuthRemoteDataSource` 실제 구현 (이메일 회원가입/로그인)
+- [ ] JWT 토큰 SecureStorage 저장/불러오기
+- [ ] `authProvider` 더미 상태 → 실제 Supabase 세션으로 교체
+- [ ] 앱 시작 시 토큰 유효성 검사 흐름
+
+**링크 Data Layer**
+
+- [ ] `LinkRemoteDataSource` (Supabase insert/select/update/delete)
+- [ ] `LinkRepositoryImpl` 구현
+- [ ] `linkListProvider` → `FetchLinksUseCase` 연결
+- [ ] `linkFormProvider` → `CreateLinkUseCase` 연결 (실제 OG 태그 파싱)
+- [ ] 즐겨찾기 토글 실제 연동 (Optimistic update 적용)
+- [ ] cursor 기반 무한 스크롤 페이지네이션 실제 구현
+
+**컬렉션 Data Layer**
+
+- [ ] `CollectionRemoteDataSource`
+- [ ] `CollectionRepositoryImpl` 구현
+- [ ] `collectionListProvider` → 실제 UseCase 연결
+
+**검색 Data Layer**
+
+- [ ] `SearchRemoteDataSource` (Supabase full-text search)
+- [ ] `SearchNotifier` → 실제 API 연결
+
+#### 데모 기준
+
+> 링크 추가 → 썸네일 자동 파싱 → Supabase DB 반영 → 목록 조회 → 즐겨찾기 → 검색으로 찾기
+
+---
+
+### Phase 4 — 로컬 캐시 & 성능 최적화 [예정]
 
 **목표:** 오프라인 지원 + 렌더링 성능 개선
 
@@ -131,17 +174,16 @@ Week 8    [마무리]  CI/CD, README, 데모 영상
 
 **로컬 캐시**
 
-- [ ] Isar 스키마 정의 (CachedLink, SearchHistory, UserSettings)
-- [ ] LinkLocalDataSource 구현 (R/W)
+- [ ] Hive CE 스키마 정의 (CachedLink, SearchHistory, UserSettings)
+- [ ] `LinkLocalDataSource` 구현 (R/W)
 - [ ] Remote 실패 시 Local fallback 흐름 적용
 - [ ] 즐겨찾기 Optimistic update → 실패 시 롤백
 
 **성능 최적화**
 
 - [ ] 링크 리스트 아이템 `const` 위젯화
-- [ ] `cached_network_image` 썸네일 캐싱 적용
+- [ ] `cached_network_image` 썸네일 캐싱 확인
 - [ ] Provider watch 범위 최소화 (불필요한 rebuild 제거)
-- [ ] 긴 리스트 `ListView.builder` 확인
 - [ ] 오프라인 상태 표시 UI (배너 / 토스트)
 
 #### 데모 기준
@@ -150,7 +192,7 @@ Week 8    [마무리]  CI/CD, README, 데모 영상
 
 ---
 
-### Week 7 — 테스트 작성
+### Phase 5 — 테스트 작성 [예정]
 
 **목표:** 핵심 레이어 테스트 커버리지 확보
 
@@ -161,9 +203,9 @@ Week 8    [마무리]  CI/CD, README, 데모 영상
 test('CreateLinkUseCase — 정상 케이스', () async {
   when(() => mockRepository.createLink(any()))
       .thenAnswer((_) async => Right(tLink));
-  
+
   final result = await useCase.execute(tParams);
-  
+
   expect(result, Right(tLink));
   verify(() => mockRepository.createLink(tParams)).called(1);
 });
@@ -171,9 +213,9 @@ test('CreateLinkUseCase — 정상 케이스', () async {
 test('CreateLinkUseCase — 네트워크 실패', () async {
   when(() => mockRepository.createLink(any()))
       .thenAnswer((_) async => Left(NetworkFailure()));
-  
+
   final result = await useCase.execute(tParams);
-  
+
   expect(result, Left(NetworkFailure()));
 });
 ```
@@ -205,7 +247,7 @@ test('CreateLinkUseCase — 네트워크 실패', () async {
 
 ---
 
-### Week 8 — CI/CD & 마무리
+### Phase 6 — CI/CD & 마무리 [예정]
 
 **목표:** 자동화 파이프라인 완성 + 포트폴리오 패키징
 
@@ -282,9 +324,62 @@ jobs:
 
 ---
 
-## 3. Git 브랜치 전략
+## 3. 목업 우선 전략
 
-### 3.1 브랜치 구조
+### 3.1 개발 흐름
+
+```
+목업(Mockup) 단계
+Provider에서 Future.delayed() + 더미 데이터 반환
+        ↓
+UI 완성 확인
+모든 화면 탐색, 상태 전환, 에러/빈 상태 표시 검증
+        ↓
+백엔드 연동
+Provider 내부의 더미 데이터를 UseCase 호출로 교체
+        ↓
+실제 데이터 검증
+Supabase DB와 화면 동기화 확인
+```
+
+### 3.2 Provider 교체 패턴
+
+백엔드 연동 시 Provider 내부만 교체하고, 화면(Screen)과 위젯은 그대로 유지한다.
+
+```dart
+// Before — Phase 1, 2 (목업)
+@riverpod
+class LinkListNotifier extends _$LinkListNotifier {
+  Future<List<LinkEntity>> build() async {
+    await Future.delayed(const Duration(milliseconds: 500));
+    return _mockLinks(); // 더미 데이터
+  }
+}
+
+// After — Phase 3 (백엔드 연동)
+@riverpod
+class LinkListNotifier extends _$LinkListNotifier {
+  Future<List<LinkEntity>> build() async {
+    final result = await ref.read(fetchLinksUseCaseProvider).execute(
+      const FetchLinksParams(page: 1),
+    );
+    return result.fold((failure) => throw failure, (links) => links);
+  }
+}
+```
+
+### 3.3 목업 우선의 장점
+
+- **빠른 UX 검증**: 백엔드 없이도 전체 앱 흐름을 데모할 수 있다
+- **병렬 개발**: UI와 백엔드 API를 동시에 설계할 수 있다
+- **명확한 인터페이스**: Provider가 반환해야 할 데이터 구조를 UI를 통해 먼저 확정한다
+- **포트폴리오 활용**: 백엔드 연동 전에도 앱 동작 영상을 찍을 수 있다
+
+---
+
+## 4. Git 브랜치 전략
+
+### 4.1 브랜치 구조
 
 ```
 main          — 최종 릴리즈용 (태그 관리)
@@ -294,7 +389,7 @@ fix/*         — 버그 수정
 chore/*       — 설정 변경, 리팩토링
 ```
 
-### 3.2 브랜치 네이밍 예시
+### 4.2 브랜치 네이밍 예시
 
 ```
 feature/auth-login
@@ -306,7 +401,7 @@ fix/link-thumbnail-parse-error
 chore/add-github-actions-ci
 ```
 
-### 3.3 PR 규칙
+### 4.3 PR 규칙
 
 - PR 단위: 기능 하나 단위로 작게 유지
 - PR 제목 형식: `[feat] 링크 저장 기능 구현`
@@ -315,9 +410,9 @@ chore/add-github-actions-ci
 
 ---
 
-## 4. 커밋 컨벤션
+## 5. 커밋 컨벤션
 
-### 4.1 형식
+### 5.1 형식
 
 ```
 <type>: <subject>
@@ -325,7 +420,7 @@ chore/add-github-actions-ci
 <body> (선택)
 ```
 
-### 4.2 Type 목록
+### 5.2 Type 목록
 
 | Type | 의미 |
 |------|------|
@@ -337,7 +432,7 @@ chore/add-github-actions-ci
 | `docs` | 문서 수정 |
 | `style` | 코드 포맷, 세미콜론 등 (로직 변경 없음) |
 
-### 4.3 예시
+### 5.3 예시
 
 ```
 feat: URL OG 태그 자동 파싱 구현
@@ -355,9 +450,9 @@ fix: Cold Start 딥링크 미처리 버그 수정
 
 ---
 
-## 5. 코드 컨벤션
+## 6. 코드 컨벤션
 
-### 5.1 파일 네이밍
+### 6.1 파일 네이밍
 
 ```
 // 스크린
@@ -377,12 +472,12 @@ fetch_links_use_case.dart
 create_link_use_case.dart
 ```
 
-### 5.2 Provider 선언 위치
+### 6.2 Provider 선언 위치
 
 - Provider는 해당 feature의 `presentation/provider/` 디렉토리에 위치
 - 전역 DI provider는 `app/di/` 디렉토리에 위치
 
-### 5.3 린트 설정
+### 6.3 린트 설정
 
 `analysis_options.yaml`:
 
@@ -398,7 +493,11 @@ linter:
 
 ---
 
-## 6. 면접 대비 Q&A
+## 7. 면접 대비 Q&A
+
+### Q. 왜 목업 우선 방식을 선택했나요?
+
+> "UI를 먼저 완성하면 백엔드 API 설계 전에 화면에서 필요한 데이터 구조를 확정할 수 있습니다. Provider가 반환할 타입을 Entity로 먼저 정의하고, 더미 데이터로 전체 UX를 검증한 뒤 백엔드를 붙이는 방식으로 진행했습니다. 덕분에 백엔드 연동 시 UI 코드를 거의 건드리지 않고 Provider 내부만 교체할 수 있었습니다."
 
 ### Q. 왜 이 폴더 구조를 선택했나요?
 
@@ -410,7 +509,7 @@ linter:
 
 ### Q. 오프라인은 어떻게 처리했나요?
 
-> "최근 조회 링크와 즐겨찾기를 Isar에 로컬 캐싱했습니다. 네트워크 실패 시 Local DataSource를 fallback으로 사용하고, 오프라인 상태임을 UI에 표시했습니다. 즐겨찾기 토글은 Optimistic update를 적용해 반응성을 높이고, 실패 시 롤백 처리했습니다."
+> "최근 조회 링크와 즐겨찾기를 Hive CE에 로컬 캐싱했습니다. 네트워크 실패 시 Local DataSource를 fallback으로 사용하고, 오프라인 상태임을 UI에 표시했습니다. 즐겨찾기 토글은 Optimistic update를 적용해 반응성을 높이고, 실패 시 롤백 처리했습니다."
 
 ### Q. 테스트는 어디까지 했나요?
 
@@ -426,7 +525,7 @@ linter:
 
 ---
 
-## 7. README 구성 가이드
+## 8. README 구성 가이드
 
 완성된 README에 포함해야 할 항목:
 
@@ -439,7 +538,7 @@ linter:
 한 줄 설명
 
 ## 기술 스택
-Flutter | Riverpod | go_router | Supabase | Isar | GitHub Actions
+Flutter | Riverpod | go_router | Supabase | Hive CE | GitHub Actions
 
 ## 아키텍처
 Feature-first + Clean Architecture 설명 + 폴더 구조 트리
@@ -467,4 +566,4 @@ flutter run
 
 ---
 
-*Workflow v1.0 — LinkNote Side Project*
+*Workflow v2.0 — LinkNote Side Project (Mockup-First)*
