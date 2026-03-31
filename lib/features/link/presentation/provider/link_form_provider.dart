@@ -1,5 +1,6 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:linknote/features/link/domain/entity/tag_entity.dart';
+import 'package:linknote/features/link/presentation/provider/link_detail_provider.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'link_form_provider.freezed.dart';
@@ -27,13 +28,16 @@ class LinkForm extends _$LinkForm {
   @override
   Future<LinkFormState> build(String? linkId) async {
     if (linkId == null) return const LinkFormState();
-    // TODO(linknote): Fetch existing link for edit mode
-    await Future.delayed(const Duration(milliseconds: 300));
-    return const LinkFormState(
-      url: 'https://example.com',
-      title: 'Example Link',
-      description: 'A sample description',
-      isFavorite: false,
+    final link = await ref.read(linkDetailProvider(linkId).future);
+    return LinkFormState(
+      url: link.url,
+      title: link.title,
+      description: link.description ?? '',
+      thumbnailUrl: link.thumbnailUrl,
+      collectionId: link.collectionId,
+      memo: link.memo ?? '',
+      tags: link.tags,
+      isFavorite: link.isFavorite,
     );
   }
 

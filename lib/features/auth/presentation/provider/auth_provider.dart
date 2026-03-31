@@ -13,18 +13,12 @@ class Auth extends _$Auth with ChangeNotifier {
     listenSelf((_, next) => notifyListeners());
 
     // TODO(linknote): Replace with real Supabase auth when backend is ready.
-    // final client = Supabase.instance.client;
-    // final subscription = client.auth.onAuthStateChange.listen((_) {
-    //   notifyListeners();
-    // });
-    // ref.onDispose(subscription.cancel);
-    // final session = client.auth.currentSession;
-    // if (session == null) return const AuthStateEntity.unauthenticated();
-    // return AuthStateEntity.authenticated(
-    //   userId: session.user.id,
-    //   email: session.user.email ?? '',
-    // );
-    return const AuthStateEntity.unauthenticated();
+    // Auto-login with test account for development.
+    await Future<void>.delayed(const Duration(milliseconds: 800));
+    return const AuthStateEntity.authenticated(
+      userId: 'test-user-001',
+      email: 'test@linknote.dev',
+    );
   }
 
   Future<void> signIn({
