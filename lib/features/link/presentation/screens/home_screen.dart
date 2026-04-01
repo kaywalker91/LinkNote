@@ -85,6 +85,7 @@ class HomeScreen extends ConsumerWidget {
       floatingActionButton: Padding(
         padding: const EdgeInsets.only(bottom: 8, right: 4),
         child: FloatingActionButton(
+          heroTag: 'home_fab',
           onPressed: () => context.push(Routes.linkAdd),
           elevation: 6,
           child: const Icon(Icons.add),
