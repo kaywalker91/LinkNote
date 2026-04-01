@@ -66,19 +66,18 @@ class _PaginatedListViewState<T> extends State<PaginatedListView<T>> {
         itemBuilder: (context, index) {
           if (index >= widget.items.length) {
             return Padding(
-              padding:
-                  const EdgeInsets.symmetric(vertical: AppSpacing.lg),
+              padding: const EdgeInsets.symmetric(vertical: AppSpacing.lg),
               child: widget.isLoadingMore
                   ? const Center(child: CircularProgressIndicator())
                   : widget.loadMoreError != null
-                      ? Center(
-                          child: TextButton.icon(
-                            onPressed: widget.onLoadMore,
-                            icon: const Icon(Icons.refresh),
-                            label: const Text('Retry'),
-                          ),
-                        )
-                      : const SizedBox.shrink(),
+                  ? Center(
+                      child: TextButton.icon(
+                        onPressed: widget.onLoadMore,
+                        icon: const Icon(Icons.refresh),
+                        label: const Text('Retry'),
+                      ),
+                    )
+                  : const SizedBox.shrink(),
             );
           }
           return widget.itemBuilder(context, widget.items[index], index);

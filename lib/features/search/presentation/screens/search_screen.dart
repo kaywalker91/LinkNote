@@ -47,8 +47,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                   )
                 : null,
           ),
-          onChanged: (v) =>
-              ref.read(searchProvider.notifier).updateQuery(v),
+          onChanged: (v) => ref.read(searchProvider.notifier).updateQuery(v),
           onSubmitted: (v) {
             ref.read(searchProvider.notifier).addRecentSearch(v);
           },
@@ -121,7 +120,8 @@ class _SearchBody extends ConsumerWidget {
         return LinkListTile(
           link: link,
           onTap: () => context.push(Routes.linkDetailPath(link.id)),
-          onFavoriteTap: () {}, // TODO(linknote): Wire to toggleFavorite usecase
+          onFavoriteTap:
+              () {}, // TODO(linknote): Wire to toggleFavorite usecase
         );
       },
     );

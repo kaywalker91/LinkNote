@@ -27,8 +27,9 @@ final _rootNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'root');
 final _homeNavKey = GlobalKey<NavigatorState>(debugLabel: 'home');
 final _searchNavKey = GlobalKey<NavigatorState>(debugLabel: 'search');
 final _collectionsNavKey = GlobalKey<NavigatorState>(debugLabel: 'collections');
-final _notificationsNavKey =
-    GlobalKey<NavigatorState>(debugLabel: 'notifications');
+final _notificationsNavKey = GlobalKey<NavigatorState>(
+  debugLabel: 'notifications',
+);
 final _profileNavKey = GlobalKey<NavigatorState>(debugLabel: 'profile');
 
 @Riverpod(keepAlive: true)

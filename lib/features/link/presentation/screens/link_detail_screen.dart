@@ -34,8 +34,9 @@ class LinkDetailScreen extends ConsumerWidget {
                         : Icons.star_outline_rounded,
                     color: link.isFavorite ? Colors.amber : null,
                   ),
-                  onPressed: () =>
-                      ref.read(linkListProvider.notifier).toggleFavorite(linkId),
+                  onPressed: () => ref
+                      .read(linkListProvider.notifier)
+                      .toggleFavorite(linkId),
                 ),
                 IconButton(
                   icon: const Icon(Icons.edit_outlined),
@@ -106,17 +107,17 @@ class LinkDetailScreen extends ConsumerWidget {
                 child: Text(
                   link.url,
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: Theme.of(context).colorScheme.primary,
-                        decoration: TextDecoration.underline,
-                      ),
+                    color: Theme.of(context).colorScheme.primary,
+                    decoration: TextDecoration.underline,
+                  ),
                 ),
               ),
               const SizedBox(height: AppSpacing.sm),
               Text(
                 'Added ${link.createdAt.timeAgo()}',
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: Theme.of(context).colorScheme.outline,
-                    ),
+                  color: Theme.of(context).colorScheme.outline,
+                ),
               ),
               if (link.description?.isNotEmpty ?? false) ...[
                 const Divider(height: AppSpacing.xxl),

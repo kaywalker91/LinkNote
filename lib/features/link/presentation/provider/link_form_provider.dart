@@ -47,10 +47,12 @@ class LinkForm extends _$LinkForm {
     state = AsyncData(current.copyWith(isParsingOg: true));
     // TODO(linknote): Implement OG tag parsing via network
     await Future.delayed(const Duration(seconds: 1));
-    state = AsyncData(current.copyWith(
-      isParsingOg: false,
-      title: current.title.isEmpty ? _extractTitle(url) : current.title,
-    ));
+    state = AsyncData(
+      current.copyWith(
+        isParsingOg: false,
+        title: current.title.isEmpty ? _extractTitle(url) : current.title,
+      ),
+    );
   }
 
   void updateUrl(String url) {
@@ -93,17 +95,21 @@ class LinkForm extends _$LinkForm {
   void removeTag(String tagId) {
     final current = state.value;
     if (current == null) return;
-    state = AsyncData(current.copyWith(
-      tags: current.tags.where((t) => t.id != tagId).toList(),
-    ));
+    state = AsyncData(
+      current.copyWith(
+        tags: current.tags.where((t) => t.id != tagId).toList(),
+      ),
+    );
   }
 
   Future<bool> submit() async {
     final current = state.value;
     if (current == null || current.url.isEmpty || current.title.isEmpty) {
-      state = AsyncData((current ?? const LinkFormState()).copyWith(
-        errorMessage: 'URL and title are required',
-      ));
+      state = AsyncData(
+        (current ?? const LinkFormState()).copyWith(
+          errorMessage: 'URL and title are required',
+        ),
+      );
       return false;
     }
     state = AsyncData(current.copyWith(isSubmitting: true, errorMessage: null));

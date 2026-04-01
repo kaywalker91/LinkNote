@@ -33,7 +33,9 @@ class _LinkAddScreenState extends ConsumerState<LinkAddScreen> {
   void _addTag() {
     final text = _tagController.text.trim();
     if (text.isEmpty) return;
-    ref.read(linkFormProvider(null).notifier).addTag(
+    ref
+        .read(linkFormProvider(null).notifier)
+        .addTag(
           TagEntity(
             id: 'tag_${DateTime.now().millisecondsSinceEpoch}',
             name: text,
@@ -93,9 +95,7 @@ class _LinkAddScreenState extends ConsumerState<LinkAddScreen> {
               onEditingComplete: () {
                 final url = _urlController.text.trim();
                 if (url.isNotEmpty) {
-                  ref
-                      .read(linkFormProvider(null).notifier)
-                      .parseOgTags(url);
+                  ref.read(linkFormProvider(null).notifier).parseOgTags(url);
                 }
               },
             ),

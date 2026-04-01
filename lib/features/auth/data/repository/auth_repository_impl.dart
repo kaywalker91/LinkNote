@@ -15,15 +15,13 @@ class AuthRepositoryImpl implements IAuthRepository {
   Future<Result<AuthStateEntity>> signIn({
     required String email,
     required String password,
-  }) =>
-      _datasource.signIn(email: email, password: password);
+  }) => _datasource.signIn(email: email, password: password);
 
   @override
   Future<Result<AuthStateEntity>> signUp({
     required String email,
     required String password,
-  }) =>
-      _datasource.signUp(email: email, password: password);
+  }) => _datasource.signUp(email: email, password: password);
 
   @override
   Future<Result<void>> signOut() => _datasource.signOut();

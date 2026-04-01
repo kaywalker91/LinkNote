@@ -25,9 +25,7 @@ class TagChipWidget extends StatelessWidget {
         onPressed: onTap,
         onDeleted: onDelete,
         selected: isSelected,
-        padding: isDense
-            ? const EdgeInsets.symmetric(horizontal: 4)
-            : null,
+        padding: isDense ? const EdgeInsets.symmetric(horizontal: 4) : null,
       );
     }
     return FilterChip(
@@ -35,9 +33,7 @@ class TagChipWidget extends StatelessWidget {
       onSelected: onTap != null ? (_) => onTap!() : null,
       selected: isSelected,
       selectedColor: colorScheme.primaryContainer,
-      padding: isDense
-          ? const EdgeInsets.symmetric(horizontal: 4)
-          : null,
+      padding: isDense ? const EdgeInsets.symmetric(horizontal: 4) : null,
     );
   }
 }

@@ -26,7 +26,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
   Future<void> _submit() async {
     if (!(_formKey.currentState?.validate() ?? false)) return;
-    await ref.read(authProvider.notifier).signIn(
+    await ref
+        .read(authProvider.notifier)
+        .signIn(
           email: _emailController.text.trim(),
           password: _passwordController.text,
         );
@@ -70,8 +72,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   controller: _emailController,
                   keyboardType: TextInputType.emailAddress,
                   decoration: const InputDecoration(labelText: 'Email'),
-                  validator: (v) =>
-                      (v?.isEmpty ?? true) ? 'Enter email' : null,
+                  validator: (v) => (v?.isEmpty ?? true) ? 'Enter email' : null,
                 ),
                 const SizedBox(height: AppSpacing.md),
                 TextFormField(

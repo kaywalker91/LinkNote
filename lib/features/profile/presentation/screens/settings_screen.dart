@@ -15,36 +15,46 @@ class SettingsScreen extends ConsumerWidget {
       body: ListView(
         children: [
           const Padding(
-            padding: EdgeInsets.fromLTRB(AppSpacing.screenPadding, AppSpacing.lg, AppSpacing.screenPadding, AppSpacing.sm),
-            child: Text('Appearance', style: TextStyle(fontWeight: FontWeight.w600)),
+            padding: EdgeInsets.fromLTRB(
+              AppSpacing.screenPadding,
+              AppSpacing.lg,
+              AppSpacing.screenPadding,
+              AppSpacing.sm,
+            ),
+            child: Text(
+              'Appearance',
+              style: TextStyle(fontWeight: FontWeight.w600),
+            ),
           ),
           RadioListTile<ThemeMode>(
             title: const Text('System default'),
             value: ThemeMode.system,
             groupValue: themeMode,
-            onChanged: (v) => ref
-                .read(themeModeProvider.notifier)
-                .setThemeMode(v!),
+            onChanged: (v) =>
+                ref.read(themeModeProvider.notifier).setThemeMode(v!),
           ),
           RadioListTile<ThemeMode>(
             title: const Text('Light'),
             value: ThemeMode.light,
             groupValue: themeMode,
-            onChanged: (v) => ref
-                .read(themeModeProvider.notifier)
-                .setThemeMode(v!),
+            onChanged: (v) =>
+                ref.read(themeModeProvider.notifier).setThemeMode(v!),
           ),
           RadioListTile<ThemeMode>(
             title: const Text('Dark'),
             value: ThemeMode.dark,
             groupValue: themeMode,
-            onChanged: (v) => ref
-                .read(themeModeProvider.notifier)
-                .setThemeMode(v!),
+            onChanged: (v) =>
+                ref.read(themeModeProvider.notifier).setThemeMode(v!),
           ),
           const Divider(),
           const Padding(
-            padding: EdgeInsets.fromLTRB(AppSpacing.screenPadding, AppSpacing.lg, AppSpacing.screenPadding, AppSpacing.sm),
+            padding: EdgeInsets.fromLTRB(
+              AppSpacing.screenPadding,
+              AppSpacing.lg,
+              AppSpacing.screenPadding,
+              AppSpacing.sm,
+            ),
             child: Text('About', style: TextStyle(fontWeight: FontWeight.w600)),
           ),
           const ListTile(

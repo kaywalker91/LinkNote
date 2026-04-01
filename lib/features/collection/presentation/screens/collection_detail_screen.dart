@@ -74,27 +74,25 @@ class CollectionDetailScreen extends ConsumerWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(collection.name,
-                        style: Theme.of(context).textTheme.headlineSmall),
+                    Text(
+                      collection.name,
+                      style: Theme.of(context).textTheme.headlineSmall,
+                    ),
                     if (collection.description != null) ...[
                       const SizedBox(height: AppSpacing.sm),
                       Text(
                         collection.description!,
-                        style:
-                            Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                  color: Theme.of(context)
-                                      .colorScheme
-                                      .onSurfaceVariant,
-                                ),
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
                       ),
                     ],
                     const SizedBox(height: AppSpacing.sm),
                     Text(
                       '${collection.linkCount} links',
-                      style:
-                          Theme.of(context).textTheme.labelMedium?.copyWith(
-                                color: Theme.of(context).colorScheme.outline,
-                              ),
+                      style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                        color: Theme.of(context).colorScheme.outline,
+                      ),
                     ),
                     const Divider(height: AppSpacing.xxl),
                   ],

@@ -12,12 +12,12 @@ class Profile extends _$Profile {
     final authState = await ref.watch(authProvider.future);
     return switch (authState) {
       Authenticated(:final userId, :final email) => UserProfileEntity(
-          id: userId,
-          email: email,
-          displayName: email.split('@').first,
-          linkCount: 0,
-          collectionCount: 0,
-        ),
+        id: userId,
+        email: email,
+        displayName: email.split('@').first,
+        linkCount: 0,
+        collectionCount: 0,
+      ),
       Unauthenticated() => throw Exception('Not authenticated'),
       AuthLoading() => throw Exception('Loading'),
     };

@@ -27,7 +27,9 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
 
   Future<void> _submit() async {
     if (!(_formKey.currentState?.validate() ?? false)) return;
-    await ref.read(authProvider.notifier).signUp(
+    await ref
+        .read(authProvider.notifier)
+        .signUp(
           email: _emailController.text.trim(),
           password: _passwordController.text,
         );
@@ -60,8 +62,7 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                   controller: _emailController,
                   keyboardType: TextInputType.emailAddress,
                   decoration: const InputDecoration(labelText: 'Email'),
-                  validator: (v) =>
-                      (v?.isEmpty ?? true) ? 'Enter email' : null,
+                  validator: (v) => (v?.isEmpty ?? true) ? 'Enter email' : null,
                 ),
                 const SizedBox(height: AppSpacing.md),
                 TextFormField(
@@ -75,8 +76,9 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                 TextFormField(
                   controller: _confirmController,
                   obscureText: true,
-                  decoration:
-                      const InputDecoration(labelText: 'Confirm Password'),
+                  decoration: const InputDecoration(
+                    labelText: 'Confirm Password',
+                  ),
                   validator: (v) => v != _passwordController.text
                       ? 'Passwords do not match'
                       : null,

@@ -30,20 +30,18 @@ class EmptyStateWidget extends StatelessWidget {
             const SizedBox(height: AppSpacing.lg),
             Text(
               message,
-              style: Theme.of(context)
-                  .textTheme
-                  .titleMedium
-                  ?.copyWith(color: colorScheme.onSurfaceVariant),
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                color: colorScheme.onSurfaceVariant,
+              ),
               textAlign: TextAlign.center,
             ),
             if (subMessage != null) ...[
               const SizedBox(height: AppSpacing.sm),
               Text(
                 subMessage!,
-                style: Theme.of(context)
-                    .textTheme
-                    .bodyMedium
-                    ?.copyWith(color: colorScheme.outline),
+                style: Theme.of(
+                  context,
+                ).textTheme.bodyMedium?.copyWith(color: colorScheme.outline),
                 textAlign: TextAlign.center,
               ),
             ],
