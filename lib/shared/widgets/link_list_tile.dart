@@ -30,7 +30,7 @@ class LinkListTile extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.symmetric(
           horizontal: AppSpacing.screenPadding,
-          vertical: AppSpacing.md,
+          vertical: AppSpacing.lg,
         ),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -39,7 +39,7 @@ class LinkListTile extends StatelessWidget {
               thumbnailUrl: link.thumbnailUrl,
               size: isCompact ? 56 : 80,
             ),
-            const SizedBox(width: AppSpacing.md),
+            const SizedBox(width: AppSpacing.lg),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -53,25 +53,31 @@ class LinkListTile extends StatelessWidget {
                   const SizedBox(height: 2),
                   Text(
                     _displayUrl(link.url),
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: colorScheme.primary,
-                        ),
+                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                      color: colorScheme.onSurfaceVariant,
+                    ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
                   if (link.collectionName != null) ...[
                     const SizedBox(height: 4),
-                    Row(children: [
-                      Icon(Icons.folder_outlined,
-                          size: 12, color: colorScheme.outline),
-                      const SizedBox(width: 2),
-                      Text(
-                        link.collectionName!,
-                        style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                              color: colorScheme.outline,
-                            ),
-                      ),
-                    ]),
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.folder_outlined,
+                          size: 12,
+                          color: colorScheme.outline,
+                        ),
+                        const SizedBox(width: 2),
+                        Text(
+                          link.collectionName!,
+                          style: Theme.of(context).textTheme.labelSmall
+                              ?.copyWith(
+                                color: colorScheme.outline,
+                              ),
+                        ),
+                      ],
+                    ),
                   ],
                   if (link.tags.isNotEmpty) ...[
                     const SizedBox(height: 6),
@@ -79,8 +85,10 @@ class LinkListTile extends StatelessWidget {
                       spacing: 4,
                       children: link.tags
                           .take(3)
-                          .map((tag) =>
-                              TagChipWidget(label: tag.name, isDense: true))
+                          .map(
+                            (tag) =>
+                                TagChipWidget(label: tag.name, isDense: true),
+                          )
                           .toList(),
                     ),
                   ],
@@ -115,8 +123,11 @@ class LinkListTile extends StatelessWidget {
                       ),
                 if (onMoreTap != null)
                   IconButton(
-                    icon: Icon(Icons.more_vert,
-                        color: colorScheme.outline, size: 18),
+                    icon: Icon(
+                      Icons.more_vert,
+                      color: colorScheme.outline,
+                      size: 18,
+                    ),
                     onPressed: onMoreTap,
                     padding: EdgeInsets.zero,
                     constraints: const BoxConstraints(

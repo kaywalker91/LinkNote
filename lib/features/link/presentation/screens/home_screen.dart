@@ -37,6 +37,11 @@ class HomeScreen extends ConsumerWidget {
                 FilterChip(
                   label: const Text('All'),
                   selected: !filter.favoritesOnly,
+                  shape: const StadiumBorder(),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppSpacing.sm,
+                    vertical: AppSpacing.xs,
+                  ),
                   onSelected: (_) => ref
                       .read(linkFilterProvider.notifier)
                       .setFavoritesOnly(value: false),
@@ -45,6 +50,11 @@ class HomeScreen extends ConsumerWidget {
                 FilterChip(
                   label: const Text('Favorites'),
                   selected: filter.favoritesOnly,
+                  shape: const StadiumBorder(),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppSpacing.sm,
+                    vertical: AppSpacing.xs,
+                  ),
                   onSelected: (_) => ref
                       .read(linkFilterProvider.notifier)
                       .setFavoritesOnly(value: true),
@@ -65,17 +75,20 @@ class HomeScreen extends ConsumerWidget {
               ),
               error: (error, _) => ErrorStateWidget(
                 message: error.toString(),
-                onRetry: () =>
-                    ref.read(linkListProvider.notifier).refresh(),
+                onRetry: () => ref.read(linkListProvider.notifier).refresh(),
               ),
               data: (_) => const _LinkListBody(),
             ),
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => context.push(Routes.linkAdd),
-        child: const Icon(Icons.add),
+      floatingActionButton: Padding(
+        padding: const EdgeInsets.only(bottom: 8, right: 4),
+        child: FloatingActionButton(
+          onPressed: () => context.push(Routes.linkAdd),
+          elevation: 6,
+          child: const Icon(Icons.add),
+        ),
       ),
     );
   }
