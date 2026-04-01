@@ -10,6 +10,5 @@ class GetCollectionsUsecase {
   Future<Result<PaginatedState<CollectionEntity>>> call({
     String? cursor,
     int pageSize = 20,
-  }) =>
-      _repository.getCollections(cursor: cursor, pageSize: pageSize);
+  }) => _repository.getCollections(cursor: cursor, pageSize: pageSize);
 }

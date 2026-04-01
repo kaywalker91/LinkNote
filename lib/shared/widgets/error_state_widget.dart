@@ -29,10 +29,9 @@ class ErrorStateWidget extends StatelessWidget {
             const SizedBox(height: AppSpacing.sm),
             Text(
               message,
-              style: Theme.of(context)
-                  .textTheme
-                  .bodySmall
-                  ?.copyWith(color: colorScheme.outline),
+              style: Theme.of(
+                context,
+              ).textTheme.bodySmall?.copyWith(color: colorScheme.outline),
               textAlign: TextAlign.center,
             ),
             if (onRetry != null) ...[

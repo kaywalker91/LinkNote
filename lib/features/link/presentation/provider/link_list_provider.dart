@@ -44,26 +44,32 @@ class LinkList extends _$LinkList {
         cursor: current.nextCursor,
         favoritesOnly: filter.favoritesOnly,
       );
-      state = AsyncData(current.copyWith(
-        items: [...current.items, ...next.items],
-        hasMore: next.hasMore,
-        nextCursor: next.nextCursor,
-        isLoadingMore: false,
-      ));
+      state = AsyncData(
+        current.copyWith(
+          items: [...current.items, ...next.items],
+          hasMore: next.hasMore,
+          nextCursor: next.nextCursor,
+          isLoadingMore: false,
+        ),
+      );
     } catch (e) {
-      state = AsyncData(current.copyWith(
-        isLoadingMore: false,
-        loadMoreError: e,
-      ));
+      state = AsyncData(
+        current.copyWith(
+          isLoadingMore: false,
+          loadMoreError: e,
+        ),
+      );
     }
   }
 
   Future<void> deleteLink(String id) async {
     final current = state.value;
     if (current == null) return;
-    state = AsyncData(current.copyWith(
-      items: current.items.where((link) => link.id != id).toList(),
-    ));
+    state = AsyncData(
+      current.copyWith(
+        items: current.items.where((link) => link.id != id).toList(),
+      ),
+    );
     // TODO(linknote): Call DeleteLinkUsecase
   }
 

@@ -22,8 +22,10 @@ class AuthRemoteDatasource {
     required String password,
   }) async {
     try {
-      final response = await _client.auth
-          .signInWithPassword(email: email, password: password);
+      final response = await _client.auth.signInWithPassword(
+        email: email,
+        password: password,
+      );
       final user = response.user;
       if (user == null) {
         return error(const Failure.auth(message: 'Sign in failed'));
@@ -46,8 +48,10 @@ class AuthRemoteDatasource {
     required String password,
   }) async {
     try {
-      final response =
-          await _client.auth.signUp(email: email, password: password);
+      final response = await _client.auth.signUp(
+        email: email,
+        password: password,
+      );
       final user = response.user;
       if (user == null) {
         return error(const Failure.auth(message: 'Sign up failed'));

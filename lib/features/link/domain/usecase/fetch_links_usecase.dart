@@ -11,10 +11,9 @@ class FetchLinksUsecase {
     String? cursor,
     int pageSize = 20,
     bool favoritesOnly = false,
-  }) =>
-      _repository.getLinks(
-        cursor: cursor,
-        pageSize: pageSize,
-        favoritesOnly: favoritesOnly,
-      );
+  }) => _repository.getLinks(
+    cursor: cursor,
+    pageSize: pageSize,
+    favoritesOnly: favoritesOnly,
+  );
 }

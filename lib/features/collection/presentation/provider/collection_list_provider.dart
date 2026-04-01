@@ -52,9 +52,11 @@ class CollectionList extends _$CollectionList {
       createdAt: DateTime.now(),
       updatedAt: DateTime.now(),
     );
-    state = AsyncData(current.copyWith(
-      items: [newCollection, ...current.items],
-    ));
+    state = AsyncData(
+      current.copyWith(
+        items: [newCollection, ...current.items],
+      ),
+    );
     // TODO(linknote): Call CreateCollectionUsecase
   }
 
@@ -65,25 +67,29 @@ class CollectionList extends _$CollectionList {
   }) async {
     final current = state.value;
     if (current == null) return;
-    state = AsyncData(current.copyWith(
-      items: current.items.map((c) {
-        if (c.id != id) return c;
-        return c.copyWith(
-          name: name,
-          description: description,
-          updatedAt: DateTime.now(),
-        );
-      }).toList(),
-    ));
+    state = AsyncData(
+      current.copyWith(
+        items: current.items.map((c) {
+          if (c.id != id) return c;
+          return c.copyWith(
+            name: name,
+            description: description,
+            updatedAt: DateTime.now(),
+          );
+        }).toList(),
+      ),
+    );
     // TODO(linknote): Call UpdateCollectionUsecase
   }
 
   Future<void> deleteCollection(String id) async {
     final current = state.value;
     if (current == null) return;
-    state = AsyncData(current.copyWith(
-      items: current.items.where((c) => c.id != id).toList(),
-    ));
+    state = AsyncData(
+      current.copyWith(
+        items: current.items.where((c) => c.id != id).toList(),
+      ),
+    );
     // TODO(linknote): Call DeleteCollectionUsecase
   }
 }

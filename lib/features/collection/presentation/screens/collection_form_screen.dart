@@ -46,7 +46,9 @@ class _CollectionFormScreenState extends ConsumerState<CollectionFormScreen> {
     setState(() => _isSubmitting = true);
 
     if (_isEditMode) {
-      await ref.read(collectionListProvider.notifier).updateCollection(
+      await ref
+          .read(collectionListProvider.notifier)
+          .updateCollection(
             id: widget.collectionId!,
             name: name,
             description: _descController.text.trim().isEmpty
@@ -54,7 +56,9 @@ class _CollectionFormScreenState extends ConsumerState<CollectionFormScreen> {
                 : _descController.text.trim(),
           );
     } else {
-      await ref.read(collectionListProvider.notifier).createCollection(
+      await ref
+          .read(collectionListProvider.notifier)
+          .createCollection(
             name: name,
             description: _descController.text.trim().isEmpty
                 ? null
@@ -68,8 +72,9 @@ class _CollectionFormScreenState extends ConsumerState<CollectionFormScreen> {
   @override
   Widget build(BuildContext context) {
     if (_isEditMode) {
-      final detailAsync =
-          ref.watch(collectionDetailProvider(widget.collectionId!));
+      final detailAsync = ref.watch(
+        collectionDetailProvider(widget.collectionId!),
+      );
       detailAsync.whenData(
         (c) => _syncControllers(c.name, c.description),
       );

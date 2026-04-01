@@ -10,6 +10,5 @@ class SignUpUsecase {
   Future<Result<AuthStateEntity>> call({
     required String email,
     required String password,
-  }) =>
-      _repository.signUp(email: email, password: password);
+  }) => _repository.signUp(email: email, password: password);
 }

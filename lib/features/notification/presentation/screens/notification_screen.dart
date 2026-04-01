@@ -34,8 +34,7 @@ class NotificationScreen extends ConsumerWidget {
         ),
         error: (error, _) => ErrorStateWidget(
           message: error.toString(),
-          onRetry: () =>
-              ref.read(notificationListProvider.notifier).refresh(),
+          onRetry: () => ref.read(notificationListProvider.notifier).refresh(),
         ),
         data: (state) => PaginatedListView(
           items: state.items,
@@ -68,9 +67,7 @@ class _NotificationTile extends ConsumerWidget {
     return InkWell(
       onTap: () {
         if (!notification.isRead) {
-          ref
-              .read(notificationListProvider.notifier)
-              .markRead(notification.id);
+          ref.read(notificationListProvider.notifier).markRead(notification.id);
         }
       },
       child: Container(
@@ -106,23 +103,27 @@ class _NotificationTile extends ConsumerWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(notification.title,
-                      style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                            fontWeight: notification.isRead
-                                ? FontWeight.w400
-                                : FontWeight.w600,
-                          )),
+                  Text(
+                    notification.title,
+                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                      fontWeight: notification.isRead
+                          ? FontWeight.w400
+                          : FontWeight.w600,
+                    ),
+                  ),
                   const SizedBox(height: 2),
-                  Text(notification.body,
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: colorScheme.onSurfaceVariant,
-                          )),
+                  Text(
+                    notification.body,
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: colorScheme.onSurfaceVariant,
+                    ),
+                  ),
                   const SizedBox(height: 4),
                   Text(
                     notification.createdAt.timeAgo(),
                     style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                          color: colorScheme.outline,
-                        ),
+                      color: colorScheme.outline,
+                    ),
                   ),
                 ],
               ),

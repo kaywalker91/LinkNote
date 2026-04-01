@@ -56,8 +56,8 @@ class ProfileScreen extends ConsumerWidget {
                   Text(
                     profile.email,
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: Theme.of(context).colorScheme.outline,
-                        ),
+                      color: Theme.of(context).colorScheme.outline,
+                    ),
                   ),
                 ],
               ),
@@ -65,13 +65,16 @@ class ProfileScreen extends ConsumerWidget {
             const SizedBox(height: AppSpacing.xxl),
             Padding(
               padding: const EdgeInsets.symmetric(
-                  horizontal: AppSpacing.screenPadding),
+                horizontal: AppSpacing.screenPadding,
+              ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   _StatChip(label: 'Links', count: profile.linkCount),
                   _StatChip(
-                      label: 'Collections', count: profile.collectionCount),
+                    label: 'Collections',
+                    count: profile.collectionCount,
+                  ),
                 ],
               ),
             ),
@@ -83,12 +86,12 @@ class ProfileScreen extends ConsumerWidget {
               onTap: () => context.push('${Routes.profile}/settings'),
             ),
             ListTile(
-              leading:
-                  const Icon(Icons.logout, color: Colors.red),
-              title: const Text('Sign Out',
-                  style: TextStyle(color: Colors.red)),
-              onTap: () =>
-                  ref.read(authProvider.notifier).signOut(),
+              leading: const Icon(Icons.logout, color: Colors.red),
+              title: const Text(
+                'Sign Out',
+                style: TextStyle(color: Colors.red),
+              ),
+              onTap: () => ref.read(authProvider.notifier).signOut(),
             ),
           ],
         ),
@@ -113,8 +116,8 @@ class _StatChip extends StatelessWidget {
         Text(
           label,
           style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: Theme.of(context).colorScheme.outline,
-              ),
+            color: Theme.of(context).colorScheme.outline,
+          ),
         ),
       ],
     );

@@ -19,8 +19,10 @@ class OfflineBannerWidget extends ConsumerWidget {
             children: [
               Icon(Icons.wifi_off, color: Colors.white, size: 16),
               SizedBox(width: 8),
-              Text('오프라인 상태입니다',
-                  style: TextStyle(color: Colors.white, fontSize: 13)),
+              Text(
+                '오프라인 상태입니다',
+                style: TextStyle(color: Colors.white, fontSize: 13),
+              ),
             ],
           ),
         ),

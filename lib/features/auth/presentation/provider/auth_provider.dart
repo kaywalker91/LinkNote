@@ -27,8 +27,10 @@ class Auth extends _$Auth with ChangeNotifier {
   }) async {
     state = const AsyncLoading();
     try {
-      final response = await Supabase.instance.client.auth
-          .signInWithPassword(email: email, password: password);
+      final response = await Supabase.instance.client.auth.signInWithPassword(
+        email: email,
+        password: password,
+      );
       final user = response.user;
       if (user == null) {
         state = AsyncError('Sign in failed', StackTrace.current);
@@ -52,8 +54,10 @@ class Auth extends _$Auth with ChangeNotifier {
   }) async {
     state = const AsyncLoading();
     try {
-      final response = await Supabase.instance.client.auth
-          .signUp(email: email, password: password);
+      final response = await Supabase.instance.client.auth.signUp(
+        email: email,
+        password: password,
+      );
       final user = response.user;
       if (user == null) {
         state = AsyncError('Sign up failed', StackTrace.current);

@@ -33,7 +33,9 @@ class _LinkEditScreenState extends ConsumerState<LinkEditScreen> {
   void _addTag() {
     final text = _tagController.text.trim();
     if (text.isEmpty) return;
-    ref.read(linkFormProvider(widget.linkId).notifier).addTag(
+    ref
+        .read(linkFormProvider(widget.linkId).notifier)
+        .addTag(
           TagEntity(
             id: 'tag_${DateTime.now().millisecondsSinceEpoch}',
             name: text,
@@ -81,8 +83,8 @@ class _LinkEditScreenState extends ConsumerState<LinkEditScreen> {
                 Text(
                   formState.url,
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: Theme.of(context).colorScheme.primary,
-                      ),
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
                 ),
                 const SizedBox(height: AppSpacing.md),
                 TextField(

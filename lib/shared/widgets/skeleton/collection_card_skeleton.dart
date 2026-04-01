@@ -9,7 +9,9 @@ class CollectionCardSkeleton extends StatelessWidget {
   Widget build(BuildContext context) {
     return const Padding(
       padding: EdgeInsets.symmetric(
-          horizontal: AppSpacing.screenPadding, vertical: AppSpacing.sm),
+        horizontal: AppSpacing.screenPadding,
+        vertical: AppSpacing.sm,
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
