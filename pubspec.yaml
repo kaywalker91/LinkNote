@@ -33,6 +33,7 @@ dependencies:
 
 dev_dependencies:
   build_runner:
+  coverage:
   custom_lint:
   envied_generator:
   flutter_test:
