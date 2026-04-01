@@ -20,6 +20,7 @@ class CollectionListScreen extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(title: const Text('Collections')),
       floatingActionButton: FloatingActionButton(
+        heroTag: 'collections_fab',
         onPressed: () => context.push(Routes.collectionNew),
         child: const Icon(Icons.add),
       ),
@@ -37,7 +38,8 @@ class CollectionListScreen extends ConsumerWidget {
           hasMore: state.hasMore,
           isLoadingMore: state.isLoadingMore,
           onRefresh: () => ref.read(collectionListProvider.notifier).refresh(),
-          onLoadMore: () => ref.read(collectionListProvider.notifier).loadMore(),
+          onLoadMore: () =>
+              ref.read(collectionListProvider.notifier).loadMore(),
           empty: const EmptyStateWidget(
             icon: Icons.folder_outlined,
             message: 'No collections yet',
@@ -75,30 +77,35 @@ class _CollectionCard extends StatelessWidget {
                   color: colorScheme.primaryContainer,
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: Icon(Icons.folder_rounded,
-                    color: colorScheme.primary, size: 24),
+                child: Icon(
+                  Icons.folder_rounded,
+                  color: colorScheme.primary,
+                  size: 24,
+                ),
               ),
               const SizedBox(width: AppSpacing.md),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(collection.name,
-                        style: Theme.of(context).textTheme.titleSmall),
+                    Text(
+                      collection.name,
+                      style: Theme.of(context).textTheme.titleSmall,
+                    ),
                     if (collection.description != null)
                       Text(
                         collection.description!,
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: colorScheme.outline,
-                            ),
+                          color: colorScheme.outline,
+                        ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
                     Text(
                       '${collection.linkCount} links',
                       style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                            color: colorScheme.outline,
-                          ),
+                        color: colorScheme.outline,
+                      ),
                     ),
                   ],
                 ),
