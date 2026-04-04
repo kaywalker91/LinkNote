@@ -7,7 +7,7 @@ part 'collection_detail_provider.g.dart';
 class CollectionDetail extends _$CollectionDetail {
   @override
   Future<CollectionEntity> build(String collectionId) async {
-    await Future.delayed(const Duration(milliseconds: 300));
+    await Future<void>.delayed(const Duration(milliseconds: 300));
     return CollectionEntity(
       id: collectionId,
       name: 'Collection Detail',

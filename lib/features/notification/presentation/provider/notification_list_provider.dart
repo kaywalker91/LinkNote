@@ -8,7 +8,7 @@ part 'notification_list_provider.g.dart';
 class NotificationList extends _$NotificationList {
   @override
   Future<PaginatedState<NotificationEntity>> build() async {
-    await Future.delayed(const Duration(milliseconds: 300));
+    await Future<void>.delayed(const Duration(milliseconds: 300));
     return PaginatedState<NotificationEntity>(
       items: List.generate(
         10,

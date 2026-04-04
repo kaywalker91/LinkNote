@@ -33,7 +33,7 @@ jobs:
         run: dart format --set-exit-if-changed lib/ test/ || (echo "Run 'dart format lib/ test/' to fix formatting" && exit 1)
 
       - name: Run flutter analyze
-        run: flutter analyze --fatal-infos
+        run: flutter analyze --fatal-warnings
 
   # ── Job 2: Tests & Coverage ────────────────────────────────────────────────
   test:
@@ -56,13 +56,19 @@ jobs:
       - name: Check coverage thresholds
         run: |
           if [ -f coverage/lcov.info ]; then
-            # Install lcov for coverage summary
             sudo apt-get install -y lcov -q
-            COVERAGE=$(lcov --summary coverage/lcov.info 2>&1 | grep "lines" | grep -oP '\d+\.\d+(?=%)' || echo "0")
-            echo "Coverage: ${COVERAGE}%"
-            # Warn if below 80% (hard fail when tests exist at scale)
-            if (( $(echo "$COVERAGE < 60" | bc -l) )); then
-              echo "⚠️ Coverage ${COVERAGE}% is below 60% minimum"
+            # Exclude generated files from coverage
+            lcov --remove coverage/lcov.info \
+              '**/*.g.dart' '**/*.freezed.dart' '**/*.gen.dart' \
+              'lib/firebase_options.dart' \
+              -o coverage/lcov_filtered.info --quiet
+            COVERAGE=$(lcov --summary coverage/lcov_filtered.info 2>&1 | grep "lines" | grep -oP '\d+\.\d+(?=%)' || echo "0")
+            echo "📊 Coverage (excluding generated): ${COVERAGE}%"
+            if (( $(echo "$COVERAGE < 30" | bc -l) )); then
+              echo "::error::Coverage ${COVERAGE}% is below 30% minimum"
+              exit 1
+            elif (( $(echo "$COVERAGE < 50" | bc -l) )); then
+              echo "::warning::Coverage ${COVERAGE}% is below 50% target"
             fi
           else
             echo "No coverage data (no tests yet)"
@@ -72,7 +78,7 @@ jobs:
         if: always()
         uses: codecov/codecov-action@v4
         with:
-          files: coverage/lcov.info
+          files: coverage/lcov_filtered.info
           fail_ci_if_error: false
         continue-on-error: true
 

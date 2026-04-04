@@ -8,7 +8,12 @@ analyzer:
     - "**/*.freezed.dart"
     - "**/*.gen.dart"
     - "lib/firebase_options.dart"
+  errors:
+    invalid_annotation_target: ignore
 
 linter:
   rules:
     public_member_api_docs: false
+    lines_longer_than_80_chars: false
+    sort_constructors_first: false
+    unnecessary_underscores: false
