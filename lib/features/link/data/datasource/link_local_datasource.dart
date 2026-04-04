@@ -7,7 +7,7 @@ import 'package:linknote/shared/models/paginated_state.dart';
 class LinkLocalDataSource {
   const LinkLocalDataSource(this._box);
 
-  final Box<Map> _box;
+  final Box<Map<String, dynamic>> _box;
 
   static const int _maxCacheSize = 100;
 
@@ -63,7 +63,7 @@ class LinkLocalDataSource {
 
   Future<void> cacheLinks(List<LinkEntity> links) async {
     try {
-      final entries = <String, Map>{
+      final entries = <String, Map<String, dynamic>>{
         for (final link in links) link.id: _entityToMap(link),
       };
       await _box.putAll(entries);
@@ -109,10 +109,9 @@ class LinkLocalDataSource {
   // Helpers
   // ---------------------------------------------------------------------------
 
-  LinkEntity? _mapToEntity(Map<dynamic, dynamic> raw) {
+  LinkEntity? _mapToEntity(Map<String, dynamic> raw) {
     try {
-      final json = Map<String, dynamic>.from(raw);
-      return LinkEntity.fromJson(json);
+      return LinkEntity.fromJson(raw);
     } catch (_) {
       return null;
     }
