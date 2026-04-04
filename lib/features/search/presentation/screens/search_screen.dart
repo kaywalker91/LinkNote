@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:linknote/app/router/routes.dart';
 import 'package:linknote/app/theme/app_spacing.dart';
-import 'package:linknote/features/search/domain/entity/search_state_entity.dart';
 import 'package:linknote/features/search/presentation/provider/search_provider.dart';
 import 'package:linknote/shared/widgets/empty_state_widget.dart';
 import 'package:linknote/shared/widgets/link_list_tile.dart';
@@ -27,7 +26,9 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final searchState = ref.watch(searchProvider);
+    final hasQuery = ref.watch(
+      searchProvider.select((s) => s.query.isNotEmpty),
+    );
 
     return Scaffold(
       appBar: AppBar(
@@ -37,7 +38,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
           decoration: InputDecoration(
             hintText: 'Search links, notes, tags',
             border: InputBorder.none,
-            suffixIcon: searchState.query.isNotEmpty
+            suffixIcon: hasQuery
                 ? IconButton(
                     icon: const Icon(Icons.clear),
                     onPressed: () {
@@ -53,14 +54,13 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
           },
         ),
       ),
-      body: _SearchBody(searchState: searchState),
+      body: const _SearchBody(),
     );
   }
 }
 
 class _SearchBody extends ConsumerWidget {
-  const _SearchBody({required this.searchState});
-  final SearchStateEntity searchState;
+  const _SearchBody();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
