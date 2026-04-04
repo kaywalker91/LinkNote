@@ -23,6 +23,7 @@ dependencies:
   go_router:
   hive_ce:
   hive_ce_flutter:
+  html: ^0.15.6
   intl:
   json_annotation:
   logger:

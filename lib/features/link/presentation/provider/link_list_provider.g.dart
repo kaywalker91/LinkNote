@@ -33,7 +33,7 @@ final class LinkListProvider
   LinkList create() => LinkList();
 }
 
-String _$linkListHash() => r'3b6635db3f8fda3373fdc7dc95e7f8409f36274d';
+String _$linkListHash() => r'd6332daa15ac06085d9c925404b71af01fc8fe8a';
 
 abstract class _$LinkList extends $AsyncNotifier<PaginatedState<LinkEntity>> {
   FutureOr<PaginatedState<LinkEntity>> build();

@@ -8,4 +8,11 @@ abstract interface class ICollectionRepository {
     int pageSize = 20,
   });
   Future<Result<CollectionEntity>> getCollectionById(String id);
+  Future<Result<CollectionEntity>> createCollection(
+    CollectionEntity collection,
+  );
+  Future<Result<CollectionEntity>> updateCollection(
+    CollectionEntity collection,
+  );
+  Future<Result<void>> deleteCollection(String id);
 }

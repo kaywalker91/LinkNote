@@ -1,6 +1,8 @@
+import 'package:linknote/core/error/result.dart';
 import 'package:linknote/core/utils/debouncer.dart';
 import 'package:linknote/features/link/domain/entity/link_entity.dart';
 import 'package:linknote/features/search/domain/entity/search_state_entity.dart';
+import 'package:linknote/features/search/presentation/provider/search_di_providers.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'search_provider.g.dart';
@@ -27,22 +29,16 @@ class Search extends _$Search {
 
   Future<void> _performSearch(String query) async {
     if (state.query != query) return; // Stale query
-    // TODO(linknote): Use SearchLinksUsecase via repository
-    await Future.delayed(const Duration(milliseconds: 300));
-    final mockResults = List.generate(
-      5,
-      (i) => LinkEntity(
-        id: 'search_result_$i',
-        url: 'https://example.com/result-$i',
-        title: 'Result for "$query" — Article $i',
-        description: 'Search result description',
-        isFavorite: false,
-        createdAt: DateTime.now().subtract(Duration(days: i)),
-        updatedAt: DateTime.now().subtract(Duration(days: i)),
-      ),
-    );
-    if (state.query == query) {
-      state = state.copyWith(results: mockResults, isSearching: false);
+
+    final Result<List<LinkEntity>> result = await ref
+        .read(searchLinksUsecaseProvider)
+        .call(query);
+    if (state.query != query) return; // Query changed during fetch
+
+    if (result.isSuccess) {
+      state = state.copyWith(results: result.data!, isSearching: false);
+    } else {
+      state = state.copyWith(results: [], isSearching: false);
     }
   }
 

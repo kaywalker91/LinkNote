@@ -1,7 +1,8 @@
 import 'package:flutter/foundation.dart';
+import 'package:linknote/core/error/result.dart';
 import 'package:linknote/features/auth/domain/entity/auth_state_entity.dart';
+import 'package:linknote/features/auth/presentation/provider/auth_di_providers.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:supabase_flutter/supabase_flutter.dart' hide AuthState;
 
 part 'auth_provider.g.dart';
 
@@ -12,13 +13,9 @@ class Auth extends _$Auth with ChangeNotifier {
     // Notify GoRouter's refreshListenable whenever auth state changes.
     listenSelf((_, next) => notifyListeners());
 
-    // TODO(linknote): Replace with real Supabase auth when backend is ready.
-    // Auto-login with test account for development.
-    await Future<void>.delayed(const Duration(milliseconds: 800));
-    return const AuthStateEntity.authenticated(
-      userId: 'test-user-001',
-      email: 'test@linknote.dev',
-    );
+    // Check existing Supabase session.
+    final checkSession = ref.read(checkSessionUsecaseProvider);
+    return checkSession();
   }
 
   Future<void> signIn({
@@ -26,25 +23,20 @@ class Auth extends _$Auth with ChangeNotifier {
     required String password,
   }) async {
     state = const AsyncLoading();
-    try {
-      final response = await Supabase.instance.client.auth.signInWithPassword(
-        email: email,
-        password: password,
-      );
-      final user = response.user;
-      if (user == null) {
-        state = AsyncError('Sign in failed', StackTrace.current);
-        return;
-      }
-      state = AsyncData(
-        AuthStateEntity.authenticated(
-          userId: user.id,
-          email: user.email ?? '',
-        ),
-      );
+    final Result<AuthStateEntity> result = await ref
+        .read(signInUsecaseProvider)
+        .call(
+          email: email,
+          password: password,
+        );
+    if (result.isSuccess) {
+      state = AsyncData(result.data as AuthStateEntity);
       notifyListeners();
-    } on AuthException catch (e) {
-      state = AsyncError(e.message, StackTrace.current);
+    } else {
+      state = AsyncError(
+        result.failure?.message ?? 'Sign in failed',
+        StackTrace.current,
+      );
     }
   }
 
@@ -53,32 +45,34 @@ class Auth extends _$Auth with ChangeNotifier {
     required String password,
   }) async {
     state = const AsyncLoading();
-    try {
-      final response = await Supabase.instance.client.auth.signUp(
-        email: email,
-        password: password,
-      );
-      final user = response.user;
-      if (user == null) {
-        state = AsyncError('Sign up failed', StackTrace.current);
-        return;
-      }
-      state = AsyncData(
-        AuthStateEntity.authenticated(
-          userId: user.id,
-          email: user.email ?? '',
-        ),
-      );
+    final Result<AuthStateEntity> result = await ref
+        .read(signUpUsecaseProvider)
+        .call(
+          email: email,
+          password: password,
+        );
+    if (result.isSuccess) {
+      state = AsyncData(result.data as AuthStateEntity);
       notifyListeners();
-    } on AuthException catch (e) {
-      state = AsyncError(e.message, StackTrace.current);
+    } else {
+      state = AsyncError(
+        result.failure?.message ?? 'Sign up failed',
+        StackTrace.current,
+      );
     }
   }
 
   Future<void> signOut() async {
-    await Supabase.instance.client.auth.signOut();
-    state = const AsyncData(AuthStateEntity.unauthenticated());
-    notifyListeners();
+    final Result<void> result = await ref.read(signOutUsecaseProvider).call();
+    if (!result.isFailure) {
+      state = const AsyncData(AuthStateEntity.unauthenticated());
+      notifyListeners();
+    } else {
+      state = AsyncError(
+        result.failure?.message ?? 'Sign out failed',
+        StackTrace.current,
+      );
+    }
   }
 
   bool get isAuthenticated => state.value is Authenticated;
