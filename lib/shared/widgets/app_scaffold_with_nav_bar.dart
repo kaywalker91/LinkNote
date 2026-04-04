@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:linknote/shared/widgets/offline_banner_widget.dart';
 
 class AppScaffoldWithNavBar extends StatelessWidget {
   const AppScaffoldWithNavBar({
@@ -12,7 +13,12 @@ class AppScaffoldWithNavBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: navigationShell,
+      body: Column(
+        children: [
+          const OfflineBannerWidget(),
+          Expanded(child: navigationShell),
+        ],
+      ),
       bottomNavigationBar: Theme(
         data: Theme.of(context).copyWith(
           navigationBarTheme: NavigationBarThemeData(

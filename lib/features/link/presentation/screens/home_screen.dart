@@ -10,7 +10,6 @@ import 'package:linknote/shared/widgets/confirmation_dialog_widget.dart';
 import 'package:linknote/shared/widgets/empty_state_widget.dart';
 import 'package:linknote/shared/widgets/error_state_widget.dart';
 import 'package:linknote/shared/widgets/link_list_tile.dart';
-import 'package:linknote/shared/widgets/offline_banner_widget.dart';
 import 'package:linknote/shared/widgets/paginated_list_view.dart';
 import 'package:linknote/shared/widgets/skeleton/link_card_skeleton.dart';
 
@@ -20,67 +19,25 @@ class HomeScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final linksAsync = ref.watch(linkListProvider);
-    final filter = ref.watch(linkFilterProvider);
 
     return Scaffold(
       appBar: AppBar(
         title: const Text('LinkNote'),
-        bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(48),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: AppSpacing.screenPadding,
-              vertical: AppSpacing.sm,
-            ),
-            child: Row(
-              children: [
-                FilterChip(
-                  label: const Text('All'),
-                  selected: !filter.favoritesOnly,
-                  shape: const StadiumBorder(),
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: AppSpacing.sm,
-                    vertical: AppSpacing.xs,
-                  ),
-                  onSelected: (_) => ref
-                      .read(linkFilterProvider.notifier)
-                      .setFavoritesOnly(value: false),
-                ),
-                const SizedBox(width: AppSpacing.sm),
-                FilterChip(
-                  label: const Text('Favorites'),
-                  selected: filter.favoritesOnly,
-                  shape: const StadiumBorder(),
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: AppSpacing.sm,
-                    vertical: AppSpacing.xs,
-                  ),
-                  onSelected: (_) => ref
-                      .read(linkFilterProvider.notifier)
-                      .setFavoritesOnly(value: true),
-                ),
-              ],
-            ),
-          ),
+        bottom: const PreferredSize(
+          preferredSize: Size.fromHeight(48),
+          child: _FilterChipsBar(),
         ),
       ),
-      body: Column(
-        children: [
-          const OfflineBannerWidget(),
-          Expanded(
-            child: linksAsync.when(
-              loading: () => ListView.builder(
-                itemCount: 8,
-                itemBuilder: (_, __) => const LinkCardSkeleton(),
-              ),
-              error: (error, _) => ErrorStateWidget(
-                message: error.toString(),
-                onRetry: () => ref.read(linkListProvider.notifier).refresh(),
-              ),
-              data: (_) => const _LinkListBody(),
-            ),
-          ),
-        ],
+      body: linksAsync.when(
+        loading: () => ListView.builder(
+          itemCount: 8,
+          itemBuilder: (_, __) => const LinkCardSkeleton(),
+        ),
+        error: (error, _) => ErrorStateWidget(
+          message: error.toString(),
+          onRetry: () => ref.read(linkListProvider.notifier).refresh(),
+        ),
+        data: (_) => const _LinkListBody(),
       ),
       floatingActionButton: Padding(
         padding: const EdgeInsets.only(bottom: 8, right: 4),
@@ -90,6 +47,50 @@ class HomeScreen extends ConsumerWidget {
           elevation: 6,
           child: const Icon(Icons.add),
         ),
+      ),
+    );
+  }
+}
+
+class _FilterChipsBar extends ConsumerWidget {
+  const _FilterChipsBar();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final filter = ref.watch(linkFilterProvider);
+    return Padding(
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.screenPadding,
+        vertical: AppSpacing.sm,
+      ),
+      child: Row(
+        children: [
+          FilterChip(
+            label: const Text('All'),
+            selected: !filter.favoritesOnly,
+            shape: const StadiumBorder(),
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppSpacing.sm,
+              vertical: AppSpacing.xs,
+            ),
+            onSelected: (_) => ref
+                .read(linkFilterProvider.notifier)
+                .setFavoritesOnly(value: false),
+          ),
+          const SizedBox(width: AppSpacing.sm),
+          FilterChip(
+            label: const Text('Favorites'),
+            selected: filter.favoritesOnly,
+            shape: const StadiumBorder(),
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppSpacing.sm,
+              vertical: AppSpacing.xs,
+            ),
+            onSelected: (_) => ref
+                .read(linkFilterProvider.notifier)
+                .setFavoritesOnly(value: true),
+          ),
+        ],
       ),
     );
   }
