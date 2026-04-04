@@ -1,4 +1,3 @@
-import 'package:linknote/core/error/failure.dart';
 import 'package:linknote/core/error/result.dart';
 import 'package:linknote/features/link/data/datasource/link_local_datasource.dart';
 import 'package:linknote/features/link/data/datasource/link_remote_datasource.dart';
