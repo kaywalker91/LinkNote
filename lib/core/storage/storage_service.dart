@@ -13,4 +13,5 @@ Future<void> initHive() async {
   await Hive.initFlutter();
   // Register adapters here as models are created
   await Hive.openBox<String>('settings');
+  await Hive.openBox<Map>('links');
 }

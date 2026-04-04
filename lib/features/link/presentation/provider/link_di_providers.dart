@@ -1,5 +1,7 @@
+import 'package:hive_ce/hive_ce.dart';
 import 'package:linknote/features/auth/domain/entity/auth_state_entity.dart';
 import 'package:linknote/features/auth/presentation/provider/auth_provider.dart';
+import 'package:linknote/features/link/data/datasource/link_local_datasource.dart';
 import 'package:linknote/features/link/data/datasource/link_remote_datasource.dart';
 import 'package:linknote/features/link/data/repository/link_repository_impl.dart';
 import 'package:linknote/features/link/domain/repository/i_link_repository.dart';
@@ -20,6 +22,11 @@ LinkRemoteDataSource linkRemoteDataSource(Ref ref) {
 }
 
 @riverpod
+LinkLocalDataSource linkLocalDataSource(Ref ref) {
+  return LinkLocalDataSource(Hive.box<Map>('links'));
+}
+
+@riverpod
 ILinkRepository linkRepository(Ref ref) {
   final authState = ref.watch(authProvider).requireValue;
   final userId = switch (authState) {
@@ -28,6 +35,7 @@ ILinkRepository linkRepository(Ref ref) {
   };
   return LinkRepositoryImpl(
     ref.watch(linkRemoteDataSourceProvider),
+    ref.watch(linkLocalDataSourceProvider),
     userId: userId,
   );
 }

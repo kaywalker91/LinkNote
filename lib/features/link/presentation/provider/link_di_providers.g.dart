@@ -57,6 +57,54 @@ final class LinkRemoteDataSourceProvider
 String _$linkRemoteDataSourceHash() =>
     r'27227e73c9277a29e63fb367c5b703c9f2fc4b8b';
 
+@ProviderFor(linkLocalDataSource)
+final linkLocalDataSourceProvider = LinkLocalDataSourceProvider._();
+
+final class LinkLocalDataSourceProvider
+    extends
+        $FunctionalProvider<
+          LinkLocalDataSource,
+          LinkLocalDataSource,
+          LinkLocalDataSource
+        >
+    with $Provider<LinkLocalDataSource> {
+  LinkLocalDataSourceProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'linkLocalDataSourceProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$linkLocalDataSourceHash();
+
+  @$internal
+  @override
+  $ProviderElement<LinkLocalDataSource> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  LinkLocalDataSource create(Ref ref) {
+    return linkLocalDataSource(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(LinkLocalDataSource value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<LinkLocalDataSource>(value),
+    );
+  }
+}
+
+String _$linkLocalDataSourceHash() =>
+    r'a005bbcf7214889740cfcf10475cb9680315c111';
+
 @ProviderFor(linkRepository)
 final linkRepositoryProvider = LinkRepositoryProvider._();
 
@@ -97,7 +145,7 @@ final class LinkRepositoryProvider
   }
 }
 
-String _$linkRepositoryHash() => r'a4f41249364c8aea56ce73117801eb53895c9c53';
+String _$linkRepositoryHash() => r'6976e6880e1adbb3cd0c5e3bbccbad0a6d88d0d2';
 
 @ProviderFor(fetchLinksUsecase)
 final fetchLinksUsecaseProvider = FetchLinksUsecaseProvider._();
