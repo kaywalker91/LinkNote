@@ -3,7 +3,7 @@ import 'package:linknote/core/error/failure.dart';
 typedef Result<T> = ({T? data, Failure? failure});
 
 extension ResultX<T> on Result<T> {
-  bool get isSuccess => data != null && failure == null;
+  bool get isSuccess => failure == null;
   bool get isFailure => failure != null;
 
   R when<R>({

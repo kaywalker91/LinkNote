@@ -213,23 +213,20 @@ void main() {
   // ---------------------------------------------------------------------------
   // deleteLink
   // ---------------------------------------------------------------------------
-  // NOTE: Result<void> uses success(null) which yields (data: null, failure: null).
-  // isSuccess checks `data != null`, so it returns false for Result<void>.
-  // This means LinkRepositoryImpl.deleteLink never enters the cache-removal branch.
-  // This is a known limitation — test reflects actual behavior.
   group('deleteLink', () {
-    test('should return no failure on remote success', () async {
+    test('should remove cached link on remote success', () async {
       // Arrange
       when(() => mockRemote.deleteLink(any()))
           .thenAnswer((_) async => success(null));
+      when(() => mockLocal.removeCachedLink(any()))
+          .thenAnswer((_) async {});
 
       // Act
       final result = await sut.deleteLink('link-1');
 
       // Assert
-      expect(result.failure, isNull);
-      // Cache removal is NOT called due to Result<void> isSuccess == false
-      verifyNever(() => mockLocal.removeCachedLink(any()));
+      expect(result.isSuccess, isTrue);
+      verify(() => mockLocal.removeCachedLink('link-1')).called(1);
     });
 
     test('should return failure on remote failure', () async {
