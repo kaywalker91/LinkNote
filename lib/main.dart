@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:linknote/app/app.dart';
+import 'package:linknote/core/constants/env.dart';
 import 'package:linknote/core/storage/storage_service.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -14,11 +16,11 @@ Future<void> main() async {
   //   options: DefaultFirebaseOptions.currentPlatform,
   // );
 
-  // TODO(linknote): Initialize Supabase.
-  // await Supabase.initialize(
-  //   url: Env.supabaseUrl,
-  //   anonKey: Env.supabaseAnonKey,
-  // );
+  // Initialize Supabase
+  await Supabase.initialize(
+    url: Env.supabaseUrl,
+    anonKey: Env.supabaseAnonKey,
+  );
 
   runApp(const ProviderScope(child: LinkNoteApp()));
 }

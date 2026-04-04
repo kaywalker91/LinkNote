@@ -33,7 +33,7 @@
 Phase 0  [✅ 완료]  프로젝트 세팅, 라우팅, 테마, 디자인 시스템
 Phase 1  [✅ 완료]  전체 화면 UI 구현 (목업 데이터)
 Phase 2  [✅ 완료]  UI 완성 & 개선 (누락 기능, UX 다듬기)
-Phase 3  [다음]    백엔드 연동 (Supabase Auth + Data Layer)
+Phase 3  [🔄 코드 완료]  백엔드 연동 (Supabase Auth + Data Layer) — Supabase 세팅 대기
 Phase 4  [예정]    로컬 캐시 & 성능 최적화
 Phase 5  [예정]    테스트 작성
 Phase 6  [예정]    CI/CD & 마무리
@@ -120,13 +120,13 @@ Phase 6  [예정]    CI/CD & 마무리
 
 ---
 
-### Phase 3 — 백엔드 연동 [예정]
+### Phase 3 — 백엔드 연동 [🔄 코드 구현 완료, Supabase 세팅 대기]
 
 **목표:** 목업 데이터를 실제 Supabase 백엔드로 교체
 
 > **착수 선행 조건 (사용자 직접 수행):**
 > 1. Supabase 프로젝트 생성
-> 2. `links`, `collections`, `profiles` 테이블 스키마 정의 + RLS 설정
+> 2. `links`, `collections`, `profiles`, `tags`, `link_tags` 테이블 스키마 정의 + RLS 설정
 > 3. `.env` 파일에 `SUPABASE_URL`, `SUPABASE_ANON_KEY` 기입
 > 4. `dart run build_runner build` 로 `env.g.dart` 갱신
 
@@ -134,31 +134,38 @@ Phase 6  [예정]    CI/CD & 마무리
 
 **인증**
 
-- [ ] Supabase 프로젝트 생성 및 `.env` 연동 (envied 코드 생성)
-- [ ] `AuthRemoteDataSource` 실제 구현 (이메일 회원가입/로그인)
-- [ ] JWT 토큰 SecureStorage 저장/불러오기
-- [ ] `authProvider` 더미 상태 → 실제 Supabase 세션으로 교체
-- [ ] 앱 시작 시 토큰 유효성 검사 흐름
+- [x] Supabase 프로젝트 생성 및 `.env` 연동 (envied 코드 생성)
+- [x] `AuthRemoteDatasource` 실제 구현 (이메일 회원가입/로그인)
+- [x] Supabase SDK 자동 토큰 관리 (AuthInterceptor 구현)
+- [x] `authProvider` 더미 상태 → 실제 Supabase 세션으로 교체 (UseCase 경유)
+- [x] 앱 시작 시 토큰 유효성 검사 흐름 (`CheckSessionUsecase`)
 
 **링크 Data Layer**
 
-- [ ] `LinkRemoteDataSource` (Supabase insert/select/update/delete)
-- [ ] `LinkRepositoryImpl` 구현
-- [ ] `linkListProvider` → `FetchLinksUseCase` 연결
-- [ ] `linkFormProvider` → `CreateLinkUseCase` 연결 (실제 OG 태그 파싱)
-- [ ] 즐겨찾기 토글 실제 연동 (Optimistic update 적용)
-- [ ] cursor 기반 무한 스크롤 페이지네이션 실제 구현
+- [x] `LinkRemoteDataSource` (Supabase insert/select/update/delete + 태그 관리)
+- [x] `LinkRepositoryImpl` 구현
+- [x] `linkListProvider` → `FetchLinksUsecase` 연결
+- [x] `linkFormProvider` → `CreateLinkUsecase`/`UpdateLinkUsecase` 연결
+- [x] OG 태그 자동 파싱 (`OgTagService` — Dio + html 패키지)
+- [x] 즐겨찾기 토글 실제 연동 (Optimistic update + 실패 시 롤백)
+- [x] cursor 기반 무한 스크롤 페이지네이션 실제 구현
 
 **컬렉션 Data Layer**
 
-- [ ] `CollectionRemoteDataSource`
-- [ ] `CollectionRepositoryImpl` 구현
-- [ ] `collectionListProvider` → 실제 UseCase 연결
+- [x] `CollectionRemoteDataSource` (link_count 서브쿼리 포함)
+- [x] `CollectionRepositoryImpl` 구현
+- [x] `collectionListProvider` → 실제 UseCase 연결 (CRUD 전체)
 
 **검색 Data Layer**
 
-- [ ] `SearchRemoteDataSource` (Supabase full-text search)
-- [ ] `SearchNotifier` → 실제 API 연결
+- [x] `SearchRemoteDataSource` (Supabase full-text search via `tsvector`)
+- [x] `searchProvider` → `SearchLinksUsecase` 연결
+
+#### 남은 작업
+
+- [ ] Supabase 프로젝트 세팅 (테이블, RLS, 트리거 — SQL은 plan 문서 참조)
+- [ ] `.env`에 실제 Supabase 키 기입 후 `dart run build_runner build`
+- [ ] E2E 검증: 회원가입 → 링크 추가 → 목록 → 즐겨찾기 → 컬렉션 → 검색
 
 #### 데모 기준
 

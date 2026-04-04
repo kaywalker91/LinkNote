@@ -1,5 +1,7 @@
 import 'package:linknote/core/constants/app_constants.dart';
+import 'package:linknote/core/error/result.dart';
 import 'package:linknote/features/link/domain/entity/link_entity.dart';
+import 'package:linknote/features/link/presentation/provider/link_di_providers.dart';
 import 'package:linknote/features/link/presentation/provider/link_filter_provider.dart';
 import 'package:linknote/shared/models/paginated_state.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -18,12 +20,15 @@ class LinkList extends _$LinkList {
     String? cursor,
     bool favoritesOnly = false,
   }) async {
-    // TODO(linknote): Inject ILinkRepository and use FetchLinksUsecase.
-    // Returning mock state until repository is wired up.
-    await Future.delayed(const Duration(milliseconds: 500));
-    return PaginatedState<LinkEntity>(
-      items: _mockLinks(),
-    );
+    final Result<PaginatedState<LinkEntity>> result = await ref
+        .read(fetchLinksUsecaseProvider)
+        .call(
+          cursor: cursor,
+          pageSize: AppConstants.defaultPageSize,
+          favoritesOnly: favoritesOnly,
+        );
+    if (result.isSuccess) return result.data!;
+    throw result.failure!;
   }
 
   Future<void> refresh() async {
@@ -65,12 +70,21 @@ class LinkList extends _$LinkList {
   Future<void> deleteLink(String id) async {
     final current = state.value;
     if (current == null) return;
+
+    // Optimistic removal
+    final previous = current;
     state = AsyncData(
       current.copyWith(
         items: current.items.where((link) => link.id != id).toList(),
       ),
     );
-    // TODO(linknote): Call DeleteLinkUsecase
+
+    final Result<void> result = await ref
+        .read(deleteLinkUsecaseProvider)
+        .call(id);
+    if (result.isFailure) {
+      state = AsyncData(previous);
+    }
   }
 
   /// Optimistic favorite toggle — immediately updates UI, rolls back on failure.
@@ -78,28 +92,21 @@ class LinkList extends _$LinkList {
     final current = state.value;
     if (current == null) return;
 
+    final link = current.items.firstWhere((l) => l.id == id);
+    final previous = current;
+
     // Optimistic update
-    final updatedItems = current.items.map((link) {
-      if (link.id == id) return link.copyWith(isFavorite: !link.isFavorite);
-      return link;
+    final updatedItems = current.items.map((l) {
+      if (l.id == id) return l.copyWith(isFavorite: !l.isFavorite);
+      return l;
     }).toList();
     state = AsyncData(current.copyWith(items: updatedItems));
 
-    // TODO(linknote): Call ToggleFavoriteUsecase — roll back on failure.
-  }
-
-  List<LinkEntity> _mockLinks() {
-    return List.generate(
-      AppConstants.defaultPageSize,
-      (i) => LinkEntity(
-        id: 'link_$i',
-        url: 'https://example.com/article-$i',
-        title: 'Sample Link $i',
-        createdAt: DateTime.now().subtract(Duration(hours: i)),
-        updatedAt: DateTime.now().subtract(Duration(hours: i)),
-        description: 'A sample bookmark description for link $i',
-        isFavorite: i.isEven,
-      ),
-    );
+    final Result<LinkEntity> result = await ref
+        .read(toggleFavoriteUsecaseProvider)
+        .call(id, isFavorite: !link.isFavorite);
+    if (result.isFailure) {
+      state = AsyncData(previous);
+    }
   }
 }

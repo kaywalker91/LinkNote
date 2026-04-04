@@ -1,19 +1,20 @@
 import 'package:dio/dio.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class AuthInterceptor extends Interceptor {
   @override
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
-    // TODO(linknote): Attach access token from SecureStorage/Supabase session.
-    // final token = ...;
-    // if (token != null) {
-    //   options.headers['Authorization'] = 'Bearer $token';
-    // }
+    final session = Supabase.instance.client.auth.currentSession;
+    if (session != null) {
+      options.headers['Authorization'] = 'Bearer ${session.accessToken}';
+    }
     handler.next(options);
   }
 
   @override
   void onError(DioException err, ErrorInterceptorHandler handler) {
-    // TODO(linknote): Handle 401 - refresh token or redirect to login.
+    // Supabase SDK handles token refresh automatically.
+    // 401 errors here indicate a truly expired/invalid session.
     handler.next(err);
   }
 }

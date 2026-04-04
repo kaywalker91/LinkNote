@@ -1,6 +1,11 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:linknote/core/error/result.dart';
+import 'package:linknote/core/services/og_tag_service.dart';
+import 'package:linknote/features/link/domain/entity/link_entity.dart';
 import 'package:linknote/features/link/domain/entity/tag_entity.dart';
 import 'package:linknote/features/link/presentation/provider/link_detail_provider.dart';
+import 'package:linknote/features/link/presentation/provider/link_di_providers.dart';
+import 'package:linknote/features/link/presentation/provider/link_list_provider.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'link_form_provider.freezed.dart';
@@ -45,14 +50,27 @@ class LinkForm extends _$LinkForm {
     final current = state.value;
     if (current == null) return;
     state = AsyncData(current.copyWith(isParsingOg: true));
-    // TODO(linknote): Implement OG tag parsing via network
-    await Future.delayed(const Duration(seconds: 1));
-    state = AsyncData(
-      current.copyWith(
-        isParsingOg: false,
-        title: current.title.isEmpty ? _extractTitle(url) : current.title,
-      ),
-    );
+    try {
+      final ogService = ref.read(ogTagServiceProvider);
+      final result = await ogService.fetchOgTags(url);
+      state = AsyncData(
+        current.copyWith(
+          isParsingOg: false,
+          title:
+              result.title ??
+              (current.title.isEmpty ? _extractTitle(url) : current.title),
+          description: result.description ?? current.description,
+          thumbnailUrl: result.imageUrl ?? current.thumbnailUrl,
+        ),
+      );
+    } catch (_) {
+      state = AsyncData(
+        current.copyWith(
+          isParsingOg: false,
+          title: current.title.isEmpty ? _extractTitle(url) : current.title,
+        ),
+      );
+    }
   }
 
   void updateUrl(String url) {
@@ -113,10 +131,39 @@ class LinkForm extends _$LinkForm {
       return false;
     }
     state = AsyncData(current.copyWith(isSubmitting: true, errorMessage: null));
-    // TODO(linknote): Call CreateLinkUsecase or UpdateLinkUsecase
-    await Future.delayed(const Duration(milliseconds: 500));
-    state = AsyncData(current.copyWith(isSubmitting: false));
-    return true;
+
+    final now = DateTime.now();
+    final entity = LinkEntity(
+      id: linkId ?? '',
+      url: current.url,
+      title: current.title,
+      description: current.description.isEmpty ? null : current.description,
+      thumbnailUrl: current.thumbnailUrl,
+      collectionId: current.collectionId,
+      memo: current.memo.isEmpty ? null : current.memo,
+      tags: current.tags,
+      isFavorite: current.isFavorite,
+      createdAt: now,
+      updatedAt: now,
+    );
+
+    final Result<LinkEntity> result = linkId == null
+        ? await ref.read(createLinkUsecaseProvider).call(entity)
+        : await ref.read(updateLinkUsecaseProvider).call(entity);
+
+    if (result.isSuccess) {
+      state = AsyncData(current.copyWith(isSubmitting: false));
+      ref.invalidate(linkListProvider);
+      return true;
+    } else {
+      state = AsyncData(
+        current.copyWith(
+          isSubmitting: false,
+          errorMessage: result.failure?.message ?? 'Failed to save link',
+        ),
+      );
+      return false;
+    }
   }
 
   String _extractTitle(String url) {

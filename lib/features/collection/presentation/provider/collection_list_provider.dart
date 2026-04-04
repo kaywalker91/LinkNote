@@ -1,4 +1,6 @@
+import 'package:linknote/core/error/result.dart';
 import 'package:linknote/features/collection/domain/entity/collection_entity.dart';
+import 'package:linknote/features/collection/presentation/provider/collection_di_providers.dart';
 import 'package:linknote/shared/models/paginated_state.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -8,56 +10,68 @@ part 'collection_list_provider.g.dart';
 class CollectionList extends _$CollectionList {
   @override
   Future<PaginatedState<CollectionEntity>> build() async {
-    await Future.delayed(const Duration(milliseconds: 300));
-    return PaginatedState<CollectionEntity>(
-      items: List.generate(
-        6,
-        (i) => CollectionEntity(
-          id: 'col_$i',
-          name: 'Collection $i',
-          description: 'A collection of interesting links',
-          linkCount: i * 5 + 3,
-          createdAt: DateTime.now().subtract(Duration(days: i * 7)),
-          updatedAt: DateTime.now().subtract(Duration(days: i)),
-        ),
-      ),
-      hasMore: false,
-    );
+    return _fetch();
+  }
+
+  Future<PaginatedState<CollectionEntity>> _fetch({String? cursor}) async {
+    final Result<PaginatedState<CollectionEntity>> result = await ref
+        .read(getCollectionsUsecaseProvider)
+        .call(cursor: cursor);
+    if (result.isSuccess) return result.data!;
+    throw result.failure!;
   }
 
   Future<void> refresh() async {
     state = const AsyncLoading();
-    state = await AsyncValue.guard(() => build());
+    state = await AsyncValue.guard(() => _fetch());
   }
 
   Future<void> loadMore() async {
     final current = state.value;
     if (current == null || !current.hasMore || current.isLoadingMore) return;
     state = AsyncData(current.copyWith(isLoadingMore: true));
-    // TODO(linknote): Fetch next page and append
-    state = AsyncData(current.copyWith(isLoadingMore: false));
+    try {
+      final next = await _fetch(cursor: current.nextCursor);
+      state = AsyncData(
+        current.copyWith(
+          items: [...current.items, ...next.items],
+          hasMore: next.hasMore,
+          nextCursor: next.nextCursor,
+          isLoadingMore: false,
+        ),
+      );
+    } catch (e) {
+      state = AsyncData(
+        current.copyWith(isLoadingMore: false, loadMoreError: e),
+      );
+    }
   }
 
   Future<void> createCollection({
     required String name,
     String? description,
   }) async {
-    final current = state.value;
-    if (current == null) return;
-    final newCollection = CollectionEntity(
-      id: 'col_${DateTime.now().millisecondsSinceEpoch}',
+    final now = DateTime.now();
+    final entity = CollectionEntity(
+      id: '',
       name: name,
       description: description,
       linkCount: 0,
-      createdAt: DateTime.now(),
-      updatedAt: DateTime.now(),
+      createdAt: now,
+      updatedAt: now,
     );
-    state = AsyncData(
-      current.copyWith(
-        items: [newCollection, ...current.items],
-      ),
-    );
-    // TODO(linknote): Call CreateCollectionUsecase
+
+    final Result<CollectionEntity> result = await ref
+        .read(createCollectionUsecaseProvider)
+        .call(entity);
+    if (result.isSuccess) {
+      final current = state.value;
+      if (current != null) {
+        state = AsyncData(
+          current.copyWith(items: [result.data!, ...current.items]),
+        );
+      }
+    }
   }
 
   Future<void> updateCollection({
@@ -67,29 +81,46 @@ class CollectionList extends _$CollectionList {
   }) async {
     final current = state.value;
     if (current == null) return;
-    state = AsyncData(
-      current.copyWith(
-        items: current.items.map((c) {
-          if (c.id != id) return c;
-          return c.copyWith(
-            name: name,
-            description: description,
-            updatedAt: DateTime.now(),
-          );
-        }).toList(),
-      ),
+
+    final existing = current.items.firstWhere((c) => c.id == id);
+    final updated = existing.copyWith(
+      name: name,
+      description: description,
+      updatedAt: DateTime.now(),
     );
-    // TODO(linknote): Call UpdateCollectionUsecase
+
+    final Result<CollectionEntity> result = await ref
+        .read(updateCollectionUsecaseProvider)
+        .call(updated);
+    if (result.isSuccess) {
+      state = AsyncData(
+        current.copyWith(
+          items: current.items.map((c) {
+            if (c.id == id) return result.data!;
+            return c;
+          }).toList(),
+        ),
+      );
+    }
   }
 
   Future<void> deleteCollection(String id) async {
     final current = state.value;
     if (current == null) return;
+
+    final previous = current;
+    // Optimistic removal
     state = AsyncData(
       current.copyWith(
         items: current.items.where((c) => c.id != id).toList(),
       ),
     );
-    // TODO(linknote): Call DeleteCollectionUsecase
+
+    final Result<void> result = await ref
+        .read(deleteCollectionUsecaseProvider)
+        .call(id);
+    if (result.isFailure) {
+      state = AsyncData(previous);
+    }
   }
 }
