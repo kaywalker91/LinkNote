@@ -51,8 +51,8 @@ graph TD
     Screen["Screen / Widget"] --> Notifier["Riverpod AsyncNotifier"]
     Notifier --> UseCase["UseCase"]
     UseCase --> Repository["Repository Interface"]
-    Repository --> Remote["RemoteDataSource<br/>(Supabase)"]
-    Repository --> Local["LocalDataSource<br/>(Hive CE)"]
+    Repository --> Remote["RemoteDataSource\n(Supabase)"]
+    Repository --> Local["LocalDataSource\n(Hive CE)"]
 ```
 
 ### 프로젝트 구조
