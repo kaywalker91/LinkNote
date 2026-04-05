@@ -52,73 +52,84 @@ void main() {
   // getLinks
   // ---------------------------------------------------------------------------
   group('getLinks', () {
-    test('should cache links and return remote data on success (initial fetch)',
-        () async {
-      // Arrange
-      when(
-        () => mockRemote.getLinks(
-          cursor: any(named: 'cursor'),
-          pageSize: any(named: 'pageSize'),
-          favoritesOnly: any(named: 'favoritesOnly'),
-        ),
-      ).thenAnswer((_) async => success(tPaginatedState));
-      when(() => mockLocal.cacheLinks(any())).thenAnswer((_) async {});
+    test(
+      'should cache links and return remote data on success (initial fetch)',
+      () async {
+        // Arrange
+        when(
+          () => mockRemote.getLinks(
+            cursor: any(named: 'cursor'),
+            pageSize: any(named: 'pageSize'),
+            favoritesOnly: any(named: 'favoritesOnly'),
+          ),
+        ).thenAnswer((_) async => success(tPaginatedState));
+        when(() => mockLocal.cacheLinks(any())).thenAnswer((_) async {});
 
-      // Act
-      final result = await sut.getLinks();
+        // Act
+        final result = await sut.getLinks();
 
-      // Assert
-      expect(result.isSuccess, isTrue);
-      expect(result.data!.items, equals(tLinks));
-      verify(() => mockLocal.cacheLinks(tLinks)).called(1);
-    });
+        // Assert
+        expect(result.isSuccess, isTrue);
+        expect(result.data!.items, equals(tLinks));
+        verify(() => mockLocal.cacheLinks(tLinks)).called(1);
+      },
+    );
 
-    test('should fall back to local cache when remote fails (initial fetch)',
-        () async {
-      // Arrange
-      const tFailure = Failure.network(message: 'No connection');
-      final tCachedState = PaginatedState<LinkEntity>(items: tLinks);
+    test(
+      'should fall back to local cache when remote fails (initial fetch)',
+      () async {
+        // Arrange
+        const tFailure = Failure.network(message: 'No connection');
+        final tCachedState = PaginatedState<LinkEntity>(items: tLinks);
 
-      when(
-        () => mockRemote.getLinks(
-          cursor: any(named: 'cursor'),
-          pageSize: any(named: 'pageSize'),
-          favoritesOnly: any(named: 'favoritesOnly'),
-        ),
-      ).thenAnswer((_) async => error(tFailure));
-      when(() => mockLocal.getCachedLinks(favoritesOnly: any(named: 'favoritesOnly')))
-          .thenReturn(success(tCachedState));
+        when(
+          () => mockRemote.getLinks(
+            cursor: any(named: 'cursor'),
+            pageSize: any(named: 'pageSize'),
+            favoritesOnly: any(named: 'favoritesOnly'),
+          ),
+        ).thenAnswer((_) async => error(tFailure));
+        when(
+          () => mockLocal.getCachedLinks(
+            favoritesOnly: any(named: 'favoritesOnly'),
+          ),
+        ).thenReturn(success(tCachedState));
 
-      // Act
-      final result = await sut.getLinks();
+        // Act
+        final result = await sut.getLinks();
 
-      // Assert
-      expect(result.isSuccess, isTrue);
-      expect(result.data!.items, equals(tLinks));
-      verify(() => mockLocal.getCachedLinks(favoritesOnly: false)).called(1);
-    });
+        // Assert
+        expect(result.isSuccess, isTrue);
+        expect(result.data!.items, equals(tLinks));
+        verify(() => mockLocal.getCachedLinks(favoritesOnly: false)).called(1);
+      },
+    );
 
-    test('should NOT fall back to local cache for paginated fetch (cursor != null)',
-        () async {
-      // Arrange
-      const tFailure = Failure.network(message: 'No connection');
-      when(
-        () => mockRemote.getLinks(
-          cursor: any(named: 'cursor'),
-          pageSize: any(named: 'pageSize'),
-          favoritesOnly: any(named: 'favoritesOnly'),
-        ),
-      ).thenAnswer((_) async => error(tFailure));
+    test(
+      'should NOT fall back to local cache for paginated fetch (cursor != null)',
+      () async {
+        // Arrange
+        const tFailure = Failure.network(message: 'No connection');
+        when(
+          () => mockRemote.getLinks(
+            cursor: any(named: 'cursor'),
+            pageSize: any(named: 'pageSize'),
+            favoritesOnly: any(named: 'favoritesOnly'),
+          ),
+        ).thenAnswer((_) async => error(tFailure));
 
-      // Act
-      final result = await sut.getLinks(cursor: 'some-cursor');
+        // Act
+        final result = await sut.getLinks(cursor: 'some-cursor');
 
-      // Assert
-      expect(result.isFailure, isTrue);
-      verifyNever(
-        () => mockLocal.getCachedLinks(favoritesOnly: any(named: 'favoritesOnly')),
-      );
-    });
+        // Assert
+        expect(result.isFailure, isTrue);
+        verifyNever(
+          () => mockLocal.getCachedLinks(
+            favoritesOnly: any(named: 'favoritesOnly'),
+          ),
+        );
+      },
+    );
 
     test('should cache subsequent pages as well', () async {
       // Arrange
@@ -145,8 +156,9 @@ void main() {
   group('getLinkById', () {
     test('should cache and return link on remote success', () async {
       // Arrange
-      when(() => mockRemote.getLinkById(any()))
-          .thenAnswer((_) async => success(tLink));
+      when(
+        () => mockRemote.getLinkById(any()),
+      ).thenAnswer((_) async => success(tLink));
       when(() => mockLocal.cacheSingleLink(any())).thenAnswer((_) async {});
 
       // Act
@@ -161,10 +173,10 @@ void main() {
     test('should fall back to cache on remote failure', () async {
       // Arrange
       const tFailure = Failure.server(message: 'Not found');
-      when(() => mockRemote.getLinkById(any()))
-          .thenAnswer((_) async => error(tFailure));
-      when(() => mockLocal.getCachedLinkById(any()))
-          .thenReturn(success(tLink));
+      when(
+        () => mockRemote.getLinkById(any()),
+      ).thenAnswer((_) async => error(tFailure));
+      when(() => mockLocal.getCachedLinkById(any())).thenReturn(success(tLink));
 
       // Act
       final result = await sut.getLinkById('link-1');
@@ -182,8 +194,9 @@ void main() {
   group('createLink', () {
     test('should cache created link on remote success', () async {
       // Arrange
-      when(() => mockRemote.createLink(any(), any()))
-          .thenAnswer((_) async => success(tLink));
+      when(
+        () => mockRemote.createLink(any(), any()),
+      ).thenAnswer((_) async => success(tLink));
       when(() => mockLocal.cacheSingleLink(any())).thenAnswer((_) async {});
 
       // Act
@@ -198,8 +211,9 @@ void main() {
     test('should NOT cache on remote failure', () async {
       // Arrange
       const tFailure = Failure.server(message: 'Create failed');
-      when(() => mockRemote.createLink(any(), any()))
-          .thenAnswer((_) async => error(tFailure));
+      when(
+        () => mockRemote.createLink(any(), any()),
+      ).thenAnswer((_) async => error(tFailure));
 
       // Act
       final result = await sut.createLink(tLink);
@@ -216,10 +230,10 @@ void main() {
   group('deleteLink', () {
     test('should remove cached link on remote success', () async {
       // Arrange
-      when(() => mockRemote.deleteLink(any()))
-          .thenAnswer((_) async => success(null));
-      when(() => mockLocal.removeCachedLink(any()))
-          .thenAnswer((_) async {});
+      when(
+        () => mockRemote.deleteLink(any()),
+      ).thenAnswer((_) async => success(null));
+      when(() => mockLocal.removeCachedLink(any())).thenAnswer((_) async {});
 
       // Act
       final result = await sut.deleteLink('link-1');
@@ -232,8 +246,9 @@ void main() {
     test('should return failure on remote failure', () async {
       // Arrange
       const tFailure = Failure.server(message: 'Delete failed');
-      when(() => mockRemote.deleteLink(any()))
-          .thenAnswer((_) async => error(tFailure));
+      when(
+        () => mockRemote.deleteLink(any()),
+      ).thenAnswer((_) async => error(tFailure));
 
       // Act
       final result = await sut.deleteLink('link-1');
@@ -252,10 +267,16 @@ void main() {
       // Arrange
       final tFavLink = tLink.copyWith(isFavorite: true);
       when(
-        () => mockRemote.toggleFavorite(any(), isFavorite: any(named: 'isFavorite')),
+        () => mockRemote.toggleFavorite(
+          any(),
+          isFavorite: any(named: 'isFavorite'),
+        ),
       ).thenAnswer((_) async => success(tFavLink));
       when(
-        () => mockLocal.updateCachedFavorite(any(), isFavorite: any(named: 'isFavorite')),
+        () => mockLocal.updateCachedFavorite(
+          any(),
+          isFavorite: any(named: 'isFavorite'),
+        ),
       ).thenAnswer((_) async {});
 
       // Act

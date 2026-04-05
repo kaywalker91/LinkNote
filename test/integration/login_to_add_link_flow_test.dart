@@ -70,15 +70,17 @@ class _EmptyLinkList extends LinkList {
 class _PopulatedLinkList extends LinkList {
   @override
   Future<PaginatedState<LinkEntity>> build() async {
-    return PaginatedState<LinkEntity>(items: [
-      LinkEntity(
-        id: '1',
-        url: 'https://flutter.dev',
-        title: 'Flutter',
-        createdAt: DateTime(2026),
-        updatedAt: DateTime(2026),
-      ),
-    ]);
+    return PaginatedState<LinkEntity>(
+      items: [
+        LinkEntity(
+          id: '1',
+          url: 'https://flutter.dev',
+          title: 'Flutter',
+          createdAt: DateTime(2026),
+          updatedAt: DateTime(2026),
+        ),
+      ],
+    );
   }
 
   @override
@@ -96,8 +98,9 @@ class _PopulatedLinkList extends LinkList {
 
 void main() {
   group('Login → Link Add → List flow', () {
-    testWidgets('should show validation on empty login then sign in',
-        (tester) async {
+    testWidgets('should show validation on empty login then sign in', (
+      tester,
+    ) async {
       // Arrange — start on login
       await tester.pumpWidget(
         ProviderScope(
@@ -152,8 +155,9 @@ void main() {
       expect(find.text('flutter.dev'), findsOneWidget);
     });
 
-    testWidgets('should render link add form and validate required fields',
-        (tester) async {
+    testWidgets('should render link add form and validate required fields', (
+      tester,
+    ) async {
       // Arrange — link add screen
       await tester.pumpWidget(
         const ProviderScope(
@@ -176,8 +180,9 @@ void main() {
       expect(find.text('URL and title are required'), findsOneWidget);
     });
 
-    testWidgets('should navigate login → home → add via GoRouter',
-        (tester) async {
+    testWidgets('should navigate login → home → add via GoRouter', (
+      tester,
+    ) async {
       // Arrange — simplified GoRouter for the flow
       final router = GoRouter(
         initialLocation: '/login',

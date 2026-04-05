@@ -48,8 +48,9 @@ class _DataLinkList extends LinkList {
 
 void main() {
   group('HomeScreen', () {
-    testWidgets('should show loading skeletons when state is loading',
-        (tester) async {
+    testWidgets('should show loading skeletons when state is loading', (
+      tester,
+    ) async {
       // Arrange & Act
       await tester.pumpWidget(
         ProviderScope(
@@ -67,8 +68,9 @@ void main() {
       expect(find.byType(ListView), findsOneWidget);
     });
 
-    testWidgets('should show error state with retry button on error',
-        (tester) async {
+    testWidgets('should show error state with retry button on error', (
+      tester,
+    ) async {
       // Arrange & Act
       await tester.pumpWidget(
         ProviderScope(
@@ -85,8 +87,9 @@ void main() {
       expect(find.text('Try again'), findsOneWidget);
     });
 
-    testWidgets('should show empty state when data has no links',
-        (tester) async {
+    testWidgets('should show empty state when data has no links', (
+      tester,
+    ) async {
       // Arrange & Act
       await tester.pumpWidget(
         ProviderScope(

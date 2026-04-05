@@ -50,8 +50,14 @@ void main() {
       expect(entity.createdAt, DateTime.utc(2026, 1, 15, 10, 30));
       expect(entity.updatedAt, DateTime.utc(2026, 1, 16, 12));
       expect(entity.tags, hasLength(2));
-      expect(entity.tags[0], const TagEntity(id: 'tag-1', name: 'flutter', color: '#42A5F5'));
-      expect(entity.tags[1], const TagEntity(id: 'tag-2', name: 'dart', color: '#66BB6A'));
+      expect(
+        entity.tags[0],
+        const TagEntity(id: 'tag-1', name: 'flutter', color: '#42A5F5'),
+      );
+      expect(
+        entity.tags[1],
+        const TagEntity(id: 'tag-2', name: 'dart', color: '#66BB6A'),
+      );
     });
 
     test('should handle nullable fields as null', () {
@@ -137,7 +143,10 @@ void main() {
       expect(json['title'], 'Updated Title');
       expect(json.containsKey('updated_at'), isTrue);
       // updated_at should be a valid ISO 8601 string
-      expect(() => DateTime.parse(json['updated_at'] as String), returnsNormally);
+      expect(
+        () => DateTime.parse(json['updated_at'] as String),
+        returnsNormally,
+      );
       // Should NOT contain id or user_id
       expect(json.containsKey('id'), isFalse);
       expect(json.containsKey('user_id'), isFalse);
