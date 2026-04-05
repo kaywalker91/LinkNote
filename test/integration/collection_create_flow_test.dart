@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -176,11 +178,17 @@ void main() {
         routes: [
           GoRoute(
             path: '/collections',
-            builder: (_, __) => const CollectionListScreen(),
+            pageBuilder: (_, state) => NoTransitionPage(
+              key: state.pageKey,
+              child: const CollectionListScreen(),
+            ),
           ),
           GoRoute(
             path: '/collections/new',
-            builder: (_, __) => const CollectionFormScreen(),
+            pageBuilder: (_, state) => NoTransitionPage(
+              key: state.pageKey,
+              child: const CollectionFormScreen(),
+            ),
           ),
         ],
       );
@@ -193,14 +201,17 @@ void main() {
           child: MaterialApp.router(routerConfig: router),
         ),
       );
-      await tester.pumpAndSettle();
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 100));
 
       // Assert — on collection list with empty state
       expect(find.text('No collections yet'), findsOneWidget);
 
-      // Act — navigate to form
-      await router.push('/collections/new');
-      await tester.pumpAndSettle();
+      // Act — navigate to form (do NOT await push — the Future completes on pop,
+      // which would deadlock here)
+      unawaited(router.push('/collections/new'));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 100));
 
       // Assert — on form screen
       expect(find.text('New Collection'), findsOneWidget);
@@ -215,7 +226,11 @@ void main() {
         'Test description',
       );
       await tester.tap(find.text('Create Collection'));
-      await tester.pumpAndSettle();
+      // Use pump sequence instead of pumpAndSettle to avoid hanging on
+      // CircularProgressIndicator (shown by PrimaryButtonWidget.isLoading)
+      await tester.pump(); // start _submit(), setState(isSubmitting=true)
+      await tester.pump(const Duration(milliseconds: 100)); // createCollection + context.pop()
+      await tester.pump(); // apply navigation frame
 
       // Assert — back on list, new collection visible
       expect(find.text('My Collection'), findsOneWidget);
