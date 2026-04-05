@@ -229,7 +229,9 @@ void main() {
       // Use pump sequence instead of pumpAndSettle to avoid hanging on
       // CircularProgressIndicator (shown by PrimaryButtonWidget.isLoading)
       await tester.pump(); // start _submit(), setState(isSubmitting=true)
-      await tester.pump(const Duration(milliseconds: 100)); // createCollection + context.pop()
+      await tester.pump(
+        const Duration(milliseconds: 100),
+      ); // createCollection + context.pop()
       await tester.pump(); // apply navigation frame
 
       // Assert — back on list, new collection visible

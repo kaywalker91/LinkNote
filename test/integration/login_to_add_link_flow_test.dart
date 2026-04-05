@@ -189,8 +189,10 @@ void main() {
         routes: [
           GoRoute(
             path: '/login',
-            pageBuilder: (_, state) =>
-                NoTransitionPage(key: state.pageKey, child: const LoginScreen()),
+            pageBuilder: (_, state) => NoTransitionPage(
+              key: state.pageKey,
+              child: const LoginScreen(),
+            ),
           ),
           GoRoute(
             path: '/home',
