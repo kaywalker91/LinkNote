@@ -189,15 +189,20 @@ void main() {
         routes: [
           GoRoute(
             path: '/login',
-            builder: (_, __) => const LoginScreen(),
+            pageBuilder: (_, state) =>
+                NoTransitionPage(key: state.pageKey, child: const LoginScreen()),
           ),
           GoRoute(
             path: '/home',
-            builder: (_, __) => const HomeScreen(),
+            pageBuilder: (_, state) =>
+                NoTransitionPage(key: state.pageKey, child: const HomeScreen()),
           ),
           GoRoute(
             path: '/links/new',
-            builder: (_, __) => const LinkAddScreen(),
+            pageBuilder: (_, state) => NoTransitionPage(
+              key: state.pageKey,
+              child: const LinkAddScreen(),
+            ),
           ),
         ],
       );
@@ -211,21 +216,24 @@ void main() {
           child: MaterialApp.router(routerConfig: router),
         ),
       );
-      await tester.pumpAndSettle();
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 100));
 
       // Assert — on login
       expect(find.text('Welcome back'), findsOneWidget);
 
-      // Act — navigate to home
+      // Act — navigate to home (ShimmerBox skeleton may show briefly; avoid pumpAndSettle)
       router.go('/home');
-      await tester.pumpAndSettle();
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 100));
 
       // Assert — on home
       expect(find.text('LinkNote'), findsOneWidget);
 
-      // Act — navigate to link add
-      await router.push('/links/new');
-      await tester.pumpAndSettle();
+      // Act — navigate to link add (do NOT await push — the Future completes on pop)
+      unawaited(router.push('/links/new'));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 100));
 
       // Assert — on link add
       expect(find.text('URL *'), findsOneWidget);

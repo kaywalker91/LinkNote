@@ -47,12 +47,12 @@ A mobile bookmark manager that auto-extracts metadata from any URL — save, org
 Each feature is a self-contained module following Clean Architecture with three layers. The UI subscribes to Riverpod providers; all state mutations happen exclusively inside Notifiers, enforcing unidirectional data flow throughout the app.
 
 ```mermaid
-graph TD
-    Screen["Screen / Widget"] --> Notifier["Riverpod AsyncNotifier"]
-    Notifier --> UseCase["UseCase"]
-    UseCase --> Repository["Repository Interface"]
-    Repository --> Remote["RemoteDataSource - Supabase"]
-    Repository --> Local["LocalDataSource - Hive CE"]
+flowchart TD
+    Screen[Screen Widget] --> Notifier[Riverpod AsyncNotifier]
+    Notifier --> UseCase[UseCase]
+    UseCase --> Repository[Repository Interface]
+    Repository --> Remote[RemoteDataSource Supabase]
+    Repository --> Local[LocalDataSource Hive CE]
 ```
 
 ### Project Structure

@@ -159,12 +159,16 @@ void main() {
         routes: [
           GoRoute(
             path: '/search',
-            builder: (_, __) => const SearchScreen(),
+            pageBuilder: (_, state) => NoTransitionPage(
+              key: state.pageKey,
+              child: const SearchScreen(),
+            ),
           ),
           GoRoute(
             path: '/links/:id',
-            builder: (_, state) => LinkDetailScreen(
-              linkId: state.pathParameters['id']!,
+            pageBuilder: (_, state) => NoTransitionPage(
+              key: state.pageKey,
+              child: LinkDetailScreen(linkId: state.pathParameters['id']!),
             ),
           ),
         ],
