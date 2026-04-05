@@ -49,8 +49,9 @@ void main() {
       expect(find.text('Password'), findsOneWidget);
     });
 
-    testWidgets('should show validation messages when submitting empty form',
-        (tester) async {
+    testWidgets('should show validation messages when submitting empty form', (
+      tester,
+    ) async {
       // Arrange
       await tester.pumpWidget(buildSubject());
       await tester.pumpAndSettle();
@@ -64,9 +65,9 @@ void main() {
       expect(find.text('Enter password'), findsOneWidget);
     });
 
-    testWidgets(
-        'should show email validation when only password is filled',
-        (tester) async {
+    testWidgets('should show email validation when only password is filled', (
+      tester,
+    ) async {
       // Arrange
       await tester.pumpWidget(buildSubject());
       await tester.pumpAndSettle();
@@ -84,9 +85,9 @@ void main() {
       expect(find.text('Enter password'), findsNothing);
     });
 
-    testWidgets(
-        'should show password validation when only email is filled',
-        (tester) async {
+    testWidgets('should show password validation when only email is filled', (
+      tester,
+    ) async {
       // Arrange
       await tester.pumpWidget(buildSubject());
       await tester.pumpAndSettle();
@@ -104,8 +105,9 @@ void main() {
       expect(find.text('Enter password'), findsOneWidget);
     });
 
-    testWidgets('should show Sign In button and Create account link',
-        (tester) async {
+    testWidgets('should show Sign In button and Create account link', (
+      tester,
+    ) async {
       // Arrange & Act
       await tester.pumpWidget(buildSubject());
       await tester.pumpAndSettle();

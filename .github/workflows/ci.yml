@@ -61,7 +61,8 @@ jobs:
             lcov --remove coverage/lcov.info \
               '**/*.g.dart' '**/*.freezed.dart' '**/*.gen.dart' \
               'lib/firebase_options.dart' \
-              -o coverage/lcov_filtered.info --quiet
+              -o coverage/lcov_filtered.info --quiet \
+              --ignore-errors unused
             COVERAGE=$(lcov --summary coverage/lcov_filtered.info 2>&1 | grep "lines" | grep -oP '\d+\.\d+(?=%)' || echo "0")
             echo "📊 Coverage (excluding generated): ${COVERAGE}%"
             if (( $(echo "$COVERAGE < 30" | bc -l) )); then

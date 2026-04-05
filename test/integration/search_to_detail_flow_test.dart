@@ -150,8 +150,9 @@ void main() {
       expect(find.text('Search for links'), findsOneWidget);
     });
 
-    testWidgets('should navigate to detail when tapping result',
-        (tester) async {
+    testWidgets('should navigate to detail when tapping result', (
+      tester,
+    ) async {
       // Arrange — GoRouter with search and detail routes
       final router = GoRouter(
         initialLocation: '/search',
@@ -195,8 +196,9 @@ void main() {
       expect(find.text('Build apps for any screen'), findsOneWidget);
     });
 
-    testWidgets('should show no results message for unmatched query',
-        (tester) async {
+    testWidgets('should show no results message for unmatched query', (
+      tester,
+    ) async {
       // Arrange — search that returns empty for specific query
       await tester.pumpWidget(
         ProviderScope(

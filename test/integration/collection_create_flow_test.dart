@@ -57,23 +57,25 @@ class _EmptyCollectionList extends CollectionList {
 class _PopulatedCollectionList extends CollectionList {
   @override
   Future<PaginatedState<CollectionEntity>> build() async {
-    return PaginatedState<CollectionEntity>(items: [
-      CollectionEntity(
-        id: 'c1',
-        name: 'Dev Resources',
-        description: 'Useful dev links',
-        linkCount: 5,
-        createdAt: DateTime(2026),
-        updatedAt: DateTime(2026),
-      ),
-      CollectionEntity(
-        id: 'c2',
-        name: 'Design Inspiration',
-        linkCount: 3,
-        createdAt: DateTime(2026),
-        updatedAt: DateTime(2026),
-      ),
-    ]);
+    return PaginatedState<CollectionEntity>(
+      items: [
+        CollectionEntity(
+          id: 'c1',
+          name: 'Dev Resources',
+          description: 'Useful dev links',
+          linkCount: 5,
+          createdAt: DateTime(2026),
+          updatedAt: DateTime(2026),
+        ),
+        CollectionEntity(
+          id: 'c2',
+          name: 'Design Inspiration',
+          linkCount: 3,
+          createdAt: DateTime(2026),
+          updatedAt: DateTime(2026),
+        ),
+      ],
+    );
   }
 
   @override
@@ -170,8 +172,9 @@ void main() {
       expect(find.text('New Collection'), findsOneWidget);
     });
 
-    testWidgets('should navigate list → form → back with new collection',
-        (tester) async {
+    testWidgets('should navigate list → form → back with new collection', (
+      tester,
+    ) async {
       // Arrange — GoRouter for the flow
       final router = GoRouter(
         initialLocation: '/collections',

@@ -31,8 +31,9 @@ void main() {
       expect(find.text('Title *'), findsOneWidget);
     });
 
-    testWidgets('should show error when submitting with empty URL and title',
-        (tester) async {
+    testWidgets('should show error when submitting with empty URL and title', (
+      tester,
+    ) async {
       // Arrange
       await tester.pumpWidget(buildSubject());
       await tester.pumpAndSettle();
@@ -44,14 +45,18 @@ void main() {
       expect(find.text('URL and title are required'), findsOneWidget);
     });
 
-    testWidgets('should show error when URL is empty but title is filled',
-        (tester) async {
+    testWidgets('should show error when URL is empty but title is filled', (
+      tester,
+    ) async {
       // Arrange
       await tester.pumpWidget(buildSubject());
       await tester.pumpAndSettle();
 
       // Act
-      await tester.enterText(find.widgetWithText(TextField, 'Title *'), 'My Link');
+      await tester.enterText(
+        find.widgetWithText(TextField, 'Title *'),
+        'My Link',
+      );
       await tester.pumpAndSettle();
       await tapSaveButton(tester);
 
@@ -59,8 +64,9 @@ void main() {
       expect(find.text('URL and title are required'), findsOneWidget);
     });
 
-    testWidgets('should show error when title is empty but URL is filled',
-        (tester) async {
+    testWidgets('should show error when title is empty but URL is filled', (
+      tester,
+    ) async {
       // Arrange
       await tester.pumpWidget(buildSubject());
       await tester.pumpAndSettle();
@@ -77,8 +83,9 @@ void main() {
       expect(find.text('URL and title are required'), findsOneWidget);
     });
 
-    testWidgets('should render form fields for description, notes, tags',
-        (tester) async {
+    testWidgets('should render form fields for description, notes, tags', (
+      tester,
+    ) async {
       // Arrange & Act
       await tester.pumpWidget(buildSubject());
       await tester.pumpAndSettle();

@@ -40,26 +40,31 @@ void main() {
   );
 
   group('CreateLinkUsecase', () {
-    test('should return LinkEntity when repository creates successfully', () async {
-      // Arrange
-      when(() => mockRepository.createLink(any()))
-          .thenAnswer((_) async => success(tCreatedLink));
+    test(
+      'should return LinkEntity when repository creates successfully',
+      () async {
+        // Arrange
+        when(
+          () => mockRepository.createLink(any()),
+        ).thenAnswer((_) async => success(tCreatedLink));
 
-      // Act
-      final result = await sut.call(tLink);
+        // Act
+        final result = await sut.call(tLink);
 
-      // Assert
-      expect(result.isSuccess, isTrue);
-      expect(result.data, equals(tCreatedLink));
-      verify(() => mockRepository.createLink(tLink)).called(1);
-      verifyNoMoreInteractions(mockRepository);
-    });
+        // Assert
+        expect(result.isSuccess, isTrue);
+        expect(result.data, equals(tCreatedLink));
+        verify(() => mockRepository.createLink(tLink)).called(1);
+        verifyNoMoreInteractions(mockRepository);
+      },
+    );
 
     test('should return Failure when repository fails', () async {
       // Arrange
       const tFailure = Failure.server(message: 'Insert failed');
-      when(() => mockRepository.createLink(any()))
-          .thenAnswer((_) async => error(tFailure));
+      when(
+        () => mockRepository.createLink(any()),
+      ).thenAnswer((_) async => error(tFailure));
 
       // Act
       final result = await sut.call(tLink);
