@@ -7,7 +7,7 @@ import 'package:linknote/features/link/presentation/provider/link_form_provider.
 import 'package:linknote/shared/widgets/primary_button_widget.dart';
 
 class LinkEditScreen extends ConsumerStatefulWidget {
-  const LinkEditScreen({super.key, required this.linkId});
+  const LinkEditScreen({required this.linkId, super.key});
   final String linkId;
 
   @override

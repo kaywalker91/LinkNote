@@ -92,10 +92,12 @@ class _LinkAddScreenState extends ConsumerState<LinkAddScreen> {
               ),
               onChanged: (v) =>
                   ref.read(linkFormProvider(null).notifier).updateUrl(v),
-              onEditingComplete: () {
+              onEditingComplete: () async {
                 final url = _urlController.text.trim();
                 if (url.isNotEmpty) {
-                  ref.read(linkFormProvider(null).notifier).parseOgTags(url);
+                  await ref
+                      .read(linkFormProvider(null).notifier)
+                      .parseOgTags(url);
                 }
               },
             ),

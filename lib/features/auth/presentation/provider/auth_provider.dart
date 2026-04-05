@@ -23,14 +23,14 @@ class Auth extends _$Auth with ChangeNotifier {
     required String password,
   }) async {
     state = const AsyncLoading();
-    final Result<AuthStateEntity> result = await ref
+    final result = await ref
         .read(signInUsecaseProvider)
         .call(
           email: email,
           password: password,
         );
     if (result.isSuccess) {
-      state = AsyncData(result.data as AuthStateEntity);
+      state = AsyncData(result.data!);
       notifyListeners();
     } else {
       state = AsyncError(
@@ -45,14 +45,14 @@ class Auth extends _$Auth with ChangeNotifier {
     required String password,
   }) async {
     state = const AsyncLoading();
-    final Result<AuthStateEntity> result = await ref
+    final result = await ref
         .read(signUpUsecaseProvider)
         .call(
           email: email,
           password: password,
         );
     if (result.isSuccess) {
-      state = AsyncData(result.data as AuthStateEntity);
+      state = AsyncData(result.data!);
       notifyListeners();
     } else {
       state = AsyncError(
@@ -63,7 +63,7 @@ class Auth extends _$Auth with ChangeNotifier {
   }
 
   Future<void> signOut() async {
-    final Result<void> result = await ref.read(signOutUsecaseProvider).call();
+    final result = await ref.read(signOutUsecaseProvider).call();
     if (!result.isFailure) {
       state = const AsyncData(AuthStateEntity.unauthenticated());
       notifyListeners();

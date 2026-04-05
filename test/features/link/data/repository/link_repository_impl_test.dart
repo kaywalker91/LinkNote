@@ -45,7 +45,6 @@ void main() {
 
   final tPaginatedState = PaginatedState<LinkEntity>(
     items: tLinks,
-    hasMore: false,
   );
 
   // ---------------------------------------------------------------------------
@@ -101,7 +100,7 @@ void main() {
         // Assert
         expect(result.isSuccess, isTrue);
         expect(result.data!.items, equals(tLinks));
-        verify(() => mockLocal.getCachedLinks(favoritesOnly: false)).called(1);
+        verify(() => mockLocal.getCachedLinks()).called(1);
       },
     );
 

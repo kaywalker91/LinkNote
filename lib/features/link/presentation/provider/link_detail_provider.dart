@@ -10,11 +10,9 @@ part 'link_detail_provider.g.dart';
 class LinkDetail extends _$LinkDetail {
   @override
   Future<LinkEntity> build(String linkId) async {
-    final Result<LinkEntity> result = await ref
-        .read(getLinkDetailUsecaseProvider)
-        .call(linkId);
+    final result = await ref.read(getLinkDetailUsecaseProvider).call(linkId);
     if (result.isSuccess) return result.data!;
-    throw result.failure!;
+    throw Exception(result.failure?.message ?? 'Failed to load link');
   }
 
   Future<void> refresh() async {
@@ -23,10 +21,10 @@ class LinkDetail extends _$LinkDetail {
   }
 
   Future<void> delete() async {
-    final Result<void> result = await ref
-        .read(deleteLinkUsecaseProvider)
-        .call(linkId);
-    if (result.isFailure) throw result.failure!;
+    final result = await ref.read(deleteLinkUsecaseProvider).call(linkId);
+    if (result.isFailure) {
+      throw Exception(result.failure?.message ?? 'Failed to delete link');
+    }
     ref.invalidate(linkListProvider);
   }
 }

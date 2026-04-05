@@ -11,9 +11,9 @@ _NotificationEntity _$NotificationEntityFromJson(Map<String, dynamic> json) =>
       id: json['id'] as String,
       title: json['title'] as String,
       body: json['body'] as String,
+      createdAt: DateTime.parse(json['createdAt'] as String),
       linkId: json['linkId'] as String?,
       isRead: json['isRead'] as bool? ?? false,
-      createdAt: DateTime.parse(json['createdAt'] as String),
     );
 
 Map<String, dynamic> _$NotificationEntityToJson(_NotificationEntity instance) =>
@@ -21,7 +21,7 @@ Map<String, dynamic> _$NotificationEntityToJson(_NotificationEntity instance) =>
       'id': instance.id,
       'title': instance.title,
       'body': instance.body,
+      'createdAt': instance.createdAt.toIso8601String(),
       'linkId': instance.linkId,
       'isRead': instance.isRead,
-      'createdAt': instance.createdAt.toIso8601String(),
     };

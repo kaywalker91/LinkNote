@@ -9,9 +9,9 @@ abstract class NotificationEntity with _$NotificationEntity {
     required String id,
     required String title,
     required String body,
+    required DateTime createdAt,
     String? linkId,
     @Default(false) bool isRead,
-    required DateTime createdAt,
   }) = _NotificationEntity;
 
   factory NotificationEntity.fromJson(Map<String, dynamic> json) =>

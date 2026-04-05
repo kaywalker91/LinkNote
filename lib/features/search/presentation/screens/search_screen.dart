@@ -34,7 +34,6 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
       appBar: AppBar(
         title: TextField(
           controller: _controller,
-          autofocus: false,
           decoration: InputDecoration(
             hintText: 'Search links, notes, tags',
             border: InputBorder.none,

@@ -50,7 +50,7 @@ final class LinkDetailProvider
   }
 }
 
-String _$linkDetailHash() => r'9f8ed9efc19e84901a9b1e510091558f8989e777';
+String _$linkDetailHash() => r'47387d54c4265b893bacaf711513072ae4fa5018';
 
 final class LinkDetailFamily extends $Family
     with

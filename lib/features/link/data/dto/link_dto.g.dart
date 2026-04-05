@@ -11,13 +11,13 @@ _LinkDto _$LinkDtoFromJson(Map<String, dynamic> json) => _LinkDto(
   userId: json['user_id'] as String,
   url: json['url'] as String,
   title: json['title'] as String,
+  createdAt: json['created_at'] as String,
+  updatedAt: json['updated_at'] as String,
   description: json['description'] as String?,
   thumbnailUrl: json['thumbnail_url'] as String?,
   collectionId: json['collection_id'] as String?,
   memo: json['memo'] as String?,
   isFavorite: json['is_favorite'] as bool? ?? false,
-  createdAt: json['created_at'] as String,
-  updatedAt: json['updated_at'] as String,
   linkTags:
       (json['link_tags'] as List<dynamic>?)
           ?.map((e) => LinkTagDto.fromJson(e as Map<String, dynamic>))
@@ -33,13 +33,13 @@ Map<String, dynamic> _$LinkDtoToJson(_LinkDto instance) => <String, dynamic>{
   'user_id': instance.userId,
   'url': instance.url,
   'title': instance.title,
+  'created_at': instance.createdAt,
+  'updated_at': instance.updatedAt,
   'description': instance.description,
   'thumbnail_url': instance.thumbnailUrl,
   'collection_id': instance.collectionId,
   'memo': instance.memo,
   'is_favorite': instance.isFavorite,
-  'created_at': instance.createdAt,
-  'updated_at': instance.updatedAt,
   'link_tags': instance.linkTags,
   'collections': instance.collections,
 };

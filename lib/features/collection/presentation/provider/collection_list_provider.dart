@@ -14,16 +14,16 @@ class CollectionList extends _$CollectionList {
   }
 
   Future<PaginatedState<CollectionEntity>> _fetch({String? cursor}) async {
-    final Result<PaginatedState<CollectionEntity>> result = await ref
+    final result = await ref
         .read(getCollectionsUsecaseProvider)
         .call(cursor: cursor);
     if (result.isSuccess) return result.data!;
-    throw result.failure!;
+    throw Exception(result.failure?.message ?? 'Failed to fetch collections');
   }
 
   Future<void> refresh() async {
     state = const AsyncLoading();
-    state = await AsyncValue.guard(() => _fetch());
+    state = await AsyncValue.guard(_fetch);
   }
 
   Future<void> loadMore() async {
@@ -40,7 +40,7 @@ class CollectionList extends _$CollectionList {
           isLoadingMore: false,
         ),
       );
-    } catch (e) {
+    } on Exception catch (e) {
       state = AsyncData(
         current.copyWith(isLoadingMore: false, loadMoreError: e),
       );
@@ -55,15 +55,12 @@ class CollectionList extends _$CollectionList {
     final entity = CollectionEntity(
       id: '',
       name: name,
-      description: description,
-      linkCount: 0,
       createdAt: now,
       updatedAt: now,
+      description: description,
     );
 
-    final Result<CollectionEntity> result = await ref
-        .read(createCollectionUsecaseProvider)
-        .call(entity);
+    final result = await ref.read(createCollectionUsecaseProvider).call(entity);
     if (result.isSuccess) {
       final current = state.value;
       if (current != null) {
@@ -89,7 +86,7 @@ class CollectionList extends _$CollectionList {
       updatedAt: DateTime.now(),
     );
 
-    final Result<CollectionEntity> result = await ref
+    final result = await ref
         .read(updateCollectionUsecaseProvider)
         .call(updated);
     if (result.isSuccess) {
@@ -116,9 +113,7 @@ class CollectionList extends _$CollectionList {
       ),
     );
 
-    final Result<void> result = await ref
-        .read(deleteCollectionUsecaseProvider)
-        .call(id);
+    final result = await ref.read(deleteCollectionUsecaseProvider).call(id);
     if (result.isFailure) {
       state = AsyncData(previous);
     }

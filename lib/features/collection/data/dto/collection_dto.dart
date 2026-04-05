@@ -9,10 +9,10 @@ abstract class CollectionDto with _$CollectionDto {
     required String id,
     @JsonKey(name: 'user_id') required String userId,
     required String name,
-    String? description,
-    @JsonKey(name: 'cover_image_url') String? coverImageUrl,
     @JsonKey(name: 'created_at') required String createdAt,
     @JsonKey(name: 'updated_at') required String updatedAt,
+    String? description,
+    @JsonKey(name: 'cover_image_url') String? coverImageUrl,
     @Default([]) List<LinkCountDto> links,
   }) = _CollectionDto;
 

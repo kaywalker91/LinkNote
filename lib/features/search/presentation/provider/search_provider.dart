@@ -1,6 +1,5 @@
 import 'package:linknote/core/error/result.dart';
 import 'package:linknote/core/utils/debouncer.dart';
-import 'package:linknote/features/link/domain/entity/link_entity.dart';
 import 'package:linknote/features/search/domain/entity/search_state_entity.dart';
 import 'package:linknote/features/search/presentation/provider/search_di_providers.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -30,9 +29,7 @@ class Search extends _$Search {
   Future<void> _performSearch(String query) async {
     if (state.query != query) return; // Stale query
 
-    final Result<List<LinkEntity>> result = await ref
-        .read(searchLinksUsecaseProvider)
-        .call(query);
+    final result = await ref.read(searchLinksUsecaseProvider).call(query);
     if (state.query != query) return; // Query changed during fetch
 
     if (result.isSuccess) {

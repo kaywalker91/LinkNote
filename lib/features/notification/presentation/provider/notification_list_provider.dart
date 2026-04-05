@@ -20,13 +20,12 @@ class NotificationList extends _$NotificationList {
           createdAt: DateTime.now().subtract(Duration(hours: i * 2)),
         ),
       ),
-      hasMore: false,
     );
   }
 
   Future<void> refresh() async {
     state = const AsyncLoading();
-    state = await AsyncValue.guard(() => build());
+    state = await AsyncValue.guard(build);
   }
 
   Future<void> loadMore() async {

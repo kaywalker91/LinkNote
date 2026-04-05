@@ -6,8 +6,8 @@ import 'package:linknote/shared/widgets/tag_chip_widget.dart';
 
 class LinkListTile extends StatelessWidget {
   const LinkListTile({
-    super.key,
     required this.link,
+    super.key,
     this.onTap,
     this.onFavoriteTap,
     this.onMoreTap,
@@ -98,29 +98,30 @@ class LinkListTile extends StatelessWidget {
             Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                favoriteBusy
-                    ? const SizedBox(
-                        width: 24,
-                        height: 24,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
-                    : IconButton(
-                        icon: Icon(
-                          link.isFavorite
-                              ? Icons.star_rounded
-                              : Icons.star_outline_rounded,
-                          color: link.isFavorite
-                              ? Colors.amber
-                              : colorScheme.outline,
-                          size: 22,
-                        ),
-                        onPressed: onFavoriteTap,
-                        padding: EdgeInsets.zero,
-                        constraints: const BoxConstraints(
-                          minWidth: 32,
-                          minHeight: 32,
-                        ),
-                      ),
+                if (favoriteBusy)
+                  const SizedBox(
+                    width: 24,
+                    height: 24,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                else
+                  IconButton(
+                    icon: Icon(
+                      link.isFavorite
+                          ? Icons.star_rounded
+                          : Icons.star_outline_rounded,
+                      color: link.isFavorite
+                          ? Colors.amber
+                          : colorScheme.outline,
+                      size: 22,
+                    ),
+                    onPressed: onFavoriteTap,
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(
+                      minWidth: 32,
+                      minHeight: 32,
+                    ),
+                  ),
                 if (onMoreTap != null)
                   IconButton(
                     icon: Icon(
@@ -147,7 +148,7 @@ class LinkListTile extends StatelessWidget {
     try {
       final uri = Uri.parse(url);
       return uri.host;
-    } catch (_) {
+    } on Exception catch (_) {
       return url;
     }
   }

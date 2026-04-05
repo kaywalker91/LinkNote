@@ -59,11 +59,7 @@ void main() {
       expect(result.data!.items, equals(tLinks));
       expect(result.data!.hasMore, isTrue);
       verify(
-        () => mockRepository.getLinks(
-          cursor: null,
-          pageSize: 20,
-          favoritesOnly: false,
-        ),
+        () => mockRepository.getLinks(),
       ).called(1);
     });
 
