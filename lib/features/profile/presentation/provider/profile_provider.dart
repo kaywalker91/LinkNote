@@ -15,8 +15,6 @@ class Profile extends _$Profile {
         id: userId,
         email: email,
         displayName: email.split('@').first,
-        linkCount: 0,
-        collectionCount: 0,
       ),
       Unauthenticated() => throw Exception('Not authenticated'),
       AuthLoading() => throw Exception('Loading'),
@@ -25,6 +23,6 @@ class Profile extends _$Profile {
 
   Future<void> refresh() async {
     state = const AsyncLoading();
-    state = await AsyncValue.guard(() => build());
+    state = await AsyncValue.guard(build);
   }
 }

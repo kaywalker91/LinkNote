@@ -91,7 +91,7 @@ GoRouter appRouter(Ref ref) {
         path: Routes.collectionEdit,
         parentNavigatorKey: _rootNavigatorKey,
         builder: (context, state) => CollectionFormScreen(
-          collectionId: state.pathParameters['id']!,
+          collectionId: state.pathParameters['id'],
         ),
       ),
 

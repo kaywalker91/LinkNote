@@ -18,16 +18,16 @@ class ThemeModeNotifier extends _$ThemeModeNotifier {
     };
   }
 
-  void setThemeMode(ThemeMode mode) {
+  Future<void> setThemeMode(ThemeMode mode) async {
     final modeStr = switch (mode) {
       ThemeMode.light => 'light',
       ThemeMode.dark => 'dark',
       ThemeMode.system => 'system',
     };
-    Hive.box<String>('settings').put(_kThemeModeKey, modeStr);
+    await Hive.box<String>('settings').put(_kThemeModeKey, modeStr);
     state = mode;
   }
 }
 
-/// Convenience getter used in [LinkNoteApp].
+/// Convenience getter used in the app root widget.
 final ThemeModeNotifierProvider themeModePro = themeModeProvider;

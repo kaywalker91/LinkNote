@@ -34,7 +34,7 @@ class LinkLocalDataSource {
       return success(
         PaginatedState<LinkEntity>(items: entities),
       );
-    } catch (e) {
+    } on Exception catch (e) {
       return error(Failure.cache(message: e.toString()));
     }
   }
@@ -52,7 +52,7 @@ class LinkLocalDataSource {
         );
       }
       return success(entity);
-    } catch (e) {
+    } on Exception catch (e) {
       return error(Failure.cache(message: e.toString()));
     }
   }
@@ -68,7 +68,7 @@ class LinkLocalDataSource {
       };
       await _box.putAll(entries);
       await _trimCache();
-    } catch (_) {
+    } on Exception catch (_) {
       // Silent failure — cache write should not break the app
     }
   }
@@ -77,13 +77,13 @@ class LinkLocalDataSource {
     try {
       await _box.put(link.id, _entityToMap(link));
       await _trimCache();
-    } catch (_) {}
+    } on Exception catch (_) {}
   }
 
   Future<void> removeCachedLink(String id) async {
     try {
       await _box.delete(id);
-    } catch (_) {}
+    } on Exception catch (_) {}
   }
 
   Future<void> updateCachedFavorite(
@@ -96,13 +96,13 @@ class LinkLocalDataSource {
       final updated = Map<String, dynamic>.from(raw);
       updated['isFavorite'] = isFavorite;
       await _box.put(id, updated);
-    } catch (_) {}
+    } on Exception catch (_) {}
   }
 
   Future<void> clearAll() async {
     try {
       await _box.clear();
-    } catch (_) {}
+    } on Exception catch (_) {}
   }
 
   // ---------------------------------------------------------------------------
@@ -112,7 +112,7 @@ class LinkLocalDataSource {
   LinkEntity? _mapToEntity(Map<String, dynamic> raw) {
     try {
       return LinkEntity.fromJson(raw);
-    } catch (_) {
+    } on Exception catch (_) {
       return null;
     }
   }
@@ -132,7 +132,7 @@ class LinkLocalDataSource {
         final json = Map<String, dynamic>.from(entry.value);
         final createdAt = DateTime.parse(json['createdAt'] as String);
         parsed.add(MapEntry(entry.key as String, createdAt));
-      } catch (_) {
+      } on Exception catch (_) {
         // Remove unparseable entries
         await _box.delete(entry.key);
       }

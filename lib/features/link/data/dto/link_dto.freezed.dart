@@ -15,7 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$LinkDto {
 
- String get id;@JsonKey(name: 'user_id') String get userId; String get url; String get title; String? get description;@JsonKey(name: 'thumbnail_url') String? get thumbnailUrl;@JsonKey(name: 'collection_id') String? get collectionId; String? get memo;@JsonKey(name: 'is_favorite') bool get isFavorite;@JsonKey(name: 'created_at') String get createdAt;@JsonKey(name: 'updated_at') String get updatedAt;@JsonKey(name: 'link_tags') List<LinkTagDto> get linkTags; CollectionNameDto? get collections;
+ String get id;@JsonKey(name: 'user_id') String get userId; String get url; String get title;@JsonKey(name: 'created_at') String get createdAt;@JsonKey(name: 'updated_at') String get updatedAt; String? get description;@JsonKey(name: 'thumbnail_url') String? get thumbnailUrl;@JsonKey(name: 'collection_id') String? get collectionId; String? get memo;@JsonKey(name: 'is_favorite') bool get isFavorite;@JsonKey(name: 'link_tags') List<LinkTagDto> get linkTags; CollectionNameDto? get collections;
 /// Create a copy of LinkDto
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -28,16 +28,16 @@ $LinkDtoCopyWith<LinkDto> get copyWith => _$LinkDtoCopyWithImpl<LinkDto>(this as
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is LinkDto&&(identical(other.id, id) || other.id == id)&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.url, url) || other.url == url)&&(identical(other.title, title) || other.title == title)&&(identical(other.description, description) || other.description == description)&&(identical(other.thumbnailUrl, thumbnailUrl) || other.thumbnailUrl == thumbnailUrl)&&(identical(other.collectionId, collectionId) || other.collectionId == collectionId)&&(identical(other.memo, memo) || other.memo == memo)&&(identical(other.isFavorite, isFavorite) || other.isFavorite == isFavorite)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt)&&const DeepCollectionEquality().equals(other.linkTags, linkTags)&&(identical(other.collections, collections) || other.collections == collections));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is LinkDto&&(identical(other.id, id) || other.id == id)&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.url, url) || other.url == url)&&(identical(other.title, title) || other.title == title)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt)&&(identical(other.description, description) || other.description == description)&&(identical(other.thumbnailUrl, thumbnailUrl) || other.thumbnailUrl == thumbnailUrl)&&(identical(other.collectionId, collectionId) || other.collectionId == collectionId)&&(identical(other.memo, memo) || other.memo == memo)&&(identical(other.isFavorite, isFavorite) || other.isFavorite == isFavorite)&&const DeepCollectionEquality().equals(other.linkTags, linkTags)&&(identical(other.collections, collections) || other.collections == collections));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,userId,url,title,description,thumbnailUrl,collectionId,memo,isFavorite,createdAt,updatedAt,const DeepCollectionEquality().hash(linkTags),collections);
+int get hashCode => Object.hash(runtimeType,id,userId,url,title,createdAt,updatedAt,description,thumbnailUrl,collectionId,memo,isFavorite,const DeepCollectionEquality().hash(linkTags),collections);
 
 @override
 String toString() {
-  return 'LinkDto(id: $id, userId: $userId, url: $url, title: $title, description: $description, thumbnailUrl: $thumbnailUrl, collectionId: $collectionId, memo: $memo, isFavorite: $isFavorite, createdAt: $createdAt, updatedAt: $updatedAt, linkTags: $linkTags, collections: $collections)';
+  return 'LinkDto(id: $id, userId: $userId, url: $url, title: $title, createdAt: $createdAt, updatedAt: $updatedAt, description: $description, thumbnailUrl: $thumbnailUrl, collectionId: $collectionId, memo: $memo, isFavorite: $isFavorite, linkTags: $linkTags, collections: $collections)';
 }
 
 
@@ -48,7 +48,7 @@ abstract mixin class $LinkDtoCopyWith<$Res>  {
   factory $LinkDtoCopyWith(LinkDto value, $Res Function(LinkDto) _then) = _$LinkDtoCopyWithImpl;
 @useResult
 $Res call({
- String id,@JsonKey(name: 'user_id') String userId, String url, String title, String? description,@JsonKey(name: 'thumbnail_url') String? thumbnailUrl,@JsonKey(name: 'collection_id') String? collectionId, String? memo,@JsonKey(name: 'is_favorite') bool isFavorite,@JsonKey(name: 'created_at') String createdAt,@JsonKey(name: 'updated_at') String updatedAt,@JsonKey(name: 'link_tags') List<LinkTagDto> linkTags, CollectionNameDto? collections
+ String id,@JsonKey(name: 'user_id') String userId, String url, String title,@JsonKey(name: 'created_at') String createdAt,@JsonKey(name: 'updated_at') String updatedAt, String? description,@JsonKey(name: 'thumbnail_url') String? thumbnailUrl,@JsonKey(name: 'collection_id') String? collectionId, String? memo,@JsonKey(name: 'is_favorite') bool isFavorite,@JsonKey(name: 'link_tags') List<LinkTagDto> linkTags, CollectionNameDto? collections
 });
 
 
@@ -65,20 +65,20 @@ class _$LinkDtoCopyWithImpl<$Res>
 
 /// Create a copy of LinkDto
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? userId = null,Object? url = null,Object? title = null,Object? description = freezed,Object? thumbnailUrl = freezed,Object? collectionId = freezed,Object? memo = freezed,Object? isFavorite = null,Object? createdAt = null,Object? updatedAt = null,Object? linkTags = null,Object? collections = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? userId = null,Object? url = null,Object? title = null,Object? createdAt = null,Object? updatedAt = null,Object? description = freezed,Object? thumbnailUrl = freezed,Object? collectionId = freezed,Object? memo = freezed,Object? isFavorite = null,Object? linkTags = null,Object? collections = freezed,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,userId: null == userId ? _self.userId : userId // ignore: cast_nullable_to_non_nullable
 as String,url: null == url ? _self.url : url // ignore: cast_nullable_to_non_nullable
 as String,title: null == title ? _self.title : title // ignore: cast_nullable_to_non_nullable
+as String,createdAt: null == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
+as String,updatedAt: null == updatedAt ? _self.updatedAt : updatedAt // ignore: cast_nullable_to_non_nullable
 as String,description: freezed == description ? _self.description : description // ignore: cast_nullable_to_non_nullable
 as String?,thumbnailUrl: freezed == thumbnailUrl ? _self.thumbnailUrl : thumbnailUrl // ignore: cast_nullable_to_non_nullable
 as String?,collectionId: freezed == collectionId ? _self.collectionId : collectionId // ignore: cast_nullable_to_non_nullable
 as String?,memo: freezed == memo ? _self.memo : memo // ignore: cast_nullable_to_non_nullable
 as String?,isFavorite: null == isFavorite ? _self.isFavorite : isFavorite // ignore: cast_nullable_to_non_nullable
-as bool,createdAt: null == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
-as String,updatedAt: null == updatedAt ? _self.updatedAt : updatedAt // ignore: cast_nullable_to_non_nullable
-as String,linkTags: null == linkTags ? _self.linkTags : linkTags // ignore: cast_nullable_to_non_nullable
+as bool,linkTags: null == linkTags ? _self.linkTags : linkTags // ignore: cast_nullable_to_non_nullable
 as List<LinkTagDto>,collections: freezed == collections ? _self.collections : collections // ignore: cast_nullable_to_non_nullable
 as CollectionNameDto?,
   ));
@@ -177,10 +177,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id, @JsonKey(name: 'user_id')  String userId,  String url,  String title,  String? description, @JsonKey(name: 'thumbnail_url')  String? thumbnailUrl, @JsonKey(name: 'collection_id')  String? collectionId,  String? memo, @JsonKey(name: 'is_favorite')  bool isFavorite, @JsonKey(name: 'created_at')  String createdAt, @JsonKey(name: 'updated_at')  String updatedAt, @JsonKey(name: 'link_tags')  List<LinkTagDto> linkTags,  CollectionNameDto? collections)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id, @JsonKey(name: 'user_id')  String userId,  String url,  String title, @JsonKey(name: 'created_at')  String createdAt, @JsonKey(name: 'updated_at')  String updatedAt,  String? description, @JsonKey(name: 'thumbnail_url')  String? thumbnailUrl, @JsonKey(name: 'collection_id')  String? collectionId,  String? memo, @JsonKey(name: 'is_favorite')  bool isFavorite, @JsonKey(name: 'link_tags')  List<LinkTagDto> linkTags,  CollectionNameDto? collections)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _LinkDto() when $default != null:
-return $default(_that.id,_that.userId,_that.url,_that.title,_that.description,_that.thumbnailUrl,_that.collectionId,_that.memo,_that.isFavorite,_that.createdAt,_that.updatedAt,_that.linkTags,_that.collections);case _:
+return $default(_that.id,_that.userId,_that.url,_that.title,_that.createdAt,_that.updatedAt,_that.description,_that.thumbnailUrl,_that.collectionId,_that.memo,_that.isFavorite,_that.linkTags,_that.collections);case _:
   return orElse();
 
 }
@@ -198,10 +198,10 @@ return $default(_that.id,_that.userId,_that.url,_that.title,_that.description,_t
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id, @JsonKey(name: 'user_id')  String userId,  String url,  String title,  String? description, @JsonKey(name: 'thumbnail_url')  String? thumbnailUrl, @JsonKey(name: 'collection_id')  String? collectionId,  String? memo, @JsonKey(name: 'is_favorite')  bool isFavorite, @JsonKey(name: 'created_at')  String createdAt, @JsonKey(name: 'updated_at')  String updatedAt, @JsonKey(name: 'link_tags')  List<LinkTagDto> linkTags,  CollectionNameDto? collections)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id, @JsonKey(name: 'user_id')  String userId,  String url,  String title, @JsonKey(name: 'created_at')  String createdAt, @JsonKey(name: 'updated_at')  String updatedAt,  String? description, @JsonKey(name: 'thumbnail_url')  String? thumbnailUrl, @JsonKey(name: 'collection_id')  String? collectionId,  String? memo, @JsonKey(name: 'is_favorite')  bool isFavorite, @JsonKey(name: 'link_tags')  List<LinkTagDto> linkTags,  CollectionNameDto? collections)  $default,) {final _that = this;
 switch (_that) {
 case _LinkDto():
-return $default(_that.id,_that.userId,_that.url,_that.title,_that.description,_that.thumbnailUrl,_that.collectionId,_that.memo,_that.isFavorite,_that.createdAt,_that.updatedAt,_that.linkTags,_that.collections);case _:
+return $default(_that.id,_that.userId,_that.url,_that.title,_that.createdAt,_that.updatedAt,_that.description,_that.thumbnailUrl,_that.collectionId,_that.memo,_that.isFavorite,_that.linkTags,_that.collections);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -218,10 +218,10 @@ return $default(_that.id,_that.userId,_that.url,_that.title,_that.description,_t
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id, @JsonKey(name: 'user_id')  String userId,  String url,  String title,  String? description, @JsonKey(name: 'thumbnail_url')  String? thumbnailUrl, @JsonKey(name: 'collection_id')  String? collectionId,  String? memo, @JsonKey(name: 'is_favorite')  bool isFavorite, @JsonKey(name: 'created_at')  String createdAt, @JsonKey(name: 'updated_at')  String updatedAt, @JsonKey(name: 'link_tags')  List<LinkTagDto> linkTags,  CollectionNameDto? collections)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id, @JsonKey(name: 'user_id')  String userId,  String url,  String title, @JsonKey(name: 'created_at')  String createdAt, @JsonKey(name: 'updated_at')  String updatedAt,  String? description, @JsonKey(name: 'thumbnail_url')  String? thumbnailUrl, @JsonKey(name: 'collection_id')  String? collectionId,  String? memo, @JsonKey(name: 'is_favorite')  bool isFavorite, @JsonKey(name: 'link_tags')  List<LinkTagDto> linkTags,  CollectionNameDto? collections)?  $default,) {final _that = this;
 switch (_that) {
 case _LinkDto() when $default != null:
-return $default(_that.id,_that.userId,_that.url,_that.title,_that.description,_that.thumbnailUrl,_that.collectionId,_that.memo,_that.isFavorite,_that.createdAt,_that.updatedAt,_that.linkTags,_that.collections);case _:
+return $default(_that.id,_that.userId,_that.url,_that.title,_that.createdAt,_that.updatedAt,_that.description,_that.thumbnailUrl,_that.collectionId,_that.memo,_that.isFavorite,_that.linkTags,_that.collections);case _:
   return null;
 
 }
@@ -233,20 +233,20 @@ return $default(_that.id,_that.userId,_that.url,_that.title,_that.description,_t
 @JsonSerializable()
 
 class _LinkDto implements LinkDto {
-  const _LinkDto({required this.id, @JsonKey(name: 'user_id') required this.userId, required this.url, required this.title, this.description, @JsonKey(name: 'thumbnail_url') this.thumbnailUrl, @JsonKey(name: 'collection_id') this.collectionId, this.memo, @JsonKey(name: 'is_favorite') this.isFavorite = false, @JsonKey(name: 'created_at') required this.createdAt, @JsonKey(name: 'updated_at') required this.updatedAt, @JsonKey(name: 'link_tags') final  List<LinkTagDto> linkTags = const [], this.collections}): _linkTags = linkTags;
+  const _LinkDto({required this.id, @JsonKey(name: 'user_id') required this.userId, required this.url, required this.title, @JsonKey(name: 'created_at') required this.createdAt, @JsonKey(name: 'updated_at') required this.updatedAt, this.description, @JsonKey(name: 'thumbnail_url') this.thumbnailUrl, @JsonKey(name: 'collection_id') this.collectionId, this.memo, @JsonKey(name: 'is_favorite') this.isFavorite = false, @JsonKey(name: 'link_tags') final  List<LinkTagDto> linkTags = const [], this.collections}): _linkTags = linkTags;
   factory _LinkDto.fromJson(Map<String, dynamic> json) => _$LinkDtoFromJson(json);
 
 @override final  String id;
 @override@JsonKey(name: 'user_id') final  String userId;
 @override final  String url;
 @override final  String title;
+@override@JsonKey(name: 'created_at') final  String createdAt;
+@override@JsonKey(name: 'updated_at') final  String updatedAt;
 @override final  String? description;
 @override@JsonKey(name: 'thumbnail_url') final  String? thumbnailUrl;
 @override@JsonKey(name: 'collection_id') final  String? collectionId;
 @override final  String? memo;
 @override@JsonKey(name: 'is_favorite') final  bool isFavorite;
-@override@JsonKey(name: 'created_at') final  String createdAt;
-@override@JsonKey(name: 'updated_at') final  String updatedAt;
  final  List<LinkTagDto> _linkTags;
 @override@JsonKey(name: 'link_tags') List<LinkTagDto> get linkTags {
   if (_linkTags is EqualUnmodifiableListView) return _linkTags;
@@ -269,16 +269,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _LinkDto&&(identical(other.id, id) || other.id == id)&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.url, url) || other.url == url)&&(identical(other.title, title) || other.title == title)&&(identical(other.description, description) || other.description == description)&&(identical(other.thumbnailUrl, thumbnailUrl) || other.thumbnailUrl == thumbnailUrl)&&(identical(other.collectionId, collectionId) || other.collectionId == collectionId)&&(identical(other.memo, memo) || other.memo == memo)&&(identical(other.isFavorite, isFavorite) || other.isFavorite == isFavorite)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt)&&const DeepCollectionEquality().equals(other._linkTags, _linkTags)&&(identical(other.collections, collections) || other.collections == collections));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _LinkDto&&(identical(other.id, id) || other.id == id)&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.url, url) || other.url == url)&&(identical(other.title, title) || other.title == title)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt)&&(identical(other.description, description) || other.description == description)&&(identical(other.thumbnailUrl, thumbnailUrl) || other.thumbnailUrl == thumbnailUrl)&&(identical(other.collectionId, collectionId) || other.collectionId == collectionId)&&(identical(other.memo, memo) || other.memo == memo)&&(identical(other.isFavorite, isFavorite) || other.isFavorite == isFavorite)&&const DeepCollectionEquality().equals(other._linkTags, _linkTags)&&(identical(other.collections, collections) || other.collections == collections));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,userId,url,title,description,thumbnailUrl,collectionId,memo,isFavorite,createdAt,updatedAt,const DeepCollectionEquality().hash(_linkTags),collections);
+int get hashCode => Object.hash(runtimeType,id,userId,url,title,createdAt,updatedAt,description,thumbnailUrl,collectionId,memo,isFavorite,const DeepCollectionEquality().hash(_linkTags),collections);
 
 @override
 String toString() {
-  return 'LinkDto(id: $id, userId: $userId, url: $url, title: $title, description: $description, thumbnailUrl: $thumbnailUrl, collectionId: $collectionId, memo: $memo, isFavorite: $isFavorite, createdAt: $createdAt, updatedAt: $updatedAt, linkTags: $linkTags, collections: $collections)';
+  return 'LinkDto(id: $id, userId: $userId, url: $url, title: $title, createdAt: $createdAt, updatedAt: $updatedAt, description: $description, thumbnailUrl: $thumbnailUrl, collectionId: $collectionId, memo: $memo, isFavorite: $isFavorite, linkTags: $linkTags, collections: $collections)';
 }
 
 
@@ -289,7 +289,7 @@ abstract mixin class _$LinkDtoCopyWith<$Res> implements $LinkDtoCopyWith<$Res> {
   factory _$LinkDtoCopyWith(_LinkDto value, $Res Function(_LinkDto) _then) = __$LinkDtoCopyWithImpl;
 @override @useResult
 $Res call({
- String id,@JsonKey(name: 'user_id') String userId, String url, String title, String? description,@JsonKey(name: 'thumbnail_url') String? thumbnailUrl,@JsonKey(name: 'collection_id') String? collectionId, String? memo,@JsonKey(name: 'is_favorite') bool isFavorite,@JsonKey(name: 'created_at') String createdAt,@JsonKey(name: 'updated_at') String updatedAt,@JsonKey(name: 'link_tags') List<LinkTagDto> linkTags, CollectionNameDto? collections
+ String id,@JsonKey(name: 'user_id') String userId, String url, String title,@JsonKey(name: 'created_at') String createdAt,@JsonKey(name: 'updated_at') String updatedAt, String? description,@JsonKey(name: 'thumbnail_url') String? thumbnailUrl,@JsonKey(name: 'collection_id') String? collectionId, String? memo,@JsonKey(name: 'is_favorite') bool isFavorite,@JsonKey(name: 'link_tags') List<LinkTagDto> linkTags, CollectionNameDto? collections
 });
 
 
@@ -306,20 +306,20 @@ class __$LinkDtoCopyWithImpl<$Res>
 
 /// Create a copy of LinkDto
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? userId = null,Object? url = null,Object? title = null,Object? description = freezed,Object? thumbnailUrl = freezed,Object? collectionId = freezed,Object? memo = freezed,Object? isFavorite = null,Object? createdAt = null,Object? updatedAt = null,Object? linkTags = null,Object? collections = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? userId = null,Object? url = null,Object? title = null,Object? createdAt = null,Object? updatedAt = null,Object? description = freezed,Object? thumbnailUrl = freezed,Object? collectionId = freezed,Object? memo = freezed,Object? isFavorite = null,Object? linkTags = null,Object? collections = freezed,}) {
   return _then(_LinkDto(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,userId: null == userId ? _self.userId : userId // ignore: cast_nullable_to_non_nullable
 as String,url: null == url ? _self.url : url // ignore: cast_nullable_to_non_nullable
 as String,title: null == title ? _self.title : title // ignore: cast_nullable_to_non_nullable
+as String,createdAt: null == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
+as String,updatedAt: null == updatedAt ? _self.updatedAt : updatedAt // ignore: cast_nullable_to_non_nullable
 as String,description: freezed == description ? _self.description : description // ignore: cast_nullable_to_non_nullable
 as String?,thumbnailUrl: freezed == thumbnailUrl ? _self.thumbnailUrl : thumbnailUrl // ignore: cast_nullable_to_non_nullable
 as String?,collectionId: freezed == collectionId ? _self.collectionId : collectionId // ignore: cast_nullable_to_non_nullable
 as String?,memo: freezed == memo ? _self.memo : memo // ignore: cast_nullable_to_non_nullable
 as String?,isFavorite: null == isFavorite ? _self.isFavorite : isFavorite // ignore: cast_nullable_to_non_nullable
-as bool,createdAt: null == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
-as String,updatedAt: null == updatedAt ? _self.updatedAt : updatedAt // ignore: cast_nullable_to_non_nullable
-as String,linkTags: null == linkTags ? _self._linkTags : linkTags // ignore: cast_nullable_to_non_nullable
+as bool,linkTags: null == linkTags ? _self._linkTags : linkTags // ignore: cast_nullable_to_non_nullable
 as List<LinkTagDto>,collections: freezed == collections ? _self.collections : collections // ignore: cast_nullable_to_non_nullable
 as CollectionNameDto?,
   ));

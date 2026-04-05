@@ -61,7 +61,7 @@ class OgTagService {
         description: ogDescription,
         imageUrl: ogImage,
       );
-    } catch (_) {
+    } on Exception catch (_) {
       return const OgTagResult();
     }
   }

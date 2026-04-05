@@ -1,8 +1,9 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:linknote/features/link/domain/entity/link_entity.dart';
 
+// TODO(linknote): Replace with CollectionLinksUsecase when data layer is ready.
 /// Mock provider for links belonging to a collection.
-/// TODO(linknote): Replace with CollectionLinksUsecase when data layer is ready.
+// ignore: specify_nonobvious_property_types, type is clear from initializer.
 final collectionLinksProvider = FutureProvider.autoDispose
     .family<List<LinkEntity>, String>(
       (ref, collectionId) async {

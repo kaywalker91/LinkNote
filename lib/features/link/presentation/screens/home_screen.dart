@@ -128,8 +128,12 @@ class _LinkListBody extends ConsumerWidget {
     );
   }
 
-  void _showMoreSheet(BuildContext context, WidgetRef ref, String linkId) {
-    showModalBottomSheet<void>(
+  Future<void> _showMoreSheet(
+    BuildContext context,
+    WidgetRef ref,
+    String linkId,
+  ) async {
+    await showModalBottomSheet<void>(
       context: context,
       builder: (sheetContext) => SafeArea(
         child: Column(
@@ -138,9 +142,9 @@ class _LinkListBody extends ConsumerWidget {
             ListTile(
               leading: const Icon(Icons.edit_outlined),
               title: const Text('Edit'),
-              onTap: () {
+              onTap: () async {
                 Navigator.of(sheetContext).pop();
-                context.push(Routes.linkEditPath(linkId));
+                await context.push(Routes.linkEditPath(linkId));
               },
             ),
             ListTile(

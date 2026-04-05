@@ -224,7 +224,7 @@ void main() {
       expect(find.text('LinkNote'), findsOneWidget);
 
       // Act — navigate to link add
-      router.push('/links/new');
+      await router.push('/links/new');
       await tester.pumpAndSettle();
 
       // Assert — on link add

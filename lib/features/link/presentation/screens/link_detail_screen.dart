@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:linknote/app/router/routes.dart';
 import 'package:linknote/app/theme/app_spacing.dart';
 import 'package:linknote/features/link/presentation/provider/link_detail_provider.dart';
@@ -12,9 +11,10 @@ import 'package:linknote/shared/widgets/error_state_widget.dart';
 import 'package:linknote/shared/widgets/og_thumbnail_widget.dart';
 import 'package:linknote/shared/widgets/skeleton/link_card_skeleton.dart';
 import 'package:linknote/shared/widgets/tag_chip_widget.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class LinkDetailScreen extends ConsumerWidget {
-  const LinkDetailScreen({super.key, required this.linkId});
+  const LinkDetailScreen({required this.linkId, super.key});
   final String linkId;
 
   @override
@@ -87,7 +87,6 @@ class LinkDetailScreen extends ConsumerWidget {
                   child: OgThumbnailWidget(
                     thumbnailUrl: link.thumbnailUrl,
                     size: double.infinity,
-                    borderRadius: 12,
                   ),
                 ),
                 const SizedBox(height: AppSpacing.lg),

@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:linknote/features/collection/domain/entity/collection_entity.dart';
-import 'package:linknote/features/collection/domain/usecase/create_collection_usecase.dart';
 import 'package:linknote/features/collection/presentation/provider/collection_list_provider.dart';
 import 'package:linknote/features/collection/presentation/screens/collection_form_screen.dart';
 import 'package:linknote/features/collection/presentation/screens/collection_list_screen.dart';
@@ -13,9 +12,6 @@ import 'package:mocktail/mocktail.dart';
 // ---------------------------------------------------------------------------
 // Mocks
 // ---------------------------------------------------------------------------
-class MockCreateCollectionUsecase extends Mock
-    implements CreateCollectionUsecase {}
-
 class FakeCollectionEntity extends Fake implements CollectionEntity {}
 
 // ---------------------------------------------------------------------------
@@ -43,10 +39,9 @@ class _EmptyCollectionList extends CollectionList {
     final entity = CollectionEntity(
       id: 'new-1',
       name: name,
-      description: description,
-      linkCount: 0,
       createdAt: DateTime(2026),
       updatedAt: DateTime(2026),
+      description: description,
     );
     state = AsyncData(
       current.copyWith(items: [entity, ...current.items]),
@@ -204,7 +199,7 @@ void main() {
       expect(find.text('No collections yet'), findsOneWidget);
 
       // Act — navigate to form
-      router.push('/collections/new');
+      await router.push('/collections/new');
       await tester.pumpAndSettle();
 
       // Assert — on form screen

@@ -72,12 +72,11 @@ class _CollectionFormScreenState extends ConsumerState<CollectionFormScreen> {
   @override
   Widget build(BuildContext context) {
     if (_isEditMode) {
-      final detailAsync = ref.watch(
-        collectionDetailProvider(widget.collectionId!),
-      );
-      detailAsync.whenData(
-        (c) => _syncControllers(c.name, c.description),
-      );
+      ref
+          .watch(collectionDetailProvider(widget.collectionId!))
+          .whenData(
+            (c) => _syncControllers(c.name, c.description),
+          );
     }
 
     return Scaffold(

@@ -65,9 +65,11 @@ class _NotificationTile extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final colorScheme = Theme.of(context).colorScheme;
     return InkWell(
-      onTap: () {
+      onTap: () async {
         if (!notification.isRead) {
-          ref.read(notificationListProvider.notifier).markRead(notification.id);
+          await ref
+              .read(notificationListProvider.notifier)
+              .markRead(notification.id);
         }
       },
       child: Container(

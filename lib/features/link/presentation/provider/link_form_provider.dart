@@ -63,7 +63,7 @@ class LinkForm extends _$LinkForm {
           thumbnailUrl: result.imageUrl ?? current.thumbnailUrl,
         ),
       );
-    } catch (_) {
+    } on Exception catch (_) {
       state = AsyncData(
         current.copyWith(
           isParsingOg: false,
@@ -147,7 +147,7 @@ class LinkForm extends _$LinkForm {
       updatedAt: now,
     );
 
-    final Result<LinkEntity> result = linkId == null
+    final result = linkId == null
         ? await ref.read(createLinkUsecaseProvider).call(entity)
         : await ref.read(updateLinkUsecaseProvider).call(entity);
 
@@ -169,7 +169,7 @@ class LinkForm extends _$LinkForm {
   String _extractTitle(String url) {
     try {
       return Uri.parse(url).host;
-    } catch (_) {
+    } on Exception catch (_) {
       return url;
     }
   }

@@ -15,7 +15,7 @@ import 'package:linknote/shared/widgets/skeleton/link_card_skeleton.dart';
 import 'package:linknote/shared/widgets/skeleton/profile_header_skeleton.dart';
 
 class CollectionDetailScreen extends ConsumerWidget {
-  const CollectionDetailScreen({super.key, required this.collectionId});
+  const CollectionDetailScreen({required this.collectionId, super.key});
   final String collectionId;
 
   @override
@@ -46,11 +46,11 @@ class CollectionDetailScreen extends ConsumerWidget {
                   confirmLabel: 'Delete',
                   isDestructive: true,
                 );
-                if (confirmed == true && context.mounted) {
-                  ref
+                if ((confirmed ?? false) && context.mounted) {
+                  await ref
                       .read(collectionListProvider.notifier)
                       .deleteCollection(collectionId);
-                  context.pop();
+                  if (context.mounted) context.pop();
                 }
               },
             ),

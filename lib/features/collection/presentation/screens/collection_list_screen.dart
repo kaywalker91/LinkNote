@@ -45,7 +45,6 @@ class CollectionListScreen extends ConsumerWidget {
             message: 'No collections yet',
             subMessage: 'Organize your links into collections',
           ),
-          padding: const EdgeInsets.all(AppSpacing.screenPadding),
           itemBuilder: (context, collection, _) =>
               _CollectionCard(collection: collection),
         ),

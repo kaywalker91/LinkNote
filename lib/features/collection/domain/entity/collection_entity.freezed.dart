@@ -15,7 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$CollectionEntity {
 
- String get id; String get name; String? get description; String? get coverImageUrl; int get linkCount; DateTime get createdAt; DateTime get updatedAt;
+ String get id; String get name; DateTime get createdAt; DateTime get updatedAt; String? get description; String? get coverImageUrl; int get linkCount;
 /// Create a copy of CollectionEntity
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -28,16 +28,16 @@ $CollectionEntityCopyWith<CollectionEntity> get copyWith => _$CollectionEntityCo
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is CollectionEntity&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.description, description) || other.description == description)&&(identical(other.coverImageUrl, coverImageUrl) || other.coverImageUrl == coverImageUrl)&&(identical(other.linkCount, linkCount) || other.linkCount == linkCount)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is CollectionEntity&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt)&&(identical(other.description, description) || other.description == description)&&(identical(other.coverImageUrl, coverImageUrl) || other.coverImageUrl == coverImageUrl)&&(identical(other.linkCount, linkCount) || other.linkCount == linkCount));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,name,description,coverImageUrl,linkCount,createdAt,updatedAt);
+int get hashCode => Object.hash(runtimeType,id,name,createdAt,updatedAt,description,coverImageUrl,linkCount);
 
 @override
 String toString() {
-  return 'CollectionEntity(id: $id, name: $name, description: $description, coverImageUrl: $coverImageUrl, linkCount: $linkCount, createdAt: $createdAt, updatedAt: $updatedAt)';
+  return 'CollectionEntity(id: $id, name: $name, createdAt: $createdAt, updatedAt: $updatedAt, description: $description, coverImageUrl: $coverImageUrl, linkCount: $linkCount)';
 }
 
 
@@ -48,7 +48,7 @@ abstract mixin class $CollectionEntityCopyWith<$Res>  {
   factory $CollectionEntityCopyWith(CollectionEntity value, $Res Function(CollectionEntity) _then) = _$CollectionEntityCopyWithImpl;
 @useResult
 $Res call({
- String id, String name, String? description, String? coverImageUrl, int linkCount, DateTime createdAt, DateTime updatedAt
+ String id, String name, DateTime createdAt, DateTime updatedAt, String? description, String? coverImageUrl, int linkCount
 });
 
 
@@ -65,16 +65,16 @@ class _$CollectionEntityCopyWithImpl<$Res>
 
 /// Create a copy of CollectionEntity
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? name = null,Object? description = freezed,Object? coverImageUrl = freezed,Object? linkCount = null,Object? createdAt = null,Object? updatedAt = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? name = null,Object? createdAt = null,Object? updatedAt = null,Object? description = freezed,Object? coverImageUrl = freezed,Object? linkCount = null,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
-as String,description: freezed == description ? _self.description : description // ignore: cast_nullable_to_non_nullable
+as String,createdAt: null == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
+as DateTime,updatedAt: null == updatedAt ? _self.updatedAt : updatedAt // ignore: cast_nullable_to_non_nullable
+as DateTime,description: freezed == description ? _self.description : description // ignore: cast_nullable_to_non_nullable
 as String?,coverImageUrl: freezed == coverImageUrl ? _self.coverImageUrl : coverImageUrl // ignore: cast_nullable_to_non_nullable
 as String?,linkCount: null == linkCount ? _self.linkCount : linkCount // ignore: cast_nullable_to_non_nullable
-as int,createdAt: null == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
-as DateTime,updatedAt: null == updatedAt ? _self.updatedAt : updatedAt // ignore: cast_nullable_to_non_nullable
-as DateTime,
+as int,
   ));
 }
 
@@ -159,10 +159,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String name,  String? description,  String? coverImageUrl,  int linkCount,  DateTime createdAt,  DateTime updatedAt)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String name,  DateTime createdAt,  DateTime updatedAt,  String? description,  String? coverImageUrl,  int linkCount)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _CollectionEntity() when $default != null:
-return $default(_that.id,_that.name,_that.description,_that.coverImageUrl,_that.linkCount,_that.createdAt,_that.updatedAt);case _:
+return $default(_that.id,_that.name,_that.createdAt,_that.updatedAt,_that.description,_that.coverImageUrl,_that.linkCount);case _:
   return orElse();
 
 }
@@ -180,10 +180,10 @@ return $default(_that.id,_that.name,_that.description,_that.coverImageUrl,_that.
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String name,  String? description,  String? coverImageUrl,  int linkCount,  DateTime createdAt,  DateTime updatedAt)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String name,  DateTime createdAt,  DateTime updatedAt,  String? description,  String? coverImageUrl,  int linkCount)  $default,) {final _that = this;
 switch (_that) {
 case _CollectionEntity():
-return $default(_that.id,_that.name,_that.description,_that.coverImageUrl,_that.linkCount,_that.createdAt,_that.updatedAt);case _:
+return $default(_that.id,_that.name,_that.createdAt,_that.updatedAt,_that.description,_that.coverImageUrl,_that.linkCount);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -200,10 +200,10 @@ return $default(_that.id,_that.name,_that.description,_that.coverImageUrl,_that.
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String name,  String? description,  String? coverImageUrl,  int linkCount,  DateTime createdAt,  DateTime updatedAt)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String name,  DateTime createdAt,  DateTime updatedAt,  String? description,  String? coverImageUrl,  int linkCount)?  $default,) {final _that = this;
 switch (_that) {
 case _CollectionEntity() when $default != null:
-return $default(_that.id,_that.name,_that.description,_that.coverImageUrl,_that.linkCount,_that.createdAt,_that.updatedAt);case _:
+return $default(_that.id,_that.name,_that.createdAt,_that.updatedAt,_that.description,_that.coverImageUrl,_that.linkCount);case _:
   return null;
 
 }
@@ -215,16 +215,16 @@ return $default(_that.id,_that.name,_that.description,_that.coverImageUrl,_that.
 @JsonSerializable()
 
 class _CollectionEntity implements CollectionEntity {
-  const _CollectionEntity({required this.id, required this.name, this.description, this.coverImageUrl, this.linkCount = 0, required this.createdAt, required this.updatedAt});
+  const _CollectionEntity({required this.id, required this.name, required this.createdAt, required this.updatedAt, this.description, this.coverImageUrl, this.linkCount = 0});
   factory _CollectionEntity.fromJson(Map<String, dynamic> json) => _$CollectionEntityFromJson(json);
 
 @override final  String id;
 @override final  String name;
+@override final  DateTime createdAt;
+@override final  DateTime updatedAt;
 @override final  String? description;
 @override final  String? coverImageUrl;
 @override@JsonKey() final  int linkCount;
-@override final  DateTime createdAt;
-@override final  DateTime updatedAt;
 
 /// Create a copy of CollectionEntity
 /// with the given fields replaced by the non-null parameter values.
@@ -239,16 +239,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _CollectionEntity&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.description, description) || other.description == description)&&(identical(other.coverImageUrl, coverImageUrl) || other.coverImageUrl == coverImageUrl)&&(identical(other.linkCount, linkCount) || other.linkCount == linkCount)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _CollectionEntity&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt)&&(identical(other.description, description) || other.description == description)&&(identical(other.coverImageUrl, coverImageUrl) || other.coverImageUrl == coverImageUrl)&&(identical(other.linkCount, linkCount) || other.linkCount == linkCount));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,name,description,coverImageUrl,linkCount,createdAt,updatedAt);
+int get hashCode => Object.hash(runtimeType,id,name,createdAt,updatedAt,description,coverImageUrl,linkCount);
 
 @override
 String toString() {
-  return 'CollectionEntity(id: $id, name: $name, description: $description, coverImageUrl: $coverImageUrl, linkCount: $linkCount, createdAt: $createdAt, updatedAt: $updatedAt)';
+  return 'CollectionEntity(id: $id, name: $name, createdAt: $createdAt, updatedAt: $updatedAt, description: $description, coverImageUrl: $coverImageUrl, linkCount: $linkCount)';
 }
 
 
@@ -259,7 +259,7 @@ abstract mixin class _$CollectionEntityCopyWith<$Res> implements $CollectionEnti
   factory _$CollectionEntityCopyWith(_CollectionEntity value, $Res Function(_CollectionEntity) _then) = __$CollectionEntityCopyWithImpl;
 @override @useResult
 $Res call({
- String id, String name, String? description, String? coverImageUrl, int linkCount, DateTime createdAt, DateTime updatedAt
+ String id, String name, DateTime createdAt, DateTime updatedAt, String? description, String? coverImageUrl, int linkCount
 });
 
 
@@ -276,16 +276,16 @@ class __$CollectionEntityCopyWithImpl<$Res>
 
 /// Create a copy of CollectionEntity
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? name = null,Object? description = freezed,Object? coverImageUrl = freezed,Object? linkCount = null,Object? createdAt = null,Object? updatedAt = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? name = null,Object? createdAt = null,Object? updatedAt = null,Object? description = freezed,Object? coverImageUrl = freezed,Object? linkCount = null,}) {
   return _then(_CollectionEntity(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
-as String,description: freezed == description ? _self.description : description // ignore: cast_nullable_to_non_nullable
+as String,createdAt: null == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
+as DateTime,updatedAt: null == updatedAt ? _self.updatedAt : updatedAt // ignore: cast_nullable_to_non_nullable
+as DateTime,description: freezed == description ? _self.description : description // ignore: cast_nullable_to_non_nullable
 as String?,coverImageUrl: freezed == coverImageUrl ? _self.coverImageUrl : coverImageUrl // ignore: cast_nullable_to_non_nullable
 as String?,linkCount: null == linkCount ? _self.linkCount : linkCount // ignore: cast_nullable_to_non_nullable
-as int,createdAt: null == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
-as DateTime,updatedAt: null == updatedAt ? _self.updatedAt : updatedAt // ignore: cast_nullable_to_non_nullable
-as DateTime,
+as int,
   ));
 }
 

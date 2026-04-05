@@ -1,4 +1,3 @@
-import 'package:linknote/core/constants/app_constants.dart';
 import 'package:linknote/core/error/result.dart';
 import 'package:linknote/features/link/domain/entity/link_entity.dart';
 import 'package:linknote/features/link/presentation/provider/link_di_providers.dart';
@@ -20,15 +19,14 @@ class LinkList extends _$LinkList {
     String? cursor,
     bool favoritesOnly = false,
   }) async {
-    final Result<PaginatedState<LinkEntity>> result = await ref
+    final result = await ref
         .read(fetchLinksUsecaseProvider)
         .call(
           cursor: cursor,
-          pageSize: AppConstants.defaultPageSize,
           favoritesOnly: favoritesOnly,
         );
     if (result.isSuccess) return result.data!;
-    throw result.failure!;
+    throw Exception(result.failure?.message ?? 'Failed to fetch links');
   }
 
   Future<void> refresh() async {
@@ -57,7 +55,7 @@ class LinkList extends _$LinkList {
           isLoadingMore: false,
         ),
       );
-    } catch (e) {
+    } on Exception catch (e) {
       state = AsyncData(
         current.copyWith(
           isLoadingMore: false,
@@ -79,9 +77,7 @@ class LinkList extends _$LinkList {
       ),
     );
 
-    final Result<void> result = await ref
-        .read(deleteLinkUsecaseProvider)
-        .call(id);
+    final result = await ref.read(deleteLinkUsecaseProvider).call(id);
     if (result.isFailure) {
       state = AsyncData(previous);
     }
@@ -102,7 +98,7 @@ class LinkList extends _$LinkList {
     }).toList();
     state = AsyncData(current.copyWith(items: updatedItems));
 
-    final Result<LinkEntity> result = await ref
+    final result = await ref
         .read(toggleFavoriteUsecaseProvider)
         .call(id, isFavorite: !link.isFavorite);
     if (result.isFailure) {

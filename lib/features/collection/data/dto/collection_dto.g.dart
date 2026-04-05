@@ -11,10 +11,10 @@ _CollectionDto _$CollectionDtoFromJson(Map<String, dynamic> json) =>
       id: json['id'] as String,
       userId: json['user_id'] as String,
       name: json['name'] as String,
-      description: json['description'] as String?,
-      coverImageUrl: json['cover_image_url'] as String?,
       createdAt: json['created_at'] as String,
       updatedAt: json['updated_at'] as String,
+      description: json['description'] as String?,
+      coverImageUrl: json['cover_image_url'] as String?,
       links:
           (json['links'] as List<dynamic>?)
               ?.map((e) => LinkCountDto.fromJson(e as Map<String, dynamic>))
@@ -27,10 +27,10 @@ Map<String, dynamic> _$CollectionDtoToJson(_CollectionDto instance) =>
       'id': instance.id,
       'user_id': instance.userId,
       'name': instance.name,
-      'description': instance.description,
-      'cover_image_url': instance.coverImageUrl,
       'created_at': instance.createdAt,
       'updated_at': instance.updatedAt,
+      'description': instance.description,
+      'cover_image_url': instance.coverImageUrl,
       'links': instance.links,
     };
 

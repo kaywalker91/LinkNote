@@ -53,7 +53,6 @@ abstract final class AppTheme {
   );
 
   static ThemeData _build({
-    Brightness brightness = Brightness.light,
     required ColorScheme colorScheme,
     required Color scaffoldBackground,
     required Color appBarBackground,
@@ -71,6 +70,7 @@ abstract final class AppTheme {
     required Color fabForeground,
     required Color snackBarBackground,
     required Color snackBarForeground,
+    Brightness brightness = Brightness.light,
   }) {
     return ThemeData(
       useMaterial3: true,
