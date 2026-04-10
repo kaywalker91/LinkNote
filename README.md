@@ -5,6 +5,7 @@
 A mobile bookmark manager that auto-extracts metadata from any URL — save, organize, search, and share your web links in one place.
 
 [![CI](https://github.com/kaywalker91/LinkNote/actions/workflows/ci.yml/badge.svg)](https://github.com/kaywalker91/LinkNote/actions/workflows/ci.yml)
+[![codecov](https://codecov.io/gh/kaywalker91/LinkNote/graph/badge.svg)](https://codecov.io/gh/kaywalker91/LinkNote)
 ![Flutter](https://img.shields.io/badge/Flutter-3.41.4-02569B?logo=flutter)
 ![Dart](https://img.shields.io/badge/Dart-3.11.1-0175C2?logo=dart)
 ![Riverpod](https://img.shields.io/badge/Riverpod-3.x-F28C00)
