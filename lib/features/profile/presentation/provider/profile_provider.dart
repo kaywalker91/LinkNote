@@ -1,6 +1,6 @@
-import 'package:linknote/features/auth/domain/entity/auth_state_entity.dart';
-import 'package:linknote/features/auth/presentation/provider/auth_provider.dart';
+import 'package:linknote/core/error/result.dart';
 import 'package:linknote/features/profile/domain/entity/user_profile_entity.dart';
+import 'package:linknote/features/profile/presentation/provider/profile_di_providers.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'profile_provider.g.dart';
@@ -9,16 +9,29 @@ part 'profile_provider.g.dart';
 class Profile extends _$Profile {
   @override
   Future<UserProfileEntity> build() async {
-    final authState = await ref.watch(authProvider.future);
-    return switch (authState) {
-      Authenticated(:final userId, :final email) => UserProfileEntity(
-        id: userId,
-        email: email,
-        displayName: email.split('@').first,
-      ),
-      Unauthenticated() => throw Exception('Not authenticated'),
-      AuthLoading() => throw Exception('Loading'),
-    };
+    final usecase = ref.watch(getProfileUsecaseProvider);
+    final result = await usecase.call(); // Result<UserProfileEntity>
+
+    if (result.isSuccess) return result.data!;
+    throw Exception(result.failure.toString());
+  }
+
+  Future<void> updateProfile({
+    String? displayName,
+    String? avatarUrl,
+  }) async {
+    state = const AsyncLoading();
+    final usecase = ref.read(updateProfileUsecaseProvider);
+    final result = await usecase.call(
+      displayName: displayName,
+      avatarUrl: avatarUrl,
+    );
+
+    if (result.isSuccess) {
+      state = AsyncData(result.data!);
+    } else {
+      state = AsyncError(result.failure!, StackTrace.current);
+    }
   }
 
   Future<void> refresh() async {

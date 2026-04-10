@@ -37,7 +37,7 @@ final class NotificationListProvider
   NotificationList create() => NotificationList();
 }
 
-String _$notificationListHash() => r'489fa7c6b878d2fbe15ca1069b5c1ebb9367e0ee';
+String _$notificationListHash() => r'05918a1818f91418ea02430838cfc79d5f9c9cc5';
 
 abstract class _$NotificationList
     extends $AsyncNotifier<PaginatedState<NotificationEntity>> {
