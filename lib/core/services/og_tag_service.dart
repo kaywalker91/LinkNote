@@ -24,8 +24,14 @@ class OgTagService {
       );
 
   final Dio _dio;
+  final Map<String, _CacheEntry> _cache = {};
+  static const Duration _cacheTtl = Duration(minutes: 30);
 
   Future<OgTagResult> fetchOgTags(String url) async {
+    final cached = _cache[url];
+    if (cached != null && !cached.isExpired) {
+      return cached.result;
+    }
     try {
       final response = await _dio.get<String>(url);
       final body = response.data;
@@ -56,15 +62,29 @@ class OgTagService {
       // Fallback to <title> if no OG title
       ogTitle ??= document.head?.querySelector('title')?.text;
 
-      return OgTagResult(
+      final result = OgTagResult(
         title: ogTitle,
         description: ogDescription,
         imageUrl: ogImage,
       );
+      _cache[url] = _CacheEntry(result: result);
+      return result;
     } on Exception catch (_) {
       return const OgTagResult();
     }
   }
+
+  void clearCache() => _cache.clear();
+}
+
+class _CacheEntry {
+  _CacheEntry({required this.result}) : createdAt = DateTime.now();
+
+  final OgTagResult result;
+  final DateTime createdAt;
+
+  bool get isExpired =>
+      DateTime.now().difference(createdAt) > OgTagService._cacheTtl;
 }
 
 @riverpod
