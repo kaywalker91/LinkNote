@@ -24,11 +24,22 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
     super.dispose();
   }
 
+  void _onClearPressed() {
+    _controller.clear();
+    ref.read(searchProvider.notifier).clearSearch();
+  }
+
   @override
   Widget build(BuildContext context) {
     final hasQuery = ref.watch(
       searchProvider.select((s) => s.query.isNotEmpty),
     );
+    final clearButton = hasQuery
+        ? IconButton(
+            icon: const Icon(Icons.clear),
+            onPressed: _onClearPressed,
+          )
+        : null;
 
     return Scaffold(
       appBar: AppBar(
@@ -37,20 +48,11 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
           decoration: InputDecoration(
             hintText: 'Search links, notes, tags',
             border: InputBorder.none,
-            suffixIcon: hasQuery
-                ? IconButton(
-                    icon: const Icon(Icons.clear),
-                    onPressed: () {
-                      _controller.clear();
-                      ref.read(searchProvider.notifier).clearSearch();
-                    },
-                  )
-                : null,
+            suffixIcon: clearButton,
           ),
           onChanged: (v) => ref.read(searchProvider.notifier).updateQuery(v),
-          onSubmitted: (v) {
-            ref.read(searchProvider.notifier).addRecentSearch(v);
-          },
+          onSubmitted: (v) =>
+              ref.read(searchProvider.notifier).addRecentSearch(v),
         ),
       ),
       body: const _SearchBody(),
@@ -106,9 +108,10 @@ class _SearchBody extends ConsumerWidget {
     }
 
     if (state.results.isEmpty) {
+      final query = state.query;
       return EmptyStateWidget(
         icon: Icons.search_off_outlined,
-        message: 'No results for "${state.query}"',
+        message: 'No results for "$query"',
       );
     }
 
@@ -119,8 +122,8 @@ class _SearchBody extends ConsumerWidget {
         return LinkListTile(
           link: link,
           onTap: () => context.push(Routes.linkDetailPath(link.id)),
-          onFavoriteTap:
-              () {}, // TODO(linknote): Wire to toggleFavorite usecase
+          onFavoriteTap: () =>
+              ref.read(searchProvider.notifier).toggleFavorite(link.id),
         );
       },
     );
