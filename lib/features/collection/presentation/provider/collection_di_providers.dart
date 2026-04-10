@@ -1,5 +1,7 @@
+import 'package:hive_ce/hive_ce.dart';
 import 'package:linknote/features/auth/domain/entity/auth_state_entity.dart';
 import 'package:linknote/features/auth/presentation/provider/auth_provider.dart';
+import 'package:linknote/features/collection/data/datasource/collection_local_datasource.dart';
 import 'package:linknote/features/collection/data/datasource/collection_remote_datasource.dart';
 import 'package:linknote/features/collection/data/repository/collection_repository_impl.dart';
 import 'package:linknote/features/collection/domain/repository/i_collection_repository.dart';
@@ -19,6 +21,13 @@ CollectionRemoteDataSource collectionRemoteDataSource(Ref ref) {
 }
 
 @riverpod
+CollectionLocalDataSource collectionLocalDataSource(Ref ref) {
+  return CollectionLocalDataSource(
+    Hive.box<Map<String, dynamic>>('collections'),
+  );
+}
+
+@riverpod
 ICollectionRepository collectionRepository(Ref ref) {
   final authState = ref.watch(authProvider).requireValue;
   final userId = switch (authState) {
@@ -27,6 +36,7 @@ ICollectionRepository collectionRepository(Ref ref) {
   };
   return CollectionRepositoryImpl(
     ref.watch(collectionRemoteDataSourceProvider),
+    ref.watch(collectionLocalDataSourceProvider),
     userId: userId,
   );
 }

@@ -58,6 +58,54 @@ final class CollectionRemoteDataSourceProvider
 String _$collectionRemoteDataSourceHash() =>
     r'2f4fcdd266e8febd8ffb41e535da3f904ab57794';
 
+@ProviderFor(collectionLocalDataSource)
+final collectionLocalDataSourceProvider = CollectionLocalDataSourceProvider._();
+
+final class CollectionLocalDataSourceProvider
+    extends
+        $FunctionalProvider<
+          CollectionLocalDataSource,
+          CollectionLocalDataSource,
+          CollectionLocalDataSource
+        >
+    with $Provider<CollectionLocalDataSource> {
+  CollectionLocalDataSourceProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'collectionLocalDataSourceProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$collectionLocalDataSourceHash();
+
+  @$internal
+  @override
+  $ProviderElement<CollectionLocalDataSource> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  CollectionLocalDataSource create(Ref ref) {
+    return collectionLocalDataSource(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(CollectionLocalDataSource value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<CollectionLocalDataSource>(value),
+    );
+  }
+}
+
+String _$collectionLocalDataSourceHash() =>
+    r'72ec6d79cfc4738811940d21b1d5bea6c6baeeef';
+
 @ProviderFor(collectionRepository)
 final collectionRepositoryProvider = CollectionRepositoryProvider._();
 
@@ -104,7 +152,7 @@ final class CollectionRepositoryProvider
 }
 
 String _$collectionRepositoryHash() =>
-    r'25503df6b61ab29d089050390868abde7472a619';
+    r'3749c609334666a5042682359b2336e1fcffe938';
 
 @ProviderFor(getCollectionsUsecase)
 final getCollectionsUsecaseProvider = GetCollectionsUsecaseProvider._();
