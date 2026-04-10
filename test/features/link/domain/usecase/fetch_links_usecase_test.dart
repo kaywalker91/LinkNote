@@ -48,6 +48,7 @@ void main() {
           cursor: any(named: 'cursor'),
           pageSize: any(named: 'pageSize'),
           favoritesOnly: any(named: 'favoritesOnly'),
+          collectionId: any(named: 'collectionId'),
         ),
       ).thenAnswer((_) async => success(tState));
 
@@ -71,6 +72,7 @@ void main() {
           cursor: any(named: 'cursor'),
           pageSize: any(named: 'pageSize'),
           favoritesOnly: any(named: 'favoritesOnly'),
+          collectionId: any(named: 'collectionId'),
         ),
       ).thenAnswer((_) async => success(tEmptyState));
 
@@ -91,6 +93,7 @@ void main() {
           cursor: any(named: 'cursor'),
           pageSize: any(named: 'pageSize'),
           favoritesOnly: any(named: 'favoritesOnly'),
+          collectionId: any(named: 'collectionId'),
         ),
       ).thenAnswer((_) async => error(tFailure));
 
@@ -102,7 +105,7 @@ void main() {
       expect(result.failure, equals(tFailure));
     });
 
-    test('should pass cursor and favoritesOnly parameters correctly', () async {
+    test('should pass all parameters correctly', () async {
       // Arrange
       const tState = PaginatedState<LinkEntity>(items: []);
       when(
@@ -110,11 +113,17 @@ void main() {
           cursor: any(named: 'cursor'),
           pageSize: any(named: 'pageSize'),
           favoritesOnly: any(named: 'favoritesOnly'),
+          collectionId: any(named: 'collectionId'),
         ),
       ).thenAnswer((_) async => success(tState));
 
       // Act
-      await sut.call(cursor: 'some-cursor', pageSize: 10, favoritesOnly: true);
+      await sut.call(
+        cursor: 'some-cursor',
+        pageSize: 10,
+        favoritesOnly: true,
+        collectionId: 'col-1',
+      );
 
       // Assert
       verify(
@@ -122,6 +131,7 @@ void main() {
           cursor: 'some-cursor',
           pageSize: 10,
           favoritesOnly: true,
+          collectionId: 'col-1',
         ),
       ).called(1);
     });

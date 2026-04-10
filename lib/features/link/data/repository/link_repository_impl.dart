@@ -21,11 +21,13 @@ class LinkRepositoryImpl implements ILinkRepository {
     String? cursor,
     int pageSize = 20,
     bool favoritesOnly = false,
+    String? collectionId,
   }) async {
     final remote = await _remoteDataSource.getLinks(
       cursor: cursor,
       pageSize: pageSize,
       favoritesOnly: favoritesOnly,
+      collectionId: collectionId,
     );
 
     if (remote.isSuccess) {
@@ -41,7 +43,10 @@ class LinkRepositoryImpl implements ILinkRepository {
 
     // Remote failed — try local fallback (only for initial fetch)
     if (cursor == null) {
-      return _localDataSource.getCachedLinks(favoritesOnly: favoritesOnly);
+      return _localDataSource.getCachedLinks(
+        favoritesOnly: favoritesOnly,
+        collectionId: collectionId,
+      );
     }
 
     return remote;

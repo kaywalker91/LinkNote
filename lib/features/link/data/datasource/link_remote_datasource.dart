@@ -21,12 +21,16 @@ class LinkRemoteDataSource {
     String? cursor,
     int pageSize = 20,
     bool favoritesOnly = false,
+    String? collectionId,
   }) async {
     try {
       var query = _client.from('links').select(_selectQuery);
 
       if (favoritesOnly) {
         query = query.eq('is_favorite', true);
+      }
+      if (collectionId != null) {
+        query = query.eq('collection_id', collectionId);
       }
       if (cursor != null) {
         query = query.lt('created_at', cursor);

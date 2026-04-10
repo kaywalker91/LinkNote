@@ -7,6 +7,7 @@ abstract interface class ILinkRepository {
     String? cursor,
     int pageSize = 20,
     bool favoritesOnly = false,
+    String? collectionId,
   });
   Future<Result<LinkEntity>> getLinkById(String id);
   Future<Result<LinkEntity>> createLink(LinkEntity link);

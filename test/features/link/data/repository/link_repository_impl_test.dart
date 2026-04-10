@@ -60,6 +60,7 @@ void main() {
             cursor: any(named: 'cursor'),
             pageSize: any(named: 'pageSize'),
             favoritesOnly: any(named: 'favoritesOnly'),
+            collectionId: any(named: 'collectionId'),
           ),
         ).thenAnswer((_) async => success(tPaginatedState));
         when(() => mockLocal.cacheLinks(any())).thenAnswer((_) async {});
@@ -86,11 +87,13 @@ void main() {
             cursor: any(named: 'cursor'),
             pageSize: any(named: 'pageSize'),
             favoritesOnly: any(named: 'favoritesOnly'),
+            collectionId: any(named: 'collectionId'),
           ),
         ).thenAnswer((_) async => error(tFailure));
         when(
           () => mockLocal.getCachedLinks(
             favoritesOnly: any(named: 'favoritesOnly'),
+            collectionId: any(named: 'collectionId'),
           ),
         ).thenReturn(success(tCachedState));
 
@@ -100,7 +103,12 @@ void main() {
         // Assert
         expect(result.isSuccess, isTrue);
         expect(result.data!.items, equals(tLinks));
-        verify(() => mockLocal.getCachedLinks()).called(1);
+        verify(
+          () => mockLocal.getCachedLinks(
+            favoritesOnly: any(named: 'favoritesOnly'),
+            collectionId: any(named: 'collectionId'),
+          ),
+        ).called(1);
       },
     );
 
@@ -114,6 +122,7 @@ void main() {
             cursor: any(named: 'cursor'),
             pageSize: any(named: 'pageSize'),
             favoritesOnly: any(named: 'favoritesOnly'),
+            collectionId: any(named: 'collectionId'),
           ),
         ).thenAnswer((_) async => error(tFailure));
 
@@ -125,6 +134,7 @@ void main() {
         verifyNever(
           () => mockLocal.getCachedLinks(
             favoritesOnly: any(named: 'favoritesOnly'),
+            collectionId: any(named: 'collectionId'),
           ),
         );
       },
