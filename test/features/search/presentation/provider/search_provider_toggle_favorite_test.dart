@@ -5,6 +5,8 @@ import 'package:linknote/core/error/result.dart';
 import 'package:linknote/features/link/domain/entity/link_entity.dart';
 import 'package:linknote/features/link/domain/usecase/toggle_favorite_usecase.dart';
 import 'package:linknote/features/link/presentation/provider/link_di_providers.dart';
+import 'package:linknote/features/search/data/datasource/search_history_local_datasource.dart';
+import 'package:linknote/features/search/domain/entity/search_filter_entity.dart';
 import 'package:linknote/features/search/domain/usecase/search_links_usecase.dart';
 import 'package:linknote/features/search/presentation/provider/search_di_providers.dart';
 import 'package:linknote/features/search/presentation/provider/search_provider.dart';
@@ -13,6 +15,9 @@ import 'package:mocktail/mocktail.dart';
 class MockSearchLinksUsecase extends Mock implements SearchLinksUsecase {}
 
 class MockToggleFavoriteUsecase extends Mock implements ToggleFavoriteUsecase {}
+
+class MockSearchHistoryLocalDataSource extends Mock
+    implements SearchHistoryLocalDataSource {}
 
 final _tLink = LinkEntity(
   id: 'link-1',
@@ -25,16 +30,25 @@ final _tLink = LinkEntity(
 void main() {
   late MockSearchLinksUsecase mockSearch;
   late MockToggleFavoriteUsecase mockToggle;
+  late MockSearchHistoryLocalDataSource mockHistory;
   late ProviderContainer container;
   late ProviderSubscription<Object?> sub;
+
+  setUpAll(() {
+    registerFallbackValue(const SearchFilterEntity());
+  });
 
   setUp(() {
     mockSearch = MockSearchLinksUsecase();
     mockToggle = MockToggleFavoriteUsecase();
+    mockHistory = MockSearchHistoryLocalDataSource();
+    when(() => mockHistory.getRecentSearches()).thenReturn([]);
     container = ProviderContainer(
       overrides: [
         searchLinksUsecaseProvider.overrideWithValue(mockSearch),
         toggleFavoriteUsecaseProvider.overrideWithValue(mockToggle),
+        searchHistoryLocalDataSourceProvider
+            .overrideWithValue(mockHistory),
       ],
     );
     sub = container.listen(
@@ -50,7 +64,7 @@ void main() {
 
   Future<Search> buildWithResults() async {
     when(
-      () => mockSearch.call(any()),
+      () => mockSearch.call(any(), filter: any(named: 'filter')),
     ).thenAnswer((_) async => success([_tLink]));
     final notifier = container.read(searchProvider.notifier)
       ..updateQuery('example');

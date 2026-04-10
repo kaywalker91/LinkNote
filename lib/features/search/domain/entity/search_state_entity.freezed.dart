@@ -14,7 +14,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$SearchStateEntity {
 
- String get query; List<LinkEntity> get results; List<String> get recentSearches; bool get isSearching;
+ String get query; List<LinkEntity> get results; List<String> get recentSearches; bool get isSearching; SearchFilterEntity get filter;
 /// Create a copy of SearchStateEntity
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -25,16 +25,16 @@ $SearchStateEntityCopyWith<SearchStateEntity> get copyWith => _$SearchStateEntit
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is SearchStateEntity&&(identical(other.query, query) || other.query == query)&&const DeepCollectionEquality().equals(other.results, results)&&const DeepCollectionEquality().equals(other.recentSearches, recentSearches)&&(identical(other.isSearching, isSearching) || other.isSearching == isSearching));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is SearchStateEntity&&(identical(other.query, query) || other.query == query)&&const DeepCollectionEquality().equals(other.results, results)&&const DeepCollectionEquality().equals(other.recentSearches, recentSearches)&&(identical(other.isSearching, isSearching) || other.isSearching == isSearching)&&(identical(other.filter, filter) || other.filter == filter));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,query,const DeepCollectionEquality().hash(results),const DeepCollectionEquality().hash(recentSearches),isSearching);
+int get hashCode => Object.hash(runtimeType,query,const DeepCollectionEquality().hash(results),const DeepCollectionEquality().hash(recentSearches),isSearching,filter);
 
 @override
 String toString() {
-  return 'SearchStateEntity(query: $query, results: $results, recentSearches: $recentSearches, isSearching: $isSearching)';
+  return 'SearchStateEntity(query: $query, results: $results, recentSearches: $recentSearches, isSearching: $isSearching, filter: $filter)';
 }
 
 
@@ -45,11 +45,11 @@ abstract mixin class $SearchStateEntityCopyWith<$Res>  {
   factory $SearchStateEntityCopyWith(SearchStateEntity value, $Res Function(SearchStateEntity) _then) = _$SearchStateEntityCopyWithImpl;
 @useResult
 $Res call({
- String query, List<LinkEntity> results, List<String> recentSearches, bool isSearching
+ String query, List<LinkEntity> results, List<String> recentSearches, bool isSearching, SearchFilterEntity filter
 });
 
 
-
+$SearchFilterEntityCopyWith<$Res> get filter;
 
 }
 /// @nodoc
@@ -62,16 +62,26 @@ class _$SearchStateEntityCopyWithImpl<$Res>
 
 /// Create a copy of SearchStateEntity
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? query = null,Object? results = null,Object? recentSearches = null,Object? isSearching = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? query = null,Object? results = null,Object? recentSearches = null,Object? isSearching = null,Object? filter = null,}) {
   return _then(_self.copyWith(
 query: null == query ? _self.query : query // ignore: cast_nullable_to_non_nullable
 as String,results: null == results ? _self.results : results // ignore: cast_nullable_to_non_nullable
 as List<LinkEntity>,recentSearches: null == recentSearches ? _self.recentSearches : recentSearches // ignore: cast_nullable_to_non_nullable
 as List<String>,isSearching: null == isSearching ? _self.isSearching : isSearching // ignore: cast_nullable_to_non_nullable
-as bool,
+as bool,filter: null == filter ? _self.filter : filter // ignore: cast_nullable_to_non_nullable
+as SearchFilterEntity,
   ));
 }
-
+/// Create a copy of SearchStateEntity
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$SearchFilterEntityCopyWith<$Res> get filter {
+  
+  return $SearchFilterEntityCopyWith<$Res>(_self.filter, (value) {
+    return _then(_self.copyWith(filter: value));
+  });
+}
 }
 
 
@@ -153,10 +163,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String query,  List<LinkEntity> results,  List<String> recentSearches,  bool isSearching)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String query,  List<LinkEntity> results,  List<String> recentSearches,  bool isSearching,  SearchFilterEntity filter)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _SearchStateEntity() when $default != null:
-return $default(_that.query,_that.results,_that.recentSearches,_that.isSearching);case _:
+return $default(_that.query,_that.results,_that.recentSearches,_that.isSearching,_that.filter);case _:
   return orElse();
 
 }
@@ -174,10 +184,10 @@ return $default(_that.query,_that.results,_that.recentSearches,_that.isSearching
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String query,  List<LinkEntity> results,  List<String> recentSearches,  bool isSearching)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String query,  List<LinkEntity> results,  List<String> recentSearches,  bool isSearching,  SearchFilterEntity filter)  $default,) {final _that = this;
 switch (_that) {
 case _SearchStateEntity():
-return $default(_that.query,_that.results,_that.recentSearches,_that.isSearching);case _:
+return $default(_that.query,_that.results,_that.recentSearches,_that.isSearching,_that.filter);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -194,10 +204,10 @@ return $default(_that.query,_that.results,_that.recentSearches,_that.isSearching
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String query,  List<LinkEntity> results,  List<String> recentSearches,  bool isSearching)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String query,  List<LinkEntity> results,  List<String> recentSearches,  bool isSearching,  SearchFilterEntity filter)?  $default,) {final _that = this;
 switch (_that) {
 case _SearchStateEntity() when $default != null:
-return $default(_that.query,_that.results,_that.recentSearches,_that.isSearching);case _:
+return $default(_that.query,_that.results,_that.recentSearches,_that.isSearching,_that.filter);case _:
   return null;
 
 }
@@ -209,7 +219,7 @@ return $default(_that.query,_that.results,_that.recentSearches,_that.isSearching
 
 
 class _SearchStateEntity implements SearchStateEntity {
-  const _SearchStateEntity({this.query = '', final  List<LinkEntity> results = const [], final  List<String> recentSearches = const [], this.isSearching = false}): _results = results,_recentSearches = recentSearches;
+  const _SearchStateEntity({this.query = '', final  List<LinkEntity> results = const [], final  List<String> recentSearches = const [], this.isSearching = false, this.filter = const SearchFilterEntity()}): _results = results,_recentSearches = recentSearches;
   
 
 @override@JsonKey() final  String query;
@@ -228,6 +238,7 @@ class _SearchStateEntity implements SearchStateEntity {
 }
 
 @override@JsonKey() final  bool isSearching;
+@override@JsonKey() final  SearchFilterEntity filter;
 
 /// Create a copy of SearchStateEntity
 /// with the given fields replaced by the non-null parameter values.
@@ -239,16 +250,16 @@ _$SearchStateEntityCopyWith<_SearchStateEntity> get copyWith => __$SearchStateEn
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _SearchStateEntity&&(identical(other.query, query) || other.query == query)&&const DeepCollectionEquality().equals(other._results, _results)&&const DeepCollectionEquality().equals(other._recentSearches, _recentSearches)&&(identical(other.isSearching, isSearching) || other.isSearching == isSearching));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _SearchStateEntity&&(identical(other.query, query) || other.query == query)&&const DeepCollectionEquality().equals(other._results, _results)&&const DeepCollectionEquality().equals(other._recentSearches, _recentSearches)&&(identical(other.isSearching, isSearching) || other.isSearching == isSearching)&&(identical(other.filter, filter) || other.filter == filter));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,query,const DeepCollectionEquality().hash(_results),const DeepCollectionEquality().hash(_recentSearches),isSearching);
+int get hashCode => Object.hash(runtimeType,query,const DeepCollectionEquality().hash(_results),const DeepCollectionEquality().hash(_recentSearches),isSearching,filter);
 
 @override
 String toString() {
-  return 'SearchStateEntity(query: $query, results: $results, recentSearches: $recentSearches, isSearching: $isSearching)';
+  return 'SearchStateEntity(query: $query, results: $results, recentSearches: $recentSearches, isSearching: $isSearching, filter: $filter)';
 }
 
 
@@ -259,11 +270,11 @@ abstract mixin class _$SearchStateEntityCopyWith<$Res> implements $SearchStateEn
   factory _$SearchStateEntityCopyWith(_SearchStateEntity value, $Res Function(_SearchStateEntity) _then) = __$SearchStateEntityCopyWithImpl;
 @override @useResult
 $Res call({
- String query, List<LinkEntity> results, List<String> recentSearches, bool isSearching
+ String query, List<LinkEntity> results, List<String> recentSearches, bool isSearching, SearchFilterEntity filter
 });
 
 
-
+@override $SearchFilterEntityCopyWith<$Res> get filter;
 
 }
 /// @nodoc
@@ -276,17 +287,27 @@ class __$SearchStateEntityCopyWithImpl<$Res>
 
 /// Create a copy of SearchStateEntity
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? query = null,Object? results = null,Object? recentSearches = null,Object? isSearching = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? query = null,Object? results = null,Object? recentSearches = null,Object? isSearching = null,Object? filter = null,}) {
   return _then(_SearchStateEntity(
 query: null == query ? _self.query : query // ignore: cast_nullable_to_non_nullable
 as String,results: null == results ? _self._results : results // ignore: cast_nullable_to_non_nullable
 as List<LinkEntity>,recentSearches: null == recentSearches ? _self._recentSearches : recentSearches // ignore: cast_nullable_to_non_nullable
 as List<String>,isSearching: null == isSearching ? _self.isSearching : isSearching // ignore: cast_nullable_to_non_nullable
-as bool,
+as bool,filter: null == filter ? _self.filter : filter // ignore: cast_nullable_to_non_nullable
+as SearchFilterEntity,
   ));
 }
 
-
+/// Create a copy of SearchStateEntity
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$SearchFilterEntityCopyWith<$Res> get filter {
+  
+  return $SearchFilterEntityCopyWith<$Res>(_self.filter, (value) {
+    return _then(_self.copyWith(filter: value));
+  });
+}
 }
 
 // dart format on
