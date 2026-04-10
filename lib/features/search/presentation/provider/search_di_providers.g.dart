@@ -57,6 +57,55 @@ final class SearchRemoteDataSourceProvider
 String _$searchRemoteDataSourceHash() =>
     r'1d27e9e2df335fc88e063ba8d2bef9969b5659e3';
 
+@ProviderFor(searchHistoryLocalDataSource)
+final searchHistoryLocalDataSourceProvider =
+    SearchHistoryLocalDataSourceProvider._();
+
+final class SearchHistoryLocalDataSourceProvider
+    extends
+        $FunctionalProvider<
+          SearchHistoryLocalDataSource,
+          SearchHistoryLocalDataSource,
+          SearchHistoryLocalDataSource
+        >
+    with $Provider<SearchHistoryLocalDataSource> {
+  SearchHistoryLocalDataSourceProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'searchHistoryLocalDataSourceProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$searchHistoryLocalDataSourceHash();
+
+  @$internal
+  @override
+  $ProviderElement<SearchHistoryLocalDataSource> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  SearchHistoryLocalDataSource create(Ref ref) {
+    return searchHistoryLocalDataSource(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(SearchHistoryLocalDataSource value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<SearchHistoryLocalDataSource>(value),
+    );
+  }
+}
+
+String _$searchHistoryLocalDataSourceHash() =>
+    r'e299ec7fefda5d9a63462d2cbab3ac89d9efe23a';
+
 @ProviderFor(searchRepository)
 final searchRepositoryProvider = SearchRepositoryProvider._();
 
