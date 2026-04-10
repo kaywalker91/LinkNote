@@ -23,7 +23,7 @@ CollectionRemoteDataSource collectionRemoteDataSource(Ref ref) {
 @riverpod
 CollectionLocalDataSource collectionLocalDataSource(Ref ref) {
   return CollectionLocalDataSource(
-    Hive.box<Map<String, dynamic>>('collections'),
+    Hive.box<Map<dynamic, dynamic>>('collections'),
   );
 }
 
