@@ -52,6 +52,9 @@ app.*.map.json
 *.keystore
 key.properties
 
+# Private docs
+docs/interview-talking-points.md
+
 # Claude Code
 .claude/
 
