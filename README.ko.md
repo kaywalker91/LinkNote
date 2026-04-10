@@ -5,6 +5,7 @@
 URL을 붙여넣으면 메타데이터를 자동 추출하는 모바일 북마크 매니저 — 웹 링크의 저장, 정리, 검색, 공유를 하나의 앱에서.
 
 [![CI](https://github.com/kaywalker91/LinkNote/actions/workflows/ci.yml/badge.svg)](https://github.com/kaywalker91/LinkNote/actions/workflows/ci.yml)
+[![codecov](https://codecov.io/gh/kaywalker91/LinkNote/graph/badge.svg)](https://codecov.io/gh/kaywalker91/LinkNote)
 ![Flutter](https://img.shields.io/badge/Flutter-3.41.4-02569B?logo=flutter)
 ![Dart](https://img.shields.io/badge/Dart-3.11.1-0175C2?logo=dart)
 ![Riverpod](https://img.shields.io/badge/Riverpod-3.x-F28C00)
