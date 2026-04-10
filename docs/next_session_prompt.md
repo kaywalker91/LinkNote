@@ -5,52 +5,47 @@
 ---
 
 ```
-Widget 테스트 보강 — 커버리지 70% 목표 구현
+Phase 4 구현 — Link 로컬 캐시 (Hive CE) + Remote-First/Local-Fallback
 
 ## 배경
-- 2026-04-11 세션에서 P1/P2 전체 커밋 + 푸시 완료 (178f52e, 0eba95b, 34487c2).
-- 현재 테스트: 42파일, 162 테스트 ALL GREEN.
-- Widget/Screen 테스트는 3파일만 존재 (login_screen, home_screen, link_add_screen).
-- 메모리: project_code_review_roadmap.md 참조 (Widget 테스트 로드맵 포함).
+- 2026-04-11 세션에서 Widget 테스트 보강 완료 (9b5a492). 60파일, 257 테스트 ALL GREEN.
+- P0~P2 코드리뷰 로드맵 전체 완료.
+- Phase 4 리서치/플랜 문서 이미 작성 완료:
+  - `docs/research-phase4.md` — 현재 아키텍처 분석 + 캐시 전략 설계
+  - `docs/plan-phase4.md` — 4단계 구현 계획 (4파일: 1 신규 + 3 수정)
 
 ## 목표
-Presentation 레이어 Widget 테스트 커버리지 70% 달성.
+Link feature에 Hive CE 기반 로컬 캐시를 추가하여 오프라인 읽기를 지원한다.
 
-## 구현 계획
+## 구현 범위 (docs/plan-phase4.md 참조)
 
-### Wave 1: Shared Widgets (재사용 위젯 — 의존성 없어 독립 테스트 가능)
-우선순위 높은 것부터:
-1. `test/shared/widgets/primary_button_widget_test.dart` — 탭 콜백, 로딩 상태, 비활성화
-2. `test/shared/widgets/confirmation_dialog_widget_test.dart` — 확인/취소 콜백
-3. `test/shared/widgets/tag_chip_widget_test.dart` — 탭, 선택 상태 표시
-4. `test/shared/widgets/offline_banner_widget_test.dart` — 오프라인 시 배너 표시
-5. `test/shared/widgets/async_value_view_test.dart` — loading/error/data 3상태 렌더링
-6. `test/shared/widgets/app_search_bar_widget_test.dart` — 입력, 클리어, 서브밋 콜백
+### Step 1: LinkLocalDataSource 생성
+- `lib/features/link/data/datasource/link_local_datasource.dart` (신규)
+- Box<Map> 사용, link.id를 key로 저장
+- getCachedLinks, getCachedLinkById, cacheLinks, cacheSingleLink, removeCachedLink, updateCachedFavorite, clearAll
 
-### Wave 2: Feature Screens (핵심 사용자 흐름)
-1. `test/features/search/presentation/screens/search_screen_test.dart` — 검색 입력 + 결과 표시
-2. `test/features/link/presentation/screens/link_detail_screen_test.dart` — 상세 정보 렌더링 + 액션 버튼
-3. `test/features/collection/presentation/screens/collection_list_screen_test.dart` — 목록 렌더링 + FAB
-4. `test/features/notification/presentation/screens/notification_screen_test.dart` — 알림 목록 + 읽음 처리
-5. `test/features/profile/presentation/screens/profile_screen_test.dart` — 프로필 정보 표시
+### Step 2: storage_service.dart 수정
+- `initHive()`에 `'links'` Hive box 열기 추가
 
-### Wave 3: 나머지 Screens (시간 허용 시)
-1. `test/features/auth/presentation/screens/signup_screen_test.dart`
-2. `test/features/link/presentation/screens/link_edit_screen_test.dart`
-3. `test/features/collection/presentation/screens/collection_detail_screen_test.dart`
-4. `test/features/collection/presentation/screens/collection_form_screen_test.dart`
-5. `test/features/profile/presentation/screens/settings_screen_test.dart`
+### Step 3: LinkRepositoryImpl 수정
+- 생성자에 LinkLocalDataSource 추가
+- Remote-First + Local-Fallback 패턴 적용
 
-## 테스트 작성 규칙
-- `ProviderScope.overrides`로 Provider mock 주입
-- `mocktail`로 UseCase/Repository mock
-- 각 테스트: Arrange(위젯 pump) → Act(tap/입력) → Assert(find/expect)
-- 테스트 이름: `should [action] when [condition]`
-- Wave 완료마다 `flutter analyze` + `flutter test` 검증
+### Step 4: DI Provider 수정
+- `link_di_providers.dart`에 linkLocalDataSourceProvider 추가
+- linkRepositoryProvider 생성자에 local DS 전달
+
+## 테스트 (TDD)
+- LinkLocalDataSource 단위 테스트 (CRUD 동작)
+- LinkRepositoryImpl 테스트 업데이트 (remote 실패 시 local fallback 검증)
+
+## 수정하지 않는 것
+- ILinkRepository 인터페이스 — 불변
+- UseCase, Provider, Screen — Repository 내부 구현만 변경
 
 ## 완료 기준
-- Widget 테스트 파일 최소 11개 이상 추가 (Wave 1: 6 + Wave 2: 5)
-- 전체 테스트 ALL GREEN
 - flutter analyze 0 errors
+- flutter test ALL GREEN
+- 오프라인 시 캐시된 링크 목록 표시 확인
 - 커밋 + 푸시 (사용자 승인 후)
 ```
