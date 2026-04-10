@@ -103,7 +103,7 @@ final class LinkLocalDataSourceProvider
 }
 
 String _$linkLocalDataSourceHash() =>
-    r'5fd74377a2ca6b9cec14b1b40542f69cd829205d';
+    r'4a63b8eefc10359b0c447a355287aea62dda2835';
 
 @ProviderFor(linkRepository)
 final linkRepositoryProvider = LinkRepositoryProvider._();

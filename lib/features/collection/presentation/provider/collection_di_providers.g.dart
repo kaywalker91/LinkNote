@@ -104,7 +104,7 @@ final class CollectionLocalDataSourceProvider
 }
 
 String _$collectionLocalDataSourceHash() =>
-    r'72ec6d79cfc4738811940d21b1d5bea6c6baeeef';
+    r'6b7c2de0dbb134aeb8b3013a441dd5084b6d4271';
 
 @ProviderFor(collectionRepository)
 final collectionRepositoryProvider = CollectionRepositoryProvider._();

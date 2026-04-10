@@ -12,6 +12,10 @@ Stream<ConnectivityResult> connectivity(Ref ref) {
 
 @Riverpod(keepAlive: true)
 bool isOnline(Ref ref) {
-  final result = ref.watch(connectivityProvider).value;
-  return result != null && result != ConnectivityResult.none;
+  final asyncResult = ref.watch(connectivityProvider);
+  return asyncResult.when(
+    data: (result) => result != ConnectivityResult.none,
+    loading: () => true,
+    error: (_, __) => true,
+  );
 }
