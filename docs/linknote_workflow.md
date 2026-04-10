@@ -33,7 +33,7 @@
 Phase 0  [✅ 완료]  프로젝트 세팅, 라우팅, 테마, 디자인 시스템
 Phase 1  [✅ 완료]  전체 화면 UI 구현 (목업 데이터)
 Phase 2  [✅ 완료]  UI 완성 & 개선 (누락 기능, UX 다듬기)
-Phase 3  [🔄 코드 완료]  백엔드 연동 (Supabase Auth + Data Layer) — Supabase 세팅 대기
+Phase 3  [✅ 완료]  백엔드 연동 (Supabase Auth + Data Layer)
 Phase 4  [✅ 완료]  로컬 캐시 & 성능 최적화
 Phase 5  [✅ 완료]  테스트 작성 (52개 테스트 전체 통과)
 Phase 6  [🔄 진행 중]  CI/CD & 마무리 — CI 워크플로우 완성, 문서/배포 남음
@@ -120,7 +120,7 @@ Phase 6  [🔄 진행 중]  CI/CD & 마무리 — CI 워크플로우 완성, 문
 
 ---
 
-### Phase 3 — 백엔드 연동 [🔄 코드 구현 완료, Supabase 세팅 대기]
+### Phase 3 — 백엔드 연동 [✅ 완료]
 
 **목표:** 목업 데이터를 실제 Supabase 백엔드로 교체
 
