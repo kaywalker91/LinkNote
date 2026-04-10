@@ -93,7 +93,7 @@ class CollectionLocalDataSource {
   CollectionEntity? _mapToEntity(Map<dynamic, dynamic> raw) {
     try {
       return CollectionEntity.fromJson(Map<String, dynamic>.from(raw));
-    } on Exception catch (_) {
+    } on Object {
       return null;
     }
   }

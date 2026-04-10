@@ -17,6 +17,7 @@ class LinkLocalDataSource {
 
   Result<PaginatedState<LinkEntity>> getCachedLinks({
     bool favoritesOnly = false,
+    String? collectionId,
   }) {
     try {
       if (_box.isEmpty) {
@@ -29,6 +30,11 @@ class LinkLocalDataSource {
 
       if (favoritesOnly) {
         entities = entities.where((e) => e.isFavorite).toList();
+      }
+      if (collectionId != null) {
+        entities = entities
+            .where((e) => e.collectionId == collectionId)
+            .toList();
       }
 
       return success(
@@ -112,7 +118,7 @@ class LinkLocalDataSource {
   LinkEntity? _mapToEntity(Map<dynamic, dynamic> raw) {
     try {
       return LinkEntity.fromJson(Map<String, dynamic>.from(raw));
-    } on Exception catch (_) {
+    } on Object {
       return null;
     }
   }
