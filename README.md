@@ -26,6 +26,18 @@ A mobile bookmark manager that auto-extracts metadata from any URL — save, org
 
 ---
 
+## Screenshots
+
+<p align="center">
+  <img src="docs/assets/screenshot_01_login.png" width="180" alt="Login" />
+  <img src="docs/assets/screenshot_02_home.png" width="180" alt="Home" />
+  <img src="docs/assets/screenshot_03_search.png" width="180" alt="Search" />
+  <img src="docs/assets/screenshot_04_collections.png" width="180" alt="Collections" />
+  <img src="docs/assets/screenshot_05_profile.png" width="180" alt="Profile" />
+</p>
+
+---
+
 ## Features
 
 | Feature | Description |
@@ -198,10 +210,10 @@ Three-layer testing strategy with `mocktail` for mocking at boundary layers.
 
 | Layer | Tests | Scope |
 |-------|------:|-------|
-| Unit | 14 | UseCases, Repositories, Mappers |
-| Widget | 19 | Screen rendering, user interactions |
+| Unit | 16 | UseCases, Repositories, Mappers |
+| Widget | 25 | Screen rendering, user interactions |
 | Integration | 19 | Multi-screen flows (login → add link, search → detail, collection create) |
-| **Total** | **52** | |
+| **Total** | **60** | |
 
 ```bash
 # Run all tests
@@ -268,7 +280,7 @@ Phase 6  CI/CD & Release            ████████████  Done
 | Feature modules | 6 |
 | Screens | 13 |
 | Shared widgets | 13 reusable components |
-| Test suites | 10 files, 52 test cases |
+| Test suites | 13 files, 60 test cases |
 | CI pipeline jobs | 4 parallel |
 | Dependencies | 21 prod + 10 dev |
 

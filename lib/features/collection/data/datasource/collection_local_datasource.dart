@@ -7,7 +7,7 @@ import 'package:linknote/shared/models/paginated_state.dart';
 class CollectionLocalDataSource {
   const CollectionLocalDataSource(this._box);
 
-  final Box<Map<String, dynamic>> _box;
+  final Box<Map<dynamic, dynamic>> _box;
 
   static const int _maxCacheSize = 100;
 
@@ -90,9 +90,9 @@ class CollectionLocalDataSource {
   // Helpers
   // ---------------------------------------------------------------------------
 
-  CollectionEntity? _mapToEntity(Map<String, dynamic> raw) {
+  CollectionEntity? _mapToEntity(Map<dynamic, dynamic> raw) {
     try {
-      return CollectionEntity.fromJson(raw);
+      return CollectionEntity.fromJson(Map<String, dynamic>.from(raw));
     } on Exception catch (_) {
       return null;
     }

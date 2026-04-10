@@ -23,7 +23,7 @@ LinkRemoteDataSource linkRemoteDataSource(Ref ref) {
 
 @riverpod
 LinkLocalDataSource linkLocalDataSource(Ref ref) {
-  return LinkLocalDataSource(Hive.box<Map<String, dynamic>>('links'));
+  return LinkLocalDataSource(Hive.box<Map<dynamic, dynamic>>('links'));
 }
 
 @riverpod
