@@ -1,4 +1,6 @@
+import 'package:linknote/core/error/result.dart';
 import 'package:linknote/features/notification/domain/entity/notification_entity.dart';
+import 'package:linknote/features/notification/presentation/provider/notification_di_providers.dart';
 import 'package:linknote/shared/models/paginated_state.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -8,18 +10,18 @@ part 'notification_list_provider.g.dart';
 class NotificationList extends _$NotificationList {
   @override
   Future<PaginatedState<NotificationEntity>> build() async {
-    await Future<void>.delayed(const Duration(milliseconds: 300));
-    return PaginatedState<NotificationEntity>(
-      items: List.generate(
-        10,
-        (i) => NotificationEntity(
-          id: 'notif_$i',
-          title: 'New link shared with you',
-          body: 'Someone shared "Article $i" with you',
-          isRead: i > 3,
-          createdAt: DateTime.now().subtract(Duration(hours: i * 2)),
-        ),
-      ),
+    return _fetch();
+  }
+
+  Future<PaginatedState<NotificationEntity>> _fetch({
+    String? cursor,
+  }) async {
+    final result = await ref
+        .read(fetchNotificationsUsecaseProvider)
+        .call(cursor: cursor);
+    if (result.isSuccess) return result.data!;
+    throw Exception(
+      result.failure?.message ?? 'Failed to fetch notifications',
     );
   }
 
@@ -32,26 +34,58 @@ class NotificationList extends _$NotificationList {
     final current = state.value;
     if (current == null || !current.hasMore || current.isLoadingMore) return;
     state = AsyncData(current.copyWith(isLoadingMore: true));
-    // TODO(linknote): Fetch next page
-    state = AsyncData(current.copyWith(isLoadingMore: false));
+    try {
+      final next = await _fetch(cursor: current.nextCursor);
+      state = AsyncData(
+        current.copyWith(
+          items: [...current.items, ...next.items],
+          hasMore: next.hasMore,
+          nextCursor: next.nextCursor,
+          isLoadingMore: false,
+        ),
+      );
+    } on Exception catch (e) {
+      state = AsyncData(
+        current.copyWith(
+          isLoadingMore: false,
+          loadMoreError: e,
+        ),
+      );
+    }
   }
 
   Future<void> markRead(String id) async {
     final current = state.value;
     if (current == null) return;
+
+    // Optimistic update
+    final previous = current;
     final updated = current.items.map((n) {
       if (n.id == id) return n.copyWith(isRead: true);
       return n;
     }).toList();
     state = AsyncData(current.copyWith(items: updated));
-    // TODO(linknote): Persist to backend
+
+    final result = await ref.read(markNotificationReadUsecaseProvider).call(id);
+    if (result.isFailure) {
+      state = AsyncData(previous);
+    }
   }
 
   Future<void> markAllRead() async {
     final current = state.value;
     if (current == null) return;
+
+    // Optimistic update
+    final previous = current;
     final updated = current.items.map((n) => n.copyWith(isRead: true)).toList();
     state = AsyncData(current.copyWith(items: updated));
-    // TODO(linknote): Persist to backend
+
+    final result = await ref
+        .read(markAllNotificationsReadUsecaseProvider)
+        .call();
+    if (result.isFailure) {
+      state = AsyncData(previous);
+    }
   }
 }

@@ -15,4 +15,5 @@ Future<void> initHive() async {
   await Hive.openBox<String>('settings');
   await Hive.openBox<Map<dynamic, dynamic>>('links');
   await Hive.openBox<Map<dynamic, dynamic>>('collections');
+  await Hive.openBox<Map<dynamic, dynamic>>('notifications');
 }
