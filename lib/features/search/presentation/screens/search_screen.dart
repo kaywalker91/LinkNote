@@ -6,6 +6,7 @@ import 'package:linknote/app/theme/app_spacing.dart';
 import 'package:linknote/features/search/presentation/provider/search_provider.dart';
 import 'package:linknote/features/search/presentation/widgets/search_filter_bar.dart';
 import 'package:linknote/features/search/presentation/widgets/search_suggestions_list.dart';
+import 'package:linknote/shared/widgets/empty_state_illustration.dart';
 import 'package:linknote/shared/widgets/empty_state_widget.dart';
 import 'package:linknote/shared/widgets/link_list_tile.dart';
 import 'package:linknote/shared/widgets/skeleton/link_card_skeleton.dart';
@@ -90,7 +91,7 @@ class _SearchBody extends ConsumerWidget {
     if (state.query.isEmpty) {
       if (state.recentSearches.isEmpty) {
         return const EmptyStateWidget(
-          icon: Icons.search,
+          illustration: EmptyStateIllustration.search(),
           message: '링크를 검색하세요',
           subMessage: '키워드를 입력하여 저장된 링크를 찾아보세요',
         );
@@ -154,7 +155,7 @@ class _SearchBody extends ConsumerWidget {
           SearchSuggestionsListWidget(onSuggestionTap: onSuggestionTap),
           Expanded(
             child: EmptyStateWidget(
-              icon: Icons.search_off_outlined,
+              illustration: const EmptyStateIllustration.noResults(),
               message: '"${state.query}" 검색 결과 없음',
             ),
           ),

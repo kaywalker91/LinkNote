@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:linknote/app/theme/app_spacing.dart';
 import 'package:linknote/features/link/domain/entity/tag_entity.dart';
 import 'package:linknote/features/link/presentation/provider/link_form_provider.dart';
+import 'package:linknote/shared/extensions/context_extensions.dart';
 import 'package:linknote/shared/widgets/error_state_widget.dart';
 import 'package:linknote/shared/widgets/primary_button_widget.dart';
 import 'package:linknote/shared/widgets/skeleton/shimmer_box.dart';
@@ -169,7 +170,10 @@ class _LinkEditScreenState extends ConsumerState<LinkEditScreen> {
                           final success = await ref
                               .read(linkFormProvider(widget.linkId).notifier)
                               .submit();
-                          if (success && context.mounted) context.pop();
+                          if (success && context.mounted) {
+                            context.showSuccessSnackBar('링크가 수정되었습니다');
+                            context.pop();
+                          }
                         },
                 ),
               ],

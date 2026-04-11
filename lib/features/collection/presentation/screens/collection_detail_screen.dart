@@ -7,7 +7,9 @@ import 'package:linknote/features/collection/presentation/provider/collection_de
 import 'package:linknote/features/collection/presentation/provider/collection_links_provider.dart';
 import 'package:linknote/features/collection/presentation/provider/collection_list_provider.dart';
 import 'package:linknote/features/link/domain/entity/link_entity.dart';
+import 'package:linknote/shared/extensions/context_extensions.dart';
 import 'package:linknote/shared/widgets/confirmation_dialog_widget.dart';
+import 'package:linknote/shared/widgets/empty_state_illustration.dart';
 import 'package:linknote/shared/widgets/empty_state_widget.dart';
 import 'package:linknote/shared/widgets/error_state_widget.dart';
 import 'package:linknote/shared/widgets/link_list_tile.dart';
@@ -50,7 +52,10 @@ class CollectionDetailScreen extends ConsumerWidget {
                   await ref
                       .read(collectionListProvider.notifier)
                       .deleteCollection(collectionId);
-                  if (context.mounted) context.pop();
+                  if (context.mounted) {
+                    context.showSuccessSnackBar('컬렉션이 삭제되었습니다');
+                    context.pop();
+                  }
                 }
               },
             ),
@@ -147,7 +152,7 @@ class CollectionDetailScreen extends ConsumerWidget {
           return [
             const SliverToBoxAdapter(
               child: EmptyStateWidget(
-                icon: Icons.link_off_outlined,
+                illustration: EmptyStateIllustration.links(),
                 message: 'No links in this collection',
                 subMessage: 'Add links to this collection from the home screen',
               ),

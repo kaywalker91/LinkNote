@@ -7,6 +7,7 @@ class EmptyStateWidget extends StatelessWidget {
     super.key,
     this.subMessage,
     this.icon = Icons.inbox_outlined,
+    this.illustration,
     this.actionLabel,
     this.onAction,
   });
@@ -14,6 +15,7 @@ class EmptyStateWidget extends StatelessWidget {
   final String message;
   final String? subMessage;
   final IconData icon;
+  final Widget? illustration;
   final String? actionLabel;
   final VoidCallback? onAction;
 
@@ -26,7 +28,10 @@ class EmptyStateWidget extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, size: 64, color: colorScheme.outline),
+            if (illustration != null)
+              illustration!
+            else
+              Icon(icon, size: 64, color: colorScheme.outline),
             const SizedBox(height: AppSpacing.lg),
             Text(
               message,
