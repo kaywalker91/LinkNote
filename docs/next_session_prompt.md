@@ -16,12 +16,12 @@ Session 18 — Firebase 마무리 / FCM / 스모크 테스트 / Keystore 중 사
   - Gradle plugin 자동 배선 (google-services 4.3.15 / crashlytics 2.8.1)
   - **Dart 배선 완료**: `bootstrap.dart` Firebase init + Crashlytics 훅, `main_*.dart` 4종 flavor 옵션 주입, `app_router.dart` FirebaseAnalyticsObserver 등록
   - 검증: analyze 0 / test 315 GREEN / format 클린 / `flutter build apk --flavor dev --debug` 성공
-- **로컬 커밋 5개 (origin/main 앞섬, push 미수행)**:
+- **origin/main 동기화 완료** (세션 #17 말미 push 수행):
   - `6d7fe85` fix(release) — Android INTERNET / iOS 타겟 / 번들 ID / ExportOptions
   - `c422012` feat(firebase) — Android configure + Gradle plugin 배선
   - `8400c9c` docs — 세션 #16 요약
-  - (Session 17 커밋) feat(firebase) — Dart Phase 5 배선
-  - (Session 17 docs 커밋) — CHANGELOG 1.1.5 + daily_log #17 + next_session_prompt
+  - `8a4a680` docs — 세션 #16 커밋 해시 반영 + Session 17 프롬프트 재정비
+  - `0f441b8` feat(firebase) — Dart Phase 5 배선 + CHANGELOG [1.1.5] + daily_log #17 + next_session_prompt (Session 17 통합 커밋)
 - iOS Firebase configure / FCM 배선 / Apple Developer Program / Android keystore — 모두 미완료
 
 ## 세션 #17 결정 사항 (유지 필수)
