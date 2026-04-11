@@ -1,4 +1,4 @@
-package com.rowoonlabs.linknote
+package app.kaywalker.linknote
 
 import io.flutter.embedding.android.FlutterActivity
 
