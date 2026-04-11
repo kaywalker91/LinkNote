@@ -78,7 +78,7 @@ class SearchRemoteDataSource {
 
   Future<Result<List<TagEntity>>> fetchUserTags() async {
     try {
-      final response = await _client.from('tags').select('*').order('name');
+      final response = await _client.from('tags').select().order('name');
 
       final tags = response
           .map(

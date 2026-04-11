@@ -53,8 +53,9 @@ class CollectionDetailScreen extends ConsumerWidget {
                       .read(collectionListProvider.notifier)
                       .deleteCollection(collectionId);
                   if (context.mounted) {
-                    context.showSuccessSnackBar('컬렉션이 삭제되었습니다');
-                    context.pop();
+                    context
+                      ..showSuccessSnackBar('컬렉션이 삭제되었습니다')
+                      ..pop();
                   }
                 }
               },

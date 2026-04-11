@@ -171,8 +171,9 @@ class _LinkEditScreenState extends ConsumerState<LinkEditScreen> {
                               .read(linkFormProvider(widget.linkId).notifier)
                               .submit();
                           if (success && context.mounted) {
-                            context.showSuccessSnackBar('링크가 수정되었습니다');
-                            context.pop();
+                            context
+                              ..showSuccessSnackBar('링크가 수정되었습니다')
+                              ..pop();
                           }
                         },
                 ),

@@ -9,12 +9,12 @@ void main() {
       tester,
     ) async {
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: AsyncValueView<String>(
-              value: const AsyncLoading(),
-              loading: const CircularProgressIndicator(),
-              dataBuilder: (data) => Text(data),
+              value: AsyncLoading(),
+              loading: CircularProgressIndicator(),
+              dataBuilder: Text.new,
             ),
           ),
         ),
@@ -25,12 +25,12 @@ void main() {
 
     testWidgets('should show data widget when state is data', (tester) async {
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: AsyncValueView<String>(
-              value: const AsyncData('Hello'),
-              loading: const CircularProgressIndicator(),
-              dataBuilder: (data) => Text(data),
+              value: AsyncData('Hello'),
+              loading: CircularProgressIndicator(),
+              dataBuilder: Text.new,
             ),
           ),
         ),
@@ -49,7 +49,7 @@ void main() {
             body: AsyncValueView<String>(
               value: AsyncError(Exception('fail'), StackTrace.current),
               loading: const CircularProgressIndicator(),
-              dataBuilder: (data) => Text(data),
+              dataBuilder: Text.new,
             ),
           ),
         ),
@@ -69,7 +69,7 @@ void main() {
             body: AsyncValueView<String>(
               value: AsyncError(Exception('fail'), StackTrace.current),
               loading: const CircularProgressIndicator(),
-              dataBuilder: (data) => Text(data),
+              dataBuilder: Text.new,
               onRetry: () => retried = true,
             ),
           ),
@@ -88,7 +88,7 @@ void main() {
             body: AsyncValueView<String>(
               value: AsyncError(Exception('custom'), StackTrace.current),
               loading: const CircularProgressIndicator(),
-              dataBuilder: (data) => Text(data),
+              dataBuilder: Text.new,
               errorBuilder: (error, stack) => Text('Custom: $error'),
             ),
           ),

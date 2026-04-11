@@ -13,7 +13,6 @@ void main() {
         body: 'Someone shared a link with you',
         createdAt: '2026-01-15T10:30:00.000Z',
         linkId: 'link-1',
-        isRead: false,
       );
 
       // Act

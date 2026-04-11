@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:linknote/core/error/result.dart';
 import 'package:linknote/core/utils/debouncer.dart';
 import 'package:linknote/features/link/presentation/provider/link_di_providers.dart';
@@ -59,20 +61,26 @@ class Search extends _$Search {
     ].take(10).toList();
     state = state.copyWith(recentSearches: recent);
 
-    ref.read(searchHistoryLocalDataSourceProvider).addRecentSearch(query);
+    unawaited(
+      ref.read(searchHistoryLocalDataSourceProvider).addRecentSearch(query),
+    );
   }
 
   void removeRecentSearch(String query) {
     final recent = state.recentSearches.where((q) => q != query).toList();
     state = state.copyWith(recentSearches: recent);
 
-    ref.read(searchHistoryLocalDataSourceProvider).removeRecentSearch(query);
+    unawaited(
+      ref.read(searchHistoryLocalDataSourceProvider).removeRecentSearch(query),
+    );
   }
 
   void clearRecentSearches() {
     state = state.copyWith(recentSearches: []);
 
-    ref.read(searchHistoryLocalDataSourceProvider).clearRecentSearches();
+    unawaited(
+      ref.read(searchHistoryLocalDataSourceProvider).clearRecentSearches(),
+    );
   }
 
   // -------------------------------------------------------------------------
