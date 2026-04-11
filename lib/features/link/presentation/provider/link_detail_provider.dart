@@ -12,7 +12,7 @@ class LinkDetail extends _$LinkDetail {
   Future<LinkEntity> build(String linkId) async {
     final result = await ref.read(getLinkDetailUsecaseProvider).call(linkId);
     if (result.isSuccess) return result.data!;
-    throw result.failure!;
+    Error.throwWithStackTrace(result.failure!, StackTrace.current);
   }
 
   Future<void> refresh() async {
@@ -23,7 +23,7 @@ class LinkDetail extends _$LinkDetail {
   Future<void> delete() async {
     final result = await ref.read(deleteLinkUsecaseProvider).call(linkId);
     if (result.isFailure) {
-      throw result.failure!;
+      Error.throwWithStackTrace(result.failure!, StackTrace.current);
     }
     ref.invalidate(linkListProvider);
   }

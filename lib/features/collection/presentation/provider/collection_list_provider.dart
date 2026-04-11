@@ -18,7 +18,7 @@ class CollectionList extends _$CollectionList {
         .read(getCollectionsUsecaseProvider)
         .call(cursor: cursor);
     if (result.isSuccess) return result.data!;
-    throw result.failure!;
+    Error.throwWithStackTrace(result.failure!, StackTrace.current);
   }
 
   Future<void> refresh() async {
