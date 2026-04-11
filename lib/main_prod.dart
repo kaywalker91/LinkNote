@@ -1,6 +1,7 @@
 import 'package:linknote/bootstrap.dart';
 import 'package:linknote/core/config/app_config.dart';
 import 'package:linknote/core/constants/env_prod.dart';
+import 'package:linknote/firebase_options_prod.dart';
 
 Future<void> main(
   List<String> args,
@@ -11,5 +12,6 @@ Future<void> main(
       supabaseUrl: EnvProd.supabaseUrl,
       supabaseAnonKey: EnvProd.supabaseAnonKey,
     ),
+    firebaseOptions: DefaultFirebaseOptions.currentPlatform,
   );
 }
