@@ -7,6 +7,125 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Security / Fixed
+
+- **Wave 1 픽스 구현 (Session 22)** (Plan: `tasks/wave1_fix_plan.md`)
+  - Session 20에서 식별된 Wave 1 이슈 6건(P1 3 · P2 2 · P3 1) 중 5건을 ai-coding-pipeline Stage 4로 구현. P3-A(proguard Hive keep rules)는 YAGNI 근거로 본 스프린트 제외 (`tasks/lessons.md`에 보류 근거 기록)
+  - **P1-A — dio_client 401 → SignOutUsecase 계약 복원**: `lib/core/network/dio_client.dart:27-36`의 `onUnauthorized` 콜백이 `Supabase.instance.client.auth.signOut()`을 직접 호출하던 것을 `ref.read(signOutUsecaseProvider).call()`로 교체. 이로써 Session #5 P1-3의 "3x `clearAll()`" 계약이 401 경로에서도 작동 → 강제 로그아웃 시 `links`/`collections`/`notifications` Hive 박스가 항상 비워짐. Supabase import 제거
+  - **P1-A 연장 — clearAll 가드 제거**: `lib/features/auth/domain/usecase/sign_out_usecase.dart:20-32`의 `if (result.isSuccess)` 가드를 제거해 서버 signOut 실패 시에도 로컬 캐시를 항상 clearAll. 네트워크 오류 / 이미 무효인 세션 / 401 경로 모두에서 사용자 전환 시 이전 계정 데이터 누출 방지 (Q1 승인)
+  - **P1-B — signUp session=null 승격 차단**: `lib/features/auth/data/datasource/auth_remote_datasource.dart:55-75`에 `response.session == null` 분기 추가. Supabase Email Confirmation이 활성화되면 `user != null` + `session == null`로 돌아오는데, 이 상태를 `Failure.auth("이메일 확인 링크가 발송되었습니다. 메일을 확인하고 로그인해 주세요.")`로 변환해 사용자가 이메일 확인을 먼저 처리하도록 유도. P1-A 트리거 경로 차단
+  - **P1-B 결합 — failure_ui.dart AuthFailure 메시지 관통**: `lib/core/error/failure_ui.dart:30-41`의 `AuthFailure()` 분기가 `message` 필드를 무시하고 "다시 로그인해 주세요"를 하드코딩하던 문제를 수정. `AuthFailure(:final message) when message != null && message.isNotEmpty`로 메시지 있으면 surface, 없으면 기본값. 이로써 데이터소스의 `Failure.auth(message: e.message)` 에러가 SnackBar에 실제 표시됨 (Q2 승인)
+  - **P1-C — auth_provider userUpdated 분기 + 주석 정합성**: `lib/features/auth/presentation/provider/auth_provider.dart`에 `reactiveAuthEvents` const Set 추출 (`signedOut`, `tokenRefreshed`, `userUpdated`). `gotrue-2.18.0` SDK 검증으로 `AuthChangeEvent.userDeleted`는 `@Deprecated` + 빈 `jsName`이라 서버가 방송하지 않음 확인 → 분기 추가 금지. 대신 `userUpdated` 분기 추가로 비밀번호 변경 감지 실질 지원. 주석의 "user deletion" 제거
+  - **P2-A — AndroidManifest allowBackup 비활성**: `android/app/src/main/AndroidManifest.xml`에 `android:allowBackup="false"` + `android:fullBackupContent="false"` 추가. Hive 박스가 이미 `HiveAesCipher` 암호화 + 키가 `FlutterSecureStorage`(Keystore)라 실질 데이터 유출 경로는 없지만 defense-in-depth baseline으로 선언. `flutter build apk --debug --flavor dev` 성공 확인
+  - **P2-B Step 1 — CI build.needs에 security 추가**: `.github/workflows/ci.yml`의 `build` job이 `analyze`만 기다리던 것을 `needs: [analyze, security]`로 변경. Semgrep 실패 시 build 자체가 스킵되어 머지 게이트 실효화
+  - **P2-B Step 2 — Branch Protection 신규 생성**: `gh api -X PUT repos/kaywalker91/LinkNote/branches/main/protection`으로 보호 규칙 최초 생성 (기존 상태 404). `contexts: [Analyze, Test, Build (Android Dev Debug), Security Scan]`, `strict: true`, `enforce_admins: false` (Q3, 긴급 수정 admin 우회 허용), `required_pull_request_reviews: null` (Q4, 단독 개발자), `allow_force_pushes: false`, `allow_deletions: false`. 앞으로 `main` 직접 push 불가 / PR + CI 4개 job green 필수
+  - **TDD 사이클**: Step 1~3 모두 RED → GREEN 준수. 신규 테스트 파일 3건 — `test/features/auth/data/datasource/auth_remote_datasource_test.dart` (6 cases), `test/core/network/dio_client_test.dart` (2 cases), `test/features/auth/presentation/provider/auth_provider_test.dart` (5 cases). 기존 `test/features/auth/domain/usecase/sign_out_usecase_test.dart`의 "NOT clearAll on fail" 케이스를 "ALWAYS clearAll (401 path safety)"로 동작 업데이트
+  - **Quality gates**: `flutter analyze` 0 issues · `flutter test` **353 passed** (기존 315 → +38) · `flutter build apk --debug --flavor dev` 성공 (12.6s)
+  - **회귀 검증**: Session #1-6 보안 감사 픽스 10건 재검증 — 8건 완전 유지 + 2건(P1-2 연장, P2-2) **복원**. P1-2 연장은 P1-A 픽스로 dio → SignOutUsecase 경로 복원, P2-2는 P2-B로 job-level gating 갭 해결
+  - **Stage 1 사전 검증 효과**: 리뷰 보고서의 "Unverified assumptions" 5건을 Stage 2 진입 전 직접 검증 → 3개 이슈(P1-C, P2-A, P2-B)의 픽스 방향이 달라짐. 예: `userDeleted` 분기 추가가 완전 무의미임을 gotrue SDK 소스로 확정 / `allowBackup` 위험도 재평가 / Branch Protection이 전무함을 발견해 스코프 2배. 방법론 기록은 `tasks/lessons.md`
+
+### Security / Review
+
+- **Wave 1 — 보안 & 인증 크리티컬 패스 종합 코드리뷰 (Session 20)** (Plan: `resilient-imagining-starfish.md` Wave 1)
+  - **목적**: Session #12~#19에서 정식 코드 리뷰 없이 누적 머지된 변경(Firebase 배선, release signing, URL 런처, UrlSanitizer, 훅 튜닝)이 Session #1~#6에서 수정한 보안 감사 10건을 회귀시켰는지 + 신규 드리프트가 발생했는지 검증
+  - **오케스트레이션**: Stage A(준비) → Stage B(Claude 내부 `feature-dev:code-reviewer` 1차) → Stage C(`codex exec -s read-only` + `gemini --approval-mode plan` 병렬 2차) → Stage D(3자 합의 통합)
+  - **범위**: `lib/features/auth/**` 13파일 + `lib/core/network/` 3파일 + `lib/core/constants/env_*.dart` 3파일 + `lib/core/storage/storage_service.dart` + `lib/shared/providers/session_expired_provider.dart` + `lib/main.dart` + `lib/bootstrap.dart` + `lib/firebase_options_*.dart` 3파일 + `android/app/src/main/AndroidManifest.xml` + `android/app/build.gradle.kts` + `android/app/proguard-rules.pro` + `.github/workflows/ci.yml` (+ 교차검증: `search_remote_datasource.dart`)
+  - **결과**: P0 0 · **P1 3** · P2 2 · P3 1 — 코드 수정은 발생하지 않은 read-only 리뷰
+    - **P1-A**: `lib/core/network/dio_client.dart:27-33` — 401 핸들러가 `Supabase.auth.signOut()`을 직접 호출하여 Session #5 P1-3(`SignOutUsecase`의 3x `clearAll()` 계약)을 우회. 강제 로그아웃 시 `links`/`collections`/`notifications` Hive 캐시 잔류. **Codex/Gemini 둘 다 P0, Claude P1** → 합의 P1 (캐시 누출 계약 위반)
+    - **P1-B**: `lib/features/auth/data/datasource/auth_remote_datasource.dart:51-64` — `signUp()`이 `response.session == null`일 때도 `Authenticated` 반환. Supabase Email Confirmation 활성화 시 이메일 미확인 유저가 인증 상태로 승격 → 즉시 401 → P1-A 경로 연쇄 작동. **Codex 단독 발견 + 리뷰어 소스 재검증으로 확정**
+    - **P1-C**: `lib/features/auth/presentation/provider/auth_provider.dart:21-23` — 구독 가드가 `AuthChangeEvent.userDeleted` 미처리. 주석은 "user deletion" 커버 선언하지만 실제 guard는 `signedOut`/`tokenRefreshed`만. Supabase 원격 계정 삭제 시 JWT 만료(1h)까지 인증 UI 유지
+    - **P2-A**: `android/app/src/main/AndroidManifest.xml:3-6` — `android:allowBackup` / `dataExtractionRules` 미지정. Android Auto Backup으로 Hive `.hive` 파일이 Google Drive에 업로드될 가능성 (3/3 만장일치 P2)
+    - **P2-B**: `.github/workflows/ci.yml` `build` job이 `security` job을 `needs:`에 포함하지 않음. Semgrep 실패가 머지 게이트 역할 못 함 (3/3 만장일치 P2)
+    - **P3-A**: `android/app/proguard-rules.pro` — Hive CE `@HiveType` 어댑터용 keep 룰 선제 보강 (현재 미사용이라 잠재 리스크만)
+  - **회귀 매트릭스 (Session #1-6 픽스 10건 재검증)**: 8건 완전 유지, 2건 변형 — P1-2 연장(401 시 `signOut` 호출은 유지되나 Usecase 우회 → P1-A), P2-2(Semgrep `continue-on-error`는 제거 유지되나 job 단위 gating 갭 → P2-B)
+  - **보고서**: `docs/code_review/2026-04-12_wave1_security.md` (전체 3자 합의 매트릭스 + 각 이슈 file:line + 재현 + 권장 픽스 + Unverified assumptions + Recommended follow-up)
+  - **3자 합의 인프라 검증**: `codex exec` + `gemini -p` 병렬 백그라운드 실행 프로토콜이 Wave 2~6에서 재사용 가능한 상태로 확정. 공유 프롬프트는 `/tmp/linknote_wave1_review_prompt.md`에 기록되어 다음 웨이브 진입 시 구조만 재활용
+  - **참고**: 코드 수정/빌드/테스트 실행 없음. P1 픽스는 별도 구현 세션에서 ai-coding-pipeline Stage 1(Research) → 2(Plan) → 3(Feedback) → 4(Implement) 파이프라인 재가동 후 진행 예정
+
+### Fixed
+
+- **YouTube 링크 "잘못된 링크 형식입니다" 버그 해결 (Session 19)** (Plan: `refactored-sniffing-pebble.md`)
+  - **증상**: Session 18 수정 후 실기기(Galaxy A34, Android 16)에서 저장된 YouTube 링크를 탭하면 `"잘못된 링크 형식입니다"` 스낵바 — scheme-less fallback 추가에도 해결 안 됨
+  - **데이터 기반 진단**: `UrlLauncherHelper.launch` 진입부에 temp debugPrint 삽입 → 실기기 재설치 → 문제 링크 탭 → flutter logs 캡처. raw 문자열:
+    ```
+    하네스 엔지니어링 - 50점짜리 Codex를 88점으로 만드는 법 - https://youtube.com/watch?v=p9mRnsx7yv4&si=LLAhSDDM4YQ_Xv4X
+    ```
+    → `NULL@tryParse` 분기. hidden char도, canLaunch 버그도, scheme 문제도 아닌 **"제목 + URL" 전체 텍스트가 통째로 저장된 입력 데이터 문제**. YouTube Share sheet → Copy의 기본 포맷이 제목을 포함한다는 사실을 간과
+  - **Session 18의 교훈 적용**: 가설 없이 진단부터 시작 — 로그 한 줄로 원인 확정
+  - **변경**:
+    - `lib/shared/utils/url_sanitizer.dart` **(신규)** — `UrlSanitizer.extract()` 공용 유틸:
+      1. Unicode invisible 제거 (`\u200b-\u200f\ufeff\u00a0\u2028\u2029`)
+      2. Fast path — 이미 유효한 URL이면 그대로
+      3. Regex `https?://\S+` 로 텍스트 안 첫 번째 URL 추출 (title+URL 페이스트 대응)
+      4. Scheme-less fallback — 공백 없는 도메인 입력이면 `https://` prepend
+      5. Trailing 구두점 trimming (`. , ; : ! ? ) ] }`)
+    - `lib/shared/utils/url_launcher_helper.dart` — `_parse` 제거, `UrlSanitizer.extract` 단일 호출로 단순화. 진단용 debugPrint 전부 제거
+    - `lib/features/link/presentation/screens/link_add_screen.dart` — `_handleUrlChanged()` 추가:
+      - URL TextField `onChanged`에서 `UrlSanitizer.wouldAlter` 체크
+      - 자동 추출 시 `_urlController` 텍스트를 깨끗한 URL로 교체 (커서 끝으로 이동)
+      - 제목 필드가 비어있으면 leading prose(한글 제목 등)를 자동 복사 + separator 제거
+      - `"붙여넣은 텍스트에서 URL을 추출했습니다"` 스낵바로 사용자 안내
+    - `lib/features/link/data/mapper/link_mapper.dart` — `toEntity(dto)`에서 `UrlSanitizer.extract(dto.url)` 호출 — Supabase 원격 경로의 **레거시 DB 레코드 런타임 복구**
+    - `lib/features/link/data/datasource/link_local_datasource.dart` — `_mapToEntity`에서 동일 sanitize — Hive 로컬 캐시 경로의 **레거시 레코드 런타임 복구** (양쪽 데이터 경계에서 이중 방어)
+    - `LinkDto.fromJson` / `LinkEntity.fromJson`은 원복 — freezed 3.x + json_serializable이 customized factory body를 코드 생성 트리거로 인식하지 못해(`_$LinkDtoFromJson` 미생성), sanitize 책임을 mapper / datasource 레이어로 옮김
+  - **테스트**:
+    - `test/shared/utils/url_sanitizer_test.dart` **(신규)** — 18 cases: 빈 문자열, whitespace-only, 정상 http/https, BOM/NBSP/ZWSP 제거, title+URL (실제 문제 raw 문자열 상수화), prose+trailing punctuation, 다중 URL, scheme-less path, www prefix, space-separated 문장 거부, 한글 텍스트 거부, HTTPS 대문자, wouldAlter 4 cases
+    - `test/shared/utils/url_launcher_helper_test.dart` — 기존 5 + 신규 2 cases 추가:
+      - `extracts embedded URL from "title - URL" paste` (실제 문제 URL 재현)
+      - `returns false + snackbar for text with no URL`
+  - **검증**:
+    - `flutter analyze` → **0 issues**
+    - `flutter test` → **340 ALL GREEN** (기존 319 + sanitizer 18 + helper regression 2 + 기타 1)
+    - `rg '\[UrlLauncher' lib/` / `rg 'debugPrint' lib/shared/utils/` → 0 (진단 로그 완전 제거)
+    - **실기기 검증 (Galaxy A34, Android 16)**: YouTube 링크 + 일반 웹 링크 모두 정상 외부 브라우저 오픈 확인 — 사용자 승인
+  - **Session 18에서 저지른 실수 반성**: "가설만으로 코드를 고친다" 패턴 재발 금지. 데이터가 확보되기 전에는 fix를 시도하지 않음. `project_url_launcher_bug_open.md` 메모리를 resolved 처리
+
+- **`dart-code-smell.sh` 훅 false-positive 해결 (Session 19 secondary)**
+  - **증상**: Session 18에서 발견된 훅의 `^.{16,}{` 정규식이 Dart named-parameter 생성자(`const factory Foo({`), freezed 코드, 일반 K&R brace를 모두 "deep nesting"으로 오탐 → 신규 파일들이 `// dart format off` + Allman 우회를 강요당함
+  - **변경**:
+    - `~/.claude/hooks/dart-code-smell.sh` 백업: `dart-code-smell.sh.bak`
+    - 정규식 교체: `^.{16,}{` → `^ {32,}\S.*\{[[:space:]]*$`
+      - **indent-first**: 선행 공백 32개 (= 2-space × 16 levels) 이상만 대상
+      - **non-whitespace 요구**: `\S`로 Allman 고립 brace(`    {`)는 제외, K&R 스타일만 잡음
+      - **EOL brace**: `\{[[:space:]]*$`로 줄 끝 `{`만 — `RegExp(` 등의 중간 brace 오탐 방지
+    - 프로젝트 내 주요 파일 12개 전부 PASS 확인 (link_dto, link_entity, url_launcher_helper, url_sanitizer, link_list_tile, home_screen, link_add_screen, search_screen, collection_detail_screen, link_detail_screen, link_edit_screen, link_form_provider)
+  - **Session 18 우회 미해제 (의도적)**: Session 18이 추가한 `// dart format off` + Allman 스타일은 그대로 유지 — 스타일 일관성 + diff 최소화. 향후 별도 리팩터링 세션에서 K&R 복구 가능
+
+- **저장된 링크 탭 → 브라우저 열기 버그 수정** (Plan: `shiny-baking-aho.md`)
+  - **증상**: 홈/검색/컬렉션 상세에서 저장된 링크를 탭해도 아무 반응이 없음 (상세 화면 이동도, 외부 브라우저 열기도 발생하지 않음)
+  - **근본 원인 2건**:
+    1. **의도 불일치** — 세 리스트 화면의 `LinkListTile.onTap`이 `context.push(linkDetailPath)`로 배선되어 있었지만, 사용자 기대는 즉시 외부 브라우저 열기
+    2. **Android 11+ 패키지 가시성** — `AndroidManifest.xml`의 `<queries>`에 `http/https` `ACTION_VIEW`가 선언되지 않아 `canLaunchUrl`이 **사일런트 false** 반환 → 상세 화면에서조차 URL 탭이 무반응
+  - **변경**:
+    - `android/app/src/main/AndroidManifest.xml` — 기존 `<queries>` 블록에 http/https `ACTION_VIEW` intent 2건 추가 (url_launcher 공식 문서 패턴, iOS는 기본 허용)
+    - `lib/shared/utils/url_launcher_helper.dart` **(신규)** — `UrlLauncherHelper.launch(context, url)`:
+      - `trim().isEmpty` / `!hasScheme` / `host.isEmpty` 검증 → "잘못된 링크 형식입니다" 스낵바
+      - `canLaunchUrl == false` → "링크를 열 수 없습니다" 스낵바
+      - `launchUrl(mode: externalApplication)` + `PlatformException` 캐치 → "링크를 여는 중 오류가 발생했습니다" 스낵바
+      - 모든 `await` 뒤 `context.mounted` 가드
+    - `lib/shared/widgets/link_list_tile.dart` — nullable `onLongPress` 파라미터 + `InkWell.onLongPress` 배선 (탭이 URL 열기로 변경되며 상세 진입 경로를 롱프레스로 보존 — 표준 모바일 UX)
+    - `lib/features/link/presentation/screens/home_screen.dart` — tap→`UrlLauncherHelper.launch`, longPress→상세, `_showMoreSheet` 최상단에 "View Details" 항목 추가
+    - `lib/features/search/presentation/screens/search_screen.dart` — tap→launch, longPress→상세
+    - `lib/features/collection/presentation/screens/collection_detail_screen.dart` — 동일
+    - `lib/features/link/presentation/screens/link_detail_screen.dart` — 인라인 `canLaunchUrl`/`launchUrl` 블록을 `UrlLauncherHelper.launch` 한 줄로 치환, 매니페스트 fix 혜택을 자동 수혜 + `url_launcher` import 제거
+    - `pubspec.yaml` — `plugin_platform_interface`, `url_launcher_platform_interface`를 `dev_dependencies`에 직접 선언 (test 파일의 `depend_on_referenced_packages` 린트 해결 — 기존 transitive → direct)
+  - **테스트**:
+    - `test/shared/utils/url_launcher_helper_test.dart` **(신규)** — `UrlLauncherPlatform.instance` mocktail 오버라이드, 4 케이스 (empty URL / canLaunch=false / 성공 / PlatformException) 전부 GREEN
+    - `test/integration/search_to_detail_flow_test.dart` — `should navigate to detail when tapping result` → `should navigate to detail when long-pressing result`로 전환, `tester.tap` → `tester.longPress`
+  - **검증**:
+    - `flutter analyze` → **0 issues**
+    - `flutter test` → **319 ALL GREEN** (기존 315 + 신규 helper 4)
+    - TDD 사이클 준수: RED (`UrlLauncherHelper` 미정의 compile error) → GREEN (구현) → REFACTOR (화면 배선)
+  - **수동 검증 시도 (Galaxy A34, Android 16) → 미해결 버그 발견**:
+    - `flutter run --flavor dev -t lib/main_dev.dart` full install 2회 수행
+    - 저장된 YouTube 링크 탭 시 **"잘못된 링크 형식입니다"** 스낵바 (`_parse`의 invalid 분기)
+    - 즉석 추가 수정: `_parse`에 scheme-less fallback (`!uri.hasScheme` → `https://$trimmed` prepend) + 테스트 케이스 1건 추가 → 5/5 GREEN
+    - 재설치 후에도 **동일 오류 지속** → 즉시 해결 불가, **Session 19로 이월**
+    - 반성: 실제 저장된 `link.url` raw 값을 확인하지 않고 가설로 수정한 것이 잘못. Session 19는 데이터 확인부터 시작
+    - 참조: 메모리 `project_url_launcher_bug_open.md`, `docs/next_session_prompt.md` Session 19 프롬프트
+  - **발견된 기술 부채 (별도 세션)**:
+    - `~/.claude/hooks/dart-code-smell.sh`의 "중첩 깊이" 검사 정규식(`^.{16,}{`)이 **Dart named-parameter 생성자 `{`**와 **K&R 함수 brace `{`**를 "deep nesting"으로 오탐 → 신규 파일 2건(`url_launcher_helper.dart`, `url_launcher_helper_test.dart`)에 `// dart format off` + Allman-style brace 적용으로 우회. 기존 파일 편집은 경고만 발생하고 edit은 정상 적용됨 (`flutter analyze` 0 + 319 tests GREEN이 증거)
+
 ## [1.1.5] - 2026-04-11
 
 ### Added

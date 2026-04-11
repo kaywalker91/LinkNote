@@ -77,23 +77,30 @@ void main() {
       },
     );
 
-    test('should NOT call clearAll when sign out fails', () async {
-      // Arrange
-      const tFailure = Failure.auth(message: 'Sign out failed');
-      when(
-        () => mockRepository.signOut(),
-      ).thenAnswer((_) async => error(tFailure));
+    test(
+      'should ALWAYS call clearAll even when server sign out fails '
+      '(401 path safety)',
+      () async {
+        // Arrange — 401 경로에서 서버 signOut 실패 시나리오.
+        const tFailure = Failure.auth(message: 'Sign out failed');
+        when(
+          () => mockRepository.signOut(),
+        ).thenAnswer((_) async => error(tFailure));
+        when(() => mockLinkLocalDs.clearAll()).thenAnswer((_) async {});
+        when(() => mockCollectionLocalDs.clearAll()).thenAnswer((_) async {});
+        when(() => mockNotificationLocalDs.clearAll()).thenAnswer((_) async {});
 
-      // Act
-      final result = await sut.call();
+        // Act
+        final result = await sut.call();
 
-      // Assert
-      expect(result.isFailure, isTrue);
-      expect(result.failure, equals(tFailure));
-      verify(() => mockRepository.signOut()).called(1);
-      verifyNever(() => mockLinkLocalDs.clearAll());
-      verifyNever(() => mockCollectionLocalDs.clearAll());
-      verifyNever(() => mockNotificationLocalDs.clearAll());
-    });
+        // Assert — 서버 실패가 surface되지만 로컬은 항상 비워진다.
+        expect(result.isFailure, isTrue);
+        expect(result.failure, equals(tFailure));
+        verify(() => mockRepository.signOut()).called(1);
+        verify(() => mockLinkLocalDs.clearAll()).called(1);
+        verify(() => mockCollectionLocalDs.clearAll()).called(1);
+        verify(() => mockNotificationLocalDs.clearAll()).called(1);
+      },
+    );
   });
 }
