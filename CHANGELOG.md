@@ -5,6 +5,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- **Firebase Android configure 완료 (flavor별 3개 앱)** — Crashlytics + Analytics 초기화 준비
+  - Firebase 프로젝트 `linknote-8994b` (display name "LinkNote") 생성
+  - Android 앱 3개 등록 완료:
+    - `app.kaywalker.linknote.dev` (Dev)
+    - `app.kaywalker.linknote.staging` (Staging)
+    - `app.kaywalker.linknote` (Prod)
+  - `flutterfire configure` 3회 실행 → flavor별 설정 파일 생성:
+    - `lib/firebase_options_{dev,staging,prod}.dart`
+    - `android/app/src/{dev,staging,prod}/google-services.json`
+    - `firebase.json` (3 flavor buildConfigurations 등록)
+  - Android Gradle plugin 자동 배선 (flutterfire 1차 실행 시):
+    - `com.google.gms.google-services:4.3.15`
+    - `com.google.firebase.crashlytics:2.8.1`
+  - iOS / FCM은 의도적으로 이번 범위에서 제외 (다음 세션)
+  - Dart 배선 (`bootstrap.dart` Firebase init, Crashlytics 훅, Analytics observer)은 다음 세션에서 진행
+
 ## [1.1.4] - 2026-04-11
 
 ### Fixed
