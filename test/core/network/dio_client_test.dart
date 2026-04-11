@@ -24,8 +24,9 @@ void main() {
 
     setUp(() {
       mockSignOutUsecase = MockSignOutUsecase();
-      when(() => mockSignOutUsecase.call())
-          .thenAnswer((_) async => success(null));
+      when(
+        () => mockSignOutUsecase.call(),
+      ).thenAnswer((_) async => success(null));
 
       container = ProviderContainer(
         overrides: [
