@@ -35,8 +35,8 @@ Phase 1  [✅ 완료]  전체 화면 UI 구현 (목업 데이터)
 Phase 2  [✅ 완료]  UI 완성 & 개선 (누락 기능, UX 다듬기)
 Phase 3  [✅ 완료]  백엔드 연동 (Supabase Auth + Data Layer)
 Phase 4  [✅ 완료]  로컬 캐시 & 성능 최적화
-Phase 5  [✅ 완료]  테스트 작성 (52개 테스트 전체 통과)
-Phase 6  [🔄 진행 중]  CI/CD & 마무리 — CI 워크플로우 완성, 문서/배포 남음
+Phase 5  [✅ 완료]  테스트 작성 (315개 테스트 전체 통과)
+Phase 6  [🔄 진행 중]  CI/CD & 마무리 — 보안감사+UI/UX+릴리즈 Phase 1 완료, 문서/배포 남음
 ```
 
 ---
@@ -203,32 +203,35 @@ Phase 6  [🔄 진행 중]  CI/CD & 마무리 — CI 워크플로우 완성, 문
 
 **목표:** 핵심 레이어 테스트 커버리지 확보
 
-**결과:** 52개 테스트 전체 통과 (`flutter test` — 00:03 +52: All tests passed!)
+**결과:** 315개 테스트 전체 통과 (`flutter test` — 00:08 +315: All tests passed!)
 
 #### 체크리스트
 
-**Unit Test (14개)**
+**Unit Test (14개 → 120+)**
 
 - [x] CreateLinkUseCase — 성공 / 실패 케이스
 - [x] FetchLinksUseCase — 성공 / 빈 목록 / 실패
 - [x] LinkRepositoryImpl — Remote 성공 시 Local 캐시 갱신 확인 (5개 케이스)
 - [x] LinkMapper — DTO → Entity 변환 검증
+- [x] AuthInterceptor, Debouncer, CollectionLocalDataSource 등 추가 테스트
 
-**Widget Test (19개)**
+**Widget Test (19개 → 95+)**
 
 - [x] 로그인 화면 — 빈 폼 submit 시 validation 메시지 (8개 케이스)
 - [x] 링크 추가 폼 — 잘못된 URL/제목 입력 validation (6개 케이스)
 - [x] 링크 목록 — 로딩 / 데이터 / 에러 / 빈 상태 렌더링 + FAB (5개 케이스)
+- [x] Shared Widget 테스트 6파일 (36개) + Feature Screen 테스트 10파일 (58개)
 
-**Integration Test (19개)**
+**Integration Test (19개 → 100+)**
 
 - [x] 로그인 → 링크 저장 → 목록 반영 플로우 (10개 케이스)
 - [x] 검색 → 결과 표시 → 상세 화면 진입 플로우 (4개 케이스)
 - [x] 컬렉션 생성 → 폼 네비게이션 → 빈 이름 validation 플로우 (5개 케이스)
+- [x] Collection-Link 실 연동, Search 필터/히스토리/자동완성 등 추가 플로우
 
 #### 데모 기준
 
-> `flutter test` 실행 → 52개 테스트 전체 통과 ✅
+> `flutter test` 실행 → 315개 테스트 전체 통과 ✅
 > 커버리지 측정은 CI에서 `flutter test --coverage` + lcov 필터링으로 자동화 (generated 파일 제외)
 
 ---
@@ -245,14 +248,15 @@ Phase 6  [🔄 진행 중]  CI/CD & 마무리 — CI 워크플로우 완성, 문
 - [x] push/PR 시 자동 실행: analyze (`--fatal-warnings`) → test (`--coverage`) → coverage report
 - [x] 커버리지 보고: lcov 필터링 (`.g.dart`, `.freezed.dart`, `.gen.dart` 제외), 30% 미만 실패 / 50% 미만 경고
 - [ ] `develop` 머지 시 Firebase App Distribution 자동 배포 (선택)
-- [ ] GitHub Actions CI 실제 실행 검증 (push 후 확인 필요 — 7개 커밋 미푸시)
+- [x] GitHub Actions CI 실제 실행 검증 (7개 커밋 push 완료 — Session 11)
+- [x] CI dart format 체크 수정 (34개 테스트 파일 포맷 정리 — Session 12)
 
 **코드 품질**
 
 - [x] `analysis_options.yaml` 린트 규칙 조정 (`invalid_annotation_target` 무시, 불필요 규칙 비활성화)
 - [x] 타입 안전성 수정 (`Box<Map>` → `Box<Map<String, dynamic>>`)
-- [x] `flutter analyze` 0 warnings / 0 errors (info 104개 — 허용 범위)
-- [ ] info-level 이슈 점진적 정리 (104개 → 목표 50개 이하)
+- [x] `flutter analyze` 0 warnings / 0 errors (info 31개로 감소)
+- [x] info-level 이슈 정리 (104개 → 31개)
 
 **문서화**
 
