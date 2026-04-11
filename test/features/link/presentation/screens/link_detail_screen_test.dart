@@ -111,8 +111,7 @@ void main() {
       expect(find.text('다시 시도'), findsOneWidget);
     });
 
-    testWidgets('should show link details when data is loaded',
-        (tester) async {
+    testWidgets('should show link details when data is loaded', (tester) async {
       await tester.pumpWidget(
         ProviderScope(
           overrides: [
@@ -167,8 +166,9 @@ void main() {
       expect(find.text('flutter'), findsOneWidget);
     });
 
-    testWidgets('should show action buttons when data is loaded',
-        (tester) async {
+    testWidgets('should show action buttons when data is loaded', (
+      tester,
+    ) async {
       await tester.pumpWidget(
         ProviderScope(
           overrides: [

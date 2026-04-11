@@ -34,23 +34,25 @@ void main() {
       expect(tapped, isTrue);
     });
 
-    testWidgets('should show CircularProgressIndicator when isLoading is true',
-        (tester) async {
-      await tester.pumpWidget(
-        const MaterialApp(
-          home: Scaffold(
-            body: PrimaryButtonWidget(
-              label: 'Save',
-              onPressed: null,
-              isLoading: true,
+    testWidgets(
+      'should show CircularProgressIndicator when isLoading is true',
+      (tester) async {
+        await tester.pumpWidget(
+          const MaterialApp(
+            home: Scaffold(
+              body: PrimaryButtonWidget(
+                label: 'Save',
+                onPressed: null,
+                isLoading: true,
+              ),
             ),
           ),
-        ),
-      );
+        );
 
-      expect(find.byType(CircularProgressIndicator), findsOneWidget);
-      expect(find.text('Save'), findsNothing);
-    });
+        expect(find.byType(CircularProgressIndicator), findsOneWidget);
+        expect(find.text('Save'), findsNothing);
+      },
+    );
 
     testWidgets('should disable button when isLoading is true', (tester) async {
       var tapped = false;
@@ -71,8 +73,7 @@ void main() {
       expect(tapped, isFalse);
     });
 
-    testWidgets('should disable button when onPressed is null',
-        (tester) async {
+    testWidgets('should disable button when onPressed is null', (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
           home: Scaffold(
@@ -115,8 +116,9 @@ void main() {
       expect(sizedBox.width, double.infinity);
     });
 
-    testWidgets('should not be full width when isFullWidth is false',
-        (tester) async {
+    testWidgets('should not be full width when isFullWidth is false', (
+      tester,
+    ) async {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(

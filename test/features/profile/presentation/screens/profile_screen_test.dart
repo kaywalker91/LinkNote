@@ -56,8 +56,9 @@ void main() {
   );
 
   group('ProfileScreen', () {
-    testWidgets('should show app bar with title and settings icon',
-        (tester) async {
+    testWidgets('should show app bar with title and settings icon', (
+      tester,
+    ) async {
       await tester.pumpWidget(
         ProviderScope(
           overrides: [
@@ -73,8 +74,9 @@ void main() {
       expect(find.byIcon(Icons.settings_outlined), findsOneWidget);
     });
 
-    testWidgets('should show error state when profile fails to load',
-        (tester) async {
+    testWidgets('should show error state when profile fails to load', (
+      tester,
+    ) async {
       await tester.pumpWidget(
         ProviderScope(
           overrides: [
@@ -89,8 +91,7 @@ void main() {
       expect(find.text('오류가 발생했습니다'), findsOneWidget);
     });
 
-    testWidgets('should show profile info when data is loaded',
-        (tester) async {
+    testWidgets('should show profile info when data is loaded', (tester) async {
       await tester.pumpWidget(
         ProviderScope(
           overrides: [
@@ -124,8 +125,9 @@ void main() {
       expect(find.text('Collections'), findsOneWidget);
     });
 
-    testWidgets('should show first letter avatar when no avatar url',
-        (tester) async {
+    testWidgets('should show first letter avatar when no avatar url', (
+      tester,
+    ) async {
       await tester.pumpWidget(
         ProviderScope(
           overrides: [
@@ -157,8 +159,9 @@ void main() {
       expect(find.text('Sign Out'), findsOneWidget);
     });
 
-    testWidgets('should show email as name when displayName is null',
-        (tester) async {
+    testWidgets('should show email as name when displayName is null', (
+      tester,
+    ) async {
       const profileNoName = UserProfileEntity(
         id: 'u1',
         email: 'user@example.com',

@@ -47,8 +47,7 @@ void main() {
       overrides: [
         searchLinksUsecaseProvider.overrideWithValue(mockSearch),
         toggleFavoriteUsecaseProvider.overrideWithValue(mockToggle),
-        searchHistoryLocalDataSourceProvider
-            .overrideWithValue(mockHistory),
+        searchHistoryLocalDataSourceProvider.overrideWithValue(mockHistory),
       ],
     );
     sub = container.listen(

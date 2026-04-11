@@ -50,13 +50,13 @@ class _DataNotificationList extends NotificationList {
 
 void main() {
   group('NotificationScreen', () {
-    testWidgets('should show app bar with title and mark all read button',
-        (tester) async {
+    testWidgets('should show app bar with title and mark all read button', (
+      tester,
+    ) async {
       await tester.pumpWidget(
         ProviderScope(
           overrides: [
-            notificationListProvider
-                .overrideWith(_LoadingNotificationList.new),
+            notificationListProvider.overrideWith(_LoadingNotificationList.new),
           ],
           child: const MaterialApp(home: NotificationScreen()),
         ),
@@ -71,8 +71,7 @@ void main() {
       await tester.pumpWidget(
         ProviderScope(
           overrides: [
-            notificationListProvider
-                .overrideWith(_LoadingNotificationList.new),
+            notificationListProvider.overrideWith(_LoadingNotificationList.new),
           ],
           child: const MaterialApp(home: NotificationScreen()),
         ),
@@ -86,8 +85,7 @@ void main() {
       await tester.pumpWidget(
         ProviderScope(
           overrides: [
-            notificationListProvider
-                .overrideWith(_ErrorNotificationList.new),
+            notificationListProvider.overrideWith(_ErrorNotificationList.new),
           ],
           child: const MaterialApp(home: NotificationScreen()),
         ),
@@ -98,8 +96,9 @@ void main() {
       expect(find.text('다시 시도'), findsOneWidget);
     });
 
-    testWidgets('should show empty state when no notifications',
-        (tester) async {
+    testWidgets('should show empty state when no notifications', (
+      tester,
+    ) async {
       await tester.pumpWidget(
         ProviderScope(
           overrides: [
@@ -117,8 +116,9 @@ void main() {
       expect(find.text('No notifications'), findsOneWidget);
     });
 
-    testWidgets('should show notification list when data is loaded',
-        (tester) async {
+    testWidgets('should show notification list when data is loaded', (
+      tester,
+    ) async {
       final notifications = [
         NotificationEntity(
           id: '1',
@@ -154,8 +154,9 @@ void main() {
       expect(find.text('Collection updated'), findsOneWidget);
     });
 
-    testWidgets('should show unread indicator for unread notifications',
-        (tester) async {
+    testWidgets('should show unread indicator for unread notifications', (
+      tester,
+    ) async {
       final notifications = [
         NotificationEntity(
           id: '1',

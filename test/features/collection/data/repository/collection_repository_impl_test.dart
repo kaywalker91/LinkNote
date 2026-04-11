@@ -79,8 +79,9 @@ void main() {
       () async {
         // Arrange
         const tFailure = Failure.network(message: 'No connection');
-        final tCachedState =
-            PaginatedState<CollectionEntity>(items: tCollections);
+        final tCachedState = PaginatedState<CollectionEntity>(
+          items: tCollections,
+        );
 
         when(
           () => mockRemote.getCollections(

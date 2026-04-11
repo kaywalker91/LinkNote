@@ -162,8 +162,11 @@ void main() {
       verify(
         () => mockBox.putAll(
           any(
-            that: isA<Map<String, Map<String, dynamic>>>()
-                .having((m) => m.containsKey('col-1'), 'has col-1', isTrue),
+            that: isA<Map<String, Map<String, dynamic>>>().having(
+              (m) => m.containsKey('col-1'),
+              'has col-1',
+              isTrue,
+            ),
           ),
         ),
       ).called(1);

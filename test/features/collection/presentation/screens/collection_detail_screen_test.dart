@@ -88,13 +88,13 @@ void main() {
   ];
 
   group('CollectionDetailScreen', () {
-    testWidgets('should show Collection in app bar when loading',
-        (tester) async {
+    testWidgets('should show Collection in app bar when loading', (
+      tester,
+    ) async {
       await tester.pumpWidget(
         ProviderScope(
           overrides: [
-            collectionDetailProvider
-                .overrideWith(_LoadingCollectionDetail.new),
+            collectionDetailProvider.overrideWith(_LoadingCollectionDetail.new),
             collectionListProvider.overrideWith(_StubCollectionList.new),
             collectionLinksProvider.overrideWith(
               (ref, id) => Completer<List<LinkEntity>>().future,
@@ -114,8 +114,7 @@ void main() {
       await tester.pumpWidget(
         ProviderScope(
           overrides: [
-            collectionDetailProvider
-                .overrideWith(_ErrorCollectionDetail.new),
+            collectionDetailProvider.overrideWith(_ErrorCollectionDetail.new),
             collectionListProvider.overrideWith(_StubCollectionList.new),
             collectionLinksProvider.overrideWith(
               (ref, id) => Completer<List<LinkEntity>>().future,
@@ -132,13 +131,15 @@ void main() {
       expect(find.text('다시 시도'), findsOneWidget);
     });
 
-    testWidgets('should show collection details when data is loaded',
-        (tester) async {
+    testWidgets('should show collection details when data is loaded', (
+      tester,
+    ) async {
       await tester.pumpWidget(
         ProviderScope(
           overrides: [
-            collectionDetailProvider
-                .overrideWith(() => _DataCollectionDetail(tCollection)),
+            collectionDetailProvider.overrideWith(
+              () => _DataCollectionDetail(tCollection),
+            ),
             collectionListProvider.overrideWith(_StubCollectionList.new),
             collectionLinksProvider.overrideWith((ref, id) async => tLinks),
           ],
@@ -158,8 +159,9 @@ void main() {
       await tester.pumpWidget(
         ProviderScope(
           overrides: [
-            collectionDetailProvider
-                .overrideWith(() => _DataCollectionDetail(tCollection)),
+            collectionDetailProvider.overrideWith(
+              () => _DataCollectionDetail(tCollection),
+            ),
             collectionListProvider.overrideWith(_StubCollectionList.new),
             collectionLinksProvider.overrideWith((ref, id) async => tLinks),
           ],
@@ -173,13 +175,15 @@ void main() {
       expect(find.text('Flutter Dev'), findsOneWidget);
     });
 
-    testWidgets('should show edit and delete buttons when data is loaded',
-        (tester) async {
+    testWidgets('should show edit and delete buttons when data is loaded', (
+      tester,
+    ) async {
       await tester.pumpWidget(
         ProviderScope(
           overrides: [
-            collectionDetailProvider
-                .overrideWith(() => _DataCollectionDetail(tCollection)),
+            collectionDetailProvider.overrideWith(
+              () => _DataCollectionDetail(tCollection),
+            ),
             collectionListProvider.overrideWith(_StubCollectionList.new),
             collectionLinksProvider.overrideWith((ref, id) async => tLinks),
           ],
@@ -194,13 +198,15 @@ void main() {
       expect(find.byIcon(Icons.delete_outline), findsOneWidget);
     });
 
-    testWidgets('should show empty state when no links in collection',
-        (tester) async {
+    testWidgets('should show empty state when no links in collection', (
+      tester,
+    ) async {
       await tester.pumpWidget(
         ProviderScope(
           overrides: [
-            collectionDetailProvider
-                .overrideWith(() => _DataCollectionDetail(tCollection)),
+            collectionDetailProvider.overrideWith(
+              () => _DataCollectionDetail(tCollection),
+            ),
             collectionListProvider.overrideWith(_StubCollectionList.new),
             collectionLinksProvider.overrideWith((ref, id) async => []),
           ],

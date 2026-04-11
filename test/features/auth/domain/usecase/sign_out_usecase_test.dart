@@ -56,24 +56,26 @@ void main() {
       verify(() => mockRepository.signOut()).called(1);
     });
 
-    test('should call clearAll on all local data sources when sign out succeeds',
-        () async {
-      // Arrange
-      when(
-        () => mockRepository.signOut(),
-      ).thenAnswer((_) async => success(null));
-      when(() => mockLinkLocalDs.clearAll()).thenAnswer((_) async {});
-      when(() => mockCollectionLocalDs.clearAll()).thenAnswer((_) async {});
-      when(() => mockNotificationLocalDs.clearAll()).thenAnswer((_) async {});
+    test(
+      'should call clearAll on all local data sources when sign out succeeds',
+      () async {
+        // Arrange
+        when(
+          () => mockRepository.signOut(),
+        ).thenAnswer((_) async => success(null));
+        when(() => mockLinkLocalDs.clearAll()).thenAnswer((_) async {});
+        when(() => mockCollectionLocalDs.clearAll()).thenAnswer((_) async {});
+        when(() => mockNotificationLocalDs.clearAll()).thenAnswer((_) async {});
 
-      // Act
-      await sut.call();
+        // Act
+        await sut.call();
 
-      // Assert
-      verify(() => mockLinkLocalDs.clearAll()).called(1);
-      verify(() => mockCollectionLocalDs.clearAll()).called(1);
-      verify(() => mockNotificationLocalDs.clearAll()).called(1);
-    });
+        // Assert
+        verify(() => mockLinkLocalDs.clearAll()).called(1);
+        verify(() => mockCollectionLocalDs.clearAll()).called(1);
+        verify(() => mockNotificationLocalDs.clearAll()).called(1);
+      },
+    );
 
     test('should NOT call clearAll when sign out fails', () async {
       // Arrange

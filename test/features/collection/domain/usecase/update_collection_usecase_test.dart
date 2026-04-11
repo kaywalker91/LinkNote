@@ -38,22 +38,24 @@ void main() {
   );
 
   group('UpdateCollectionUsecase', () {
-    test('should return updated CollectionEntity when repository succeeds',
-        () async {
-      // Arrange
-      when(
-        () => mockRepository.updateCollection(any()),
-      ).thenAnswer((_) async => success(tUpdatedCollection));
+    test(
+      'should return updated CollectionEntity when repository succeeds',
+      () async {
+        // Arrange
+        when(
+          () => mockRepository.updateCollection(any()),
+        ).thenAnswer((_) async => success(tUpdatedCollection));
 
-      // Act
-      final result = await sut.call(tCollection);
+        // Act
+        final result = await sut.call(tCollection);
 
-      // Assert
-      expect(result.isSuccess, isTrue);
-      expect(result.data, equals(tUpdatedCollection));
-      verify(() => mockRepository.updateCollection(tCollection)).called(1);
-      verifyNoMoreInteractions(mockRepository);
-    });
+        // Assert
+        expect(result.isSuccess, isTrue);
+        expect(result.data, equals(tUpdatedCollection));
+        verify(() => mockRepository.updateCollection(tCollection)).called(1);
+        verifyNoMoreInteractions(mockRepository);
+      },
+    );
 
     test('should return Failure when repository fails', () async {
       // Arrange

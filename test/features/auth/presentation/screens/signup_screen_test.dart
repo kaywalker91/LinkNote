@@ -34,8 +34,9 @@ void main() {
       expect(find.text('Create Account'), findsOneWidget);
     });
 
-    testWidgets('should show email, password, and confirm password fields',
-        (tester) async {
+    testWidgets('should show email, password, and confirm password fields', (
+      tester,
+    ) async {
       await tester.pumpWidget(
         ProviderScope(
           overrides: [authProvider.overrideWith(_IdleAuth.new)],
@@ -76,8 +77,9 @@ void main() {
       );
     });
 
-    testWidgets('should show validation error when email is empty',
-        (tester) async {
+    testWidgets('should show validation error when email is empty', (
+      tester,
+    ) async {
       await tester.pumpWidget(
         ProviderScope(
           overrides: [authProvider.overrideWith(_IdleAuth.new)],
@@ -101,8 +103,9 @@ void main() {
       expect(find.text('Enter email'), findsOneWidget);
     });
 
-    testWidgets('should show validation error when password is too short',
-        (tester) async {
+    testWidgets('should show validation error when password is too short', (
+      tester,
+    ) async {
       await tester.pumpWidget(
         ProviderScope(
           overrides: [authProvider.overrideWith(_IdleAuth.new)],
@@ -129,8 +132,9 @@ void main() {
       expect(find.text('Min 6 characters'), findsOneWidget);
     });
 
-    testWidgets('should show validation error when passwords do not match',
-        (tester) async {
+    testWidgets('should show validation error when passwords do not match', (
+      tester,
+    ) async {
       await tester.pumpWidget(
         ProviderScope(
           overrides: [authProvider.overrideWith(_IdleAuth.new)],

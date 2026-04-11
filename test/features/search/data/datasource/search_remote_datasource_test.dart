@@ -17,7 +17,9 @@ void main() {
     });
 
     test('should handle parentheses and special tsquery operators', () {
-      final result = SearchRemoteDataSource.sanitizeTsQuery('hello | world & (test)');
+      final result = SearchRemoteDataSource.sanitizeTsQuery(
+        'hello | world & (test)',
+      );
       expect(result, "'hello' & 'world' & 'test'");
     });
 
@@ -37,7 +39,9 @@ void main() {
     });
 
     test('should handle multiple spaces', () {
-      final result = SearchRemoteDataSource.sanitizeTsQuery('  hello   world  ');
+      final result = SearchRemoteDataSource.sanitizeTsQuery(
+        '  hello   world  ',
+      );
       expect(result, "'hello' & 'world'");
     });
 

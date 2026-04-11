@@ -28,8 +28,9 @@ void main() {
   group('GetProfileUsecase', () {
     test('should return UserProfileEntity when repository succeeds', () async {
       // Arrange
-      when(() => mockRepository.getProfile())
-          .thenAnswer((_) async => success(tProfile));
+      when(
+        () => mockRepository.getProfile(),
+      ).thenAnswer((_) async => success(tProfile));
 
       // Act
       final result = await sut.call();
@@ -44,8 +45,9 @@ void main() {
     test('should return Failure when repository fails', () async {
       // Arrange
       const tFailure = Failure.server(message: 'Profile not found');
-      when(() => mockRepository.getProfile())
-          .thenAnswer((_) async => error(tFailure));
+      when(
+        () => mockRepository.getProfile(),
+      ).thenAnswer((_) async => error(tFailure));
 
       // Act
       final result = await sut.call();

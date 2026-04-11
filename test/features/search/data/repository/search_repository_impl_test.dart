@@ -49,7 +49,10 @@ void main() {
       // Assert
       expect(result.isSuccess, isTrue);
       expect(result.data, equals(tLinks));
-      verify(() => mockDataSource.searchLinks('flutter', filter: any(named: 'filter'))).called(1);
+      verify(
+        () =>
+            mockDataSource.searchLinks('flutter', filter: any(named: 'filter')),
+      ).called(1);
     });
 
     test('should return failure on error', () async {

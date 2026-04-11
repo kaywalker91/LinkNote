@@ -8,8 +8,9 @@ void main() {
   }
 
   group('AppSnackBar', () {
-    testWidgets('should show success snackbar with green background',
-        (tester) async {
+    testWidgets('should show success snackbar with green background', (
+      tester,
+    ) async {
       await tester.pumpWidget(
         buildApp(
           child: Builder(
@@ -32,8 +33,9 @@ void main() {
       expect(find.byIcon(Icons.check_circle_outline), findsOneWidget);
     });
 
-    testWidgets('should show error snackbar with red background',
-        (tester) async {
+    testWidgets('should show error snackbar with red background', (
+      tester,
+    ) async {
       await tester.pumpWidget(
         buildApp(
           child: Builder(
@@ -78,8 +80,9 @@ void main() {
       expect(find.byIcon(Icons.info_outline), findsOneWidget);
     });
 
-    testWidgets('should show action button when actionLabel is provided',
-        (tester) async {
+    testWidgets('should show action button when actionLabel is provided', (
+      tester,
+    ) async {
       var actionPressed = false;
 
       await tester.pumpWidget(
@@ -106,8 +109,9 @@ void main() {
       expect(actionPressed, isTrue);
     });
 
-    testWidgets('should default to info type when no type specified',
-        (tester) async {
+    testWidgets('should default to info type when no type specified', (
+      tester,
+    ) async {
       await tester.pumpWidget(
         buildApp(
           child: Builder(

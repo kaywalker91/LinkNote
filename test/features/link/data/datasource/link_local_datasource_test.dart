@@ -210,8 +210,11 @@ void main() {
       verify(
         () => mockBox.putAll(
           any(
-            that: isA<Map<String, Map<String, dynamic>>>()
-                .having((m) => m.containsKey('link-1'), 'has link-1', isTrue),
+            that: isA<Map<String, Map<String, dynamic>>>().having(
+              (m) => m.containsKey('link-1'),
+              'has link-1',
+              isTrue,
+            ),
           ),
         ),
       ).called(1);
@@ -292,8 +295,11 @@ void main() {
         () => mockBox.put(
           'link-1',
           any(
-            that: isA<Map<String, dynamic>>()
-                .having((m) => m['isFavorite'], 'isFavorite', isTrue),
+            that: isA<Map<String, dynamic>>().having(
+              (m) => m['isFavorite'],
+              'isFavorite',
+              isTrue,
+            ),
           ),
         ),
       ).called(1);
