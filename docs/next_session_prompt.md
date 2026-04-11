@@ -5,11 +5,11 @@
 ---
 
 ```
-Session 17 — Firebase Android Dart 배선 (Phase 5) + 검증
+Session 17 — Firebase Android Phase 5 (Dart 배선) 구현 + 검증
 
 ## 배경 (현재 상태 스냅샷)
 - 보안 감사 10/10건 / UI·UX 개선 / Search 보강 / 릴리스 준비 Phase 1 / 빌드 플레이버 분리 / 릴리스 서명 인프라 / analyze 0 issues / 315 tests ALL GREEN — 모두 유지
-- **Firebase Android Phase 1~4 완료** (세션 #16):
+- **Firebase Android Phase 1~4 완료 + 커밋 반영** (세션 #16):
   - Firebase 프로젝트: `linknote-8994b`
   - Android 앱 3개 등록 + 패키지명 검증 완료
   - `flutterfire configure` 3회 실행 성공 (dev/staging/prod)
@@ -17,9 +17,10 @@ Session 17 — Firebase Android Dart 배선 (Phase 5) + 검증
   - `android/app/src/{dev,staging,prod}/google-services.json` 생성 완료
   - `firebase.json` 3 flavor buildConfigurations 등록 완료
   - Android Gradle plugin 자동 배선 완료 (`google-services:4.3.15`, `crashlytics:2.8.1`)
-- **미커밋 변경사항 (Phase 1~4 산출물 + 이전 릴리스 서명분)**:
-  - 신규: `lib/firebase_options_*.dart` x3, `android/app/src/{dev,staging,prod}/google-services.json`, `firebase.json`, `ios/ExportOptions.plist`
-  - 수정: `android/settings.gradle.kts`, `android/app/build.gradle.kts`, `android/app/src/main/AndroidManifest.xml`, `ios/Flutter/{Dev,Staging,Prod}-Release.xcconfig`, `ios/Runner.xcodeproj/project.pbxproj`
+- **세션 #16 커밋 3개 (origin/main보다 4 커밋 앞섬, push 미수행)**:
+  - `6d7fe85` fix(release) — Android INTERNET / iOS 타겟 15.0 / 번들 ID 하드코딩 제거 / ExportOptions.plist
+  - `c422012` feat(firebase) — 3 flavor configure + Gradle plugin 자동 배선
+  - `8400c9c` docs — 세션 #16 요약 + CHANGELOG Unreleased + Session 17 프롬프트
 - iOS Firebase configure / FCM 배선 / Apple Developer Program / Android keystore — 모두 미완료 (의도적 연기)
 
 ## 직전 세션(#16) 결정 사항 (유지 필수)
@@ -69,14 +70,13 @@ Session 17 — Firebase Android Dart 배선 (Phase 5) + 검증
 - **R3 Analytics observer 주입 위치**: root GoRouter `observers`에 넣어도 shell 전환 이벤트 누락 가능 — 한계로 기록 후 다음 세션에 수동 로깅으로 보완
 
 ## 문서·커밋 정책
-- **커밋 1**: Firebase Android configure 산출물 + gradle plugin 배선 (세션 #16 자동 생성 분)
-  - `feat(firebase): Android flavor별 Firebase configure 완료 (Phase 1-4)`
-- **커밋 2**: Dart 배선 (세션 #17 수동 작업 분)
+- 세션 #16 산출물은 이미 3 커밋 (`6d7fe85`, `c422012`, `8400c9c`)으로 기록 완료. Session 17에서는 중복 커밋 금지.
+- **Session 17 커밋**: Dart 배선 완료 + codegen 결과물 통합 1개
   - `feat(firebase): Android Crashlytics + Analytics Dart 배선 (Phase 5)`
-- 커밋 2 후 CHANGELOG `Unreleased` 섹션을 `[1.1.5]` 릴리스 노트로 승격
+- Session 17 완료 후 CHANGELOG `Unreleased` 섹션을 `[1.1.5]` 릴리스 노트로 승격
 - `docs/daily_task_log/2026-04-11_session.md` 세션 #17 섹션 추가
 - `docs/next_session_prompt.md` 업데이트 (Session 18 프롬프트 — iOS Firebase / FCM / 스모크 테스트 중 사용자 선택)
-- `git push`는 **사용자 명시적 승인 후에만** 수행
+- `git push`는 **사용자 명시적 승인 후에만** 수행 (현재 로컬이 origin/main보다 4+ 커밋 앞섬)
 
 ## 수정하지 않는 것 (불변 원칙)
 - 보안 수정 사항 롤백 금지
@@ -93,16 +93,16 @@ Session 17 — Firebase Android Dart 배선 (Phase 5) + 검증
 - `flutter test` ALL GREEN 유지 (315+)
 - `dart format --set-exit-if-changed lib/ test/` 클린
 - `flutter build apk --flavor dev --debug` 성공 (Gradle sync 포함)
-- 커밋 2개 작성 + 푸시 (사용자 승인 후)
+- Session 17 커밋 1개 작성
 - 문서 3종 (CHANGELOG, daily_log, next_session_prompt) 업데이트
+- Push는 사용자 승인 후에만
 
 ## 진행 순서 (권장)
-1. 먼저 세션 #16 미커밋분을 **커밋 1**로 먼저 기록 (git 히스토리 cleanliness)
-2. Phase 5 Dart 배선 구현 (6파일 수정)
-3. 검증 1~6단계 순차 실행
-4. 실패 시 근본 원인 수정, 통과 후 **커밋 2**
-5. 문서 업데이트
-6. 사용자에게 push 승인 요청
+1. Phase 5 Dart 배선 구현 (6파일 수정, ai-coding-pipeline Stage 4 — 플랜 검증된 기계적 실행)
+2. 검증 1~6단계 순차 실행
+3. 실패 시 근본 원인 수정 (Gradle 버전 업, codegen 재실행 등), 통과 후 커밋
+4. 문서 업데이트 (CHANGELOG 1.1.5 승격, daily_log, next_session_prompt Session 18)
+5. 사용자에게 push 승인 요청
 
 ## 선택적 다음 작업 (Phase 5 완료 후)
 - **Option A**: iOS Firebase configure (`flutterfire configure --platforms=ios` × 3 flavor) + Xcode Run Script 배선
