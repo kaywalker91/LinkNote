@@ -62,3 +62,6 @@ lib/
 - **pubspec 의존성**: 알파벳 순 정렬
 - **생성 파일**: `*.g.dart`, `*.freezed.dart`, `*.gen.dart`는 커밋 대상에 포함
 - **환경 변수**: `.env` 파일은 커밋 금지, `envied`로 코드 생성
+  - **허용 키** (클라이언트 공개키만): `SUPABASE_URL`, `SUPABASE_ANON_KEY`
+  - **금지 키** (서버사이드 특권 자격증명): `SUPABASE_SERVICE_ROLE_KEY`, `STRIPE_SECRET_KEY`, `DATABASE_URL`, `*_SECRET_*`, `*_PRIVATE_*`
+  - `envied`의 `obfuscate: true`는 XOR 난독화로 jadx/strings로 복원 가능하므로 특권 키 보호에 부적합
