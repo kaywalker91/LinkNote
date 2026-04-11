@@ -5,6 +5,9 @@ import 'package:linknote/features/auth/domain/usecase/check_session_usecase.dart
 import 'package:linknote/features/auth/domain/usecase/sign_in_usecase.dart';
 import 'package:linknote/features/auth/domain/usecase/sign_out_usecase.dart';
 import 'package:linknote/features/auth/domain/usecase/sign_up_usecase.dart';
+import 'package:linknote/features/collection/presentation/provider/collection_di_providers.dart';
+import 'package:linknote/features/link/presentation/provider/link_di_providers.dart';
+import 'package:linknote/features/notification/presentation/provider/notification_di_providers.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -37,5 +40,10 @@ SignUpUsecase signUpUsecase(Ref ref) {
 
 @riverpod
 SignOutUsecase signOutUsecase(Ref ref) {
-  return SignOutUsecase(ref.watch(authRepositoryProvider));
+  return SignOutUsecase(
+    ref.watch(authRepositoryProvider),
+    ref.watch(linkLocalDataSourceProvider),
+    ref.watch(collectionLocalDataSourceProvider),
+    ref.watch(notificationLocalDataSourceProvider),
+  );
 }
