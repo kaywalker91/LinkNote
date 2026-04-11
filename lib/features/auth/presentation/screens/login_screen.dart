@@ -3,7 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:linknote/app/router/routes.dart';
 import 'package:linknote/app/theme/app_spacing.dart';
+import 'package:linknote/core/error/failure_ui.dart';
 import 'package:linknote/features/auth/presentation/provider/auth_provider.dart';
+import 'package:linknote/shared/providers/session_expired_provider.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
@@ -35,8 +37,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     if (mounted) {
       final authState = ref.read(authProvider);
       if (authState.hasError) {
+        final ui = failureUiFromError(authState.error!);
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(authState.error.toString())),
+          SnackBar(content: Text(ui.message)),
         );
       }
     }
@@ -45,6 +48,15 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     final isLoading = ref.watch(authProvider).isLoading;
+
+    ref.listen<bool>(sessionExpiredProvider, (_, isExpired) {
+      if (isExpired) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('세션이 만료되었습니다. 다시 로그인해 주세요.')),
+        );
+        ref.read(sessionExpiredProvider.notifier).reset();
+      }
+    });
 
     return Scaffold(
       body: SafeArea(

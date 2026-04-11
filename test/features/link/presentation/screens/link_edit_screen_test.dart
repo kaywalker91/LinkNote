@@ -6,6 +6,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:linknote/features/link/domain/entity/tag_entity.dart';
 import 'package:linknote/features/link/presentation/provider/link_form_provider.dart';
 import 'package:linknote/features/link/presentation/screens/link_edit_screen.dart';
+import 'package:linknote/shared/widgets/skeleton/shimmer_box.dart';
 
 class _LoadingLinkForm extends LinkForm {
   @override
@@ -70,7 +71,7 @@ void main() {
       );
       await tester.pump();
 
-      expect(find.byType(CircularProgressIndicator), findsOneWidget);
+      expect(find.byType(ShimmerBox), findsWidgets);
     });
 
     testWidgets('should show form fields when data is loaded', (tester) async {

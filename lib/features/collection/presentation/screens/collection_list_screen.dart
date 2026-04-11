@@ -29,8 +29,8 @@ class CollectionListScreen extends ConsumerWidget {
           itemCount: 6,
           itemBuilder: (_, __) => const CollectionCardSkeleton(),
         ),
-        error: (error, _) => ErrorStateWidget(
-          message: error.toString(),
+        error: (error, _) => ErrorStateWidget.fromError(
+          error,
           onRetry: () => ref.read(collectionListProvider.notifier).refresh(),
         ),
         data: (state) => PaginatedListView(

@@ -27,73 +27,79 @@ class ProfileScreen extends ConsumerWidget {
       ),
       body: profileAsync.when(
         loading: () => const ProfileHeaderSkeleton(),
-        error: (error, _) => ErrorStateWidget(message: error.toString()),
-        data: (profile) => ListView(
-          children: [
-            const SizedBox(height: AppSpacing.xxl),
-            Center(
-              child: Column(
-                children: [
-                  CircleAvatar(
-                    radius: 40,
-                    backgroundImage: profile.avatarUrl != null
-                        ? NetworkImage(profile.avatarUrl!)
-                        : null,
-                    child: profile.avatarUrl == null
-                        ? Text(
-                            (profile.displayName ?? profile.email)
-                                .substring(0, 1)
-                                .toUpperCase(),
-                            style: const TextStyle(fontSize: 28),
-                          )
-                        : null,
-                  ),
-                  const SizedBox(height: AppSpacing.md),
-                  Text(
-                    profile.displayName ?? profile.email,
-                    style: Theme.of(context).textTheme.titleLarge,
-                  ),
-                  Text(
-                    profile.email,
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: Theme.of(context).colorScheme.outline,
+        error: (error, _) => ErrorStateWidget.fromError(
+          error,
+          onRetry: () => ref.read(profileProvider.notifier).refresh(),
+        ),
+        data: (profile) => RefreshIndicator(
+          onRefresh: () => ref.read(profileProvider.notifier).refresh(),
+          child: ListView(
+            children: [
+              const SizedBox(height: AppSpacing.xxl),
+              Center(
+                child: Column(
+                  children: [
+                    CircleAvatar(
+                      radius: 40,
+                      backgroundImage: profile.avatarUrl != null
+                          ? NetworkImage(profile.avatarUrl!)
+                          : null,
+                      child: profile.avatarUrl == null
+                          ? Text(
+                              (profile.displayName ?? profile.email)
+                                  .substring(0, 1)
+                                  .toUpperCase(),
+                              style: const TextStyle(fontSize: 28),
+                            )
+                          : null,
                     ),
-                  ),
-                ],
+                    const SizedBox(height: AppSpacing.md),
+                    Text(
+                      profile.displayName ?? profile.email,
+                      style: Theme.of(context).textTheme.titleLarge,
+                    ),
+                    Text(
+                      profile.email,
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: Theme.of(context).colorScheme.outline,
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ),
-            const SizedBox(height: AppSpacing.xxl),
-            Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: AppSpacing.screenPadding,
+              const SizedBox(height: AppSpacing.xxl),
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppSpacing.screenPadding,
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    _StatChip(label: 'Links', count: profile.linkCount),
+                    _StatChip(
+                      label: 'Collections',
+                      count: profile.collectionCount,
+                    ),
+                  ],
+                ),
               ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  _StatChip(label: 'Links', count: profile.linkCount),
-                  _StatChip(
-                    label: 'Collections',
-                    count: profile.collectionCount,
-                  ),
-                ],
+              const Divider(height: AppSpacing.xxxl),
+              ListTile(
+                leading: const Icon(Icons.settings_outlined),
+                title: const Text('Settings'),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () => context.push('${Routes.profile}/settings'),
               ),
-            ),
-            const Divider(height: AppSpacing.xxxl),
-            ListTile(
-              leading: const Icon(Icons.settings_outlined),
-              title: const Text('Settings'),
-              trailing: const Icon(Icons.chevron_right),
-              onTap: () => context.push('${Routes.profile}/settings'),
-            ),
-            ListTile(
-              leading: const Icon(Icons.logout, color: Colors.red),
-              title: const Text(
-                'Sign Out',
-                style: TextStyle(color: Colors.red),
+              ListTile(
+                leading: const Icon(Icons.logout, color: Colors.red),
+                title: const Text(
+                  'Sign Out',
+                  style: TextStyle(color: Colors.red),
+                ),
+                onTap: () => ref.read(authProvider.notifier).signOut(),
               ),
-              onTap: () => ref.read(authProvider.notifier).signOut(),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

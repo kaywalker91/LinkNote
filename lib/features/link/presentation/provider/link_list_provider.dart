@@ -26,7 +26,7 @@ class LinkList extends _$LinkList {
           favoritesOnly: favoritesOnly,
         );
     if (result.isSuccess) return result.data!;
-    throw Exception(result.failure?.message ?? 'Failed to fetch links');
+    throw result.failure!;
   }
 
   Future<void> refresh() async {

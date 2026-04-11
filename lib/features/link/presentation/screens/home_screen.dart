@@ -33,8 +33,8 @@ class HomeScreen extends ConsumerWidget {
           itemCount: 8,
           itemBuilder: (_, __) => const LinkCardSkeleton(),
         ),
-        error: (error, _) => ErrorStateWidget(
-          message: error.toString(),
+        error: (error, _) => ErrorStateWidget.fromError(
+          error,
           onRetry: () => ref.read(linkListProvider.notifier).refresh(),
         ),
         data: (_) => const _LinkListBody(),

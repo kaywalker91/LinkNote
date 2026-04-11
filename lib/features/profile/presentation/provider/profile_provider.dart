@@ -13,7 +13,7 @@ class Profile extends _$Profile {
     final result = await usecase.call(); // Result<UserProfileEntity>
 
     if (result.isSuccess) return result.data!;
-    throw Exception(result.failure.toString());
+    throw result.failure!;
   }
 
   Future<void> updateProfile({

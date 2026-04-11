@@ -128,8 +128,8 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      expect(find.text('Something went wrong'), findsOneWidget);
-      expect(find.text('Try again'), findsOneWidget);
+      expect(find.text('오류가 발생했습니다'), findsOneWidget);
+      expect(find.text('다시 시도'), findsOneWidget);
     });
 
     testWidgets('should show collection details when data is loaded',

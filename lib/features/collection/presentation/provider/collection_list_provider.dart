@@ -18,7 +18,7 @@ class CollectionList extends _$CollectionList {
         .read(getCollectionsUsecaseProvider)
         .call(cursor: cursor);
     if (result.isSuccess) return result.data!;
-    throw Exception(result.failure?.message ?? 'Failed to fetch collections');
+    throw result.failure!;
   }
 
   Future<void> refresh() async {
