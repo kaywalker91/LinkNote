@@ -27,6 +27,13 @@ extension FailureUiX on Failure {
       message: '잠시 후 다시 시도해 주세요.',
       icon: Icons.cloud_off_rounded,
     ),
+    AuthFailure(:final message) when message != null && message.isNotEmpty =>
+      FailureUi(
+        title: '인증 오류',
+        message: message,
+        icon: Icons.lock_outline_rounded,
+        isRetryable: false,
+      ),
     AuthFailure() => const FailureUi(
       title: '인증 오류',
       message: '다시 로그인해 주세요.',

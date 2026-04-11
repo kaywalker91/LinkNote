@@ -65,3 +65,12 @@ lib/
   - **허용 키** (클라이언트 공개키만): `SUPABASE_URL`, `SUPABASE_ANON_KEY`
   - **금지 키** (서버사이드 특권 자격증명): `SUPABASE_SERVICE_ROLE_KEY`, `STRIPE_SECRET_KEY`, `DATABASE_URL`, `*_SECRET_*`, `*_PRIVATE_*`
   - `envied`의 `obfuscate: true`는 XOR 난독화로 jadx/strings로 복원 가능하므로 특권 키 보호에 부적합
+- **Firebase 클라이언트 설정** (FlutterFire 공식 패턴):
+  - `lib/firebase_options_{dev,staging,prod}.dart` 및 `android/app/src/{dev,staging,prod}/google-services.json`은 **의도적으로 커밋**됨
+  - 여기 포함된 Android `apiKey`는 **공개 클라이언트 식별자**이며 비밀이 아님 (APK에 빌드 타임 임베드되어 누구나 추출 가능)
+  - 실질 방어는 Google Cloud Console에서 수행:
+    - **Application restrictions**: Android 앱 3개(`app.kaywalker.linknote[.dev|.staging|""]`) + debug/release SHA-1
+    - **API restrictions**: 4개 API만 화이트리스트 — Firebase Installations, FCM, FCM Registration, Cloud Logging
+    - **프로젝트 레벨**: Maps/Translation/Vision/AI 등 과금성 API는 enable하지 않음 (SERVICE_DISABLED 상태 유지)
+  - GitHub secret scanning이 탐지 시 **False positive**로 닫을 것 (참고: https://firebase.google.com/docs/projects/api-keys)
+  - **절대 커밋 금지**: `firebase-adminsdk-*.json`, `service_account*.json`, FCM legacy server key — 이건 진짜 비밀

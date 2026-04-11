@@ -7,6 +7,23 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 part 'auth_provider.g.dart';
 
+/// Supabase `onAuthStateChange` 이벤트 중 provider를 invalidate해
+/// 세션 상태를 재검증해야 하는 것들.
+///
+/// - [AuthChangeEvent.signedOut]: 세션 만료 / 원격 로그아웃.
+/// - [AuthChangeEvent.tokenRefreshed]: 토큰 rotation으로 세션 정보 갱신.
+/// - [AuthChangeEvent.userUpdated]: 비밀번호 변경 등 사용자 메타 변경 시
+///   Supabase가 방송하는 이벤트. Session #5 당시 주석에 "password change"
+///   의도가 있었으나 실제 분기가 누락되어 있었다.
+///
+/// `AuthChangeEvent.userDeleted`는 gotrue 2.18 기준 @Deprecated이고
+/// jsName이 빈 문자열이라 서버가 방송하지 않으므로 추가하지 않는다.
+const reactiveAuthEvents = <AuthChangeEvent>{
+  AuthChangeEvent.signedOut,
+  AuthChangeEvent.tokenRefreshed,
+  AuthChangeEvent.userUpdated,
+};
+
 @Riverpod(keepAlive: true)
 class Auth extends _$Auth with ChangeNotifier {
   @override
@@ -15,11 +32,10 @@ class Auth extends _$Auth with ChangeNotifier {
     listenSelf((_, next) => notifyListeners());
 
     // Subscribe to real-time auth state changes (session expiry, remote
-    // sign-out, password change, user deletion).
+    // sign-out, token rotation, password change via userUpdated event).
     final subscription = Supabase.instance.client.auth.onAuthStateChange.listen(
       (data) {
-        if (data.event == AuthChangeEvent.signedOut ||
-            data.event == AuthChangeEvent.tokenRefreshed) {
+        if (reactiveAuthEvents.contains(data.event)) {
           ref.invalidateSelf();
         }
       },
