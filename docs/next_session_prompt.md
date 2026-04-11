@@ -5,95 +5,111 @@
 ---
 
 ```
-Session 16 — 릴리스 빌드 실행 준비 완료, 다음 단계 선택
+Session 17 — Firebase Android Dart 배선 (Phase 5) + 검증
 
-## 배경 (현재 상태)
-- 보안 감사 10/10건 전체 수정 완료
-- UI/UX 개선 전체 완료 (Phase 1 + Phase 2)
-- Search 기능 보강 완료 (필터/히스토리/자동완성)
-- 릴리즈 준비 Phase 1 완료 (앱 아이콘, 스플래시, ProGuard, 메타데이터 통일)
-- 빌드 플레이버 분리 완료 (dev/staging/prod)
-- 릴리스 서명 인프라 정비 완료 (Critical Fix 3건 + ExportOptions.plist)
-- `flutter analyze --fatal-warnings` CI 3.41.4 환경 **0 issues** (only_throw_errors 5건 해결)
-- 315 tests ALL GREEN
-- 최근 CI run 전체 job 성공 (Analyze / Security / Test / Build)
-- Firebase 미연결 (flutterfire configure 미실행)
+## 배경 (현재 상태 스냅샷)
+- 보안 감사 10/10건 / UI·UX 개선 / Search 보강 / 릴리스 준비 Phase 1 / 빌드 플레이버 분리 / 릴리스 서명 인프라 / analyze 0 issues / 315 tests ALL GREEN — 모두 유지
+- **Firebase Android Phase 1~4 완료** (세션 #16):
+  - Firebase 프로젝트: `linknote-8994b`
+  - Android 앱 3개 등록 + 패키지명 검증 완료
+  - `flutterfire configure` 3회 실행 성공 (dev/staging/prod)
+  - `lib/firebase_options_{dev,staging,prod}.dart` 생성 완료
+  - `android/app/src/{dev,staging,prod}/google-services.json` 생성 완료
+  - `firebase.json` 3 flavor buildConfigurations 등록 완료
+  - Android Gradle plugin 자동 배선 완료 (`google-services:4.3.15`, `crashlytics:2.8.1`)
+- **미커밋 변경사항 (Phase 1~4 산출물 + 이전 릴리스 서명분)**:
+  - 신규: `lib/firebase_options_*.dart` x3, `android/app/src/{dev,staging,prod}/google-services.json`, `firebase.json`, `ios/ExportOptions.plist`
+  - 수정: `android/settings.gradle.kts`, `android/app/build.gradle.kts`, `android/app/src/main/AndroidManifest.xml`, `ios/Flutter/{Dev,Staging,Prod}-Release.xcconfig`, `ios/Runner.xcodeproj/project.pbxproj`
+- iOS Firebase configure / FCM 배선 / Apple Developer Program / Android keystore — 모두 미완료 (의도적 연기)
 
-## 직전 세션(#15) 결과
-- 커밋 `4b57674`: `Error.throwWithStackTrace` 패턴으로 only_throw_errors info 5건 제거
-  - 대상: `collection_list_provider.dart`, `link_detail_provider.dart` (2곳), `link_list_provider.dart`, `profile_provider.dart`
-  - 런타임 동작 변경 없음, 순수 lint 정리
-- CI run `24278530380` 전체 통과
-- 문서 업데이트 커밋 예정 (CHANGELOG 1.1.4 + daily_log 세션 #15 + next_session_prompt)
+## 직전 세션(#16) 결정 사항 (유지 필수)
+- 아키텍처: **단일 Firebase 프로젝트 + flavor별 앱 3개** (프로젝트 분리 안 함)
+- 범위: Crashlytics + Analytics 초기화만, FCM/Messaging dart 배선 제외
+- 전략: dev PoC 선행 → staging/prod 확장 (Dart 배선은 3 flavor 동시 진행 OK)
+- 테스트 영향: `test/`에서 `bootstrap` import 0건 확인 → boot() 시그니처 확장 안전
 
-## 사용자 액션 필요 (미완료 — 릴리스 빌드 실행 전 필수)
-1. **Android keystore 생성**
-   ```bash
-   keytool -genkeypair -v -keystore ~/linknote-release.jks \
-     -alias linknote -keyalg RSA -keysize 2048 -validity 10000
-   ```
-   → `android/key.properties` 작성 (storePassword/keyPassword/keyAlias/storeFile)
-2. **Apple Developer Program 등록** ($99/year) → App ID 3개 등록 (dev/staging/prod)
-3. `ios/Flutter/{Dev,Staging,Prod}-Release.xcconfig` + `ios/ExportOptions.plist`의 `YOUR_TEAM_ID` 플레이스홀더를 실제 Team ID로 교체
-4. Xcode에서 Runner > Signing & Capabilities > Team 선택
+## 이번 세션 목표 — Phase 5 (Dart 배선) + 검증
 
-## 가능한 다음 작업 (사용자 선택)
+### 수정할 파일 (6개)
+1. **`lib/bootstrap.dart`** — `boot()` 시그니처 확장 + Firebase init + Crashlytics 훅
+   - `boot(AppEnv env, {required FirebaseOptions firebaseOptions})`
+   - `WidgetsFlutterBinding.ensureInitialized()` 직후 `Firebase.initializeApp(options: firebaseOptions)`
+   - `FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(!kDebugMode)` — 디버그 빌드에서 수집 비활성화
+   - `FlutterError.onError` 훅에 `FirebaseCrashlytics.instance.recordFlutterError(details)` **추가** (기존 logger 호출 유지)
+   - `PlatformDispatcher.instance.onError` 훅에 `FirebaseCrashlytics.instance.recordError(error, stack, fatal: true)` **추가** (기존 logger 호출 유지)
+2. **`lib/main_dev.dart`** — `firebase_options_dev.dart` import 후 `firebaseOptions: DefaultFirebaseOptions.currentPlatform` 전달
+3. **`lib/main_staging.dart`** — 동일 패턴 (staging 옵션)
+4. **`lib/main_prod.dart`** — 동일 패턴 (prod 옵션)
+5. **`lib/main.dart`** — 레거시 기본 엔트리, dev 옵션 전달
+6. **`lib/app/router/app_router.dart`** — `observers: [FirebaseAnalyticsObserver(analytics: FirebaseAnalytics.instance)]` 추가
+   - 알려진 한계: `StatefulShellRoute.indexedStack` 탭 전환은 root observer가 잡지 못함 — 탭별 수동 `logScreenView`는 다음 세션 과제
 
-### Option A: Android 릴리스 APK 빌드 + 실기기 스모크 테스트 (추천)
-- 전제: 위 사용자 액션 #1 (Android keystore) 완료
-- 빌드:
-  ```bash
-  flutter build apk --release --flavor prod -t lib/main_prod.dart
-  flutter build appbundle --release --flavor prod -t lib/main_prod.dart
-  ```
-- 실기기 설치 후 `.claude/plans/memoized-inventing-gadget.md`의 릴리스 전용 오류 10항목 검증
-- ProGuard/R8 minification으로 인한 런타임 크래시 유무 확인
+### 수정하지 않을 것
+- `pubspec.yaml` — 의존성 이미 선언됨 (firebase_core / analytics / crashlytics / messaging)
+- `android/app/proguard-rules.pro` — firebase_crashlytics 플러그인이 consumer rules 제공
+- iOS 관련 파일 전부
+- `firebase_options_*.dart` — flutterfire 생성본 그대로 사용 (iOS throw 부분은 iOS configure 시 자동 갱신됨)
+- 테스트 파일 — bootstrap import 없음 확인됨
 
-### Option B: iOS 릴리스 빌드 + TestFlight 업로드
-- 전제: 위 사용자 액션 #2, #3, #4 전부 완료
-- 빌드:
-  ```bash
-  flutter build ipa --release --flavor prod -t lib/main_prod.dart \
-    --export-options-plist=ios/ExportOptions.plist
-  ```
-- TestFlight 업로드 후 내부 테스트
+### 검증 절차 (순서 고정)
+1. `flutter pub get` (firebase_core 등 resolve 확인)
+2. `dart run build_runner build --delete-conflicting-outputs` (app_router 변경 → Riverpod codegen)
+3. `flutter analyze --fatal-warnings` → **0 issues 유지**
+4. `flutter test` → **315 ALL GREEN 유지**
+5. `dart format --set-exit-if-changed lib/ test/` → 클린
+6. `flutter build apk --flavor dev -t lib/main_dev.dart --debug` → Gradle plugin + google-services.json이 빌드에 정상 반영되는지 fast feedback
+7. **사용자 수동 스모크** (환경 영향 — 진행 여부 세션 중 판단):
+   - `flutter run --flavor dev -t lib/main_dev.dart` 실기기/에뮬레이터
+   - Firebase 콘솔 Analytics DebugView에서 `first_open` 이벤트 수신 확인
+   - (옵션) 강제 크래시 호출 → Crashlytics 대시보드 수신 확인
 
-### Option C: Firebase 연결
-- Firebase 콘솔에서 프로젝트 3개 생성 (dev/staging/prod) 또는 단일 프로젝트 멀티 앱
-- `flutterfire configure` 실행 → `firebase_options.dart`, `google-services.json`, `GoogleService-Info.plist` 생성
-- main.dart 주석 처리된 Crashlytics/Analytics 초기화 코드 활성화
-- GoRouter에 Analytics observer 연결
+### 예상 리스크 / 중단 포인트
+- **R1 Gradle sync 실패**: `google-services:4.3.15` / `crashlytics:2.8.1`가 Kotlin 2.2 / AGP 8.11과 호환성 문제 발생 가능 → 버전 업데이트 제안 (`4.4.2` / `3.0.2` 등) 후 재시도
+- **R2 app_router.g.dart 변경**: Riverpod codegen 결과물도 커밋 대상 포함
+- **R3 Analytics observer 주입 위치**: root GoRouter `observers`에 넣어도 shell 전환 이벤트 누락 가능 — 한계로 기록 후 다음 세션에 수동 로깅으로 보완
 
-### Option D: QA 테스트 플랜 실행
-- `.claude/plans/memoized-inventing-gadget.md` 시나리오 실행
-- 릴리스 빌드 전용 오류 검증 (ProGuard, 퍼미션, 플러그인)
-- 기능별 40+ 테스트 케이스 수행
+## 문서·커밋 정책
+- **커밋 1**: Firebase Android configure 산출물 + gradle plugin 배선 (세션 #16 자동 생성 분)
+  - `feat(firebase): Android flavor별 Firebase configure 완료 (Phase 1-4)`
+- **커밋 2**: Dart 배선 (세션 #17 수동 작업 분)
+  - `feat(firebase): Android Crashlytics + Analytics Dart 배선 (Phase 5)`
+- 커밋 2 후 CHANGELOG `Unreleased` 섹션을 `[1.1.5]` 릴리스 노트로 승격
+- `docs/daily_task_log/2026-04-11_session.md` 세션 #17 섹션 추가
+- `docs/next_session_prompt.md` 업데이트 (Session 18 프롬프트 — iOS Firebase / FCM / 스모크 테스트 중 사용자 선택)
+- `git push`는 **사용자 명시적 승인 후에만** 수행
 
-### Option E: 추가 UI/UX 개선
-- 플레이스홀더 아이콘 → 실제 디자인 아이콘 교체
-- Lottie 애니메이션, 스와이프 제스처
-- 링크 카드 OG 이미지 썸네일
-
-### Option F: 오프라인 지원 강화
-- 오프라인 큐 (링크 생성/수정 재시도)
-- Hive ↔ Supabase 동기화 충돌 해결
-
-### Option G: README 포트폴리오 완성
-- 아키텍처 다이어그램, 시연 GIF/스크린샷
-- CI/CD 파이프라인 설명 + badge
-
-## 수정하지 않는 것
+## 수정하지 않는 것 (불변 원칙)
 - 보안 수정 사항 롤백 금지
 - 아키텍처 패턴 변경 금지 (Clean Architecture + Riverpod 유지)
 - ProGuard/R8 설정 비활성화 금지
 - SnackBar 통합 시스템 패턴 변경 금지
 - `Error.throwWithStackTrace` 패턴을 다시 `throw`로 되돌리지 말 것
 - `Failure sealed class`에서 `implements Exception` 제거 금지
+- Firebase 프로젝트 구조 변경 금지 (단일 프로젝트 + flavor별 앱 3개 유지)
+- `firebase_options_*.dart` 수동 편집 금지 (flutterfire 재실행으로만 갱신)
 
 ## 완료 기준
 - `flutter analyze --fatal-warnings` 0 issues 유지
-- `flutter test` ALL GREEN (315+)
+- `flutter test` ALL GREEN 유지 (315+)
 - `dart format --set-exit-if-changed lib/ test/` 클린
-- CI 전체 job 성공
-- 커밋 + 푸시 (사용자 승인 후)
+- `flutter build apk --flavor dev --debug` 성공 (Gradle sync 포함)
+- 커밋 2개 작성 + 푸시 (사용자 승인 후)
+- 문서 3종 (CHANGELOG, daily_log, next_session_prompt) 업데이트
+
+## 진행 순서 (권장)
+1. 먼저 세션 #16 미커밋분을 **커밋 1**로 먼저 기록 (git 히스토리 cleanliness)
+2. Phase 5 Dart 배선 구현 (6파일 수정)
+3. 검증 1~6단계 순차 실행
+4. 실패 시 근본 원인 수정, 통과 후 **커밋 2**
+5. 문서 업데이트
+6. 사용자에게 push 승인 요청
+
+## 선택적 다음 작업 (Phase 5 완료 후)
+- **Option A**: iOS Firebase configure (`flutterfire configure --platforms=ios` × 3 flavor) + Xcode Run Script 배선
+- **Option B**: FCM(firebase_messaging) Dart 배선 + 권한 요청 + 토큰 관리
+- **Option C**: 탭별 수동 `logScreenView` 구현 (shell route 한계 보완)
+- **Option D**: Android keystore 생성 + 릴리스 APK 실빌드 (세션 #15에서 연기된 작업)
+- **Option E**: README 포트폴리오 완성 (아키텍처 다이어그램, 시연 GIF)
+
+다음 세션 시작 시 사용자에게 위 옵션 중 선택 요청.
 ```
