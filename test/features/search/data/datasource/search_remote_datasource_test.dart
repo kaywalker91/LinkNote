@@ -34,7 +34,7 @@ void main() {
     });
 
     test('should return empty string for only special characters', () {
-      final result = SearchRemoteDataSource.sanitizeTsQuery("'!@#\$%^&*()");
+      final result = SearchRemoteDataSource.sanitizeTsQuery(r"'!@#$%^&*()");
       expect(result, '');
     });
 

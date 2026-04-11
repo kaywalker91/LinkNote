@@ -82,6 +82,7 @@ class _MockSearch extends Search {
 }
 
 /// Common extra overrides for providers required by SearchScreen.
+// ignore: specify_nonobvious_property_types
 final _extraOverrides = [
   userTagsProvider.overrideWith((ref) => Future.value(<TagEntity>[])),
   searchSuggestionsProvider.overrideWith((ref) => <SearchSuggestion>[]),

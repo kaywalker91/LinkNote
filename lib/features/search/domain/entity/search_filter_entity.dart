@@ -4,14 +4,14 @@ part 'search_filter_entity.freezed.dart';
 
 @freezed
 abstract class SearchFilterEntity with _$SearchFilterEntity {
-  const SearchFilterEntity._();
-
   const factory SearchFilterEntity({
     @Default([]) List<String> selectedTagIds,
     @Default(false) bool favoritesOnly,
     DateTime? dateFrom,
     DateTime? dateTo,
   }) = _SearchFilterEntity;
+
+  const SearchFilterEntity._();
 
   bool get hasActiveFilters =>
       selectedTagIds.isNotEmpty ||

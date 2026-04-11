@@ -114,7 +114,7 @@ void main() {
 
     test('should return CacheFailure when id not found', () {
       // Arrange
-      when(() => mockBox.get(any())).thenReturn(null);
+      when(() => mockBox.get(any<dynamic>())).thenReturn(null);
 
       // Act
       final result = sut.getCachedCollectionById('nonexistent');
@@ -201,7 +201,8 @@ void main() {
         createdAt: DateTime(2026),
         updatedAt: DateTime(2026),
       );
-      when(() => mockBox.put(any(), any())).thenAnswer((_) async {});
+      when(() => mockBox.put(any<dynamic>(), any<Map<dynamic, dynamic>>()))
+          .thenAnswer((_) async {});
       when(() => mockBox.length).thenReturn(1);
 
       // Act
@@ -218,7 +219,7 @@ void main() {
   group('removeCachedCollection', () {
     test('should delete collection by id', () async {
       // Arrange
-      when(() => mockBox.delete(any())).thenAnswer((_) async {});
+      when(() => mockBox.delete(any<dynamic>())).thenAnswer((_) async {});
 
       // Act
       await sut.removeCachedCollection('col-1');

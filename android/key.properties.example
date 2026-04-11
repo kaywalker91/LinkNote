@@ -1,0 +1,4 @@
+storePassword=
+keyPassword=
+keyAlias=linknote-release
+storeFile=../linknote-release.keystore

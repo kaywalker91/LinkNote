@@ -37,8 +37,7 @@ class SearchHistoryLocalDataSource {
   }
 
   Future<void> removeRecentSearch(String query) async {
-    final current = getRecentSearches();
-    current.remove(query);
+    final current = getRecentSearches()..remove(query);
     await saveRecentSearches(current);
   }
 

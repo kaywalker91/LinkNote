@@ -1,0 +1,3 @@
+#include "Debug.xcconfig"
+APP_DISPLAY_NAME=LinkNote STG
+PRODUCT_BUNDLE_IDENTIFIER=app.kaywalker.linknote.staging

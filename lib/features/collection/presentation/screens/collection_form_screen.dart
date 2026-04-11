@@ -68,10 +68,11 @@ class _CollectionFormScreenState extends ConsumerState<CollectionFormScreen> {
     }
 
     if (mounted) {
-      context.showSuccessSnackBar(
-        _isEditMode ? '컬렉션이 수정되었습니다' : '컬렉션이 생성되었습니다',
-      );
-      context.pop();
+      context
+        ..showSuccessSnackBar(
+          _isEditMode ? '컬렉션이 수정되었습니다' : '컬렉션이 생성되었습니다',
+        )
+        ..pop();
     }
   }
 

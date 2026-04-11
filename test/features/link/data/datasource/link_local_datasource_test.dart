@@ -161,7 +161,7 @@ void main() {
 
     test('should return CacheFailure when id not found', () {
       // Arrange
-      when(() => mockBox.get(any())).thenReturn(null);
+      when(() => mockBox.get(any<dynamic>())).thenReturn(null);
 
       // Act
       final result = sut.getCachedLinkById('nonexistent');
@@ -251,7 +251,8 @@ void main() {
         createdAt: DateTime(2026),
         updatedAt: DateTime(2026),
       );
-      when(() => mockBox.put(any(), any())).thenAnswer((_) async {});
+      when(() => mockBox.put(any<dynamic>(), any<Map<dynamic, dynamic>>()))
+          .thenAnswer((_) async {});
       when(() => mockBox.length).thenReturn(1);
 
       // Act
@@ -268,7 +269,7 @@ void main() {
   group('removeCachedLink', () {
     test('should delete link by id', () async {
       // Arrange
-      when(() => mockBox.delete(any())).thenAnswer((_) async {});
+      when(() => mockBox.delete(any<dynamic>())).thenAnswer((_) async {});
 
       // Act
       await sut.removeCachedLink('link-1');
@@ -285,7 +286,8 @@ void main() {
     test('should update isFavorite field in cached map', () async {
       // Arrange
       when(() => mockBox.get('link-1')).thenReturn(tLinkMap1);
-      when(() => mockBox.put(any(), any())).thenAnswer((_) async {});
+      when(() => mockBox.put(any<dynamic>(), any<Map<dynamic, dynamic>>()))
+          .thenAnswer((_) async {});
 
       // Act
       await sut.updateCachedFavorite('link-1', isFavorite: true);
@@ -313,7 +315,9 @@ void main() {
       await sut.updateCachedFavorite('nonexistent', isFavorite: true);
 
       // Assert
-      verifyNever(() => mockBox.put(any(), any()));
+      verifyNever(
+        () => mockBox.put(any<dynamic>(), any<Map<dynamic, dynamic>>()),
+      );
     });
   });
 

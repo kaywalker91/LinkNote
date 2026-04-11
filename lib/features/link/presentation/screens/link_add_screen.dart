@@ -181,8 +181,9 @@ class _LinkAddScreenState extends ConsumerState<LinkAddScreen> {
                           .read(linkFormProvider(null).notifier)
                           .submit();
                       if (success && context.mounted) {
-                        context.showSuccessSnackBar('링크가 저장되었습니다');
-                        context.pop();
+                        context
+                          ..showSuccessSnackBar('링크가 저장되었습니다')
+                          ..pop();
                       }
                     },
             ),

@@ -1,7 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
+import 'package:linknote/core/config/app_config.dart';
 import 'package:linknote/core/constants/app_constants.dart';
-import 'package:linknote/core/constants/env.dart';
 import 'package:linknote/core/network/auth_interceptor.dart';
 import 'package:linknote/core/network/logging_interceptor.dart';
 import 'package:linknote/shared/providers/session_expired_provider.dart';
@@ -14,12 +14,12 @@ part 'dio_client.g.dart';
 Dio dio(Ref ref) {
   final dio = Dio(
     BaseOptions(
-      baseUrl: Env.supabaseUrl,
+      baseUrl: appEnv.supabaseUrl,
       connectTimeout: AppConstants.connectTimeout,
       receiveTimeout: AppConstants.receiveTimeout,
       headers: {
         'Content-Type': 'application/json',
-        'apikey': Env.supabaseAnonKey,
+        'apikey': appEnv.supabaseAnonKey,
       },
     ),
   );
