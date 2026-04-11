@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:linknote/shared/widgets/app_snack_bar.dart';
 
 extension ContextExtensions on BuildContext {
   ThemeData get theme => Theme.of(this);
@@ -8,4 +9,13 @@ extension ContextExtensions on BuildContext {
   MediaQueryData get mediaQuery => MediaQuery.of(this);
   double get screenWidth => MediaQuery.of(this).size.width;
   double get screenHeight => MediaQuery.of(this).size.height;
+
+  void showSuccessSnackBar(String message) =>
+      AppSnackBar.show(this, message: message, type: SnackBarType.success);
+
+  void showErrorSnackBar(String message) =>
+      AppSnackBar.show(this, message: message, type: SnackBarType.error);
+
+  void showInfoSnackBar(String message) =>
+      AppSnackBar.show(this, message: message);
 }

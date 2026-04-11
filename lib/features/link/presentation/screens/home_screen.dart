@@ -6,7 +6,9 @@ import 'package:linknote/app/theme/app_spacing.dart';
 import 'package:linknote/features/link/domain/entity/link_entity.dart';
 import 'package:linknote/features/link/presentation/provider/link_filter_provider.dart';
 import 'package:linknote/features/link/presentation/provider/link_list_provider.dart';
+import 'package:linknote/shared/extensions/context_extensions.dart';
 import 'package:linknote/shared/widgets/confirmation_dialog_widget.dart';
+import 'package:linknote/shared/widgets/empty_state_illustration.dart';
 import 'package:linknote/shared/widgets/empty_state_widget.dart';
 import 'package:linknote/shared/widgets/error_state_widget.dart';
 import 'package:linknote/shared/widgets/link_list_tile.dart';
@@ -112,7 +114,7 @@ class _LinkListBody extends ConsumerWidget {
       onRefresh: () => ref.read(linkListProvider.notifier).refresh(),
       onLoadMore: () => ref.read(linkListProvider.notifier).loadMore(),
       empty: EmptyStateWidget(
-        icon: Icons.bookmarks_outlined,
+        illustration: const EmptyStateIllustration.links(),
         message: 'No links yet',
         subMessage: 'Tap + to save your first link',
         actionLabel: 'Add Link',
@@ -161,6 +163,9 @@ class _LinkListBody extends ConsumerWidget {
                 );
                 if (confirmed ?? false) {
                   await ref.read(linkListProvider.notifier).deleteLink(linkId);
+                  if (context.mounted) {
+                    context.showSuccessSnackBar('링크가 삭제되었습니다');
+                  }
                 }
               },
             ),

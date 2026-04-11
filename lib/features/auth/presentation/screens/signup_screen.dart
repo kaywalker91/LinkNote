@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:linknote/app/theme/app_spacing.dart';
 import 'package:linknote/core/error/failure_ui.dart';
 import 'package:linknote/features/auth/presentation/provider/auth_provider.dart';
+import 'package:linknote/shared/extensions/context_extensions.dart';
 
 class SignupScreen extends ConsumerStatefulWidget {
   const SignupScreen({super.key});
@@ -38,9 +39,7 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
       final authState = ref.read(authProvider);
       if (authState.hasError) {
         final ui = failureUiFromError(authState.error!);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(ui.message)),
-        );
+        if (mounted) context.showErrorSnackBar(ui.message);
       }
     }
   }

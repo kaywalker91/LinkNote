@@ -5,6 +5,7 @@ import 'package:linknote/app/router/routes.dart';
 import 'package:linknote/app/theme/app_spacing.dart';
 import 'package:linknote/features/collection/domain/entity/collection_entity.dart';
 import 'package:linknote/features/collection/presentation/provider/collection_list_provider.dart';
+import 'package:linknote/shared/widgets/empty_state_illustration.dart';
 import 'package:linknote/shared/widgets/empty_state_widget.dart';
 import 'package:linknote/shared/widgets/error_state_widget.dart';
 import 'package:linknote/shared/widgets/paginated_list_view.dart';
@@ -41,7 +42,7 @@ class CollectionListScreen extends ConsumerWidget {
           onLoadMore: () =>
               ref.read(collectionListProvider.notifier).loadMore(),
           empty: const EmptyStateWidget(
-            icon: Icons.folder_outlined,
+            illustration: EmptyStateIllustration.collections(),
             message: 'No collections yet',
             subMessage: 'Organize your links into collections',
           ),

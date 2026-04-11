@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:linknote/app/theme/app_spacing.dart';
 import 'package:linknote/features/collection/presentation/provider/collection_detail_provider.dart';
 import 'package:linknote/features/collection/presentation/provider/collection_list_provider.dart';
+import 'package:linknote/shared/extensions/context_extensions.dart';
 import 'package:linknote/shared/widgets/primary_button_widget.dart';
 
 class CollectionFormScreen extends ConsumerStatefulWidget {
@@ -66,7 +67,12 @@ class _CollectionFormScreenState extends ConsumerState<CollectionFormScreen> {
           );
     }
 
-    if (mounted) context.pop();
+    if (mounted) {
+      context.showSuccessSnackBar(
+        _isEditMode ? '컬렉션이 수정되었습니다' : '컬렉션이 생성되었습니다',
+      );
+      context.pop();
+    }
   }
 
   @override

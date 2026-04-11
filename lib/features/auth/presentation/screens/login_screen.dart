@@ -5,6 +5,7 @@ import 'package:linknote/app/router/routes.dart';
 import 'package:linknote/app/theme/app_spacing.dart';
 import 'package:linknote/core/error/failure_ui.dart';
 import 'package:linknote/features/auth/presentation/provider/auth_provider.dart';
+import 'package:linknote/shared/extensions/context_extensions.dart';
 import 'package:linknote/shared/providers/session_expired_provider.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
@@ -38,9 +39,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       final authState = ref.read(authProvider);
       if (authState.hasError) {
         final ui = failureUiFromError(authState.error!);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(ui.message)),
-        );
+        if (mounted) context.showErrorSnackBar(ui.message);
       }
     }
   }
@@ -51,9 +50,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
     ref.listen<bool>(sessionExpiredProvider, (_, isExpired) {
       if (isExpired) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('세션이 만료되었습니다. 다시 로그인해 주세요.')),
-        );
+        context.showInfoSnackBar('세션이 만료되었습니다. 다시 로그인해 주세요.');
         ref.read(sessionExpiredProvider.notifier).reset();
       }
     });
