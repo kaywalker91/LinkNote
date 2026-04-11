@@ -5,6 +5,40 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.4] - 2026-04-11
+
+### Fixed
+
+- **CI analyze 완전 클린** — `only_throw_errors` info 5건 제거 (`Error.throwWithStackTrace` 패턴 적용)
+  - `throw result.failure!` → `Error.throwWithStackTrace(result.failure!, StackTrace.current)` 치환
+  - CI Flutter 3.41.4 환경에서 `Failure implements Exception` 을 인식하지 못해 발생한 info 정리
+  - 대상: `collection_list_provider.dart`, `link_detail_provider.dart` (2곳), `link_list_provider.dart`, `profile_provider.dart`
+  - 런타임 동작 변경 없음 (analyze 0 issues / 315 tests ALL GREEN 유지)
+
+## [1.1.3] - 2026-04-11
+
+### Fixed
+
+- **[Critical] Android INTERNET 퍼미션 추가** — 릴리스 빌드에서 모든 네트워크 호출이 차단되는 치명적 버그 수정
+- **iOS IPHONEOS_DEPLOYMENT_TARGET 통일** — project.pbxproj 13.0 → 15.0 (Podfile과 일치)
+- **iOS PRODUCT_BUNDLE_IDENTIFIER 하드코딩 제거** — flavor별 번들 ID가 xcconfig에서 올바르게 적용되도록 수정
+
+### Added
+
+- `ios/ExportOptions.plist` — App Store IPA 내보내기 설정 템플릿
+- iOS Release xcconfig에 `DEVELOPMENT_TEAM` 플레이스홀더 추가
+- 릴리스 빌드 QA 테스트 플랜 수립 (40+ 테스트 케이스)
+
+## [1.1.2] - 2026-04-11
+
+### Fixed
+
+- `flutter analyze --fatal-warnings` 전체 통과 (31개 → 0개 이슈)
+  - `Failure` sealed class에 `implements Exception` 추가 (only_throw_errors 5건)
+  - 테스트 `any()` 호출에 타입 인자 추가 (inference_failure 8건 warning)
+  - cascade_invocations, discarded_futures, unnecessary_lambdas 등 info 18건 수정
+- `app_config.dart` 타입 어노테이션, `dio_client.dart` import 정렬 수정
+
 ## [1.1.1] - 2026-04-11
 
 ### Fixed
