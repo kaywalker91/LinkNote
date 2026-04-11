@@ -1,3 +1,5 @@
 #include "Release.xcconfig"
 APP_DISPLAY_NAME=LinkNote STG
 PRODUCT_BUNDLE_IDENTIFIER=app.kaywalker.linknote.staging
+// TODO(linknote): Replace YOUR_TEAM_ID with your Apple Developer Team ID.
+DEVELOPMENT_TEAM=YOUR_TEAM_ID
