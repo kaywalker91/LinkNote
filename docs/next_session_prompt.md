@@ -5,35 +5,21 @@
 ---
 
 ```
-Session 7 — UI/UX 추가 개선 완료 후 다음 단계
+Session 11 — 릴리즈 준비 Phase 1 완료, 다음 단계 선택
 
 ## 배경
 - 보안 감사 P0(3)+P1(4)+P2(3) = 10/10건 전체 수정 완료.
-- UI/UX 개선 완료:
-  - Phase 1: 에러 한글화, 세션 만료 UX, 스켈레톤, Pull-to-Refresh (세션 #7)
-  - Phase 2: SnackBar 통합(success/error/info), 빈 상태 일러스트, 테마 전환 애니메이션 (세션 #9)
+- UI/UX 개선 전체 완료 (Phase 1 + Phase 2).
 - Search 기능 보강 완료 (필터/히스토리/자동완성).
+- 릴리즈 준비 Phase 1 완료 (세션 #10):
+  - 앱 이름 통일: Android/iOS 모두 "LinkNote"
+  - flutter_launcher_icons 설정 + 플레이스홀더 아이콘 생성 (단색 #4A90D9)
+  - flutter_native_splash 설정 + 스플래시 화면 생성
+  - ProGuard/R8 설정 (isMinifyEnabled + isShrinkResources)
+  - assets/images/ 디렉토리 구성
 - Firebase는 아직 미연결 (flutterfire configure 미실행, 차후 진행).
 - 현재 315 테스트 ALL GREEN, flutter analyze 0 errors.
-- git status clean (미커밋 변경사항: 세션 #9 UI/UX 개선분).
-
-## 세션 #9 변경사항 (미커밋)
-- lib/shared/widgets/app_snack_bar.dart (신규) — SnackBar 통합 시스템
-- lib/shared/widgets/empty_state_illustration.dart (신규) — 빈 상태 일러스트
-- lib/shared/extensions/context_extensions.dart — showSuccess/Error/InfoSnackBar extension
-- lib/shared/widgets/empty_state_widget.dart — illustration parameter 추가
-- lib/app/app.dart — 테마 전환 애니메이션 (300ms easeInOut)
-- lib/features/auth/presentation/screens/login_screen.dart — SnackBar 통합 교체
-- lib/features/auth/presentation/screens/signup_screen.dart — SnackBar 통합 교체
-- lib/features/link/presentation/screens/link_add_screen.dart — 저장 성공 SnackBar
-- lib/features/link/presentation/screens/link_edit_screen.dart — 수정 성공 SnackBar
-- lib/features/link/presentation/screens/home_screen.dart — 삭제 성공 SnackBar + 일러스트
-- lib/features/collection/presentation/screens/collection_form_screen.dart — 생성/수정 성공 SnackBar
-- lib/features/collection/presentation/screens/collection_detail_screen.dart — 삭제 성공 SnackBar + 일러스트
-- lib/features/collection/presentation/screens/collection_list_screen.dart — 일러스트
-- lib/features/search/presentation/screens/search_screen.dart — 일러스트 (2곳)
-- test/shared/widgets/app_snack_bar_test.dart (신규, 6 GREEN)
-- test/shared/widgets/empty_state_illustration_test.dart (신규, 7 GREEN)
+- 미푸시 커밋 있음 (사용자 승인 필요).
 
 ## Firebase 상태 (차후 진행)
 - pubspec.yaml에 firebase_core/analytics/crashlytics/messaging 선언됨
@@ -43,13 +29,16 @@ Session 7 — UI/UX 추가 개선 완료 후 다음 단계
 
 ## 남은 TODO
 - lib/main.dart:10,21 — Firebase 초기화 (flutterfire configure 후)
-- 세션 #9 변경사항 커밋
+- 미푸시 커밋 push (사용자 승인 필요)
+- 플레이스홀더 앱 아이콘을 실제 디자인 아이콘으로 교체
+- Release signing 설정 (keystore 생성 필요)
+- 빌드 플레이버 분리 (dev/staging/production)
 
 ## 가능한 다음 작업 (사용자 선택)
 
-### Option A: 미커밋 변경사항 정리 + 커밋
-- 세션 #9 (UI/UX 개선)의 변경사항을 커밋
-- git status 확인 후 논리적 단위로 정리
+### Option A: git push
+- 미푸시 커밋을 origin/main에 push
+- CI 통과 확인
 
 ### Option B: E2E 통합 테스트
 - Supabase 실제 연결 후 주요 플로우 (로그인 → 링크 저장 → 검색 → 로그아웃) 테스트
@@ -64,22 +53,16 @@ Session 7 — UI/UX 추가 개선 완료 후 다음 단계
 - Crashlytics, Analytics, Messaging 초기화
 - GoRouter에 Analytics observer 연결
 
-### Option E: Search 추가 보강
-- 검색 결과 페이지네이션 (현재 limit 50 하드코딩)
-- 검색 결과 정렬 옵션 (최신순/관련순)
-- 검색 필터 상태 URL 파라미터 반영 (deep link)
+### Option E: 빌드 플레이버 + Release Signing
+- dev/staging/prod 플레이버 분리
+- envied 환경변수 플레이버별 분리
+- Release keystore 생성 + signingConfigs 설정
 
 ### Option F: 추가 UI/UX 개선
+- 플레이스홀더 아이콘을 실제 디자인 아이콘으로 교체
 - 빈 상태 일러스트에 Lottie 애니메이션 적용
-- 다크/라이트 테마 전환 토글 (설정 화면에 미리보기)
 - 카드/리스트 아이템 스와이프 제스처 (삭제/즐겨찾기)
 - 링크 카드에 OG 이미지 썸네일 표시
-
-### Option G: 앱 폴리싱 + 릴리즈 준비
-- 앱 아이콘 + 스플래시 스크린 설정
-- 앱 이름/설명 메타데이터 최종 정리
-- ProGuard/R8 난독화 설정 (Android)
-- 빌드 플레이버 (dev/staging/production) 분리
 
 ## 수정하지 않는 것
 - 기존 보안 수정 사항 롤백
@@ -87,6 +70,7 @@ Session 7 — UI/UX 추가 개선 완료 후 다음 단계
 - ErrorStateWidget.fromError() 패턴 변경 (통일된 에러 UI)
 - Search 필터/히스토리 기본 패턴 변경
 - SnackBar 통합 시스템 패턴 변경 (AppSnackBar + context extension)
+- ProGuard/R8 설정 비활성화
 
 ## 완료 기준
 - flutter analyze 0 errors
