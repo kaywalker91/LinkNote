@@ -41,7 +41,7 @@ final class SearchProvider
   }
 }
 
-String _$searchHash() => r'bbf24b73002a0fd1af64920a448c2ef13a4c51d6';
+String _$searchHash() => r'1357b3c878900b6cc0290709b39af154a76a3f60';
 
 abstract class _$Search extends $Notifier<SearchStateEntity> {
   SearchStateEntity build();

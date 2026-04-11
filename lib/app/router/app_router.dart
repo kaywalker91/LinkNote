@@ -1,3 +1,4 @@
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:linknote/app/router/routes.dart';
@@ -40,6 +41,11 @@ GoRouter appRouter(Ref ref) {
     navigatorKey: _rootNavigatorKey,
     initialLocation: Routes.splash,
     refreshListenable: authNotifier,
+    // NOTE: StatefulShellRoute.indexedStack의 탭 전환은 root observer에서
+    // 잡히지 않음. 탭별 수동 logScreenView는 별도 세션에서 보완 예정.
+    observers: [
+      FirebaseAnalyticsObserver(analytics: FirebaseAnalytics.instance),
+    ],
     redirect: (context, state) {
       final authState = ref.read(authProvider);
       final location = state.matchedLocation;

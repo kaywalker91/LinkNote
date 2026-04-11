@@ -7,8 +7,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.1.5] - 2026-04-11
+
 ### Added
 
+- **Firebase Android Phase 5: Dart 배선 완료** — Crashlytics + Analytics 런타임 초기화
+  - `lib/bootstrap.dart` — `boot()` 시그니처 확장:
+    - `boot(AppEnv env, {required FirebaseOptions firebaseOptions})`
+    - `Firebase.initializeApp(options: firebaseOptions)` 호출 (Hive/Supabase 초기화보다 선행)
+    - `FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(!kDebugMode)` — 디버그 빌드에서 수집 비활성화
+    - `FlutterError.onError` 훅에 `recordFlutterError(d)` 추가 (기존 logger 유지, `unawaited` 래핑)
+    - `PlatformDispatcher.instance.onError` 훅에 `recordError(error, stack, fatal: true)` 추가
+  - `lib/main_{dev,staging,prod}.dart` + `lib/main.dart` — flavor별 `firebase_options_*.dart` import 및 `DefaultFirebaseOptions.currentPlatform` 전달
+  - `lib/app/router/app_router.dart` — GoRouter `observers: [FirebaseAnalyticsObserver(analytics: FirebaseAnalytics.instance)]` 추가
+    - 알려진 한계: `StatefulShellRoute.indexedStack` 탭 전환은 root observer가 잡지 못함 → 탭별 수동 `logScreenView`는 다음 세션 과제
+  - 검증:
+    - `flutter analyze --fatal-warnings` → 0 issues
+    - `flutter test` → 315 ALL GREEN
+    - `dart format --set-exit-if-changed lib/ test/` → 클린
+    - `flutter build apk --flavor dev -t lib/main_dev.dart --debug` → 성공 (Gradle plugin + google-services.json 정상 반영)
 - **Firebase Android configure 완료 (flavor별 3개 앱)** — Crashlytics + Analytics 초기화 준비
   - Firebase 프로젝트 `linknote-8994b` (display name "LinkNote") 생성
   - Android 앱 3개 등록 완료:
@@ -23,7 +40,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - `com.google.gms.google-services:4.3.15`
     - `com.google.firebase.crashlytics:2.8.1`
   - iOS / FCM은 의도적으로 이번 범위에서 제외 (다음 세션)
-  - Dart 배선 (`bootstrap.dart` Firebase init, Crashlytics 훅, Analytics observer)은 다음 세션에서 진행
 
 ## [1.1.4] - 2026-04-11
 
