@@ -19,21 +19,23 @@ void main() {
   const tId = 'test-id';
 
   group('DeleteCollectionUsecase', () {
-    test('should return success when repository deletes successfully',
-        () async {
-      // Arrange
-      when(
-        () => mockRepository.deleteCollection(any()),
-      ).thenAnswer((_) async => success(null));
+    test(
+      'should return success when repository deletes successfully',
+      () async {
+        // Arrange
+        when(
+          () => mockRepository.deleteCollection(any()),
+        ).thenAnswer((_) async => success(null));
 
-      // Act
-      final result = await sut.call(tId);
+        // Act
+        final result = await sut.call(tId);
 
-      // Assert
-      expect(result.isSuccess, isTrue);
-      verify(() => mockRepository.deleteCollection(tId)).called(1);
-      verifyNoMoreInteractions(mockRepository);
-    });
+        // Assert
+        expect(result.isSuccess, isTrue);
+        verify(() => mockRepository.deleteCollection(tId)).called(1);
+        verifyNoMoreInteractions(mockRepository);
+      },
+    );
 
     test('should return Failure when repository fails', () async {
       // Arrange

@@ -30,8 +30,9 @@ void main() {
   group('getProfile', () {
     test('should return profile on success', () async {
       // Arrange
-      when(() => mockRemote.getProfile())
-          .thenAnswer((_) async => success(tProfile));
+      when(
+        () => mockRemote.getProfile(),
+      ).thenAnswer((_) async => success(tProfile));
 
       // Act
       final result = await sut.getProfile();
@@ -45,8 +46,9 @@ void main() {
     test('should return failure on error', () async {
       // Arrange
       const tFailure = Failure.server(message: 'Not found');
-      when(() => mockRemote.getProfile())
-          .thenAnswer((_) async => error(tFailure));
+      when(
+        () => mockRemote.getProfile(),
+      ).thenAnswer((_) async => error(tFailure));
 
       // Act
       final result = await sut.getProfile();

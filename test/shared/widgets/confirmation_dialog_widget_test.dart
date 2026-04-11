@@ -112,8 +112,9 @@ void main() {
       expect(result, isFalse);
     });
 
-    testWidgets('should use error color when isDestructive is true',
-        (tester) async {
+    testWidgets('should use error color when isDestructive is true', (
+      tester,
+    ) async {
       await tester.pumpWidget(
         MaterialApp(
           theme: ThemeData(
@@ -136,8 +137,9 @@ void main() {
       await tester.tap(find.text('Open'));
       await tester.pumpAndSettle();
 
-      final confirmButton =
-          tester.widget<FilledButton>(find.byType(FilledButton));
+      final confirmButton = tester.widget<FilledButton>(
+        find.byType(FilledButton),
+      );
       final style = confirmButton.style;
       expect(style, isNotNull);
     });

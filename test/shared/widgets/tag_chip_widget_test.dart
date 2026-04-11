@@ -14,8 +14,9 @@ void main() {
       expect(find.text('Flutter'), findsOneWidget);
     });
 
-    testWidgets('should render as FilterChip when onDelete is null',
-        (tester) async {
+    testWidgets('should render as FilterChip when onDelete is null', (
+      tester,
+    ) async {
       await tester.pumpWidget(
         const MaterialApp(
           home: Scaffold(body: TagChipWidget(label: 'Flutter')),
@@ -26,8 +27,9 @@ void main() {
       expect(find.byType(InputChip), findsNothing);
     });
 
-    testWidgets('should render as InputChip when onDelete is provided',
-        (tester) async {
+    testWidgets('should render as InputChip when onDelete is provided', (
+      tester,
+    ) async {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
@@ -55,8 +57,9 @@ void main() {
       expect(tapped, isTrue);
     });
 
-    testWidgets('should call onDelete when delete icon is tapped',
-        (tester) async {
+    testWidgets('should call onDelete when delete icon is tapped', (
+      tester,
+    ) async {
       var deleted = false;
 
       await tester.pumpWidget(

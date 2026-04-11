@@ -4,12 +4,13 @@ import 'package:linknote/shared/widgets/empty_state_illustration.dart';
 
 void main() {
   Widget buildApp({required Widget child}) {
-    return MaterialApp(home: Scaffold(body: Center(child: child)));
+    return MaterialApp(
+      home: Scaffold(body: Center(child: child)),
+    );
   }
 
   group('EmptyStateIllustration', () {
-    testWidgets('should render links illustration with badge',
-        (tester) async {
+    testWidgets('should render links illustration with badge', (tester) async {
       await tester.pumpWidget(
         buildApp(child: const EmptyStateIllustration.links()),
       );
@@ -18,8 +19,9 @@ void main() {
       expect(find.byIcon(Icons.add), findsOneWidget);
     });
 
-    testWidgets('should render collections illustration without badge',
-        (tester) async {
+    testWidgets('should render collections illustration without badge', (
+      tester,
+    ) async {
       await tester.pumpWidget(
         buildApp(child: const EmptyStateIllustration.collections()),
       );
@@ -61,8 +63,7 @@ void main() {
       expect(sizedBox.height, 120);
     });
 
-    testWidgets('should use custom accent color when provided',
-        (tester) async {
+    testWidgets('should use custom accent color when provided', (tester) async {
       await tester.pumpWidget(
         buildApp(
           child: const EmptyStateIllustration(

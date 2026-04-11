@@ -60,8 +60,9 @@ void main() {
       expect(find.byIcon(Icons.search), findsOneWidget);
     });
 
-    testWidgets('should call onChanged with debounce when text is entered',
-        (tester) async {
+    testWidgets('should call onChanged with debounce when text is entered', (
+      tester,
+    ) async {
       String? changedValue;
 
       await tester.pumpWidget(
@@ -82,8 +83,9 @@ void main() {
       expect(changedValue, 'flutter');
     });
 
-    testWidgets('should show clear button when text is not empty',
-        (tester) async {
+    testWidgets('should show clear button when text is not empty', (
+      tester,
+    ) async {
       controller.text = 'flutter';
 
       await tester.pumpWidget(
@@ -115,8 +117,9 @@ void main() {
       expect(find.byIcon(Icons.clear), findsNothing);
     });
 
-    testWidgets('should clear text and call onClear when clear button tapped',
-        (tester) async {
+    testWidgets('should clear text and call onClear when clear button tapped', (
+      tester,
+    ) async {
       var cleared = false;
       controller.text = 'flutter';
 

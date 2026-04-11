@@ -20,21 +20,23 @@ void main() {
   const tId = 'notification-id-1';
 
   group('MarkNotificationReadUsecase', () {
-    test('should return success when repository marks as read successfully',
-        () async {
-      // Arrange
-      when(
-        () => mockRepository.markAsRead(any()),
-      ).thenAnswer((_) async => success(null));
+    test(
+      'should return success when repository marks as read successfully',
+      () async {
+        // Arrange
+        when(
+          () => mockRepository.markAsRead(any()),
+        ).thenAnswer((_) async => success(null));
 
-      // Act
-      final result = await sut.call(tId);
+        // Act
+        final result = await sut.call(tId);
 
-      // Assert
-      expect(result.isSuccess, isTrue);
-      verify(() => mockRepository.markAsRead(tId)).called(1);
-      verifyNoMoreInteractions(mockRepository);
-    });
+        // Assert
+        expect(result.isSuccess, isTrue);
+        verify(() => mockRepository.markAsRead(tId)).called(1);
+        verifyNoMoreInteractions(mockRepository);
+      },
+    );
 
     test('should return Failure when repository fails', () async {
       // Arrange

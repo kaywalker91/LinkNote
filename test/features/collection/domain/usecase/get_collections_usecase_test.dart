@@ -34,30 +34,32 @@ void main() {
   ];
 
   group('GetCollectionsUsecase', () {
-    test('should return paginated collections when repository succeeds',
-        () async {
-      // Arrange
-      final tState = PaginatedState<CollectionEntity>(
-        items: tCollections,
-        hasMore: true,
-        nextCursor: '2026-01-01T00:00:00.000Z',
-      );
-      when(
-        () => mockRepository.getCollections(
-          cursor: any(named: 'cursor'),
-          pageSize: any(named: 'pageSize'),
-        ),
-      ).thenAnswer((_) async => success(tState));
+    test(
+      'should return paginated collections when repository succeeds',
+      () async {
+        // Arrange
+        final tState = PaginatedState<CollectionEntity>(
+          items: tCollections,
+          hasMore: true,
+          nextCursor: '2026-01-01T00:00:00.000Z',
+        );
+        when(
+          () => mockRepository.getCollections(
+            cursor: any(named: 'cursor'),
+            pageSize: any(named: 'pageSize'),
+          ),
+        ).thenAnswer((_) async => success(tState));
 
-      // Act
-      final result = await sut.call();
+        // Act
+        final result = await sut.call();
 
-      // Assert
-      expect(result.isSuccess, isTrue);
-      expect(result.data!.items, equals(tCollections));
-      expect(result.data!.hasMore, isTrue);
-      verify(() => mockRepository.getCollections()).called(1);
-    });
+        // Assert
+        expect(result.isSuccess, isTrue);
+        expect(result.data!.items, equals(tCollections));
+        expect(result.data!.hasMore, isTrue);
+        verify(() => mockRepository.getCollections()).called(1);
+      },
+    );
 
     test('should return empty list when no collections exist', () async {
       // Arrange

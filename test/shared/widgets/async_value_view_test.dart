@@ -5,8 +5,9 @@ import 'package:linknote/shared/widgets/async_value_view.dart';
 
 void main() {
   group('AsyncValueView', () {
-    testWidgets('should show loading widget when state is loading',
-        (tester) async {
+    testWidgets('should show loading widget when state is loading', (
+      tester,
+    ) async {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
@@ -39,8 +40,9 @@ void main() {
       expect(find.byType(CircularProgressIndicator), findsNothing);
     });
 
-    testWidgets('should show default ErrorStateWidget when state is error',
-        (tester) async {
+    testWidgets('should show default ErrorStateWidget when state is error', (
+      tester,
+    ) async {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
@@ -56,8 +58,9 @@ void main() {
       expect(find.text('오류가 발생했습니다'), findsOneWidget);
     });
 
-    testWidgets('should show retry button when onRetry is provided',
-        (tester) async {
+    testWidgets('should show retry button when onRetry is provided', (
+      tester,
+    ) async {
       var retried = false;
 
       await tester.pumpWidget(

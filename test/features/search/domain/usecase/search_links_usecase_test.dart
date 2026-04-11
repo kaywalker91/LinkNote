@@ -54,7 +54,9 @@ void main() {
       // Assert
       expect(result.isSuccess, isTrue);
       expect(result.data, equals(tLinks));
-      verify(() => mockRepository.searchLinks(tQuery, filter: any(named: 'filter'))).called(1);
+      verify(
+        () => mockRepository.searchLinks(tQuery, filter: any(named: 'filter')),
+      ).called(1);
       verifyNoMoreInteractions(mockRepository);
     });
 
@@ -71,7 +73,9 @@ void main() {
       // Assert
       expect(result.isFailure, isTrue);
       expect(result.failure, equals(tFailure));
-      verify(() => mockRepository.searchLinks(tQuery, filter: any(named: 'filter'))).called(1);
+      verify(
+        () => mockRepository.searchLinks(tQuery, filter: any(named: 'filter')),
+      ).called(1);
     });
   });
 }

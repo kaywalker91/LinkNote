@@ -28,8 +28,9 @@ void main() {
   group('getSession', () {
     test('should delegate to datasource', () async {
       // Arrange
-      when(() => mockDatasource.getSession())
-          .thenAnswer((_) async => tAuthState);
+      when(
+        () => mockDatasource.getSession(),
+      ).thenAnswer((_) async => tAuthState);
 
       // Act
       final result = await sut.getSession();
@@ -136,8 +137,9 @@ void main() {
   group('signOut', () {
     test('should return success on successful sign out', () async {
       // Arrange
-      when(() => mockDatasource.signOut())
-          .thenAnswer((_) async => success(null));
+      when(
+        () => mockDatasource.signOut(),
+      ).thenAnswer((_) async => success(null));
 
       // Act
       final result = await sut.signOut();
@@ -149,8 +151,9 @@ void main() {
     test('should return failure on failed sign out', () async {
       // Arrange
       const tFailure = Failure.server(message: 'Sign out failed');
-      when(() => mockDatasource.signOut())
-          .thenAnswer((_) async => error(tFailure));
+      when(
+        () => mockDatasource.signOut(),
+      ).thenAnswer((_) async => error(tFailure));
 
       // Act
       final result = await sut.signOut();

@@ -118,8 +118,9 @@ void main() {
       expect(find.text('No collections yet'), findsOneWidget);
     });
 
-    testWidgets('should show collection cards when data is loaded',
-        (tester) async {
+    testWidgets('should show collection cards when data is loaded', (
+      tester,
+    ) async {
       final collections = [
         CollectionEntity(
           id: '1',

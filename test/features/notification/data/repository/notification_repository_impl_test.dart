@@ -11,8 +11,7 @@ import 'package:mocktail/mocktail.dart';
 class MockRemoteDataSource extends Mock
     implements NotificationRemoteDataSource {}
 
-class MockLocalDataSource extends Mock
-    implements NotificationLocalDataSource {}
+class MockLocalDataSource extends Mock implements NotificationLocalDataSource {}
 
 void main() {
   late NotificationRepositoryImpl sut;
@@ -71,8 +70,9 @@ void main() {
       () async {
         // Arrange
         const tFailure = Failure.network(message: 'No connection');
-        final tCachedState =
-            PaginatedState<NotificationEntity>(items: tNotifications);
+        final tCachedState = PaginatedState<NotificationEntity>(
+          items: tNotifications,
+        );
 
         when(
           () => mockRemote.getNotifications(

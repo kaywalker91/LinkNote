@@ -40,8 +40,7 @@ void main() {
   );
 
   group('UpdateLinkUsecase', () {
-    test('should return updated LinkEntity when repository succeeds',
-        () async {
+    test('should return updated LinkEntity when repository succeeds', () async {
       // Arrange
       when(
         () => mockRepository.updateLink(any()),

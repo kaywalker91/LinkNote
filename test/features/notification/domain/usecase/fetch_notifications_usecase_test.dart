@@ -36,30 +36,32 @@ void main() {
   ];
 
   group('FetchNotificationsUsecase', () {
-    test('should return paginated notifications when repository succeeds',
-        () async {
-      // Arrange
-      final tState = PaginatedState<NotificationEntity>(
-        items: tNotifications,
-        hasMore: true,
-        nextCursor: '2026-01-01T00:00:00.000Z',
-      );
-      when(
-        () => mockRepository.getNotifications(
-          cursor: any(named: 'cursor'),
-          pageSize: any(named: 'pageSize'),
-        ),
-      ).thenAnswer((_) async => success(tState));
+    test(
+      'should return paginated notifications when repository succeeds',
+      () async {
+        // Arrange
+        final tState = PaginatedState<NotificationEntity>(
+          items: tNotifications,
+          hasMore: true,
+          nextCursor: '2026-01-01T00:00:00.000Z',
+        );
+        when(
+          () => mockRepository.getNotifications(
+            cursor: any(named: 'cursor'),
+            pageSize: any(named: 'pageSize'),
+          ),
+        ).thenAnswer((_) async => success(tState));
 
-      // Act
-      final result = await sut.call();
+        // Act
+        final result = await sut.call();
 
-      // Assert
-      expect(result.isSuccess, isTrue);
-      expect(result.data!.items, equals(tNotifications));
-      expect(result.data!.hasMore, isTrue);
-      verify(() => mockRepository.getNotifications()).called(1);
-    });
+        // Assert
+        expect(result.isSuccess, isTrue);
+        expect(result.data!.items, equals(tNotifications));
+        expect(result.data!.hasMore, isTrue);
+        verify(() => mockRepository.getNotifications()).called(1);
+      },
+    );
 
     test('should return empty list when no notifications exist', () async {
       // Arrange

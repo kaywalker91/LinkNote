@@ -26,27 +26,29 @@ void main() {
   );
 
   group('UpdateProfileUsecase', () {
-    test('should return updated UserProfileEntity when repository succeeds',
-        () async {
-      // Arrange
-      when(
-        () => mockRepository.updateProfile(
-          displayName: any(named: 'displayName'),
-          avatarUrl: any(named: 'avatarUrl'),
-        ),
-      ).thenAnswer((_) async => success(tUpdatedProfile));
+    test(
+      'should return updated UserProfileEntity when repository succeeds',
+      () async {
+        // Arrange
+        when(
+          () => mockRepository.updateProfile(
+            displayName: any(named: 'displayName'),
+            avatarUrl: any(named: 'avatarUrl'),
+          ),
+        ).thenAnswer((_) async => success(tUpdatedProfile));
 
-      // Act
-      final result = await sut.call(displayName: 'New Name');
+        // Act
+        final result = await sut.call(displayName: 'New Name');
 
-      // Assert
-      expect(result.isSuccess, isTrue);
-      expect(result.data, equals(tUpdatedProfile));
-      verify(
-        () => mockRepository.updateProfile(displayName: 'New Name'),
-      ).called(1);
-      verifyNoMoreInteractions(mockRepository);
-    });
+        // Assert
+        expect(result.isSuccess, isTrue);
+        expect(result.data, equals(tUpdatedProfile));
+        verify(
+          () => mockRepository.updateProfile(displayName: 'New Name'),
+        ).called(1);
+        verifyNoMoreInteractions(mockRepository);
+      },
+    );
 
     test('should return Failure when repository fails', () async {
       // Arrange

@@ -62,9 +62,9 @@ class _WithResults extends Search with _SearchStubMixin {
 
   @override
   SearchStateEntity build() => SearchStateEntity(
-        query: 'flutter',
-        results: _results,
-      );
+    query: 'flutter',
+    results: _results,
+  );
 }
 
 class _NoResults extends Search with _SearchStubMixin {
@@ -75,8 +75,8 @@ class _NoResults extends Search with _SearchStubMixin {
 class _WithRecentSearches extends Search with _SearchStubMixin {
   @override
   SearchStateEntity build() => const SearchStateEntity(
-        recentSearches: ['flutter', 'dart'],
-      );
+    recentSearches: ['flutter', 'dart'],
+  );
 }
 
 Widget _wrapWithProviders(Widget child, Search Function() searchFactory) {
@@ -94,15 +94,17 @@ Widget _wrapWithProviders(Widget child, Search Function() searchFactory) {
 
 void main() {
   group('SearchScreen', () {
-    testWidgets('should show empty state when no query and no recent searches',
-        (tester) async {
-      await tester.pumpWidget(
-        _wrapWithProviders(const SearchScreen(), _EmptySearch.new),
-      );
-      await tester.pumpAndSettle();
+    testWidgets(
+      'should show empty state when no query and no recent searches',
+      (tester) async {
+        await tester.pumpWidget(
+          _wrapWithProviders(const SearchScreen(), _EmptySearch.new),
+        );
+        await tester.pumpAndSettle();
 
-      expect(find.text('링크를 검색하세요'), findsOneWidget);
-    });
+        expect(find.text('링크를 검색하세요'), findsOneWidget);
+      },
+    );
 
     testWidgets('should show recent searches when available', (tester) async {
       await tester.pumpWidget(
@@ -146,8 +148,9 @@ void main() {
       expect(find.text('Flutter Dev'), findsOneWidget);
     });
 
-    testWidgets('should show no results message when query has no matches',
-        (tester) async {
+    testWidgets('should show no results message when query has no matches', (
+      tester,
+    ) async {
       await tester.pumpWidget(
         _wrapWithProviders(const SearchScreen(), _NoResults.new),
       );
@@ -179,8 +182,9 @@ void main() {
       expect(find.text('날짜'), findsOneWidget);
     });
 
-    testWidgets('should show clear all button for recent searches',
-        (tester) async {
+    testWidgets('should show clear all button for recent searches', (
+      tester,
+    ) async {
       await tester.pumpWidget(
         _wrapWithProviders(
           const SearchScreen(),
