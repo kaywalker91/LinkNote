@@ -251,8 +251,9 @@ void main() {
         createdAt: DateTime(2026),
         updatedAt: DateTime(2026),
       );
-      when(() => mockBox.put(any<dynamic>(), any<Map<dynamic, dynamic>>()))
-          .thenAnswer((_) async {});
+      when(
+        () => mockBox.put(any<dynamic>(), any<Map<dynamic, dynamic>>()),
+      ).thenAnswer((_) async {});
       when(() => mockBox.length).thenReturn(1);
 
       // Act
@@ -286,8 +287,9 @@ void main() {
     test('should update isFavorite field in cached map', () async {
       // Arrange
       when(() => mockBox.get('link-1')).thenReturn(tLinkMap1);
-      when(() => mockBox.put(any<dynamic>(), any<Map<dynamic, dynamic>>()))
-          .thenAnswer((_) async {});
+      when(
+        () => mockBox.put(any<dynamic>(), any<Map<dynamic, dynamic>>()),
+      ).thenAnswer((_) async {});
 
       // Act
       await sut.updateCachedFavorite('link-1', isFavorite: true);

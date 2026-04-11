@@ -201,8 +201,9 @@ void main() {
         createdAt: DateTime(2026),
         updatedAt: DateTime(2026),
       );
-      when(() => mockBox.put(any<dynamic>(), any<Map<dynamic, dynamic>>()))
-          .thenAnswer((_) async {});
+      when(
+        () => mockBox.put(any<dynamic>(), any<Map<dynamic, dynamic>>()),
+      ).thenAnswer((_) async {});
       when(() => mockBox.length).thenReturn(1);
 
       // Act
