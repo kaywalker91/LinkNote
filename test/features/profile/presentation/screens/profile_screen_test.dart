@@ -86,7 +86,7 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      expect(find.text('Something went wrong'), findsOneWidget);
+      expect(find.text('오류가 발생했습니다'), findsOneWidget);
     });
 
     testWidgets('should show profile info when data is loaded',

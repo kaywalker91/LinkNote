@@ -53,7 +53,7 @@ void main() {
         ),
       );
 
-      expect(find.text('Something went wrong'), findsOneWidget);
+      expect(find.text('오류가 발생했습니다'), findsOneWidget);
     });
 
     testWidgets('should show retry button when onRetry is provided',
@@ -73,8 +73,8 @@ void main() {
         ),
       );
 
-      expect(find.text('Try again'), findsOneWidget);
-      await tester.tap(find.text('Try again'));
+      expect(find.text('다시 시도'), findsOneWidget);
+      await tester.tap(find.text('다시 시도'));
       expect(retried, isTrue);
     });
 
@@ -93,7 +93,7 @@ void main() {
       );
 
       expect(find.textContaining('Custom:'), findsOneWidget);
-      expect(find.text('Something went wrong'), findsNothing);
+      expect(find.text('오류가 발생했습니다'), findsNothing);
     });
   });
 }

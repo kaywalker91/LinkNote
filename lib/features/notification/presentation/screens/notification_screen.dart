@@ -32,8 +32,8 @@ class NotificationScreen extends ConsumerWidget {
           itemCount: 8,
           itemBuilder: (_, __) => const NotificationTileSkeleton(),
         ),
-        error: (error, _) => ErrorStateWidget(
-          message: error.toString(),
+        error: (error, _) => ErrorStateWidget.fromError(
+          error,
           onRetry: () => ref.read(notificationListProvider.notifier).refresh(),
         ),
         data: (state) => PaginatedListView(

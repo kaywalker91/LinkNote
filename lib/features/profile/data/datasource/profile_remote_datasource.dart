@@ -11,7 +11,10 @@ class ProfileRemoteDataSource {
 
   Future<Result<UserProfileEntity>> getProfile() async {
     try {
-      final userId = _client.auth.currentUser!.id;
+      final userId = _client.auth.currentUser?.id;
+      if (userId == null) {
+        return error(const Failure.auth(message: 'Session expired'));
+      }
       final response = await _client
           .from('profiles')
           .select()
@@ -31,7 +34,10 @@ class ProfileRemoteDataSource {
     String? avatarUrl,
   }) async {
     try {
-      final userId = _client.auth.currentUser!.id;
+      final userId = _client.auth.currentUser?.id;
+      if (userId == null) {
+        return error(const Failure.auth(message: 'Session expired'));
+      }
       final json = ProfileMapper.toUpdateJson(
         displayName: displayName,
         avatarUrl: avatarUrl,

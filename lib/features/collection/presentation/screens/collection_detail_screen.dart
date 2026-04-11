@@ -60,47 +60,60 @@ class CollectionDetailScreen extends ConsumerWidget {
       ),
       body: detailAsync.when(
         loading: () => const ProfileHeaderSkeleton(),
-        error: (error, _) => ErrorStateWidget(
-          message: error.toString(),
+        error: (error, _) => ErrorStateWidget.fromError(
+          error,
           onRetry: () => ref
               .read(collectionDetailProvider(collectionId).notifier)
               .refresh(),
         ),
-        data: (collection) => CustomScrollView(
-          slivers: [
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.all(AppSpacing.screenPadding),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      collection.name,
-                      style: Theme.of(context).textTheme.headlineSmall,
-                    ),
-                    if (collection.description != null) ...[
+        data: (collection) => RefreshIndicator(
+          onRefresh: () async {
+            await ref
+                .read(collectionDetailProvider(collectionId).notifier)
+                .refresh();
+            ref.invalidate(collectionLinksProvider(collectionId));
+          },
+          child: CustomScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            slivers: [
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.all(AppSpacing.screenPadding),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        collection.name,
+                        style: Theme.of(context).textTheme.headlineSmall,
+                      ),
+                      if (collection.description != null) ...[
+                        const SizedBox(height: AppSpacing.sm),
+                        Text(
+                          collection.description!,
+                          style: Theme.of(context).textTheme.bodyMedium
+                              ?.copyWith(
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.onSurfaceVariant,
+                              ),
+                        ),
+                      ],
                       const SizedBox(height: AppSpacing.sm),
                       Text(
-                        collection.description!,
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: Theme.of(context).colorScheme.onSurfaceVariant,
-                        ),
+                        '${collection.linkCount} links',
+                        style: Theme.of(context).textTheme.labelMedium
+                            ?.copyWith(
+                              color: Theme.of(context).colorScheme.outline,
+                            ),
                       ),
+                      const Divider(height: AppSpacing.xxl),
                     ],
-                    const SizedBox(height: AppSpacing.sm),
-                    Text(
-                      '${collection.linkCount} links',
-                      style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                        color: Theme.of(context).colorScheme.outline,
-                      ),
-                    ),
-                    const Divider(height: AppSpacing.xxl),
-                  ],
+                  ),
                 ),
               ),
-            ),
-            ..._buildLinksSection(context, ref, linksAsync),
-          ],
+              ..._buildLinksSection(context, ref, linksAsync),
+            ],
+          ),
         ),
       ),
     );
@@ -122,8 +135,8 @@ class CollectionDetailScreen extends ConsumerWidget {
       ],
       error: (error, _) => [
         SliverToBoxAdapter(
-          child: ErrorStateWidget(
-            message: error.toString(),
+          child: ErrorStateWidget.fromError(
+            error,
             onRetry: () =>
                 ref.invalidate(collectionLinksProvider(collectionId)),
           ),

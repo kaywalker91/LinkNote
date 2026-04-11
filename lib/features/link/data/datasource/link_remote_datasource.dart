@@ -111,11 +111,15 @@ class LinkRemoteDataSource {
 
   Future<Result<LinkEntity>> updateLink(LinkEntity link) async {
     try {
+      final userId = _client.auth.currentUser?.id;
+      if (userId == null) {
+        return error(const Failure.auth(message: 'Session expired'));
+      }
+
       final json = LinkMapper.toUpdateJson(link);
       await _client.from('links').update(json).eq('id', link.id);
 
       // Sync tags
-      final userId = _client.auth.currentUser!.id;
       await _syncTags(link.id, link.tags, userId);
 
       return getLinkById(link.id);

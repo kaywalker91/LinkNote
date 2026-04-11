@@ -24,8 +24,8 @@ class AsyncValueView<T> extends StatelessWidget {
       loading: () => loading,
       error: (error, stack) =>
           errorBuilder?.call(error, stack) ??
-          ErrorStateWidget(
-            message: error.toString(),
+          ErrorStateWidget.fromError(
+            error,
             onRetry: onRetry,
           ),
       data: dataBuilder,

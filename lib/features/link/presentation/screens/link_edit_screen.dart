@@ -4,7 +4,9 @@ import 'package:go_router/go_router.dart';
 import 'package:linknote/app/theme/app_spacing.dart';
 import 'package:linknote/features/link/domain/entity/tag_entity.dart';
 import 'package:linknote/features/link/presentation/provider/link_form_provider.dart';
+import 'package:linknote/shared/widgets/error_state_widget.dart';
 import 'package:linknote/shared/widgets/primary_button_widget.dart';
+import 'package:linknote/shared/widgets/skeleton/shimmer_box.dart';
 
 class LinkEditScreen extends ConsumerStatefulWidget {
   const LinkEditScreen({required this.linkId, super.key});
@@ -60,8 +62,8 @@ class _LinkEditScreenState extends ConsumerState<LinkEditScreen> {
     return Scaffold(
       appBar: AppBar(title: const Text('Edit Link')),
       body: formAsync.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (error, _) => Center(child: Text(error.toString())),
+        loading: () => const _LinkEditSkeleton(),
+        error: (error, _) => ErrorStateWidget.fromError(error),
         data: (formState) {
           _syncControllers(formState);
           final isSubmitting = formState.isSubmitting;
@@ -174,6 +176,41 @@ class _LinkEditScreenState extends ConsumerState<LinkEditScreen> {
             ),
           );
         },
+      ),
+    );
+  }
+}
+
+class _LinkEditSkeleton extends StatelessWidget {
+  const _LinkEditSkeleton();
+
+  @override
+  Widget build(BuildContext context) {
+    return const Padding(
+      padding: EdgeInsets.all(AppSpacing.screenPadding),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          ShimmerBox(width: 200, height: 14, borderRadius: 4),
+          SizedBox(height: AppSpacing.lg),
+          ShimmerBox(width: double.infinity, height: 56, borderRadius: 12),
+          SizedBox(height: AppSpacing.md),
+          ShimmerBox(width: double.infinity, height: 88, borderRadius: 12),
+          SizedBox(height: AppSpacing.md),
+          ShimmerBox(width: double.infinity, height: 88, borderRadius: 12),
+          SizedBox(height: AppSpacing.lg),
+          Row(
+            children: [
+              ShimmerBox(width: 60, height: 28, borderRadius: 14),
+              SizedBox(width: AppSpacing.sm),
+              ShimmerBox(width: 60, height: 28, borderRadius: 14),
+            ],
+          ),
+          SizedBox(height: AppSpacing.md),
+          ShimmerBox(width: double.infinity, height: 56, borderRadius: 12),
+          SizedBox(height: AppSpacing.lg),
+          ShimmerBox(width: double.infinity, height: 48, borderRadius: 12),
+        ],
       ),
     );
   }
