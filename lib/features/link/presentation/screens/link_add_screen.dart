@@ -5,6 +5,7 @@ import 'package:linknote/app/theme/app_spacing.dart';
 import 'package:linknote/features/link/domain/entity/tag_entity.dart';
 import 'package:linknote/features/link/presentation/provider/link_form_provider.dart';
 import 'package:linknote/shared/extensions/context_extensions.dart';
+import 'package:linknote/shared/utils/url_sanitizer.dart';
 import 'package:linknote/shared/widgets/primary_button_widget.dart';
 
 class LinkAddScreen extends ConsumerStatefulWidget {
@@ -29,6 +30,72 @@ class _LinkAddScreenState extends ConsumerState<LinkAddScreen> {
     _memoController.dispose();
     _tagController.dispose();
     super.dispose();
+  }
+
+  /// Handles user input in the URL field.
+  ///
+  /// When a user pastes "title text - https://..." (common with share sheets),
+  /// auto-extract the URL, replace the controller text, and — if the title
+  /// field is still empty — copy the leading prose into the title field so
+  /// no input is lost. A snackbar announces the auto-fix.
+  void _handleUrlChanged(String value, LinkFormState? formState) {
+    final notifier = ref.read(linkFormProvider(null).notifier);
+
+    if (!UrlSanitizer.wouldAlter(value)) {
+      notifier.updateUrl(value);
+      return;
+    }
+
+    final extracted = UrlSanitizer.extract(value);
+    if (extracted == null) {
+      // No URL inside — keep raw value so the user can fix it.
+      notifier.updateUrl(value);
+      return;
+    }
+
+    // Prose before the extracted URL → candidate title.
+    final idx = value.indexOf(extracted);
+    final leading = idx > 0 ? value.substring(0, idx).trim() : '';
+    final titleCandidate = _stripTrailingSeparators(leading);
+
+    _urlController.value = TextEditingValue(
+      text: extracted,
+      selection: TextSelection.collapsed(offset: extracted.length),
+    );
+    notifier.updateUrl(extracted);
+
+    final titleIsEmpty = (formState?.title ?? '').isEmpty;
+    if (titleCandidate.isNotEmpty && titleIsEmpty) {
+      _titleController.text = titleCandidate;
+      notifier.updateTitle(titleCandidate);
+    }
+
+    final messenger = ScaffoldMessenger.maybeOf(context);
+    if (messenger == null) return;
+    messenger
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        const SnackBar(
+          content: Text('붙여넣은 텍스트에서 URL을 추출했습니다'),
+          duration: Duration(seconds: 2),
+        ),
+      );
+  }
+
+  /// Strip trailing separator-ish characters from candidate title text
+  /// (e.g. "하네스 엔지니어링 -" → "하네스 엔지니어링").
+  static String _stripTrailingSeparators(String text) {
+    var end = text.length;
+    const seps = {0x2d, 0x7c, 0x3a, 0x2014, 0x2013, 0x00b7};
+    while (end > 0) {
+      final c = text.codeUnitAt(end - 1);
+      if (c == 0x20 || seps.contains(c)) {
+        end--;
+      } else {
+        break;
+      }
+    }
+    return text.substring(0, end);
   }
 
   void _addTag() {
@@ -91,8 +158,7 @@ class _LinkAddScreenState extends ConsumerState<LinkAddScreen> {
                 hintText: 'https://',
                 prefixIcon: Icon(Icons.link),
               ),
-              onChanged: (v) =>
-                  ref.read(linkFormProvider(null).notifier).updateUrl(v),
+              onChanged: (v) => _handleUrlChanged(v, formState),
               onEditingComplete: () async {
                 final url = _urlController.text.trim();
                 if (url.isNotEmpty) {

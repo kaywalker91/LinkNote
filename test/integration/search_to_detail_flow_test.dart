@@ -178,7 +178,7 @@ void main() {
       expect(find.text('링크를 검색하세요'), findsOneWidget);
     });
 
-    testWidgets('should navigate to detail when tapping result', (
+    testWidgets('should navigate to detail when long-pressing result', (
       tester,
     ) async {
       final router = GoRouter(
@@ -217,7 +217,7 @@ void main() {
       await tester.enterText(find.byType(TextField), 'flutter');
       await tester.pumpAndSettle();
 
-      await tester.tap(find.text('Flutter Dev'));
+      await tester.longPress(find.text('Flutter Dev'));
       await tester.pumpAndSettle();
 
       expect(find.text('Flutter Dev'), findsOneWidget);
