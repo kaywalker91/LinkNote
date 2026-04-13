@@ -42,8 +42,10 @@ SignUpUsecase signUpUsecase(Ref ref) {
 SignOutUsecase signOutUsecase(Ref ref) {
   return SignOutUsecase(
     ref.watch(authRepositoryProvider),
-    ref.watch(linkLocalDataSourceProvider),
-    ref.watch(collectionLocalDataSourceProvider),
-    ref.watch(notificationLocalDataSourceProvider),
+    [
+      ref.watch(linkLocalDataSourceProvider),
+      ref.watch(collectionLocalDataSourceProvider),
+      ref.watch(notificationLocalDataSourceProvider),
+    ],
   );
 }

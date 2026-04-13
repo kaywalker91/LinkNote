@@ -50,7 +50,7 @@ final class CollectionDetailProvider
   }
 }
 
-String _$collectionDetailHash() => r'3532ad4b904ca17d6f9b16c9cd33a9ebda4512f4';
+String _$collectionDetailHash() => r'c5eaf55480aeaa5acc3002c744d8bd03bc6fc730';
 
 final class CollectionDetailFamily extends $Family
     with

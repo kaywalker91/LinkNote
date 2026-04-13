@@ -1,4 +1,4 @@
-import 'dart:ui';
+import 'dart:async';
 
 import 'package:dio/dio.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -6,7 +6,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 class AuthInterceptor extends Interceptor {
   AuthInterceptor({this.onUnauthorized});
 
-  final VoidCallback? onUnauthorized;
+  final Future<void> Function()? onUnauthorized;
 
   @override
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
@@ -20,7 +20,7 @@ class AuthInterceptor extends Interceptor {
   @override
   void onError(DioException err, ErrorInterceptorHandler handler) {
     if (err.response?.statusCode == 401) {
-      onUnauthorized?.call();
+      unawaited(onUnauthorized?.call());
     }
     handler.next(err);
   }

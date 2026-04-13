@@ -21,7 +21,7 @@ final class OgTagServiceProvider
         argument: null,
         retry: null,
         name: r'ogTagServiceProvider',
-        isAutoDispose: true,
+        isAutoDispose: false,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
@@ -48,4 +48,4 @@ final class OgTagServiceProvider
   }
 }
 
-String _$ogTagServiceHash() => r'519281549508ebeaed1645eff8e2794e741d1000';
+String _$ogTagServiceHash() => r'b27087b4359be14ad43d3fab01136b0ffe1fed19';
