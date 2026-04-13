@@ -8,6 +8,7 @@ import 'package:linknote/features/collection/presentation/provider/collection_li
 import 'package:linknote/features/collection/presentation/provider/collection_list_provider.dart';
 import 'package:linknote/features/link/domain/entity/link_entity.dart';
 import 'package:linknote/shared/extensions/context_extensions.dart';
+import 'package:linknote/shared/utils/url_launcher_helper.dart';
 import 'package:linknote/shared/widgets/confirmation_dialog_widget.dart';
 import 'package:linknote/shared/widgets/empty_state_illustration.dart';
 import 'package:linknote/shared/widgets/empty_state_widget.dart';
@@ -167,7 +168,9 @@ class CollectionDetailScreen extends ConsumerWidget {
                 final link = links[i];
                 return LinkListTile(
                   link: link,
-                  onTap: () => context.push(Routes.linkDetailPath(link.id)),
+                  onTap: () => UrlLauncherHelper.launch(context, link.url),
+                  onLongPress: () =>
+                      context.push(Routes.linkDetailPath(link.id)),
                   onFavoriteTap: () {},
                 );
               },

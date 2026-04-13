@@ -9,6 +9,7 @@ class LinkListTile extends StatelessWidget {
     required this.link,
     super.key,
     this.onTap,
+    this.onLongPress,
     this.onFavoriteTap,
     this.onMoreTap,
     this.isCompact = false,
@@ -17,6 +18,7 @@ class LinkListTile extends StatelessWidget {
 
   final LinkEntity link;
   final VoidCallback? onTap;
+  final VoidCallback? onLongPress;
   final VoidCallback? onFavoriteTap;
   final VoidCallback? onMoreTap;
   final bool isCompact;
@@ -27,6 +29,7 @@ class LinkListTile extends StatelessWidget {
     final colorScheme = Theme.of(context).colorScheme;
     return InkWell(
       onTap: onTap,
+      onLongPress: onLongPress,
       child: Padding(
         padding: const EdgeInsets.symmetric(
           horizontal: AppSpacing.screenPadding,

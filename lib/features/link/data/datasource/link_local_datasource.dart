@@ -3,6 +3,7 @@ import 'package:linknote/core/error/failure.dart';
 import 'package:linknote/core/error/result.dart';
 import 'package:linknote/features/link/domain/entity/link_entity.dart';
 import 'package:linknote/shared/models/paginated_state.dart';
+import 'package:linknote/shared/utils/url_sanitizer.dart';
 
 class LinkLocalDataSource {
   const LinkLocalDataSource(this._box);
@@ -117,7 +118,18 @@ class LinkLocalDataSource {
 
   LinkEntity? _mapToEntity(Map<dynamic, dynamic> raw) {
     try {
-      return LinkEntity.fromJson(Map<String, dynamic>.from(raw));
+      final json = Map<String, dynamic>.from(raw);
+      // Defensive sanitize at the local-cache boundary: legacy records that
+      // were saved with "title - URL" pastes or hidden chars are transparently
+      // repaired on read. Mirrors LinkMapper.toEntity. See Session 19 RCA.
+      final rawUrl = json['url'];
+      if (rawUrl is String) {
+        final cleaned = UrlSanitizer.extract(rawUrl);
+        if (cleaned != null && cleaned != rawUrl) {
+          json['url'] = cleaned;
+        }
+      }
+      return LinkEntity.fromJson(json);
     } on Object {
       return null;
     }

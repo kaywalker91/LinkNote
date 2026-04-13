@@ -45,9 +45,11 @@ dev_dependencies:
   hive_ce_generator:
   json_serializable:
   mocktail:
+  plugin_platform_interface:
   retrofit_generator:
   riverpod_generator:
   riverpod_lint:
+  url_launcher_platform_interface:
   very_good_analysis:
 
 flutter:

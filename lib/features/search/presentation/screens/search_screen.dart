@@ -6,6 +6,7 @@ import 'package:linknote/app/theme/app_spacing.dart';
 import 'package:linknote/features/search/presentation/provider/search_provider.dart';
 import 'package:linknote/features/search/presentation/widgets/search_filter_bar.dart';
 import 'package:linknote/features/search/presentation/widgets/search_suggestions_list.dart';
+import 'package:linknote/shared/utils/url_launcher_helper.dart';
 import 'package:linknote/shared/widgets/empty_state_illustration.dart';
 import 'package:linknote/shared/widgets/empty_state_widget.dart';
 import 'package:linknote/shared/widgets/link_list_tile.dart';
@@ -173,7 +174,8 @@ class _SearchBody extends ConsumerWidget {
               final link = state.results[index];
               return LinkListTile(
                 link: link,
-                onTap: () => context.push(Routes.linkDetailPath(link.id)),
+                onTap: () => UrlLauncherHelper.launch(context, link.url),
+                onLongPress: () => context.push(Routes.linkDetailPath(link.id)),
                 onFavoriteTap: () =>
                     ref.read(searchProvider.notifier).toggleFavorite(link.id),
               );
