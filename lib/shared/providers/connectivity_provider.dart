@@ -15,7 +15,7 @@ bool isOnline(Ref ref) {
   final asyncResult = ref.watch(connectivityProvider);
   return asyncResult.when(
     data: (result) => result != ConnectivityResult.none,
-    loading: () => true,
-    error: (_, __) => true,
+    loading: () => false,
+    error: (_, __) => false,
   );
 }

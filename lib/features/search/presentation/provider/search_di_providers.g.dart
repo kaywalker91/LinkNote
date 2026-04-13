@@ -104,7 +104,7 @@ final class SearchHistoryLocalDataSourceProvider
 }
 
 String _$searchHistoryLocalDataSourceHash() =>
-    r'e299ec7fefda5d9a63462d2cbab3ac89d9efe23a';
+    r'898ce0466d3b4273e71cab3356ec7ef170a7a45f';
 
 @ProviderFor(searchRepository)
 final searchRepositoryProvider = SearchRepositoryProvider._();

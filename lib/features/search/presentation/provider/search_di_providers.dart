@@ -16,7 +16,7 @@ SearchRemoteDataSource searchRemoteDataSource(Ref ref) {
 
 @riverpod
 SearchHistoryLocalDataSource searchHistoryLocalDataSource(Ref ref) {
-  return SearchHistoryLocalDataSource(Hive.box<String>('settings'));
+  return SearchHistoryLocalDataSource(Hive.box<String>('search_history'));
 }
 
 @riverpod

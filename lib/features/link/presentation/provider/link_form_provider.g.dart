@@ -50,7 +50,7 @@ final class LinkFormProvider
   }
 }
 
-String _$linkFormHash() => r'7caac64f558a1667f56d6dcbc0771a49c5f76677';
+String _$linkFormHash() => r'297591a3781728a8c009cdda16946db348a79ec0';
 
 final class LinkFormFamily extends $Family
     with

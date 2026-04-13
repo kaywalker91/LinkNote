@@ -49,6 +49,7 @@ class _AppSearchBarWidgetState extends State<AppSearchBarWidget> {
                   icon: const Icon(Icons.clear),
                   onPressed: () {
                     widget.controller.clear();
+                    _debouncer.dispose();
                     widget.onClear?.call();
                     widget.onChanged('');
                   },

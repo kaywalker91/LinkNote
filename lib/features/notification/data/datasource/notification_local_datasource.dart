@@ -1,10 +1,11 @@
 import 'package:hive_ce/hive_ce.dart';
 import 'package:linknote/core/error/failure.dart';
 import 'package:linknote/core/error/result.dart';
+import 'package:linknote/core/storage/i_clearable_cache.dart';
 import 'package:linknote/features/notification/domain/entity/notification_entity.dart';
 import 'package:linknote/shared/models/paginated_state.dart';
 
-class NotificationLocalDataSource {
+class NotificationLocalDataSource implements IClearableCache {
   const NotificationLocalDataSource(this._box);
 
   final Box<Map<dynamic, dynamic>> _box;
@@ -79,6 +80,7 @@ class NotificationLocalDataSource {
     } on Exception catch (_) {}
   }
 
+  @override
   Future<void> clearAll() async {
     try {
       await _box.clear();

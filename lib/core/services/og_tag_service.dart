@@ -75,6 +75,11 @@ class OgTagService {
   }
 
   void clearCache() => _cache.clear();
+
+  void close() {
+    _dio.close();
+    _cache.clear();
+  }
 }
 
 class _CacheEntry {
@@ -87,7 +92,9 @@ class _CacheEntry {
       DateTime.now().difference(createdAt) > OgTagService._cacheTtl;
 }
 
-@riverpod
+@Riverpod(keepAlive: true)
 OgTagService ogTagService(Ref ref) {
-  return OgTagService();
+  final service = OgTagService();
+  ref.onDispose(service.close);
+  return service;
 }
