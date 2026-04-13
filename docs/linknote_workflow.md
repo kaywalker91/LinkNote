@@ -1,8 +1,8 @@
 # LinkNote — 개발 워크플로우 & 구현 가이드
 
-> **버전:** v2.0.0
-> **최종 수정:** 2026.03
-> **목적:** 목업 우선(Mockup-First) 방식 로드맵 + Git / CI/CD / 코드 컨벤션 기준 정의
+> **버전:** v2.1.0
+> **최종 수정:** 2026.04
+> **목적:** 목업 우선(Mockup-First) 방식 로드맵 + Android MVP → iOS → 배포 단계 전략 + Git / CI/CD / 코드 컨벤션 기준 정의
 
 ---
 
@@ -13,7 +13,7 @@
 1. **완성 가능성 우선** — 완벽한 코드보다 돌아가는 MVP가 먼저다. 2주마다 데모 가능한 상태를 유지한다.
 2. **목업 우선 (Mockup-First)** — UI를 먼저 목업 데이터로 완성한 뒤 백엔드를 붙인다. Provider는 처음에 더미 데이터를 반환하고, 백엔드 연동 시 UseCase 호출로 교체한다. 화면이 돌아가는 것을 먼저 확인한 후 실제 데이터로 전환한다.
 3. **설명 가능한 구조** — 면접에서 "왜 이렇게 만들었나요?"에 답할 수 있는 의도적 설계를 한다.
-4. **점진적 완성** — Phase 2 (UI 완성) → Phase 3 (백엔드 연동) 순서를 지키고, 욕심내서 scope를 벌리지 않는다.
+4. **점진적 완성** — Phase 2 (UI 완성) → Phase 3 (백엔드 연동) 순서를 지키고, 욕심내서 scope를 벌리지 않는다. 플랫폼 단계는 **Android MVP 완성 → iOS 기능 완성 → 배포 준비** 순서를 준수한다.
 
 ### 1.2 해서는 안 되는 것
 
@@ -30,13 +30,16 @@
 ### 전체 일정 한눈에 보기
 
 ```
-Phase 0  [✅ 완료]  프로젝트 세팅, 라우팅, 테마, 디자인 시스템
-Phase 1  [✅ 완료]  전체 화면 UI 구현 (목업 데이터)
-Phase 2  [✅ 완료]  UI 완성 & 개선 (누락 기능, UX 다듬기)
-Phase 3  [✅ 완료]  백엔드 연동 (Supabase Auth + Data Layer)
-Phase 4  [✅ 완료]  로컬 캐시 & 성능 최적화
-Phase 5  [✅ 완료]  테스트 작성 (315개 테스트 전체 통과)
-Phase 6  [🔄 진행 중]  CI/CD & 마무리 — 보안감사+UI/UX+릴리즈 Phase 1 완료, 문서/배포 남음
+Phase 0  [✅ 완료]     프로젝트 세팅, 라우팅, 테마, 디자인 시스템
+Phase 1  [✅ 완료]     전체 화면 UI 구현 (목업 데이터)
+Phase 2  [✅ 완료]     UI 완성 & 개선 (누락 기능, UX 다듬기)
+Phase 3  [✅ 완료]     백엔드 연동 (Supabase Auth + Data Layer + 실 프로젝트 세팅/E2E)
+Phase 4  [✅ 완료]     로컬 캐시 & 성능 최적화
+Phase 5  [✅ 완료]     테스트 작성 (315개 테스트 전체 통과)
+Phase 6  [✅ 완료]     CI/CD & 코드 품질 (GitHub Actions + README bilingual + analyze 0)
+Phase 7  [🔄 진행 중]  Android MVP 마무리 — Firebase ✅ / FCM / Keystore / Play Store Internal
+Phase 8  [⏳ 예정]     iOS 기능 완성 — Firebase iOS / FCM APNs / TestFlight
+Phase 9  [⏳ 예정]     배포 준비 — 스토어 리스팅 / 시연 영상 / 정책 문서 / 정식 릴리즈
 ```
 
 ---
@@ -161,15 +164,15 @@ Phase 6  [🔄 진행 중]  CI/CD & 마무리 — 보안감사+UI/UX+릴리즈 P
 - [x] `SearchRemoteDataSource` (Supabase full-text search via `tsvector`)
 - [x] `searchProvider` → `SearchLinksUsecase` 연결
 
-#### 남은 작업
+**실 프로젝트 세팅 (완료)**
 
-- [ ] Supabase 프로젝트 세팅 (테이블, RLS, 트리거 — SQL은 plan 문서 참조)
-- [ ] `.env`에 실제 Supabase 키 기입 후 `dart run build_runner build`
-- [ ] E2E 검증: 회원가입 → 링크 추가 → 목록 → 즐겨찾기 → 컬렉션 → 검색
+- [x] Supabase 프로젝트 세팅 (테이블, RLS, 트리거 — `docs/supabase-setup.md` 참조)
+- [x] `.env.dev` / `.env.staging` / `.env.prod` 작성 + `dart run build_runner build`로 `env.g.dart` 생성
+- [x] E2E 검증: 회원가입 → 링크 추가 → 목록 → 즐겨찾기 → 컬렉션 → 검색 (Session 15 Collection-Link 실연동 포함)
 
 #### 데모 기준
 
-> 링크 추가 → 썸네일 자동 파싱 → Supabase DB 반영 → 목록 조회 → 즐겨찾기 → 검색으로 찾기
+> 링크 추가 → 썸네일 자동 파싱 → Supabase DB 반영 → 목록 조회 → 즐겨찾기 → 검색으로 찾기 ✅
 
 ---
 
@@ -236,9 +239,11 @@ Phase 6  [🔄 진행 중]  CI/CD & 마무리 — 보안감사+UI/UX+릴리즈 P
 
 ---
 
-### Phase 6 — CI/CD & 마무리 [🔄 진행 중]
+### Phase 6 — CI/CD & 코드 품질 [✅ 완료]
 
-**목표:** 자동화 파이프라인 완성 + 포트폴리오 패키징
+**목표:** 자동화 파이프라인 완성 + 코드 품질 기준선 확보 + 포트폴리오 수준 README 작성
+
+> 시연 영상, Play Store/App Store 배포, Firebase App Distribution 등 플랫폼별 실배포는 Phase 7~9로 이관했다.
 
 #### 체크리스트
 
@@ -247,37 +252,181 @@ Phase 6  [🔄 진행 중]  CI/CD & 마무리 — 보안감사+UI/UX+릴리즈 P
 - [x] `.github/workflows/ci.yml` 작성
 - [x] push/PR 시 자동 실행: analyze (`--fatal-warnings`) → test (`--coverage`) → coverage report
 - [x] 커버리지 보고: lcov 필터링 (`.g.dart`, `.freezed.dart`, `.gen.dart` 제외), 30% 미만 실패 / 50% 미만 경고
-- [ ] `develop` 머지 시 Firebase App Distribution 자동 배포 (선택)
-- [x] GitHub Actions CI 실제 실행 검증 (7개 커밋 push 완료 — Session 11)
+- [x] GitHub Actions CI 실제 실행 검증 (Session 11 — 7개 커밋 push)
 - [x] CI dart format 체크 수정 (34개 테스트 파일 포맷 정리 — Session 12)
 
 **코드 품질**
 
 - [x] `analysis_options.yaml` 린트 규칙 조정 (`invalid_annotation_target` 무시, 불필요 규칙 비활성화)
 - [x] 타입 안전성 수정 (`Box<Map>` → `Box<Map<String, dynamic>>`)
-- [x] `flutter analyze` 0 warnings / 0 errors (info 31개로 감소)
-- [x] info-level 이슈 정리 (104개 → 31개)
+- [x] `flutter analyze` 0 warnings / 0 errors / info 0 (Session 14 보안감사 완료 시점)
+- [x] 보안 감사 10/10 fixes 적용 (Session 13-14)
 
-**문서화**
+**문서화 (2026-04-05 완료)**
 
-- [ ] README.md 작성 (프로젝트 소개, 기술 스택, 아키텍처 다이어그램, 실행 방법)
-- [ ] 폴더 구조 다이어그램 README에 삽입
-- [ ] 데이터 흐름 다이어그램 README에 삽입
-
-**시연 영상**
-
-- [ ] 핵심 유저 플로우 시연 영상 녹화 (GIF 또는 MP4)
-  - 링크 저장 → 목록 조회 → 검색 → 컬렉션 → 딥링크
-- [ ] GitHub README에 영상 / GIF 삽입
-
-**배포**
-
-- [ ] Google Play 내부 테스트 트랙 배포 (선택)
-- [ ] GitHub Releases에 APK 첨부
+- [x] `README.md` 작성 (영문 — 프로젝트 소개, 기술 스택, 아키텍처 다이어그램, 실행 방법)
+- [x] `README.ko.md` 작성 (한국어 버전)
+- [x] 폴더 구조 다이어그램 README 삽입
+- [x] 데이터 흐름 다이어그램 README 삽입 (Mermaid)
+- [x] `LICENSE` 추가 (MIT)
 
 #### 최종 데모 기준
 
-> GitHub 방문 → README 확인 → Actions에서 CI 통과 이력 확인 → 영상으로 앱 흐름 파악 가능
+> GitHub 방문 → README(EN/KO) 확인 → Actions에서 CI 통과 이력 확인 → 아키텍처 다이어그램으로 구조 파악 가능 ✅
+
+---
+
+### Phase 7 — Android MVP 마무리 [🔄 진행 중]
+
+**목표:** Android 단독으로 Play Store 내부 테스트 트랙에 올릴 수 있는 수준까지 완성
+
+> iOS 작업은 Phase 8에서 진행한다. Android 에서 기능/품질/배포 파이프라인을 먼저 검증한 뒤 iOS로 이관하는 것이 원칙.
+
+#### 체크리스트
+
+**Firebase Android** (Session 16-17 완료)
+
+- [x] Firebase 프로젝트 `linknote-8994b` 생성 + Android 앱 3개 등록 (dev/staging/prod)
+- [x] `flutterfire configure --platforms=android` × 3 → `lib/firebase_options_{dev,staging,prod}.dart` 생성
+- [x] `android/app/src/{dev,staging,prod}/google-services.json` 배치
+- [x] Gradle plugin 배선 (google-services 4.3.15, crashlytics 2.8.1)
+- [x] Dart 배선: `bootstrap.dart` Firebase init + Crashlytics `FlutterError` / `PlatformDispatcher.onError` 훅 (`unawaited()` 래핑)
+- [x] `main_{dev,staging,prod}.dart` flavor별 options 주입, `app_router`에 `FirebaseAnalyticsObserver` 등록
+- [x] Debug 빌드 Crashlytics 수집 비활성화 (`setCrashlyticsCollectionEnabled(!kDebugMode)`)
+- [x] 검증: `flutter build apk --flavor dev --debug` 성공, 315 tests GREEN, analyze 0
+
+**FCM (Android 우선)**
+
+- [ ] `firebase_messaging` 의존성 추가 + `bootstrap.dart` 초기화
+- [ ] `core/notification/fcm_service.dart` — 권한 요청, 토큰 관리, 토픽 구독
+- [ ] Android 13+ `POST_NOTIFICATIONS` 런타임 권한 처리
+- [ ] 백그라운드 핸들러 (top-level 함수) + 포그라운드 알림 표시
+- [ ] 기존 `NotificationScreen`과 연결 (알림 탭 시 딥링크)
+
+**릴리스 서명 + 빌드**
+
+- [x] Android `INTERNET` 권한 추가 (`AndroidManifest.xml`) — Session 14
+- [x] Release `signingConfig` 골격 작성 (`android/app/build.gradle.kts`)
+- [x] `key.properties.example` 템플릿 제공
+- [ ] Upload keystore 생성 (`keytool`) + 백업 정책 문서화 (분실 시 Play Store 재등록 불가)
+- [ ] `android/key.properties` (gitignored) 작성 + 실제 `signingConfig` 주입 검증
+- [ ] `flutter build apk --flavor prod --release` + `apksigner verify`
+- [ ] `flutter build appbundle --flavor prod --release` (AAB)
+
+**스모크 테스트 + Firebase 콘솔 검증**
+
+- [ ] 에뮬레이터/실기기 부팅 + `flutter run --flavor dev -t lib/main_dev.dart`
+- [ ] Firebase Analytics DebugView에서 `first_open` / `session_start` 수신 확인
+- [ ] 강제 크래시 호출 → Crashlytics 대시보드 수신 확인 (수 분 지연 가능)
+- [ ] (옵션) 탭별 수동 `logScreenView` 배선 — `StatefulShellRoute` 탭 전환 관찰용
+
+**Play Store Internal Test 트랙**
+
+- [ ] Play Console 앱 등록 + 내부 테스트 트랙 생성
+- [ ] AAB 업로드 + 테스터 그룹 배포
+- [ ] (선택) Firebase App Distribution CI 연동 (`develop` 브랜치 자동 배포)
+
+#### 데모 기준
+
+> Android 기기에 prod release AAB 설치 → 로그인 → 링크 저장 → 검색 → Firebase 콘솔에서 Analytics 이벤트 및 Crashlytics 수신 확인
+
+---
+
+### Phase 8 — iOS 기능 완성 [⏳ 예정]
+
+**목표:** Android와 동일한 기능 + 품질을 iOS에서 재현, TestFlight 배포 가능 상태까지
+
+> **선행 조건 (사용자 직접 수행):**
+> 1. Apple Developer Program 등록 ($99/년)
+> 2. Xcode 설치 + macOS 환경
+> 3. App Store Connect 접근 권한
+
+#### 체크리스트
+
+**iOS 빌드 인프라** (Session 14 완료, 기록용)
+
+- [x] `ios/Flutter/{Dev,Staging,Prod}-{Debug,Release}.xcconfig` flavor 분리
+- [x] `IPHONEOS_DEPLOYMENT_TARGET=15.0` 전체 타겟 통일 (project.pbxproj 3곳)
+- [x] Runner 기본 번들 ID `app.kaywalker.linknote` + flavor 오버라이드 (xcconfig)
+- [x] `ios/ExportOptions.plist` 템플릿 (`YOUR_TEAM_ID` 플레이스홀더)
+
+**Firebase iOS**
+
+- [ ] Firebase 콘솔에서 iOS 앱 3개 등록 (`app.kaywalker.linknote.dev` / `.staging` / 기본)
+- [ ] `flutterfire configure --platforms=ios` × 3 → `ios/Runner/GoogleService-Info-*.plist` 생성
+- [ ] `firebase_options_{dev,staging,prod}.dart` iOS 섹션 갱신 (수동 편집 금지, flutterfire 재실행으로만)
+- [ ] Xcode Run Script Phase 추가 (Crashlytics dSYM 업로드)
+- [ ] `pod install` + Podfile 의존성 해결
+
+**iOS FCM (APNs)**
+
+- [ ] Apple Developer에서 APNs 인증 키(.p8) 생성 + Firebase 콘솔 업로드
+- [ ] Xcode Capabilities: Push Notifications + Background Modes (Remote notifications)
+- [ ] iOS 권한 요청 플로우 (`UNUserNotificationCenter.requestAuthorization`)
+- [ ] 백그라운드/포그라운드 알림 동작 검증 (실기기 필수)
+
+**iOS 스모크 테스트 + 품질 검증**
+
+- [ ] Simulator에서 dev flavor 실행 + Firebase Analytics DebugView 확인
+- [ ] 실기기에서 prod 빌드 테스트 (로그인 → 링크 CRUD → 검색 → 컬렉션)
+- [ ] `flutter test` 315+ GREEN 유지 (iOS 플랫폼 채널 mock 확인)
+- [ ] Info.plist 권한 설명 문자열 점검 (카메라/포토 등 사용 시)
+
+**TestFlight 준비**
+
+- [ ] App Store Connect 앱 등록 + Bundle ID 승인
+- [ ] 코드 사이닝 (automatic signing 또는 fastlane `match`)
+- [ ] `flutter build ipa --flavor prod --release` → `ExportOptions.plist` 실제 Team ID 채워 넣기
+- [ ] TestFlight 업로드 + 내부 테스터 배포
+
+#### 데모 기준
+
+> iOS 기기에서 TestFlight 설치 → 로그인 → 링크 CRUD → 검색 → 컬렉션 → Crashlytics 수신 확인
+
+---
+
+### Phase 9 — 배포 준비 [⏳ 예정]
+
+**목표:** Play Store / App Store 정식 배포를 위한 비-기술 준비물 및 정식 릴리즈
+
+#### 체크리스트
+
+**스토어 리스팅 자산**
+
+- [ ] 앱 아이콘 최종본 (1024×1024) + 플랫폼별 사이즈 (flutter_launcher_icons)
+- [ ] 스크린샷: Android (phone/7" tablet/10" tablet) + iOS (6.7"/6.5"/5.5" + iPad 12.9"/11")
+- [ ] 짧은 설명 / 긴 설명 (KO + EN)
+- [ ] 프로모션 이미지 / 기능 그래픽 (Play Store feature graphic 1024×500)
+- [ ] 카테고리 (생산성), 연령 등급 (Play Content Rating, App Store Age Rating 4+)
+
+**정책/약관 문서**
+
+- [ ] 개인정보 처리방침 (Supabase 데이터 수집, Firebase Analytics, Crashlytics 명시)
+- [ ] 이용약관
+- [ ] GitHub Pages 또는 도메인에 호스팅 + 스토어 등록 필드 입력
+
+**시연 영상/GIF**
+
+- [ ] 핵심 유저 플로우 녹화 (링크 저장 → 검색 → 컬렉션 → 딥링크)
+- [ ] 30초 프로모 영상 (App Preview용) + 60초 긴 버전
+- [ ] README + 스토어 리스팅에 GIF/영상 삽입
+
+**정식 배포**
+
+- [ ] Play Store 프로덕션 트랙 배포 (단계 롤아웃 20% → 50% → 100%)
+- [ ] App Store 심사 제출 + 리뷰 피드백 대응
+- [ ] GitHub Releases에 AAB/IPA 첨부 + 버전 태그 (`v1.0.0`)
+- [ ] `CHANGELOG.md` 릴리즈 노트 작성
+
+**모니터링**
+
+- [ ] Crashlytics 대시보드 주시 (첫 72h 집중)
+- [ ] Firebase Analytics 핵심 이벤트 정의 + 대시보드 구성 (DAU, 링크 저장 수, 리텐션)
+- [ ] 사용자 피드백 수집 경로 (이메일, GitHub Issues, In-app 링크)
+
+#### 최종 데모 기준
+
+> Play Store + App Store 공식 페이지 링크가 README에 노출되고 실사용자가 설치 가능 → 첫 주 Crashlytics crash-free sessions 99%+ 유지
 
 ---
 
@@ -484,7 +633,9 @@ linter:
 
 ## 8. README 구성 가이드
 
-완성된 README에 포함해야 할 항목:
+> **현황:** 루트 `README.md` (영문) + `README.ko.md` (한국어) 2026-04-05 완료. Mermaid 아키텍처/데이터 흐름 다이어그램 포함. Phase 9에서 시연 GIF 및 스토어 링크만 추가하면 완성.
+
+포함 항목:
 
 ```
 # LinkNote
@@ -523,4 +674,4 @@ flutter run
 
 ---
 
-*Workflow v2.0 — LinkNote Side Project (Mockup-First)*
+*Workflow v2.1 — LinkNote Side Project (Mockup-First → Android MVP → iOS → Deployment)*
