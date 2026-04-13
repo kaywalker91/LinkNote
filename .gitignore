@@ -55,6 +55,7 @@ key.properties
 
 # Private docs
 docs/interview-talking-points.md
+docs/work_performance/
 
 # Claude Code
 .claude/
