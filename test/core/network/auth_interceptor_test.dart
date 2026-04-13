@@ -8,7 +8,7 @@ void main() {
       // Arrange
       var callbackCalled = false;
       final interceptor = AuthInterceptor(
-        onUnauthorized: () => callbackCalled = true,
+        onUnauthorized: () async => callbackCalled = true,
       );
       final handler = _MockErrorHandler();
       final err = DioException(
@@ -31,7 +31,7 @@ void main() {
       // Arrange
       var callbackCalled = false;
       final interceptor = AuthInterceptor(
-        onUnauthorized: () => callbackCalled = true,
+        onUnauthorized: () async => callbackCalled = true,
       );
       final handler = _MockErrorHandler();
       final err = DioException(

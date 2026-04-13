@@ -26,4 +26,5 @@ Future<void> initHive() async {
     'notifications',
     encryptionCipher: cipher,
   );
+  await Hive.openBox<String>('search_history', encryptionCipher: cipher);
 }

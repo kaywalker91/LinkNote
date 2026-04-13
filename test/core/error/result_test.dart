@@ -50,6 +50,20 @@ void main() {
 
         expect(value, startsWith('error:'));
       });
+
+      test(
+        'should pass nullable data in success callback for Result<void>',
+        () {
+          final result = success<void>(null);
+
+          final value = result.when(
+            success: (data) => 'ok',
+            error: (failure) => 'error',
+          );
+
+          expect(value, equals('ok'));
+        },
+      );
     });
   });
 }
