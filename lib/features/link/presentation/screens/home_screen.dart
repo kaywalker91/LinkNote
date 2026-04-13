@@ -7,6 +7,7 @@ import 'package:linknote/features/link/domain/entity/link_entity.dart';
 import 'package:linknote/features/link/presentation/provider/link_filter_provider.dart';
 import 'package:linknote/features/link/presentation/provider/link_list_provider.dart';
 import 'package:linknote/shared/extensions/context_extensions.dart';
+import 'package:linknote/shared/utils/url_launcher_helper.dart';
 import 'package:linknote/shared/widgets/confirmation_dialog_widget.dart';
 import 'package:linknote/shared/widgets/empty_state_illustration.dart';
 import 'package:linknote/shared/widgets/empty_state_widget.dart';
@@ -122,7 +123,8 @@ class _LinkListBody extends ConsumerWidget {
       ),
       itemBuilder: (context, link, _) => LinkListTile(
         link: link,
-        onTap: () => context.push(Routes.linkDetailPath(link.id)),
+        onTap: () => UrlLauncherHelper.launch(context, link.url),
+        onLongPress: () => context.push(Routes.linkDetailPath(link.id)),
         onFavoriteTap: () =>
             ref.read(linkListProvider.notifier).toggleFavorite(link.id),
         onMoreTap: () => _showMoreSheet(context, ref, link.id),
@@ -141,6 +143,14 @@ class _LinkListBody extends ConsumerWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
+            ListTile(
+              leading: const Icon(Icons.info_outline),
+              title: const Text('View Details'),
+              onTap: () async {
+                Navigator.of(sheetContext).pop();
+                await context.push(Routes.linkDetailPath(linkId));
+              },
+            ),
             ListTile(
               leading: const Icon(Icons.edit_outlined),
               title: const Text('Edit'),

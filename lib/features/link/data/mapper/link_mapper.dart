@@ -1,14 +1,19 @@
 import 'package:linknote/features/link/data/dto/link_dto.dart';
 import 'package:linknote/features/link/domain/entity/link_entity.dart';
 import 'package:linknote/features/link/domain/entity/tag_entity.dart';
+import 'package:linknote/shared/utils/url_sanitizer.dart';
 
 class LinkMapper {
   const LinkMapper._();
 
   static LinkEntity toEntity(LinkDto dto) {
+    // Defensive sanitize at the remote-data boundary so legacy records with
+    // malformed urls ("title text - https://..." pastes, hidden chars, etc.)
+    // are transparently repaired on read. See Session 19 root-cause analysis.
+    final cleanedUrl = UrlSanitizer.extract(dto.url) ?? dto.url;
     return LinkEntity(
       id: dto.id,
-      url: dto.url,
+      url: cleanedUrl,
       title: dto.title,
       description: dto.description,
       thumbnailUrl: dto.thumbnailUrl,

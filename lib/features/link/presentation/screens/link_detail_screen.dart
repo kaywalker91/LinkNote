@@ -6,12 +6,12 @@ import 'package:linknote/app/theme/app_spacing.dart';
 import 'package:linknote/features/link/presentation/provider/link_detail_provider.dart';
 import 'package:linknote/features/link/presentation/provider/link_list_provider.dart';
 import 'package:linknote/shared/extensions/date_time_extensions.dart';
+import 'package:linknote/shared/utils/url_launcher_helper.dart';
 import 'package:linknote/shared/widgets/confirmation_dialog_widget.dart';
 import 'package:linknote/shared/widgets/error_state_widget.dart';
 import 'package:linknote/shared/widgets/og_thumbnail_widget.dart';
 import 'package:linknote/shared/widgets/skeleton/link_card_skeleton.dart';
 import 'package:linknote/shared/widgets/tag_chip_widget.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 class LinkDetailScreen extends ConsumerWidget {
   const LinkDetailScreen({required this.linkId, super.key});
@@ -101,15 +101,7 @@ class LinkDetailScreen extends ConsumerWidget {
                 ),
                 const SizedBox(height: AppSpacing.sm),
                 InkWell(
-                  onTap: () async {
-                    final uri = Uri.tryParse(link.url);
-                    if (uri != null && await canLaunchUrl(uri)) {
-                      await launchUrl(
-                        uri,
-                        mode: LaunchMode.externalApplication,
-                      );
-                    }
-                  },
+                  onTap: () => UrlLauncherHelper.launch(context, link.url),
                   child: Text(
                     link.url,
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
