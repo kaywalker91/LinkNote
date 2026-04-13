@@ -7,11 +7,11 @@ extension ResultX<T> on Result<T> {
   bool get isFailure => failure != null;
 
   R when<R>({
-    required R Function(T data) success,
+    required R Function(T? data) success,
     required R Function(Failure failure) error,
   }) {
     if (failure != null) return error(failure!);
-    return success(data as T);
+    return success(data);
   }
 }
 

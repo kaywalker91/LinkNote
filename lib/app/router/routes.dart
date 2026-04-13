@@ -20,7 +20,7 @@ abstract final class Routes {
   static const String collectionDetail = '/collections/:id';
   static const String collectionNew = '/collections/new';
   static const String collectionEdit = '/collections/:id/edit';
-  static const String settings = '/settings';
+  static const String settings = '/profile/settings';
 
   static String linkDetailPath(String id) => '/links/$id';
   static String linkEditPath(String id) => '/links/$id/edit';

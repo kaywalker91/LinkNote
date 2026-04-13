@@ -53,21 +53,26 @@ class LinkForm extends _$LinkForm {
     try {
       final ogService = ref.read(ogTagServiceProvider);
       final result = await ogService.fetchOgTags(url);
+      // Re-read state after await to avoid overwriting user edits (TOCTOU).
+      final latest = state.value;
+      if (latest == null) return;
       state = AsyncData(
-        current.copyWith(
+        latest.copyWith(
           isParsingOg: false,
           title:
               result.title ??
-              (current.title.isEmpty ? _extractTitle(url) : current.title),
-          description: result.description ?? current.description,
-          thumbnailUrl: result.imageUrl ?? current.thumbnailUrl,
+              (latest.title.isEmpty ? _extractTitle(url) : latest.title),
+          description: result.description ?? latest.description,
+          thumbnailUrl: result.imageUrl ?? latest.thumbnailUrl,
         ),
       );
     } on Exception catch (_) {
+      final latest = state.value;
+      if (latest == null) return;
       state = AsyncData(
-        current.copyWith(
+        latest.copyWith(
           isParsingOg: false,
-          title: current.title.isEmpty ? _extractTitle(url) : current.title,
+          title: latest.title.isEmpty ? _extractTitle(url) : latest.title,
         ),
       );
     }
