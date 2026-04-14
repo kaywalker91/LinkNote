@@ -148,10 +148,10 @@ void main() {
   // getCollectionById
   // ---------------------------------------------------------------------------
   group('getCollectionById', () {
-    test('should delegate to remote datasource', () async {
+    test('should delegate to remote with userId', () async {
       // Arrange
       when(
-        () => mockRemote.getCollectionById(any()),
+        () => mockRemote.getCollectionById(any(), any()),
       ).thenAnswer((_) async => success(tCollection));
 
       // Act
@@ -160,6 +160,9 @@ void main() {
       // Assert
       expect(result.isSuccess, isTrue);
       expect(result.data, equals(tCollection));
+      verify(
+        () => mockRemote.getCollectionById('col-1', 'test-user-id'),
+      ).called(1);
     });
   });
 
@@ -207,11 +210,11 @@ void main() {
   // updateCollection
   // ---------------------------------------------------------------------------
   group('updateCollection', () {
-    test('should cache on remote success', () async {
+    test('should cache on remote success and pass userId', () async {
       // Arrange
       final tUpdated = tCollection.copyWith(name: 'Updated');
       when(
-        () => mockRemote.updateCollection(any()),
+        () => mockRemote.updateCollection(any(), any()),
       ).thenAnswer((_) async => success(tUpdated));
       when(
         () => mockLocal.cacheSingleCollection(any()),
@@ -222,6 +225,9 @@ void main() {
 
       // Assert
       expect(result.isSuccess, isTrue);
+      verify(
+        () => mockRemote.updateCollection(tUpdated, 'test-user-id'),
+      ).called(1);
       verify(() => mockLocal.cacheSingleCollection(tUpdated)).called(1);
     });
 
@@ -229,7 +235,7 @@ void main() {
       // Arrange
       const tFailure = Failure.server(message: 'Update failed');
       when(
-        () => mockRemote.updateCollection(any()),
+        () => mockRemote.updateCollection(any(), any()),
       ).thenAnswer((_) async => error(tFailure));
 
       // Act
@@ -245,10 +251,10 @@ void main() {
   // deleteCollection
   // ---------------------------------------------------------------------------
   group('deleteCollection', () {
-    test('should remove cache on remote success', () async {
+    test('should remove cache on remote success and pass userId', () async {
       // Arrange
       when(
-        () => mockRemote.deleteCollection(any()),
+        () => mockRemote.deleteCollection(any(), any()),
       ).thenAnswer((_) async => success(null));
       when(
         () => mockLocal.removeCachedCollection(any()),
@@ -259,6 +265,9 @@ void main() {
 
       // Assert
       expect(result.isSuccess, isTrue);
+      verify(
+        () => mockRemote.deleteCollection('col-1', 'test-user-id'),
+      ).called(1);
       verify(() => mockLocal.removeCachedCollection('col-1')).called(1);
     });
 
@@ -266,7 +275,7 @@ void main() {
       // Arrange
       const tFailure = Failure.server(message: 'Delete failed');
       when(
-        () => mockRemote.deleteCollection(any()),
+        () => mockRemote.deleteCollection(any(), any()),
       ).thenAnswer((_) async => error(tFailure));
 
       // Act
