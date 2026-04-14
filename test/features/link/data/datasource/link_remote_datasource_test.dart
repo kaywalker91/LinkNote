@@ -1,6 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:linknote/core/error/failure.dart';
-import 'package:linknote/core/error/result.dart';
 import 'package:linknote/features/link/data/datasource/link_remote_datasource.dart';
 import 'package:linknote/features/link/domain/entity/link_entity.dart';
 import 'package:linknote/features/link/domain/entity/tag_entity.dart';
@@ -33,15 +32,35 @@ void main() {
         title: 'Test',
         createdAt: DateTime(2026),
         updatedAt: DateTime(2026),
-        tags: <TagEntity>[],
+        tags: const <TagEntity>[],
       );
 
       // Act
       final result = await sut.updateLink(link);
 
       // Assert
-      expect(result.isFailure, isTrue);
+      expect(result.failure, isNotNull);
       expect(result.failure, isA<AuthFailure>());
+    });
+
+    test('should include session expired message', () async {
+      // Arrange
+      when(() => mockAuth.currentUser).thenReturn(null);
+      final link = LinkEntity(
+        id: 'link-1',
+        url: 'https://example.com',
+        title: 'Test',
+        createdAt: DateTime(2026),
+        updatedAt: DateTime(2026),
+        tags: const <TagEntity>[],
+      );
+
+      // Act
+      final result = await sut.updateLink(link);
+
+      // Assert
+      final failure = result.failure! as AuthFailure;
+      expect(failure.message, 'Session expired');
     });
   });
 }
