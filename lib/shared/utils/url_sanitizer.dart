@@ -53,7 +53,9 @@ abstract final class UrlSanitizer
     if (!cleaned.contains(_whitespace))
     {
       final prepended = Uri.tryParse('https://$cleaned');
-      if (prepended != null && prepended.host.isNotEmpty)
+      if (prepended != null &&
+          prepended.host.isNotEmpty &&
+          (prepended.host.contains('.') || prepended.host == 'localhost'))
       {
         return 'https://$cleaned';
       }

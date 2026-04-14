@@ -12,8 +12,12 @@ void main() {
         expect('https://example.com/path/to/page'.isValidUrl, isTrue);
       });
 
-      test('should return false for URL without path', () {
-        expect('https://example.com'.isValidUrl, isFalse);
+      test('should return true for URL without path', () {
+        expect('https://example.com'.isValidUrl, isTrue);
+      });
+
+      test('should return false for scheme-only string', () {
+        expect('https://'.isValidUrl, isFalse);
       });
 
       test('should return false for empty string', () {
