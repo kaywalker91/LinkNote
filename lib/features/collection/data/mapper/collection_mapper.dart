@@ -5,7 +5,7 @@ class CollectionMapper {
   const CollectionMapper._();
 
   static CollectionEntity toEntity(CollectionDto dto) {
-    final linkCount = dto.links.isNotEmpty ? dto.links.first.count : 0;
+    final linkCount = dto.links.fold<int>(0, (sum, e) => sum + e.count);
     return CollectionEntity(
       id: dto.id,
       name: dto.name,

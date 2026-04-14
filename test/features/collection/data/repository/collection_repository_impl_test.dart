@@ -148,11 +148,14 @@ void main() {
   // getCollectionById
   // ---------------------------------------------------------------------------
   group('getCollectionById', () {
-    test('should delegate to remote with userId', () async {
+    test('should return remote data on success and cache it', () async {
       // Arrange
       when(
         () => mockRemote.getCollectionById(any(), any()),
       ).thenAnswer((_) async => success(tCollection));
+      when(
+        () => mockLocal.cacheSingleCollection(any()),
+      ).thenAnswer((_) async {});
 
       // Act
       final result = await sut.getCollectionById('col-1');
@@ -163,6 +166,45 @@ void main() {
       verify(
         () => mockRemote.getCollectionById('col-1', 'test-user-id'),
       ).called(1);
+      verify(() => mockLocal.cacheSingleCollection(tCollection)).called(1);
+    });
+
+    test('should fall back to local cache when remote fails', () async {
+      // Arrange
+      const tFailure = Failure.network(message: 'No connection');
+      when(
+        () => mockRemote.getCollectionById(any(), any()),
+      ).thenAnswer((_) async => error(tFailure));
+      when(
+        () => mockLocal.getCachedCollectionById(any()),
+      ).thenReturn(success(tCollection));
+
+      // Act
+      final result = await sut.getCollectionById('col-1');
+
+      // Assert
+      expect(result.isSuccess, isTrue);
+      expect(result.data, equals(tCollection));
+      verify(() => mockLocal.getCachedCollectionById('col-1')).called(1);
+    });
+
+    test('should return remote failure when local cache also misses', () async {
+      // Arrange
+      const tRemoteFailure = Failure.network(message: 'No connection');
+      const tCacheFailure = Failure.cache(message: 'Not in cache');
+      when(
+        () => mockRemote.getCollectionById(any(), any()),
+      ).thenAnswer((_) async => error(tRemoteFailure));
+      when(
+        () => mockLocal.getCachedCollectionById(any()),
+      ).thenReturn(error(tCacheFailure));
+
+      // Act
+      final result = await sut.getCollectionById('col-1');
+
+      // Assert
+      expect(result.isFailure, isTrue);
+      expect(result.failure, equals(tRemoteFailure));
     });
   });
 
