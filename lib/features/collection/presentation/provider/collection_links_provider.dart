@@ -1,3 +1,4 @@
+import 'package:linknote/core/error/result.dart';
 import 'package:linknote/features/link/domain/entity/link_entity.dart';
 import 'package:linknote/features/link/presentation/provider/link_di_providers.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -11,5 +12,8 @@ Future<List<LinkEntity>> collectionLinks(
 ) async {
   final usecase = ref.watch(fetchLinksUsecaseProvider);
   final result = await usecase(collectionId: collectionId);
-  return result.data?.items ?? [];
+  if (result.isFailure) {
+    Error.throwWithStackTrace(result.failure!, StackTrace.current);
+  }
+  return result.data!.items;
 }

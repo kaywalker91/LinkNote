@@ -39,7 +39,7 @@ class CollectionRepositoryImpl implements ICollectionRepository {
 
   @override
   Future<Result<CollectionEntity>> getCollectionById(String id) =>
-      _remote.getCollectionById(id);
+      _remote.getCollectionById(id, userId);
 
   @override
   Future<Result<CollectionEntity>> createCollection(
@@ -56,7 +56,7 @@ class CollectionRepositoryImpl implements ICollectionRepository {
   Future<Result<CollectionEntity>> updateCollection(
     CollectionEntity collection,
   ) async {
-    final result = await _remote.updateCollection(collection);
+    final result = await _remote.updateCollection(collection, userId);
     if (result.isSuccess) {
       await _local.cacheSingleCollection(result.data!);
     }
@@ -65,7 +65,7 @@ class CollectionRepositoryImpl implements ICollectionRepository {
 
   @override
   Future<Result<void>> deleteCollection(String id) async {
-    final result = await _remote.deleteCollection(id);
+    final result = await _remote.deleteCollection(id, userId);
     if (result.isSuccess) {
       await _local.removeCachedCollection(id);
     }

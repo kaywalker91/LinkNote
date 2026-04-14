@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed (Session 30 — Wave 4 Collection P0/P1)
+
+- **P0-A — `collectionLinksProvider` Failure 침묵 해결** (`lib/features/collection/presentation/provider/collection_links_provider.dart`): Failure 시 빈 리스트를 리턴하던 로직을 제거하고 `Error.throwWithStackTrace(result.failure!, StackTrace.current)`로 에러를 AsyncValue로 surface. 신규 단위 테스트 `test/features/collection/presentation/provider/collection_links_provider_test.dart` (success + failure 2 cases) 추가
+- **P1-A — Collection user_id 명시 필터 + RLS 문서화**: `CollectionRemoteDataSource.updateCollection/deleteCollection/getCollectionById`에 `String userId` 인자 추가 → `.eq('user_id', userId)` 이중 필터 적용 (defense in depth). `CollectionRepositoryImpl`이 기존 userId 필드를 전달. `docs/security/rls_policies.md` 신설 — Supabase RLS SELECT/INSERT/UPDATE/DELETE 정책 SQL 문서화 (collections / links / 조인 테이블). 기존 `collection_repository_impl_test.dart`의 mock 시그니처 업데이트 + userId 전달 verify 추가
+- **P1-B — Hive cache 타입 가드** (`lib/features/collection/data/datasource/collection_local_datasource.dart` `_trimCache`): 오염된 int-key 엔트리가 `entry.key as String` 캐스트에서 `TypeError`를 던져 cacheWrite 전체가 실패하던 문제를, 루프 시작에 `if (entry.key is! String) { await _box.delete(entry.key); continue; }` 가드로 격리. 테스트 `collection_local_datasource_test.dart`에 int-key 오염 시나리오 추가
+- **P1-C — CollectionList create/update 에러 전파 + form snackbar 분기** (`lib/features/collection/presentation/provider/collection_list_provider.dart`, `lib/features/collection/presentation/screens/collection_form_screen.dart`): provider가 Failure를 조용히 삼키고 success snackbar를 오발화하던 문제를 해결. provider는 Failure 시 `Error.throwWithStackTrace`. form `_submit`은 try/catch로 감싸 성공 시에만 success snackbar + pop, 실패 시 `context.showErrorSnackBar("컬렉션 생성/수정에 실패했습니다")` + 폼 유지. 신규 provider 단위 테스트 3 cases
+
+### Changed
+
+- **앱 아이콘 교체**: `assets/images/app_icon.png` (1024×1024 LinkNote 신규 브랜드 로고)로 교체. `flutter_launcher_icons` 재생성 — Android mipmap / iOS AppIcon / adaptive icon (배경 `#4A90D9`, foreground도 동일 로고로 통일). `mipmap-anydpi-v26` foreground를 신규 로고로 통일해 Android 12+ 런처 캐시 이슈 방지
+- **스플래시 로고 교체**: `flutter_native_splash` 재생성. Android 12+ 원형 마스크에서 로고가 잘리던 이슈를 2048×2048 투명 캔버스에 1024×1024 로고를 중앙 배치한 padded PNG(`splash_logo_android12.png`)로 해결. 로고에 iOS squircle 수준(22%) 라운딩 마스크 적용으로 자연스러운 모서리 처리
+
 ### Security / Fixed
 
 - **Wave 1 픽스 구현 (Session 22)** (Plan: `tasks/wave1_fix_plan.md`)
