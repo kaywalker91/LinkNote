@@ -1,6 +1,9 @@
+import 'package:linknote/core/error/failure.dart';
 import 'package:linknote/core/error/result.dart';
 import 'package:linknote/features/collection/domain/entity/collection_entity.dart';
+import 'package:linknote/features/collection/presentation/provider/collection_detail_provider.dart';
 import 'package:linknote/features/collection/presentation/provider/collection_di_providers.dart';
+import 'package:linknote/features/collection/presentation/provider/collection_links_provider.dart';
 import 'package:linknote/shared/models/paginated_state.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -80,7 +83,13 @@ class CollectionList extends _$CollectionList {
     final current = state.value;
     if (current == null) return;
 
-    final existing = current.items.firstWhere((c) => c.id == id);
+    final existing = current.items.where((c) => c.id == id).firstOrNull;
+    if (existing == null) {
+      Error.throwWithStackTrace(
+        Failure.unknown(message: 'Collection not found: $id'),
+        StackTrace.current,
+      );
+    }
     final updated = existing.copyWith(
       name: name,
       description: description,
@@ -101,6 +110,9 @@ class CollectionList extends _$CollectionList {
         }).toList(),
       ),
     );
+    ref
+      ..invalidate(collectionDetailProvider(id))
+      ..invalidate(collectionLinksProvider(id));
   }
 
   Future<void> deleteCollection(String id) async {
@@ -118,6 +130,10 @@ class CollectionList extends _$CollectionList {
     final result = await ref.read(deleteCollectionUsecaseProvider).call(id);
     if (result.isFailure) {
       state = AsyncData(previous);
+      Error.throwWithStackTrace(result.failure!, StackTrace.current);
     }
+    ref
+      ..invalidate(collectionDetailProvider(id))
+      ..invalidate(collectionLinksProvider(id));
   }
 }

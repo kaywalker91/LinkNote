@@ -37,7 +37,7 @@ final class CollectionListProvider
   CollectionList create() => CollectionList();
 }
 
-String _$collectionListHash() => r'89b4ff3f476a491c342eb5b4f3f425ed3b247b51';
+String _$collectionListHash() => r'44f133b1133f749100082121aa80beff0a327a80';
 
 abstract class _$CollectionList
     extends $AsyncNotifier<PaginatedState<CollectionEntity>> {

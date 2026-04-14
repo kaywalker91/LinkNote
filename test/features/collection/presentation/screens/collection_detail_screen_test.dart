@@ -39,6 +39,36 @@ class _DataCollectionDetail extends CollectionDetail {
   Future<void> refresh() async {}
 }
 
+class _ThrowingCollectionList extends CollectionList {
+  @override
+  Future<PaginatedState<CollectionEntity>> build() async =>
+      const PaginatedState<CollectionEntity>(items: []);
+
+  @override
+  Future<void> refresh() async {}
+
+  @override
+  Future<void> loadMore() async {}
+
+  @override
+  Future<void> createCollection({
+    required String name,
+    String? description,
+  }) async {}
+
+  @override
+  Future<void> updateCollection({
+    required String id,
+    required String name,
+    String? description,
+  }) async {}
+
+  @override
+  Future<void> deleteCollection(String id) async {
+    throw Exception('Delete failed');
+  }
+}
+
 class _StubCollectionList extends CollectionList {
   @override
   Future<PaginatedState<CollectionEntity>> build() async =>
@@ -197,6 +227,64 @@ void main() {
       expect(find.byIcon(Icons.edit_outlined), findsOneWidget);
       expect(find.byIcon(Icons.delete_outline), findsOneWidget);
     });
+
+    testWidgets(
+      'delete tap should open confirmation dialog with destructive Delete',
+      (tester) async {
+        await tester.pumpWidget(
+          ProviderScope(
+            overrides: [
+              collectionDetailProvider.overrideWith(
+                () => _DataCollectionDetail(tCollection),
+              ),
+              collectionListProvider.overrideWith(_StubCollectionList.new),
+              collectionLinksProvider.overrideWith((ref, id) async => tLinks),
+            ],
+            child: const MaterialApp(
+              home: CollectionDetailScreen(collectionId: 'c1'),
+            ),
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        await tester.tap(find.byIcon(Icons.delete_outline));
+        await tester.pumpAndSettle();
+
+        expect(find.text('Delete Collection'), findsOneWidget);
+        expect(find.text('Delete'), findsOneWidget);
+        expect(find.text('Cancel'), findsOneWidget);
+      },
+    );
+
+    testWidgets(
+      'should show error snackbar when deleteCollection throws',
+      (tester) async {
+        await tester.pumpWidget(
+          ProviderScope(
+            overrides: [
+              collectionDetailProvider.overrideWith(
+                () => _DataCollectionDetail(tCollection),
+              ),
+              collectionListProvider.overrideWith(_ThrowingCollectionList.new),
+              collectionLinksProvider.overrideWith((ref, id) async => tLinks),
+            ],
+            child: const MaterialApp(
+              home: CollectionDetailScreen(collectionId: 'c1'),
+            ),
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        // Open confirmation dialog
+        await tester.tap(find.byIcon(Icons.delete_outline));
+        await tester.pumpAndSettle();
+        // Confirm delete
+        await tester.tap(find.widgetWithText(FilledButton, 'Delete'));
+        await tester.pumpAndSettle();
+
+        expect(find.text('삭제에 실패했습니다'), findsOneWidget);
+      },
+    );
 
     testWidgets('should show empty state when no links in collection', (
       tester,
