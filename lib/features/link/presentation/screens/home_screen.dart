@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:linknote/app/router/routes.dart';
 import 'package:linknote/app/theme/app_spacing.dart';
+import 'package:linknote/features/collection/domain/entity/collection_entity.dart';
+import 'package:linknote/features/collection/presentation/provider/collection_list_provider.dart';
 import 'package:linknote/features/link/domain/entity/link_entity.dart';
 import 'package:linknote/features/link/presentation/provider/link_filter_provider.dart';
 import 'package:linknote/features/link/presentation/provider/link_list_provider.dart';
@@ -160,6 +162,14 @@ class _LinkListBody extends ConsumerWidget {
               },
             ),
             ListTile(
+              leading: const Icon(Icons.folder_outlined),
+              title: const Text('Move to Collection'),
+              onTap: () async {
+                Navigator.of(sheetContext).pop();
+                await _showCollectionPicker(context, ref, linkId);
+              },
+            ),
+            ListTile(
               leading: const Icon(Icons.delete_outline, color: Colors.red),
               title: const Text('Delete', style: TextStyle(color: Colors.red)),
               onTap: () async {
@@ -184,4 +194,63 @@ class _LinkListBody extends ConsumerWidget {
       ),
     );
   }
+
+  Future<void> _showCollectionPicker(
+    BuildContext context,
+    WidgetRef ref,
+    String linkId,
+  ) async {
+    final collectionsAsync = ref.read(collectionListProvider);
+    final items = collectionsAsync.value?.items ?? <CollectionEntity>[];
+
+    final selected = await showModalBottomSheet<_CollectionPick>(
+      context: context,
+      builder: (sheetContext) => SafeArea(
+        child: ListView(
+          shrinkWrap: true,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.folder_off_outlined),
+              title: const Text('None'),
+              onTap: () => Navigator.of(sheetContext).pop(
+                const _CollectionPick(id: null),
+              ),
+            ),
+            const Divider(height: 1),
+            ...items.map(
+              (c) => ListTile(
+                leading: const Icon(Icons.folder_outlined),
+                title: Text(c.name),
+                onTap: () => Navigator.of(sheetContext).pop(
+                  _CollectionPick(id: c.id),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+
+    if (selected == null || !context.mounted) return;
+
+    try {
+      await ref
+          .read(linkListProvider.notifier)
+          .moveToCollection(linkId: linkId, collectionId: selected.id);
+      if (context.mounted) {
+        context.showSuccessSnackBar(
+          selected.id == null ? '컬렉션에서 제거했습니다' : '컬렉션으로 이동했습니다',
+        );
+      }
+    } on Exception catch (_) {
+      if (context.mounted) {
+        context.showErrorSnackBar('이동에 실패했습니다');
+      }
+    }
+  }
+}
+
+class _CollectionPick {
+  const _CollectionPick({required this.id});
+  final String? id;
 }

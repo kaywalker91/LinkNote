@@ -1,4 +1,7 @@
 import 'package:linknote/core/error/result.dart';
+import 'package:linknote/features/collection/presentation/provider/collection_detail_provider.dart';
+import 'package:linknote/features/collection/presentation/provider/collection_links_provider.dart';
+import 'package:linknote/features/collection/presentation/provider/collection_list_provider.dart';
 import 'package:linknote/features/link/domain/entity/link_entity.dart';
 import 'package:linknote/features/link/presentation/provider/link_di_providers.dart';
 import 'package:linknote/features/link/presentation/provider/link_filter_provider.dart';
@@ -113,5 +116,49 @@ class LinkList extends _$LinkList {
     if (result.isFailure) {
       state = AsyncData(previous);
     }
+  }
+
+  /// Moves a link to a different collection (or clears collection if null).
+  Future<void> moveToCollection({
+    required String linkId,
+    required String? collectionId,
+  }) async {
+    final current = state.value;
+    if (current == null) return;
+
+    final existing = current.items.where((l) => l.id == linkId).firstOrNull;
+    if (existing == null) return;
+
+    final updated = existing.copyWith(
+      collectionId: collectionId,
+      collectionName: null,
+    );
+
+    final result = await ref.read(updateLinkUsecaseProvider).call(updated);
+    if (result.isFailure) {
+      Error.throwWithStackTrace(result.failure!, StackTrace.current);
+    }
+
+    state = AsyncData(
+      current.copyWith(
+        items: current.items.map((l) {
+          if (l.id == linkId) return result.data!;
+          return l;
+        }).toList(),
+      ),
+    );
+
+    if (existing.collectionId != null) {
+      ref
+        ..invalidate(collectionLinksProvider(existing.collectionId!))
+        ..invalidate(collectionDetailProvider(existing.collectionId!));
+    }
+    if (collectionId != null) {
+      ref
+        ..invalidate(collectionLinksProvider(collectionId))
+        ..invalidate(collectionDetailProvider(collectionId));
+    }
+    // Refresh the collection list so linkCount badges update.
+    ref.invalidate(collectionListProvider);
   }
 }
