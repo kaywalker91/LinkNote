@@ -1,3 +1,4 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:linknote/core/error/failure.dart';
 import 'package:linknote/core/error/result.dart';
@@ -10,7 +11,6 @@ import 'package:linknote/features/link/presentation/provider/link_di_providers.d
 import 'package:linknote/features/link/presentation/provider/link_list_provider.dart';
 import 'package:linknote/shared/models/paginated_state.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class MockGetLinkDetailUsecase extends Mock implements GetLinkDetailUsecase {}
 

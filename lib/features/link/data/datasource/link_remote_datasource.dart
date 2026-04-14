@@ -177,7 +177,7 @@ class LinkRemoteDataSource {
           (tag) => {'user_id': userId, 'name': tag.name, 'color': tag.color},
         )
         .toList();
-    final List<Map<String, dynamic>> upsertedTags = await _client
+    final upsertedTags = await _client
         .from('tags')
         .upsert(tagRows, onConflict: 'user_id,name')
         .select('id');
