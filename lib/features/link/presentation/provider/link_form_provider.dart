@@ -25,6 +25,9 @@ abstract class LinkFormState with _$LinkFormState {
     @Default(false) bool isParsingOg,
     @Default(false) bool isSubmitting,
     String? errorMessage,
+
+    /// Original createdAt preserved for edit mode.
+    DateTime? originalCreatedAt,
   }) = _LinkFormState;
 }
 
@@ -43,6 +46,7 @@ class LinkForm extends _$LinkForm {
       memo: link.memo ?? '',
       tags: link.tags,
       isFavorite: link.isFavorite,
+      originalCreatedAt: link.createdAt,
     );
   }
 
@@ -102,6 +106,12 @@ class LinkForm extends _$LinkForm {
     state = AsyncData(current.copyWith(memo: memo));
   }
 
+  void updateCollectionId(String? collectionId) {
+    final current = state.value;
+    if (current == null) return;
+    state = AsyncData(current.copyWith(collectionId: collectionId));
+  }
+
   void toggleFavorite() {
     final current = state.value;
     if (current == null) return;
@@ -148,7 +158,7 @@ class LinkForm extends _$LinkForm {
       memo: current.memo.isEmpty ? null : current.memo,
       tags: current.tags,
       isFavorite: current.isFavorite,
-      createdAt: now,
+      createdAt: current.originalCreatedAt ?? now,
       updatedAt: now,
     );
 

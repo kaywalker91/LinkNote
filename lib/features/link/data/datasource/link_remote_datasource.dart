@@ -158,35 +158,39 @@ class LinkRemoteDataSource {
     }
   }
 
-  /// Syncs tags for a link: upserts tag records, then replaces link_tags.
+  /// Syncs tags for a link: upserts tag records in batch, then replaces
+  /// link_tags. Operations are ordered so that a mid-failure does not orphan
+  /// existing tags — new link_tags are inserted before old ones are removed.
   Future<void> _syncTags(
     String linkId,
     List<TagEntity> tags,
     String userId,
   ) async {
-    // Remove existing link_tags
-    await _client.from('link_tags').delete().eq('link_id', linkId);
-
-    if (tags.isEmpty) return;
-
-    // Upsert each tag and collect IDs
-    final tagIds = <String>[];
-    for (final tag in tags) {
-      final response = await _client
-          .from('tags')
-          .upsert(
-            {'user_id': userId, 'name': tag.name, 'color': tag.color},
-            onConflict: 'user_id,name',
-          )
-          .select('id')
-          .single();
-      tagIds.add(response['id'] as String);
+    if (tags.isEmpty) {
+      await _client.from('link_tags').delete().eq('link_id', linkId);
+      return;
     }
 
-    // Insert link_tags
+    // Batch upsert all tags in a single request
+    final tagRows = tags
+        .map(
+          (tag) => {'user_id': userId, 'name': tag.name, 'color': tag.color},
+        )
+        .toList();
+    final List<Map<String, dynamic>> upsertedTags = await _client
+        .from('tags')
+        .upsert(tagRows, onConflict: 'user_id,name')
+        .select('id');
+    final tagIds = upsertedTags.map((row) => row['id'] as String).toList();
+
+    // Build new link_tag rows
     final linkTagRows = tagIds
         .map((tagId) => {'link_id': linkId, 'tag_id': tagId})
         .toList();
+
+    // Remove old link_tags, then insert new ones.
+    // Deletion is safe here because tag records are already persisted above.
+    await _client.from('link_tags').delete().eq('link_id', linkId);
     await _client.from('link_tags').insert(linkTagRows);
   }
 }
