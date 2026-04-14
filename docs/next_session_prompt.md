@@ -5,91 +5,76 @@
 ---
 
 ```
-Session 29 — Wave 3 P2 PR 생성 & Wave 4 진입
+Session 31 — Wave 4 P2/P3 수정 + Collection 테스트 갭 보강
 
 ## 미션 한 줄
 
-fix/wave3-p1 브랜치의 Wave 3 P2 수정 + 테스트 + CI 정리를 PR로 머지하고, Wave 4(Collection feature) 리뷰에 진입한다.
+Wave 4 리뷰의 남은 P2/P3 6건을 수정하고 `collection_remote_datasource_test.dart` 부재 갭을 메운다.
 
 ## 배경
 
-Session 28에서:
-- Wave 3 P2 8건 수정 완료 (OG cancel, UUID tag ID, URL sanitizer, dead branch 등)
-- Provider 단위 테스트 3종 신규 + RemoteDataSource 보강
-- CI lint 정리 2회 (dart format, directives_ordering, redundant args 등)
-- `flutter analyze --fatal-warnings` PASS, 379 tests GREEN
+Session 30에서:
+- Wave 4 P0/P1 4건 완전 수정 + PR 머지 완료
+- 앱 아이콘 & 스플래시 신규 브랜드 디자인으로 교체 (Galaxy A34 실기기 QA 통과)
+- 베이스라인: **385 tests GREEN**, analyze 0 issues
 
-현재 상태:
-- **브랜치**: `fix/wave3-p1` (HEAD `87c3556`)
-- **main HEAD**: `4ca3c96` (Wave 3 P1 PR#8 머지 후)
-- **main에 없는 커밋**: bac508b (P2 + 테스트) + 518ca9a (format) + 87c3556 (lint)
-- **Branch Protection 활성화** — PR + CI green 경로 필수
+남은 Wave 4 항목 (`docs/review/wave4_collection_review.md`):
+- **P2-A**: `collection_mapper.dart` linkCount single 가정 (array 대응)
+- **P2-B**: CollectionDetail provider 로컬 폴백 부재
+- **P2-C**: Collection 삭제 UX (확인 다이얼로그 / undo)
+- **P2-D**: 관련 provider invalidate 누락 (create/delete 시 detail/links)
+- **P3-A**: form success snackbar 오발화 관련 정리 (이미 P1-C에서 부분 해결 — 잔존 검증)
+- **P3-B**: `items.firstWhere` throw 가드 (updateCollection notFound 케이스)
+
+추가 테스트 갭:
+- `test/features/collection/data/datasource/collection_remote_datasource_test.dart` 신규 작성 (Supabase client mock)
+- `test/features/collection/presentation/provider/collection_detail_provider_test.dart`
 
 ## 가장 먼저 할 일 (순서 엄수)
 
 ### 0. 상태 확인
 ```bash
 cd ~/AndroidStudioProjects/LinkNote
-git status && git log --oneline main..HEAD
+git status && git log --oneline -5
 flutter analyze --fatal-warnings
-flutter test --reporter compact | tail -3
+flutter test --reporter compact 2>&1 | tail -3   # 385 GREEN 확인
 ```
 
-### 1. fix/wave3-p1 PR 생성 (사용자 승인 후)
-- **base**: main, **head**: fix/wave3-p1
-- 제목: `fix: Wave 3 P2 code review fixes (8 issues) + Provider/DataSource tests`
-- 본문: Session 28 로그 요약 (`docs/daily_task_log/2026-04-14_session28.md`)
-- CI green 대기 → 머지 (사용자 승인 후)
+### 1. 브랜치
+```bash
+git checkout -b fix/wave4-p2-p3-and-tests
+```
 
-### 2. Wave 4 진입 — Collection feature 리뷰
+### 2. TDD 순서 (RED → GREEN)
+1. P3-B `firstWhere` 가드 → 단위 테스트 선행
+2. P2-A linkCount array 대응 → `collection_mapper_test.dart` 케이스 추가
+3. P2-B detail 로컬 폴백 → repository 레이어에 폴백 추가 + 테스트
+4. P2-D invalidate 누락 → provider 테스트 선행 (ref.invalidate verify)
+5. P2-C 삭제 UX → 위젯 테스트 선행 (AlertDialog / undo snackbar)
+6. `collection_remote_datasource_test.dart` 신규 — Supabase client를 mocktail 또는 fake supabase로 mock
+7. `collection_detail_provider_test.dart` 신규
 
-**리뷰 범위**: `lib/features/collection/`
-
-**리뷰 관점** (Wave 2/3과 동일):
-- Clean Architecture 준수
-- Result/Failure 에러 핸들링
-- 리소스 관리
-- 테스트 갭 (특히 Provider)
-
-### 3. 보고서 작성
-- `docs/review/wave4_collection_review.md` 생성
-- P0~P3 분류 + 권장 픽스
-
-### 4. PR
-- `chore/wave4-review` 브랜치 생성
-- 보고서 커밋 → PR (사용자 승인 후)
+### 3. 게이트 / 커밋 / PR
+- `flutter analyze --fatal-warnings` 0 / `flutter test` 385 + N GREEN
+- CHANGELOG + daily_log + next_session + memory 업데이트
+- **코드 + docs 한 PR로 묶음** (docs-only 단독 PR 금지)
+- git push는 사용자 승인 필수, CI 4 job green 후 머지
 
 ## 불변 원칙
 
-- **git push는 사용자 명시 승인 필수**
-- **Branch Protection 활성화 상태** — PR + CI green 경로 필수
-- **`flutter analyze --fatal-warnings` 0 / 379+ tests GREEN** 유지
-- Wave 4는 리뷰 보고서만 작성, **코드 수정은 Session 30에서**
-
-## 완료 기준
-
-- [ ] fix/wave3-p1 PR 생성 → CI green → 머지
-- [ ] Collection feature 전수 리뷰
-- [ ] `docs/review/wave4_collection_review.md` 작성
-- [ ] Wave 4 리뷰 PR 생성 → CI green
-- [ ] 메모리 업데이트 + Session 29 daily log
+- **git push / merge 사용자 명시 승인 필수**
+- **Branch Protection 활성화** — PR + CI 4 job green 필수
+- **TDD RED → GREEN** 준수
+- `.env`, keystore, Firebase service account key 커밋 금지
+- provider 에러는 `Error.throwWithStackTrace(failure, StackTrace.current)` 패턴 사용
 
 ## 참조 문서
 
-- **Wave 3 P1 로그**: `docs/daily_task_log/2026-04-13_session27.md`
-- **Wave 3 P2 로그**: `docs/daily_task_log/2026-04-14_session28.md`
-- **Wave 3 리뷰**: `docs/review/wave3_link_review.md`
-- **Wave 2 리뷰**: `docs/code_review/2026-04-13_wave2_core.md`
-- **아키텍처**: CLAUDE.md → Architecture 섹션
-
-## CI 정리 교훈 (Session 28 lessons)
-
-- `very_good_analysis`의 `directives_ordering`은 전체 import 알파벳순 (외부/프로젝트 그룹 구분 X, 빈 줄 금지)
-- freezed `@Default([])` 필드에 `const []` 명시 금지 → `avoid_redundant_argument_values`
-- supabase `.select()` 결과에 타입 어노테이션 금지 → `omit_local_variable_types`
-- pre-commit은 `--fatal-warnings` 없이 통과하므로 CI 전에 `flutter analyze --fatal-warnings` 직접 검증
+- **Wave 4 리뷰**: `docs/review/wave4_collection_review.md`
+- **Session 30 로그**: `docs/daily_task_log/2026-04-16_session30.md`
+- **RLS 정책**: `docs/security/rls_policies.md` (Session 30 신설)
 
 ## 세션 경계
 
-PR#9 머지 → Wave 4 리뷰 PR 생성까지. Wave 4 코드 수정은 Session 30에서.
+P2/P3 수정 + 테스트 갭 보강 PR 머지까지. 아키텍처 리팩터나 다른 feature의 Wave 5 리뷰는 Session 32에서.
 ```

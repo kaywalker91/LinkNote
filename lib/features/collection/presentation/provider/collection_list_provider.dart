@@ -61,13 +61,14 @@ class CollectionList extends _$CollectionList {
     );
 
     final result = await ref.read(createCollectionUsecaseProvider).call(entity);
-    if (result.isSuccess) {
-      final current = state.value;
-      if (current != null) {
-        state = AsyncData(
-          current.copyWith(items: [result.data!, ...current.items]),
-        );
-      }
+    if (result.isFailure) {
+      Error.throwWithStackTrace(result.failure!, StackTrace.current);
+    }
+    final current = state.value;
+    if (current != null) {
+      state = AsyncData(
+        current.copyWith(items: [result.data!, ...current.items]),
+      );
     }
   }
 
@@ -89,16 +90,17 @@ class CollectionList extends _$CollectionList {
     final result = await ref
         .read(updateCollectionUsecaseProvider)
         .call(updated);
-    if (result.isSuccess) {
-      state = AsyncData(
-        current.copyWith(
-          items: current.items.map((c) {
-            if (c.id == id) return result.data!;
-            return c;
-          }).toList(),
-        ),
-      );
+    if (result.isFailure) {
+      Error.throwWithStackTrace(result.failure!, StackTrace.current);
     }
+    state = AsyncData(
+      current.copyWith(
+        items: current.items.map((c) {
+          if (c.id == id) return result.data!;
+          return c;
+        }).toList(),
+      ),
+    );
   }
 
   Future<void> deleteCollection(String id) async {
