@@ -3,7 +3,6 @@ import 'package:linknote/core/error/failure.dart';
 import 'package:linknote/core/error/result.dart';
 import 'package:linknote/features/link/data/datasource/link_remote_datasource.dart';
 import 'package:linknote/features/link/domain/entity/link_entity.dart';
-import 'package:linknote/features/link/domain/entity/tag_entity.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -29,7 +28,6 @@ void main() {
     title: 'Test',
     createdAt: DateTime(2026),
     updatedAt: DateTime(2026),
-    tags: const <TagEntity>[],
   );
 
   group('updateLink', () {

@@ -1,3 +1,4 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:linknote/core/error/failure.dart';
 import 'package:linknote/core/error/result.dart';
@@ -9,7 +10,6 @@ import 'package:linknote/features/link/domain/usecase/update_link_usecase.dart';
 import 'package:linknote/features/link/presentation/provider/link_di_providers.dart';
 import 'package:linknote/features/link/presentation/provider/link_form_provider.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class MockCreateLinkUsecase extends Mock implements CreateLinkUsecase {}
 
