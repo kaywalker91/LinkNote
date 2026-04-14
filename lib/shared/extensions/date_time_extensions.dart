@@ -2,6 +2,7 @@ extension DateTimeExtensions on DateTime {
   String timeAgo() {
     final now = DateTime.now();
     final diff = now.difference(this);
+    if (diff.isNegative) return '방금 전';
     if (diff.inSeconds < 60) return '방금 전';
     if (diff.inMinutes < 60) return '${diff.inMinutes}분 전';
     if (diff.inHours < 24) return '${diff.inHours}시간 전';
