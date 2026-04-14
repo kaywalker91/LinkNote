@@ -42,7 +42,7 @@ final class LinkFilterNotifierProvider
 }
 
 String _$linkFilterNotifierHash() =>
-    r'b912d4bff87f829cfa522b375c0127e1d872838a';
+    r'596e5028358093d002bbed9f9eb95824e49ad630';
 
 abstract class _$LinkFilterNotifier extends $Notifier<LinkFilter> {
   LinkFilter build();

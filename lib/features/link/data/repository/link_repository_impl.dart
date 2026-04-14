@@ -31,13 +31,7 @@ class LinkRepositoryImpl implements ILinkRepository {
     );
 
     if (remote.isSuccess) {
-      // Cache the first page only (no cursor = initial fetch)
-      if (cursor == null) {
-        await _localDataSource.cacheLinks(remote.data!.items);
-      } else {
-        // Append subsequent pages to cache
-        await _localDataSource.cacheLinks(remote.data!.items);
-      }
+      await _localDataSource.cacheLinks(remote.data!.items);
       return remote;
     }
 

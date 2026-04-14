@@ -1,3 +1,4 @@
+import 'package:async/async.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:linknote/core/error/result.dart';
 import 'package:linknote/core/services/og_tag_service.dart';
@@ -25,11 +26,16 @@ abstract class LinkFormState with _$LinkFormState {
     @Default(false) bool isParsingOg,
     @Default(false) bool isSubmitting,
     String? errorMessage,
+
+    /// Original createdAt preserved for edit mode.
+    DateTime? originalCreatedAt,
   }) = _LinkFormState;
 }
 
 @riverpod
 class LinkForm extends _$LinkForm {
+  CancelableOperation<OgTagResult>? _pendingOgParse;
+
   @override
   Future<LinkFormState> build(String? linkId) async {
     if (linkId == null) return const LinkFormState();
@@ -43,16 +49,27 @@ class LinkForm extends _$LinkForm {
       memo: link.memo ?? '',
       tags: link.tags,
       isFavorite: link.isFavorite,
+      originalCreatedAt: link.createdAt,
     );
   }
 
   Future<void> parseOgTags(String url) async {
     final current = state.value;
     if (current == null) return;
+
+    // Cancel any in-flight OG parse.
+    await _pendingOgParse?.cancel();
+
     state = AsyncData(current.copyWith(isParsingOg: true));
     try {
       final ogService = ref.read(ogTagServiceProvider);
-      final result = await ogService.fetchOgTags(url);
+      final operation = CancelableOperation.fromFuture(
+        ogService.fetchOgTags(url),
+      );
+      _pendingOgParse = operation;
+      final result = await operation.valueOrCancellation();
+      if (result == null) return; // Cancelled.
+
       // Re-read state after await to avoid overwriting user edits (TOCTOU).
       final latest = state.value;
       if (latest == null) return;
@@ -102,6 +119,12 @@ class LinkForm extends _$LinkForm {
     state = AsyncData(current.copyWith(memo: memo));
   }
 
+  void updateCollectionId(String? collectionId) {
+    final current = state.value;
+    if (current == null) return;
+    state = AsyncData(current.copyWith(collectionId: collectionId));
+  }
+
   void toggleFavorite() {
     final current = state.value;
     if (current == null) return;
@@ -148,7 +171,7 @@ class LinkForm extends _$LinkForm {
       memo: current.memo.isEmpty ? null : current.memo,
       tags: current.tags,
       isFavorite: current.isFavorite,
-      createdAt: now,
+      createdAt: current.originalCreatedAt ?? now,
       updatedAt: now,
     );
 

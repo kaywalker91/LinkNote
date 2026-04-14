@@ -8,6 +8,7 @@ part 'link_filter_provider.g.dart';
 abstract class LinkFilter with _$LinkFilter {
   const factory LinkFilter({
     @Default(false) bool favoritesOnly,
+    String? collectionId,
   }) = _LinkFilter;
 }
 
@@ -18,5 +19,9 @@ class LinkFilterNotifier extends _$LinkFilterNotifier {
 
   void setFavoritesOnly({required bool value}) {
     state = state.copyWith(favoritesOnly: value);
+  }
+
+  void setCollectionId(String? collectionId) {
+    state = state.copyWith(collectionId: collectionId);
   }
 }

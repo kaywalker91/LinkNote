@@ -71,8 +71,10 @@ class LinkLocalDataSource implements IClearableCache {
 
   Future<void> cacheLinks(List<LinkEntity> links) async {
     try {
+      final now = DateTime.now().toIso8601String();
       final entries = <String, Map<String, dynamic>>{
-        for (final link in links) link.id: _entityToMap(link),
+        for (final link in links)
+          link.id: {..._entityToMap(link), '_cachedAt': now},
       };
       await _box.putAll(entries);
       await _trimCache();
@@ -83,7 +85,9 @@ class LinkLocalDataSource implements IClearableCache {
 
   Future<void> cacheSingleLink(LinkEntity link) async {
     try {
-      await _box.put(link.id, _entityToMap(link));
+      final map = _entityToMap(link);
+      map['_cachedAt'] = DateTime.now().toIso8601String();
+      await _box.put(link.id, map);
       await _trimCache();
     } on Exception catch (_) {}
   }
@@ -141,7 +145,7 @@ class LinkLocalDataSource implements IClearableCache {
     return entity.toJson();
   }
 
-  /// Keeps only the most recent [_maxCacheSize] links by removing the oldest.
+  /// Keeps only the most recent [_maxCacheSize] links by cache-write time.
   Future<void> _trimCache() async {
     if (_box.length <= _maxCacheSize) return;
 
@@ -150,8 +154,11 @@ class LinkLocalDataSource implements IClearableCache {
     for (final entry in entries) {
       try {
         final json = Map<String, dynamic>.from(entry.value);
-        final createdAt = DateTime.parse(json['createdAt'] as String);
-        parsed.add(MapEntry(entry.key as String, createdAt));
+        final cachedAt = json['_cachedAt'] as String?;
+        final timestamp = cachedAt != null
+            ? DateTime.parse(cachedAt)
+            : DateTime.parse(json['createdAt'] as String);
+        parsed.add(MapEntry(entry.key as String, timestamp));
       } on Exception catch (_) {
         // Remove unparseable entries
         await _box.delete(entry.key);

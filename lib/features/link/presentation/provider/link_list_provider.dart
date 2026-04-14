@@ -12,18 +12,23 @@ class LinkList extends _$LinkList {
   @override
   Future<PaginatedState<LinkEntity>> build() async {
     final filter = ref.watch(linkFilterProvider);
-    return _fetch(favoritesOnly: filter.favoritesOnly);
+    return _fetch(
+      favoritesOnly: filter.favoritesOnly,
+      collectionId: filter.collectionId,
+    );
   }
 
   Future<PaginatedState<LinkEntity>> _fetch({
     String? cursor,
     bool favoritesOnly = false,
+    String? collectionId,
   }) async {
     final result = await ref
         .read(fetchLinksUsecaseProvider)
         .call(
           cursor: cursor,
           favoritesOnly: favoritesOnly,
+          collectionId: collectionId,
         );
     if (result.isSuccess) return result.data!;
     Error.throwWithStackTrace(result.failure!, StackTrace.current);
@@ -33,7 +38,10 @@ class LinkList extends _$LinkList {
     final filter = ref.read(linkFilterProvider);
     state = const AsyncLoading();
     state = await AsyncValue.guard(
-      () => _fetch(favoritesOnly: filter.favoritesOnly),
+      () => _fetch(
+        favoritesOnly: filter.favoritesOnly,
+        collectionId: filter.collectionId,
+      ),
     );
   }
 
@@ -46,6 +54,7 @@ class LinkList extends _$LinkList {
       final next = await _fetch(
         cursor: current.nextCursor,
         favoritesOnly: filter.favoritesOnly,
+        collectionId: filter.collectionId,
       );
       state = AsyncData(
         current.copyWith(
