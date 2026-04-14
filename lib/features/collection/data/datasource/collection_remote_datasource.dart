@@ -51,12 +51,16 @@ class CollectionRemoteDataSource {
     }
   }
 
-  Future<Result<CollectionEntity>> getCollectionById(String id) async {
+  Future<Result<CollectionEntity>> getCollectionById(
+    String id,
+    String userId,
+  ) async {
     try {
       final response = await _client
           .from('collections')
           .select(_selectQuery)
           .eq('id', id)
+          .eq('user_id', userId)
           .single();
 
       return success(
@@ -93,6 +97,7 @@ class CollectionRemoteDataSource {
 
   Future<Result<CollectionEntity>> updateCollection(
     CollectionEntity collection,
+    String userId,
   ) async {
     try {
       final json = CollectionMapper.toUpdateJson(collection);
@@ -100,6 +105,7 @@ class CollectionRemoteDataSource {
           .from('collections')
           .update(json)
           .eq('id', collection.id)
+          .eq('user_id', userId)
           .select(_selectQuery)
           .single();
 
@@ -113,9 +119,13 @@ class CollectionRemoteDataSource {
     }
   }
 
-  Future<Result<void>> deleteCollection(String id) async {
+  Future<Result<void>> deleteCollection(String id, String userId) async {
     try {
-      await _client.from('collections').delete().eq('id', id);
+      await _client
+          .from('collections')
+          .delete()
+          .eq('id', id)
+          .eq('user_id', userId);
       return success(null);
     } on PostgrestException catch (e) {
       return error(Failure.server(message: e.message));

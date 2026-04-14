@@ -46,33 +46,39 @@ class _CollectionFormScreenState extends ConsumerState<CollectionFormScreen> {
 
     setState(() => _isSubmitting = true);
 
-    if (_isEditMode) {
-      await ref
-          .read(collectionListProvider.notifier)
-          .updateCollection(
-            id: widget.collectionId!,
-            name: name,
-            description: _descController.text.trim().isEmpty
-                ? null
-                : _descController.text.trim(),
-          );
-    } else {
-      await ref
-          .read(collectionListProvider.notifier)
-          .createCollection(
-            name: name,
-            description: _descController.text.trim().isEmpty
-                ? null
-                : _descController.text.trim(),
-          );
-    }
+    final description = _descController.text.trim().isEmpty
+        ? null
+        : _descController.text.trim();
 
-    if (mounted) {
-      context
-        ..showSuccessSnackBar(
-          _isEditMode ? '컬렉션이 수정되었습니다' : '컬렉션이 생성되었습니다',
-        )
-        ..pop();
+    try {
+      if (_isEditMode) {
+        await ref
+            .read(collectionListProvider.notifier)
+            .updateCollection(
+              id: widget.collectionId!,
+              name: name,
+              description: description,
+            );
+      } else {
+        await ref
+            .read(collectionListProvider.notifier)
+            .createCollection(name: name, description: description);
+      }
+
+      if (mounted) {
+        context
+          ..showSuccessSnackBar(
+            _isEditMode ? '컬렉션이 수정되었습니다' : '컬렉션이 생성되었습니다',
+          )
+          ..pop();
+      }
+    } on Object catch (_) {
+      if (mounted) {
+        setState(() => _isSubmitting = false);
+        context.showErrorSnackBar(
+          _isEditMode ? '컬렉션 수정에 실패했습니다' : '컬렉션 생성에 실패했습니다',
+        );
+      }
     }
   }
 
