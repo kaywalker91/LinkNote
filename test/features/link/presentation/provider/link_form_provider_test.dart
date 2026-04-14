@@ -52,8 +52,9 @@ void main() {
 
   ProviderContainer createContainer({String? linkId}) {
     if (linkId != null) {
-      when(() => mockGetDetail.call(linkId))
-          .thenAnswer((_) async => success(tExistingLink));
+      when(
+        () => mockGetDetail.call(linkId),
+      ).thenAnswer((_) async => success(tExistingLink));
     }
     return ProviderContainer(
       overrides: [
@@ -67,18 +68,20 @@ void main() {
 
   group('LinkForm', () {
     group('build', () {
-      test('should return empty state when linkId is null (create mode)',
-          () async {
-        final container = createContainer();
-        addTearDown(container.dispose);
+      test(
+        'should return empty state when linkId is null (create mode)',
+        () async {
+          final container = createContainer();
+          addTearDown(container.dispose);
 
-        final state = await container.read(linkFormProvider(null).future);
+          final state = await container.read(linkFormProvider(null).future);
 
-        expect(state.url, isEmpty);
-        expect(state.title, isEmpty);
-        expect(state.collectionId, isNull);
-        expect(state.originalCreatedAt, isNull);
-      });
+          expect(state.url, isEmpty);
+          expect(state.title, isEmpty);
+          expect(state.collectionId, isNull);
+          expect(state.originalCreatedAt, isNull);
+        },
+      );
 
       test('should populate state from existing link (edit mode)', () async {
         final container = createContainer(linkId: 'link-1');
@@ -106,16 +109,21 @@ void main() {
         await container.read(linkFormProvider(null).future);
 
         // Set required fields
-        container.read(linkFormProvider(null).notifier).updateUrl(
-          'https://new.com',
-        );
-        container.read(linkFormProvider(null).notifier).updateTitle(
-          'New Link',
-        );
+        container
+            .read(linkFormProvider(null).notifier)
+            .updateUrl(
+              'https://new.com',
+            );
+        container
+            .read(linkFormProvider(null).notifier)
+            .updateTitle(
+              'New Link',
+            );
 
         // Act
-        final result =
-            await container.read(linkFormProvider(null).notifier).submit();
+        final result = await container
+            .read(linkFormProvider(null).notifier)
+            .submit();
 
         // Assert
         expect(result, isTrue);
@@ -133,8 +141,9 @@ void main() {
         await container.read(linkFormProvider('link-1').future);
 
         // Act
-        final result =
-            await container.read(linkFormProvider('link-1').notifier).submit();
+        final result = await container
+            .read(linkFormProvider('link-1').notifier)
+            .submit();
 
         // Assert
         expect(result, isTrue);
@@ -149,8 +158,9 @@ void main() {
 
         container.read(linkFormProvider(null).notifier).updateTitle('A title');
 
-        final result =
-            await container.read(linkFormProvider(null).notifier).submit();
+        final result = await container
+            .read(linkFormProvider(null).notifier)
+            .submit();
 
         expect(result, isFalse);
       });
@@ -168,8 +178,9 @@ void main() {
           ..updateUrl('https://x.com')
           ..updateTitle('Title');
 
-        final result =
-            await container.read(linkFormProvider(null).notifier).submit();
+        final result = await container
+            .read(linkFormProvider(null).notifier)
+            .submit();
 
         expect(result, isFalse);
         final state = container.read(linkFormProvider(null)).value!;
