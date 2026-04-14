@@ -238,41 +238,42 @@ void main() {
       'should delete entries with non-String keys and keep valid String-keyed '
       'entries when cache exceeds max size',
       () async {
-      // Arrange — 101 entries: 100 valid String-keyed + 1 int-keyed
-      final cacheMap = <dynamic, Map<dynamic, dynamic>>{};
-      for (var i = 0; i < 100; i++) {
-        cacheMap['col-$i'] = <dynamic, dynamic>{
-          'id': 'col-$i',
-          'name': 'C$i',
-          'createdAt': DateTime(2026, 1, 1 + (i % 28)).toIso8601String(),
-          'updatedAt': DateTime(2026, 1, 1 + (i % 28)).toIso8601String(),
-          'linkCount': 0,
-        };
-      }
-      // Pollution: int key with a malformed payload
-      cacheMap[42] = <dynamic, dynamic>{'bad': 'payload'};
+        // Arrange — 101 entries: 100 valid String-keyed + 1 int-keyed
+        final cacheMap = <dynamic, Map<dynamic, dynamic>>{};
+        for (var i = 0; i < 100; i++) {
+          cacheMap['col-$i'] = <dynamic, dynamic>{
+            'id': 'col-$i',
+            'name': 'C$i',
+            'createdAt': DateTime(2026, 1, 1 + (i % 28)).toIso8601String(),
+            'updatedAt': DateTime(2026, 1, 1 + (i % 28)).toIso8601String(),
+            'linkCount': 0,
+          };
+        }
+        // Pollution: int key with a malformed payload
+        cacheMap[42] = <dynamic, dynamic>{'bad': 'payload'};
 
-      final tCollection = CollectionEntity(
-        id: 'col-new',
-        name: 'New',
-        createdAt: DateTime(2026, 2),
-        updatedAt: DateTime(2026, 2),
-      );
+        final tCollection = CollectionEntity(
+          id: 'col-new',
+          name: 'New',
+          createdAt: DateTime(2026, 2),
+          updatedAt: DateTime(2026, 2),
+        );
 
-      when(
-        () => mockBox.put(any<dynamic>(), any<Map<dynamic, dynamic>>()),
-      ).thenAnswer((_) async {});
-      when(() => mockBox.length).thenReturn(cacheMap.length);
-      when(() => mockBox.toMap()).thenReturn(cacheMap);
-      when(() => mockBox.delete(any<dynamic>())).thenAnswer((_) async {});
-      when(() => mockBox.deleteAll(any())).thenAnswer((_) async {});
+        when(
+          () => mockBox.put(any<dynamic>(), any<Map<dynamic, dynamic>>()),
+        ).thenAnswer((_) async {});
+        when(() => mockBox.length).thenReturn(cacheMap.length);
+        when(() => mockBox.toMap()).thenReturn(cacheMap);
+        when(() => mockBox.delete(any<dynamic>())).thenAnswer((_) async {});
+        when(() => mockBox.deleteAll(any())).thenAnswer((_) async {});
 
-      // Act — should NOT throw on the int key
-      await sut.cacheSingleCollection(tCollection);
+        // Act — should NOT throw on the int key
+        await sut.cacheSingleCollection(tCollection);
 
-      // Assert — int-keyed entry was deleted individually
-      verify(() => mockBox.delete(42)).called(1);
-    });
+        // Assert — int-keyed entry was deleted individually
+        verify(() => mockBox.delete(42)).called(1);
+      },
+    );
   });
 
   // ---------------------------------------------------------------------------
