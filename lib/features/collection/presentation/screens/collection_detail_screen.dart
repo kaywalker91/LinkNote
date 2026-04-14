@@ -50,13 +50,19 @@ class CollectionDetailScreen extends ConsumerWidget {
                   isDestructive: true,
                 );
                 if ((confirmed ?? false) && context.mounted) {
-                  await ref
-                      .read(collectionListProvider.notifier)
-                      .deleteCollection(collectionId);
-                  if (context.mounted) {
-                    context
-                      ..showSuccessSnackBar('컬렉션이 삭제되었습니다')
-                      ..pop();
+                  try {
+                    await ref
+                        .read(collectionListProvider.notifier)
+                        .deleteCollection(collectionId);
+                    if (context.mounted) {
+                      context
+                        ..showSuccessSnackBar('컬렉션이 삭제되었습니다')
+                        ..pop();
+                    }
+                  } on Exception catch (_) {
+                    if (context.mounted) {
+                      context.showErrorSnackBar('삭제에 실패했습니다');
+                    }
                   }
                 }
               },

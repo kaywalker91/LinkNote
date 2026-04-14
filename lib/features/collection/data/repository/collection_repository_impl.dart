@@ -38,8 +38,18 @@ class CollectionRepositoryImpl implements ICollectionRepository {
   }
 
   @override
-  Future<Result<CollectionEntity>> getCollectionById(String id) =>
-      _remote.getCollectionById(id, userId);
+  Future<Result<CollectionEntity>> getCollectionById(String id) async {
+    final remote = await _remote.getCollectionById(id, userId);
+    if (remote.isSuccess) {
+      await _local.cacheSingleCollection(remote.data!);
+      return remote;
+    }
+    final cached = _local.getCachedCollectionById(id);
+    if (cached.isSuccess) {
+      return cached;
+    }
+    return remote;
+  }
 
   @override
   Future<Result<CollectionEntity>> createCollection(

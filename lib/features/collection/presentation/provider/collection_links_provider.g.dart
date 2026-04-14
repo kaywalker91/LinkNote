@@ -64,7 +64,7 @@ final class CollectionLinksProvider
   }
 }
 
-String _$collectionLinksHash() => r'f8f6647d4d3be7baecb47541a1e906168857085c';
+String _$collectionLinksHash() => r'edf047c3df240a0fb3367c423de9d8b2c92d81db';
 
 final class CollectionLinksFamily extends $Family
     with $FunctionalFamilyOverride<FutureOr<List<LinkEntity>>, String> {

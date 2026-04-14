@@ -7,6 +7,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed (Session 31 — Wave 4 Collection P2/P3 + Test Coverage)
+
+- **P2-A — `CollectionMapper` linkCount array fold** (`lib/features/collection/data/mapper/collection_mapper.dart`): `dto.links.first.count` 단일 요소 가정을 `dto.links.fold<int>(0, (sum, e) => sum + e.count)`로 교체. Supabase select 스키마가 multi-aggregate으로 확장되어도 침묵 실패 방지. 매퍼 테스트에 multi-aggregate + zero 케이스 2건 추가
+- **P2-B — `getCollectionById` 로컬 캐시 폴백** (`lib/features/collection/data/repository/collection_repository_impl.dart`): 원격 실패 시 `_local.getCachedCollectionById(id)` 폴백 추가. 원격 성공 시에도 `cacheSingleCollection`으로 캐시 갱신. `getCollections`와 동일 패턴으로 오프라인 UX 개선. repository 테스트에 3 케이스 추가 (remote success + cache, remote fail → cache hit, remote fail → cache miss)
+- **P2-C — Collection 삭제 UX 에러 처리** (`lib/features/collection/presentation/screens/collection_detail_screen.dart`, `collection_list_provider.dart`): `CollectionList.deleteCollection`이 실패 시 상태만 rollback하고 조용히 성공 처리되던 문제를 수정. rollback 후 `Error.throwWithStackTrace`로 Failure 전파, detail screen은 try/catch로 감싸 실패 시 `context.showErrorSnackBar("삭제에 실패했습니다")` 표시. 위젯 테스트 2건 추가 (확인 다이얼로그 표시 + 실패 시 error snackbar)
+- **P2-D — create/update/delete 후 provider invalidate** (`lib/features/collection/presentation/provider/collection_list_provider.dart`): `updateCollection`/`deleteCollection` 성공 직후 `ref.invalidate(collectionDetailProvider(id))` + `ref.invalidate(collectionLinksProvider(id))` 추가. 동일 id 재진입 시 stale 캐시 제거. provider 테스트에 invalidate 검증 케이스 추가
+- **P3-B — `updateCollection` firstWhere 가드** (`lib/features/collection/presentation/provider/collection_list_provider.dart`): `items.firstWhere((c) => c.id == id)`가 missing id에서 `StateError`를 던지던 문제를 `where(...).firstOrNull` + `Failure.unknown` throw로 교체. 딥링크/알림으로 사라진 컬렉션 편집 시도 시 사용자 친화적 에러. provider 테스트 케이스 추가
+- **P3-A — form snackbar**: Session 30 P1-C 구현에서 이미 try/catch + 성공/실패 분기 처리 완료 확인. 추가 변경 불필요
+
+### Added (Session 31 — Test Coverage)
+
+- **`collection_remote_datasource_test.dart` 신규** (10 tests): `MockSupabaseClient`로 `from()` throw 시점을 제어해 `PostgrestException` → `Failure.server`, 일반 Exception → `Failure.unknown` 매핑을 5개 메서드(getCollections/getCollectionById/create/update/delete) 각각 2 케이스 검증. Session 28에서 link feature에 추가된 동일 갭 해소
+- **`collection_detail_provider_test.dart` 신규** (3 tests): build success/failure + refresh 재호출 검증. Session 30 lesson(autoDispose + throwWithStackTrace)에 따라 `container.listen` 구독 + `Future<void>.delayed(Duration.zero)` 2회 후 `state.hasError` 체크 패턴 적용
+
+### Added (Session 31 — Link → Collection 이동 기능)
+
+- **홈 롱프레스 메뉴 "Move to Collection"** (`lib/features/link/presentation/screens/home_screen.dart`, `lib/features/link/presentation/provider/link_list_provider.dart`): 링크 타일의 `⋮` 메뉴에 "Move to Collection" 액션 추가. BottomSheet로 컬렉션 피커 표시 ("None" 옵션 포함), `LinkList.moveToCollection(linkId, collectionId)` 메서드가 `UpdateLinkUsecase`를 통해 `collection_id` 변경. 성공 시 `이전/신규 컬렉션의 collectionLinksProvider + collectionDetailProvider` 무효화 + 리스트 배지 refresh용 `collectionListProvider` 무효화로 **linkCount 스테일 이슈 해결**. 실패 시 error snackbar. 신규 provider 테스트 4 cases (success / null clear / 실패 throw / collectionList invalidate)
+
+### Baseline (Session 31)
+
+- 테스트: 385 → **410 GREEN** (+25: mapper +2, repository +2, collection list provider +2, detail screen +2, detail provider +3, remote datasource +10, link list provider +4)
+- `flutter analyze --fatal-warnings`: 0 issues
+- `flutter build apk --flavor dev --debug`: 성공
+- **실기기 QA 통과** (Galaxy A34 / SM A346N / RFCW615RBFT): 삭제 UX, 캐시 폴백, invalidate, 에러 스낵바, Move to Collection + linkCount 갱신 모두 확인
+
 ### Fixed (Session 30 — Wave 4 Collection P0/P1)
 
 - **P0-A — `collectionLinksProvider` Failure 침묵 해결** (`lib/features/collection/presentation/provider/collection_links_provider.dart`): Failure 시 빈 리스트를 리턴하던 로직을 제거하고 `Error.throwWithStackTrace(result.failure!, StackTrace.current)`로 에러를 AsyncValue로 surface. 신규 단위 테스트 `test/features/collection/presentation/provider/collection_links_provider_test.dart` (success + failure 2 cases) 추가

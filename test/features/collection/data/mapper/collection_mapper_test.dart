@@ -45,6 +45,26 @@ void main() {
   );
 
   test(
+    'toEntity: sums count across multiple LinkCountDto entries',
+    () {
+      final dtoMulti = tDto.copyWith(
+        links: const [LinkCountDto(count: 3), LinkCountDto(count: 2)],
+      );
+      final result = CollectionMapper.toEntity(dtoMulti);
+      expect(result.linkCount, 5);
+    },
+  );
+
+  test(
+    'toEntity: returns 0 when single LinkCountDto has count 0',
+    () {
+      final dtoZero = tDto.copyWith(links: const [LinkCountDto(count: 0)]);
+      final result = CollectionMapper.toEntity(dtoZero);
+      expect(result.linkCount, 0);
+    },
+  );
+
+  test(
     'toInsertJson: includes userId and name, excludes id',
     () {
       final json = CollectionMapper.toInsertJson(tEntity, 'user-123');
