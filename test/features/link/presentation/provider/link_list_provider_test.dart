@@ -346,9 +346,11 @@ void main() {
         // Assert
         final state = container.read(linkListProvider).value!;
         expect(state.items[0].collectionId, 'col-1');
-        final captured = verify(
-          () => mockUpdate.call(captureAny()),
-        ).captured.single as LinkEntity;
+        final captured =
+            verify(
+                  () => mockUpdate.call(captureAny()),
+                ).captured.single
+                as LinkEntity;
         expect(captured.collectionId, 'col-1');
       });
 
@@ -381,74 +383,78 @@ void main() {
             .moveToCollection(linkId: 'link-1', collectionId: null);
 
         // Assert
-        final captured = verify(
-          () => mockUpdate.call(captureAny()),
-        ).captured.single as LinkEntity;
+        final captured =
+            verify(
+                  () => mockUpdate.call(captureAny()),
+                ).captured.single
+                as LinkEntity;
         expect(captured.collectionId, isNull);
       });
 
-      test('should invalidate collectionListProvider to refresh linkCount',
-          () async {
-        // Arrange
-        final tUpdated = tLink1.copyWith(
-          collectionId: 'col-1',
-          collectionName: 'Dev',
-        );
-        final tState = PaginatedState<LinkEntity>(items: [tLink1]);
-        when(
-          () => mockFetch.call(
-            cursor: any(named: 'cursor'),
-            favoritesOnly: any(named: 'favoritesOnly'),
-            collectionId: any(named: 'collectionId'),
-          ),
-        ).thenAnswer((_) async => success(tState));
-        when(() => mockUpdate.call(any())).thenAnswer(
-          (_) async => success(tUpdated),
-        );
-
-        var collectionsFetchCount = 0;
-        final mockGetCollections = MockGetCollectionsUsecase();
-        when(() => mockGetCollections.call(cursor: any(named: 'cursor')))
-            .thenAnswer((_) async {
-          collectionsFetchCount++;
-          return success(
-            const PaginatedState<CollectionEntity>(items: []),
+      test(
+        'should invalidate collectionListProvider to refresh linkCount',
+        () async {
+          // Arrange
+          final tUpdated = tLink1.copyWith(
+            collectionId: 'col-1',
+            collectionName: 'Dev',
           );
-        });
+          final tState = PaginatedState<LinkEntity>(items: [tLink1]);
+          when(
+            () => mockFetch.call(
+              cursor: any(named: 'cursor'),
+              favoritesOnly: any(named: 'favoritesOnly'),
+              collectionId: any(named: 'collectionId'),
+            ),
+          ).thenAnswer((_) async => success(tState));
+          when(() => mockUpdate.call(any())).thenAnswer(
+            (_) async => success(tUpdated),
+          );
 
-        final container = ProviderContainer(
-          overrides: [
-            fetchLinksUsecaseProvider.overrideWithValue(mockFetch),
-            deleteLinkUsecaseProvider.overrideWithValue(mockDelete),
-            toggleFavoriteUsecaseProvider.overrideWithValue(mockToggle),
-            updateLinkUsecaseProvider.overrideWithValue(mockUpdate),
-            getCollectionsUsecaseProvider
-                .overrideWithValue(mockGetCollections),
-          ],
-        );
-        addTearDown(container.dispose);
-        await container.read(linkListProvider.future);
+          var collectionsFetchCount = 0;
+          final mockGetCollections = MockGetCollectionsUsecase();
+          when(
+            () => mockGetCollections.call(cursor: any(named: 'cursor')),
+          ).thenAnswer((_) async {
+            collectionsFetchCount++;
+            return success(
+              const PaginatedState<CollectionEntity>(items: []),
+            );
+          });
 
-        // Keep the collection list provider alive
-        final sub = container.listen(
-          collection_list.collectionListProvider,
-          (_, __) {},
-        );
-        addTearDown(sub.close);
-        await container
-            .read(collection_list.collectionListProvider.future);
-        expect(collectionsFetchCount, 1);
+          final container = ProviderContainer(
+            overrides: [
+              fetchLinksUsecaseProvider.overrideWithValue(mockFetch),
+              deleteLinkUsecaseProvider.overrideWithValue(mockDelete),
+              toggleFavoriteUsecaseProvider.overrideWithValue(mockToggle),
+              updateLinkUsecaseProvider.overrideWithValue(mockUpdate),
+              getCollectionsUsecaseProvider.overrideWithValue(
+                mockGetCollections,
+              ),
+            ],
+          );
+          addTearDown(container.dispose);
+          await container.read(linkListProvider.future);
 
-        // Act
-        await container
-            .read(linkListProvider.notifier)
-            .moveToCollection(linkId: 'link-1', collectionId: 'col-1');
+          // Keep the collection list provider alive
+          final sub = container.listen(
+            collection_list.collectionListProvider,
+            (_, __) {},
+          );
+          addTearDown(sub.close);
+          await container.read(collection_list.collectionListProvider.future);
+          expect(collectionsFetchCount, 1);
 
-        // Assert — collectionList should rebuild after invalidate
-        await container
-            .read(collection_list.collectionListProvider.future);
-        expect(collectionsFetchCount, 2);
-      });
+          // Act
+          await container
+              .read(linkListProvider.notifier)
+              .moveToCollection(linkId: 'link-1', collectionId: 'col-1');
+
+          // Assert — collectionList should rebuild after invalidate
+          await container.read(collection_list.collectionListProvider.future);
+          expect(collectionsFetchCount, 2);
+        },
+      );
 
       test('should throw Failure when update fails', () async {
         // Arrange
