@@ -5,101 +5,91 @@
 ---
 
 ```
-Session 27 — Wave 3 Code Review: Link Feature
+Session 29 — Wave 3 P2 PR 생성 & Wave 4 진입
 
 ## 미션 한 줄
 
-Link feature(`lib/features/link/`) 전체 코드 리뷰를 수행하고 보고서를 작성한다.
+fix/wave3-p1 브랜치의 Wave 3 P2 수정 + 테스트 + CI 정리를 PR로 머지하고, Wave 4(Collection feature) 리뷰에 진입한다.
 
 ## 배경
 
-Session 25-26에서 Wave 2(Core/Cross-cutting) 리뷰 + P0/P1 수정 완료(PR#7 머지).
-이제 가장 규모가 큰 feature인 Link를 리뷰한다.
+Session 28에서:
+- Wave 3 P2 8건 수정 완료 (OG cancel, UUID tag ID, URL sanitizer, dead branch 등)
+- Provider 단위 테스트 3종 신규 + RemoteDataSource 보강
+- CI lint 정리 2회 (dart format, directives_ordering, redundant args 등)
+- `flutter analyze --fatal-warnings` PASS, 379 tests GREEN
 
 현재 상태:
-- **main HEAD**: `42eed5e` (Wave 2 P0/P1 fix PR 머지 후)
+- **브랜치**: `fix/wave3-p1` (HEAD `87c3556`)
+- **main HEAD**: `4ca3c96` (Wave 3 P1 PR#8 머지 후)
+- **main에 없는 커밋**: bac508b (P2 + 테스트) + 518ca9a (format) + 87c3556 (lint)
 - **Branch Protection 활성화** — PR + CI green 경로 필수
-- **352 tests GREEN, analyze 0**
-- **Wave 2 P2/P3 미수정 13건** — Wave 3~6과 병행 처리 예정
-
-## 리뷰 범위 (23 source files)
-
-```
-lib/features/link/
-├── data/
-│   ├── datasource/  (link_local_datasource, link_remote_datasource)
-│   ├── dto/         (link_dto)
-│   ├── mapper/      (link_mapper)
-│   └── repository/  (link_repository_impl)
-├── domain/
-│   ├── entity/      (link_entity, tag_entity)
-│   ├── repository/  (i_link_repository)
-│   └── usecase/     (create, delete, fetch, get_detail, toggle_favorite, update)
-└── presentation/
-    ├── provider/    (link_detail, link_di, link_filter, link_form, link_list)
-    └── screens/     (home, link_add, link_detail, link_edit)
-```
 
 ## 가장 먼저 할 일 (순서 엄수)
 
-### 0. 현재 상태 확인
+### 0. 상태 확인
 ```bash
-git status && git log --oneline -5
-flutter analyze && flutter test
+cd ~/AndroidStudioProjects/LinkNote
+git status && git log --oneline main..HEAD
+flutter analyze --fatal-warnings
+flutter test --reporter compact | tail -3
 ```
 
-### 1. 이전 리뷰 보고서 참조
-```bash
-cat docs/code_review/2026-04-13_wave2_core.md
-```
-Wave 2 보고서의 형식과 기준을 따른다. link_local_datasource는 Wave 2에서 IClearableCache 적용 완료.
+### 1. fix/wave3-p1 PR 생성 (사용자 승인 후)
+- **base**: main, **head**: fix/wave3-p1
+- 제목: `fix: Wave 3 P2 code review fixes (8 issues) + Provider/DataSource tests`
+- 본문: Session 28 로그 요약 (`docs/daily_task_log/2026-04-14_session28.md`)
+- CI green 대기 → 머지 (사용자 승인 후)
 
-### 2. 코드 리뷰 수행
+### 2. Wave 4 진입 — Collection feature 리뷰
 
-**리뷰 관점** (Wave 2와 동일):
-- Clean Architecture 준수 (의존성 방향, 레이어 경계)
-- 타입 안전성, null safety
-- 에러 핸들링 패턴 일관성 (Result, Failure)
-- 리소스 관리 (Stream 구독, Dio 등)
-- UI/UX 이슈 (상태 관리, 로딩/에러 처리)
-- 동시성/비동기 이슈
-- 테스트 누락 영역
+**리뷰 범위**: `lib/features/collection/`
 
-**특별 주의**:
-- `link_repository_impl.dart`: Wave 2에서 P3-A(dead branch), P2-D(pagination cache eviction) 발견됨 — 추가 이슈 탐색
-- `link_form_provider.dart`: Wave 2에서 P1-F(TOCTOU) 수정 완료 — 다른 이슈 확인
-- `link_local_datasource.dart`: Wave 2에서 IClearableCache 적용 완료 — 기타 이슈 확인
+**리뷰 관점** (Wave 2/3과 동일):
+- Clean Architecture 준수
+- Result/Failure 에러 핸들링
+- 리소스 관리
+- 테스트 갭 (특히 Provider)
 
 ### 3. 보고서 작성
-- `docs/code_review/2026-04-13_wave3_link.md` 생성
-- P0~P3 분류, 권장 픽스 포함
+- `docs/review/wave4_collection_review.md` 생성
+- P0~P3 분류 + 권장 픽스
 
 ### 4. PR
-1. `chore/wave3-review` 브랜치 생성
-2. 보고서 커밋 + push → PR (사용자 승인 후)
+- `chore/wave4-review` 브랜치 생성
+- 보고서 커밋 → PR (사용자 승인 후)
 
 ## 불변 원칙
 
 - **git push는 사용자 명시 승인 필수**
 - **Branch Protection 활성화 상태** — PR + CI green 경로 필수
-- **`flutter analyze` 0 / `flutter test` 352 GREEN** 유지
-- 리뷰 보고서만 작성, **코드 수정 금지** (수정은 Session 28에서)
+- **`flutter analyze --fatal-warnings` 0 / 379+ tests GREEN** 유지
+- Wave 4는 리뷰 보고서만 작성, **코드 수정은 Session 30에서**
 
 ## 완료 기준
 
-- [ ] Link feature 23 source files 전수 리뷰
-- [ ] `docs/code_review/2026-04-13_wave3_link.md` 보고서 작성
-- [ ] P0~P3 분류 + 각 건별 권장 픽스
-- [ ] PR 생성 → CI green
-- [ ] 메모리 업데이트
+- [ ] fix/wave3-p1 PR 생성 → CI green → 머지
+- [ ] Collection feature 전수 리뷰
+- [ ] `docs/review/wave4_collection_review.md` 작성
+- [ ] Wave 4 리뷰 PR 생성 → CI green
+- [ ] 메모리 업데이트 + Session 29 daily log
 
 ## 참조 문서
 
-- **Wave 2 보고서**: `docs/code_review/2026-04-13_wave2_core.md`
-- **Session 26 로그**: `docs/daily_task_log/2026-04-13_session26.md`
+- **Wave 3 P1 로그**: `docs/daily_task_log/2026-04-13_session27.md`
+- **Wave 3 P2 로그**: `docs/daily_task_log/2026-04-14_session28.md`
+- **Wave 3 리뷰**: `docs/review/wave3_link_review.md`
+- **Wave 2 리뷰**: `docs/code_review/2026-04-13_wave2_core.md`
 - **아키텍처**: CLAUDE.md → Architecture 섹션
+
+## CI 정리 교훈 (Session 28 lessons)
+
+- `very_good_analysis`의 `directives_ordering`은 전체 import 알파벳순 (외부/프로젝트 그룹 구분 X, 빈 줄 금지)
+- freezed `@Default([])` 필드에 `const []` 명시 금지 → `avoid_redundant_argument_values`
+- supabase `.select()` 결과에 타입 어노테이션 금지 → `omit_local_variable_types`
+- pre-commit은 `--fatal-warnings` 없이 통과하므로 CI 전에 `flutter analyze --fatal-warnings` 직접 검증
 
 ## 세션 경계
 
-Wave 3 리뷰 + 보고서 PR까지. P0/P1 수정은 별도 세션(Session 28)에서.
+PR#9 머지 → Wave 4 리뷰 PR 생성까지. Wave 4 코드 수정은 Session 30에서.
 ```
