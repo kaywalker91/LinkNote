@@ -66,8 +66,9 @@ void main() {
     });
 
     test('should return Failure.unknown on generic exception', () async {
-      when(() => mockClient.from('links'))
-          .thenThrow(Exception('Network error'));
+      when(
+        () => mockClient.from('links'),
+      ).thenThrow(Exception('Network error'));
 
       final result = await sut.deleteLink('link-1');
 
@@ -82,8 +83,7 @@ void main() {
         const PostgrestException(message: 'Update failed', code: '500'),
       );
 
-      final result =
-          await sut.toggleFavorite('link-1', isFavorite: true);
+      final result = await sut.toggleFavorite('link-1', isFavorite: true);
 
       expect(result.isFailure, isTrue);
       expect(result.failure, isA<ServerFailure>());
@@ -91,11 +91,9 @@ void main() {
     });
 
     test('should return Failure.unknown on generic exception', () async {
-      when(() => mockClient.from('links'))
-          .thenThrow(Exception('Timeout'));
+      when(() => mockClient.from('links')).thenThrow(Exception('Timeout'));
 
-      final result =
-          await sut.toggleFavorite('link-1', isFavorite: true);
+      final result = await sut.toggleFavorite('link-1', isFavorite: true);
 
       expect(result.isFailure, isTrue);
       expect(result.failure, isA<UnknownFailure>());

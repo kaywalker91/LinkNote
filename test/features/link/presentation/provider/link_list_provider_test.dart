@@ -92,8 +92,7 @@ void main() {
             collectionId: any(named: 'collectionId'),
           ),
         ).thenAnswer(
-          (_) async =>
-              error(const Failure.server(message: 'Network error')),
+          (_) async => error(const Failure.server(message: 'Network error')),
         );
 
         final container = createContainer();
@@ -191,8 +190,9 @@ void main() {
             collectionId: any(named: 'collectionId'),
           ),
         ).thenAnswer((_) async => success(page));
-        when(() => mockDelete.call('link-1'))
-            .thenAnswer((_) async => success(null));
+        when(
+          () => mockDelete.call('link-1'),
+        ).thenAnswer((_) async => success(null));
 
         final container = createContainer();
         addTearDown(container.dispose);

@@ -51,14 +51,16 @@ void main() {
   group('LinkDetail', () {
     group('build', () {
       test('should return link entity on success', () async {
-        when(() => mockGetDetail.call('link-1'))
-            .thenAnswer((_) async => success(tLink));
+        when(
+          () => mockGetDetail.call('link-1'),
+        ).thenAnswer((_) async => success(tLink));
 
         final container = createContainer();
         addTearDown(container.dispose);
 
-        final result =
-            await container.read(linkDetailProvider('link-1').future);
+        final result = await container.read(
+          linkDetailProvider('link-1').future,
+        );
 
         expect(result.id, 'link-1');
         expect(result.title, 'Test Link');
@@ -66,15 +68,13 @@ void main() {
 
       test('should have error state on failure', () async {
         when(() => mockGetDetail.call('link-1')).thenAnswer(
-          (_) async =>
-              error(const Failure.server(message: 'Not found')),
+          (_) async => error(const Failure.server(message: 'Not found')),
         );
 
         final container = createContainer();
         addTearDown(container.dispose);
 
-        final sub =
-            container.listen(linkDetailProvider('link-1'), (_, __) {});
+        final sub = container.listen(linkDetailProvider('link-1'), (_, __) {});
         addTearDown(sub.close);
 
         await Future<void>.delayed(Duration.zero);
@@ -88,10 +88,12 @@ void main() {
 
     group('delete', () {
       test('should invalidate linkListProvider on success', () async {
-        when(() => mockGetDetail.call('link-1'))
-            .thenAnswer((_) async => success(tLink));
-        when(() => mockDelete.call('link-1'))
-            .thenAnswer((_) async => success(null));
+        when(
+          () => mockGetDetail.call('link-1'),
+        ).thenAnswer((_) async => success(tLink));
+        when(
+          () => mockDelete.call('link-1'),
+        ).thenAnswer((_) async => success(null));
         when(
           () => mockFetch.call(
             cursor: any(named: 'cursor'),
@@ -99,8 +101,7 @@ void main() {
             collectionId: any(named: 'collectionId'),
           ),
         ).thenAnswer(
-          (_) async =>
-              success(const PaginatedState<LinkEntity>(items: [])),
+          (_) async => success(const PaginatedState<LinkEntity>(items: [])),
         );
 
         final container = createContainer();
@@ -112,20 +113,18 @@ void main() {
         await container.read(linkListProvider.future);
 
         // Act
-        await container
-            .read(linkDetailProvider('link-1').notifier)
-            .delete();
+        await container.read(linkDetailProvider('link-1').notifier).delete();
 
         // Assert — delete was called
         verify(() => mockDelete.call('link-1')).called(1);
       });
 
       test('should throw on delete failure', () async {
-        when(() => mockGetDetail.call('link-1'))
-            .thenAnswer((_) async => success(tLink));
+        when(
+          () => mockGetDetail.call('link-1'),
+        ).thenAnswer((_) async => success(tLink));
         when(() => mockDelete.call('link-1')).thenAnswer(
-          (_) async =>
-              error(const Failure.server(message: 'Delete failed')),
+          (_) async => error(const Failure.server(message: 'Delete failed')),
         );
 
         final container = createContainer();
@@ -133,9 +132,7 @@ void main() {
         await container.read(linkDetailProvider('link-1').future);
 
         await expectLater(
-          container
-              .read(linkDetailProvider('link-1').notifier)
-              .delete(),
+          container.read(linkDetailProvider('link-1').notifier).delete(),
           throwsA(isA<Failure>()),
         );
       });
