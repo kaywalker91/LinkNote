@@ -7,6 +7,7 @@ import 'package:linknote/features/link/presentation/provider/link_form_provider.
 import 'package:linknote/shared/extensions/context_extensions.dart';
 import 'package:linknote/shared/utils/url_sanitizer.dart';
 import 'package:linknote/shared/widgets/primary_button_widget.dart';
+import 'package:uuid/uuid.dart';
 
 class LinkAddScreen extends ConsumerStatefulWidget {
   const LinkAddScreen({super.key});
@@ -105,7 +106,7 @@ class _LinkAddScreenState extends ConsumerState<LinkAddScreen> {
         .read(linkFormProvider(null).notifier)
         .addTag(
           TagEntity(
-            id: 'tag_${DateTime.now().millisecondsSinceEpoch}',
+            id: const Uuid().v4(),
             name: text,
             color: '#6750A4',
           ),

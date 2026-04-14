@@ -26,6 +26,7 @@ class OgTagService {
   final Dio _dio;
   final Map<String, _CacheEntry> _cache = {};
   static const Duration _cacheTtl = Duration(minutes: 30);
+  static const int _maxCacheSize = 100;
 
   Future<OgTagResult> fetchOgTags(String url) async {
     final cached = _cache[url];
@@ -68,9 +69,20 @@ class OgTagService {
         imageUrl: ogImage,
       );
       _cache[url] = _CacheEntry(result: result);
+      _evictIfNeeded();
       return result;
     } on Exception catch (_) {
       return const OgTagResult();
+    }
+  }
+
+  void _evictIfNeeded() {
+    if (_cache.length <= _maxCacheSize) return;
+    // Remove oldest entries first.
+    final sorted = _cache.entries.toList()
+      ..sort((a, b) => a.value.createdAt.compareTo(b.value.createdAt));
+    for (final entry in sorted.take(_cache.length - _maxCacheSize)) {
+      _cache.remove(entry.key);
     }
   }
 

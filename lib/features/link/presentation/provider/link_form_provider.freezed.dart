@@ -14,7 +14,8 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$LinkFormState {
 
- String get url; String get title; String get description; String? get thumbnailUrl; String? get collectionId; String get memo; List<TagEntity> get tags; bool get isFavorite; bool get isParsingOg; bool get isSubmitting; String? get errorMessage;
+ String get url; String get title; String get description; String? get thumbnailUrl; String? get collectionId; String get memo; List<TagEntity> get tags; bool get isFavorite; bool get isParsingOg; bool get isSubmitting; String? get errorMessage;/// Original createdAt preserved for edit mode.
+ DateTime? get originalCreatedAt;
 /// Create a copy of LinkFormState
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -25,16 +26,16 @@ $LinkFormStateCopyWith<LinkFormState> get copyWith => _$LinkFormStateCopyWithImp
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is LinkFormState&&(identical(other.url, url) || other.url == url)&&(identical(other.title, title) || other.title == title)&&(identical(other.description, description) || other.description == description)&&(identical(other.thumbnailUrl, thumbnailUrl) || other.thumbnailUrl == thumbnailUrl)&&(identical(other.collectionId, collectionId) || other.collectionId == collectionId)&&(identical(other.memo, memo) || other.memo == memo)&&const DeepCollectionEquality().equals(other.tags, tags)&&(identical(other.isFavorite, isFavorite) || other.isFavorite == isFavorite)&&(identical(other.isParsingOg, isParsingOg) || other.isParsingOg == isParsingOg)&&(identical(other.isSubmitting, isSubmitting) || other.isSubmitting == isSubmitting)&&(identical(other.errorMessage, errorMessage) || other.errorMessage == errorMessage));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is LinkFormState&&(identical(other.url, url) || other.url == url)&&(identical(other.title, title) || other.title == title)&&(identical(other.description, description) || other.description == description)&&(identical(other.thumbnailUrl, thumbnailUrl) || other.thumbnailUrl == thumbnailUrl)&&(identical(other.collectionId, collectionId) || other.collectionId == collectionId)&&(identical(other.memo, memo) || other.memo == memo)&&const DeepCollectionEquality().equals(other.tags, tags)&&(identical(other.isFavorite, isFavorite) || other.isFavorite == isFavorite)&&(identical(other.isParsingOg, isParsingOg) || other.isParsingOg == isParsingOg)&&(identical(other.isSubmitting, isSubmitting) || other.isSubmitting == isSubmitting)&&(identical(other.errorMessage, errorMessage) || other.errorMessage == errorMessage)&&(identical(other.originalCreatedAt, originalCreatedAt) || other.originalCreatedAt == originalCreatedAt));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,url,title,description,thumbnailUrl,collectionId,memo,const DeepCollectionEquality().hash(tags),isFavorite,isParsingOg,isSubmitting,errorMessage);
+int get hashCode => Object.hash(runtimeType,url,title,description,thumbnailUrl,collectionId,memo,const DeepCollectionEquality().hash(tags),isFavorite,isParsingOg,isSubmitting,errorMessage,originalCreatedAt);
 
 @override
 String toString() {
-  return 'LinkFormState(url: $url, title: $title, description: $description, thumbnailUrl: $thumbnailUrl, collectionId: $collectionId, memo: $memo, tags: $tags, isFavorite: $isFavorite, isParsingOg: $isParsingOg, isSubmitting: $isSubmitting, errorMessage: $errorMessage)';
+  return 'LinkFormState(url: $url, title: $title, description: $description, thumbnailUrl: $thumbnailUrl, collectionId: $collectionId, memo: $memo, tags: $tags, isFavorite: $isFavorite, isParsingOg: $isParsingOg, isSubmitting: $isSubmitting, errorMessage: $errorMessage, originalCreatedAt: $originalCreatedAt)';
 }
 
 
@@ -45,7 +46,7 @@ abstract mixin class $LinkFormStateCopyWith<$Res>  {
   factory $LinkFormStateCopyWith(LinkFormState value, $Res Function(LinkFormState) _then) = _$LinkFormStateCopyWithImpl;
 @useResult
 $Res call({
- String url, String title, String description, String? thumbnailUrl, String? collectionId, String memo, List<TagEntity> tags, bool isFavorite, bool isParsingOg, bool isSubmitting, String? errorMessage
+ String url, String title, String description, String? thumbnailUrl, String? collectionId, String memo, List<TagEntity> tags, bool isFavorite, bool isParsingOg, bool isSubmitting, String? errorMessage, DateTime? originalCreatedAt
 });
 
 
@@ -62,7 +63,7 @@ class _$LinkFormStateCopyWithImpl<$Res>
 
 /// Create a copy of LinkFormState
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? url = null,Object? title = null,Object? description = null,Object? thumbnailUrl = freezed,Object? collectionId = freezed,Object? memo = null,Object? tags = null,Object? isFavorite = null,Object? isParsingOg = null,Object? isSubmitting = null,Object? errorMessage = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? url = null,Object? title = null,Object? description = null,Object? thumbnailUrl = freezed,Object? collectionId = freezed,Object? memo = null,Object? tags = null,Object? isFavorite = null,Object? isParsingOg = null,Object? isSubmitting = null,Object? errorMessage = freezed,Object? originalCreatedAt = freezed,}) {
   return _then(_self.copyWith(
 url: null == url ? _self.url : url // ignore: cast_nullable_to_non_nullable
 as String,title: null == title ? _self.title : title // ignore: cast_nullable_to_non_nullable
@@ -75,7 +76,8 @@ as List<TagEntity>,isFavorite: null == isFavorite ? _self.isFavorite : isFavorit
 as bool,isParsingOg: null == isParsingOg ? _self.isParsingOg : isParsingOg // ignore: cast_nullable_to_non_nullable
 as bool,isSubmitting: null == isSubmitting ? _self.isSubmitting : isSubmitting // ignore: cast_nullable_to_non_nullable
 as bool,errorMessage: freezed == errorMessage ? _self.errorMessage : errorMessage // ignore: cast_nullable_to_non_nullable
-as String?,
+as String?,originalCreatedAt: freezed == originalCreatedAt ? _self.originalCreatedAt : originalCreatedAt // ignore: cast_nullable_to_non_nullable
+as DateTime?,
   ));
 }
 
@@ -160,10 +162,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String url,  String title,  String description,  String? thumbnailUrl,  String? collectionId,  String memo,  List<TagEntity> tags,  bool isFavorite,  bool isParsingOg,  bool isSubmitting,  String? errorMessage)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String url,  String title,  String description,  String? thumbnailUrl,  String? collectionId,  String memo,  List<TagEntity> tags,  bool isFavorite,  bool isParsingOg,  bool isSubmitting,  String? errorMessage,  DateTime? originalCreatedAt)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _LinkFormState() when $default != null:
-return $default(_that.url,_that.title,_that.description,_that.thumbnailUrl,_that.collectionId,_that.memo,_that.tags,_that.isFavorite,_that.isParsingOg,_that.isSubmitting,_that.errorMessage);case _:
+return $default(_that.url,_that.title,_that.description,_that.thumbnailUrl,_that.collectionId,_that.memo,_that.tags,_that.isFavorite,_that.isParsingOg,_that.isSubmitting,_that.errorMessage,_that.originalCreatedAt);case _:
   return orElse();
 
 }
@@ -181,10 +183,10 @@ return $default(_that.url,_that.title,_that.description,_that.thumbnailUrl,_that
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String url,  String title,  String description,  String? thumbnailUrl,  String? collectionId,  String memo,  List<TagEntity> tags,  bool isFavorite,  bool isParsingOg,  bool isSubmitting,  String? errorMessage)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String url,  String title,  String description,  String? thumbnailUrl,  String? collectionId,  String memo,  List<TagEntity> tags,  bool isFavorite,  bool isParsingOg,  bool isSubmitting,  String? errorMessage,  DateTime? originalCreatedAt)  $default,) {final _that = this;
 switch (_that) {
 case _LinkFormState():
-return $default(_that.url,_that.title,_that.description,_that.thumbnailUrl,_that.collectionId,_that.memo,_that.tags,_that.isFavorite,_that.isParsingOg,_that.isSubmitting,_that.errorMessage);case _:
+return $default(_that.url,_that.title,_that.description,_that.thumbnailUrl,_that.collectionId,_that.memo,_that.tags,_that.isFavorite,_that.isParsingOg,_that.isSubmitting,_that.errorMessage,_that.originalCreatedAt);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -201,10 +203,10 @@ return $default(_that.url,_that.title,_that.description,_that.thumbnailUrl,_that
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String url,  String title,  String description,  String? thumbnailUrl,  String? collectionId,  String memo,  List<TagEntity> tags,  bool isFavorite,  bool isParsingOg,  bool isSubmitting,  String? errorMessage)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String url,  String title,  String description,  String? thumbnailUrl,  String? collectionId,  String memo,  List<TagEntity> tags,  bool isFavorite,  bool isParsingOg,  bool isSubmitting,  String? errorMessage,  DateTime? originalCreatedAt)?  $default,) {final _that = this;
 switch (_that) {
 case _LinkFormState() when $default != null:
-return $default(_that.url,_that.title,_that.description,_that.thumbnailUrl,_that.collectionId,_that.memo,_that.tags,_that.isFavorite,_that.isParsingOg,_that.isSubmitting,_that.errorMessage);case _:
+return $default(_that.url,_that.title,_that.description,_that.thumbnailUrl,_that.collectionId,_that.memo,_that.tags,_that.isFavorite,_that.isParsingOg,_that.isSubmitting,_that.errorMessage,_that.originalCreatedAt);case _:
   return null;
 
 }
@@ -216,7 +218,7 @@ return $default(_that.url,_that.title,_that.description,_that.thumbnailUrl,_that
 
 
 class _LinkFormState implements LinkFormState {
-  const _LinkFormState({this.url = '', this.title = '', this.description = '', this.thumbnailUrl, this.collectionId, this.memo = '', final  List<TagEntity> tags = const [], this.isFavorite = false, this.isParsingOg = false, this.isSubmitting = false, this.errorMessage}): _tags = tags;
+  const _LinkFormState({this.url = '', this.title = '', this.description = '', this.thumbnailUrl, this.collectionId, this.memo = '', final  List<TagEntity> tags = const [], this.isFavorite = false, this.isParsingOg = false, this.isSubmitting = false, this.errorMessage, this.originalCreatedAt}): _tags = tags;
   
 
 @override@JsonKey() final  String url;
@@ -236,6 +238,8 @@ class _LinkFormState implements LinkFormState {
 @override@JsonKey() final  bool isParsingOg;
 @override@JsonKey() final  bool isSubmitting;
 @override final  String? errorMessage;
+/// Original createdAt preserved for edit mode.
+@override final  DateTime? originalCreatedAt;
 
 /// Create a copy of LinkFormState
 /// with the given fields replaced by the non-null parameter values.
@@ -247,16 +251,16 @@ _$LinkFormStateCopyWith<_LinkFormState> get copyWith => __$LinkFormStateCopyWith
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _LinkFormState&&(identical(other.url, url) || other.url == url)&&(identical(other.title, title) || other.title == title)&&(identical(other.description, description) || other.description == description)&&(identical(other.thumbnailUrl, thumbnailUrl) || other.thumbnailUrl == thumbnailUrl)&&(identical(other.collectionId, collectionId) || other.collectionId == collectionId)&&(identical(other.memo, memo) || other.memo == memo)&&const DeepCollectionEquality().equals(other._tags, _tags)&&(identical(other.isFavorite, isFavorite) || other.isFavorite == isFavorite)&&(identical(other.isParsingOg, isParsingOg) || other.isParsingOg == isParsingOg)&&(identical(other.isSubmitting, isSubmitting) || other.isSubmitting == isSubmitting)&&(identical(other.errorMessage, errorMessage) || other.errorMessage == errorMessage));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _LinkFormState&&(identical(other.url, url) || other.url == url)&&(identical(other.title, title) || other.title == title)&&(identical(other.description, description) || other.description == description)&&(identical(other.thumbnailUrl, thumbnailUrl) || other.thumbnailUrl == thumbnailUrl)&&(identical(other.collectionId, collectionId) || other.collectionId == collectionId)&&(identical(other.memo, memo) || other.memo == memo)&&const DeepCollectionEquality().equals(other._tags, _tags)&&(identical(other.isFavorite, isFavorite) || other.isFavorite == isFavorite)&&(identical(other.isParsingOg, isParsingOg) || other.isParsingOg == isParsingOg)&&(identical(other.isSubmitting, isSubmitting) || other.isSubmitting == isSubmitting)&&(identical(other.errorMessage, errorMessage) || other.errorMessage == errorMessage)&&(identical(other.originalCreatedAt, originalCreatedAt) || other.originalCreatedAt == originalCreatedAt));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,url,title,description,thumbnailUrl,collectionId,memo,const DeepCollectionEquality().hash(_tags),isFavorite,isParsingOg,isSubmitting,errorMessage);
+int get hashCode => Object.hash(runtimeType,url,title,description,thumbnailUrl,collectionId,memo,const DeepCollectionEquality().hash(_tags),isFavorite,isParsingOg,isSubmitting,errorMessage,originalCreatedAt);
 
 @override
 String toString() {
-  return 'LinkFormState(url: $url, title: $title, description: $description, thumbnailUrl: $thumbnailUrl, collectionId: $collectionId, memo: $memo, tags: $tags, isFavorite: $isFavorite, isParsingOg: $isParsingOg, isSubmitting: $isSubmitting, errorMessage: $errorMessage)';
+  return 'LinkFormState(url: $url, title: $title, description: $description, thumbnailUrl: $thumbnailUrl, collectionId: $collectionId, memo: $memo, tags: $tags, isFavorite: $isFavorite, isParsingOg: $isParsingOg, isSubmitting: $isSubmitting, errorMessage: $errorMessage, originalCreatedAt: $originalCreatedAt)';
 }
 
 
@@ -267,7 +271,7 @@ abstract mixin class _$LinkFormStateCopyWith<$Res> implements $LinkFormStateCopy
   factory _$LinkFormStateCopyWith(_LinkFormState value, $Res Function(_LinkFormState) _then) = __$LinkFormStateCopyWithImpl;
 @override @useResult
 $Res call({
- String url, String title, String description, String? thumbnailUrl, String? collectionId, String memo, List<TagEntity> tags, bool isFavorite, bool isParsingOg, bool isSubmitting, String? errorMessage
+ String url, String title, String description, String? thumbnailUrl, String? collectionId, String memo, List<TagEntity> tags, bool isFavorite, bool isParsingOg, bool isSubmitting, String? errorMessage, DateTime? originalCreatedAt
 });
 
 
@@ -284,7 +288,7 @@ class __$LinkFormStateCopyWithImpl<$Res>
 
 /// Create a copy of LinkFormState
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? url = null,Object? title = null,Object? description = null,Object? thumbnailUrl = freezed,Object? collectionId = freezed,Object? memo = null,Object? tags = null,Object? isFavorite = null,Object? isParsingOg = null,Object? isSubmitting = null,Object? errorMessage = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? url = null,Object? title = null,Object? description = null,Object? thumbnailUrl = freezed,Object? collectionId = freezed,Object? memo = null,Object? tags = null,Object? isFavorite = null,Object? isParsingOg = null,Object? isSubmitting = null,Object? errorMessage = freezed,Object? originalCreatedAt = freezed,}) {
   return _then(_LinkFormState(
 url: null == url ? _self.url : url // ignore: cast_nullable_to_non_nullable
 as String,title: null == title ? _self.title : title // ignore: cast_nullable_to_non_nullable
@@ -297,7 +301,8 @@ as List<TagEntity>,isFavorite: null == isFavorite ? _self.isFavorite : isFavorit
 as bool,isParsingOg: null == isParsingOg ? _self.isParsingOg : isParsingOg // ignore: cast_nullable_to_non_nullable
 as bool,isSubmitting: null == isSubmitting ? _self.isSubmitting : isSubmitting // ignore: cast_nullable_to_non_nullable
 as bool,errorMessage: freezed == errorMessage ? _self.errorMessage : errorMessage // ignore: cast_nullable_to_non_nullable
-as String?,
+as String?,originalCreatedAt: freezed == originalCreatedAt ? _self.originalCreatedAt : originalCreatedAt // ignore: cast_nullable_to_non_nullable
+as DateTime?,
   ));
 }
 

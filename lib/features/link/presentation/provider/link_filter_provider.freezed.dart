@@ -14,7 +14,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$LinkFilter {
 
- bool get favoritesOnly;
+ bool get favoritesOnly; String? get collectionId;
 /// Create a copy of LinkFilter
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -25,16 +25,16 @@ $LinkFilterCopyWith<LinkFilter> get copyWith => _$LinkFilterCopyWithImpl<LinkFil
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is LinkFilter&&(identical(other.favoritesOnly, favoritesOnly) || other.favoritesOnly == favoritesOnly));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is LinkFilter&&(identical(other.favoritesOnly, favoritesOnly) || other.favoritesOnly == favoritesOnly)&&(identical(other.collectionId, collectionId) || other.collectionId == collectionId));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,favoritesOnly);
+int get hashCode => Object.hash(runtimeType,favoritesOnly,collectionId);
 
 @override
 String toString() {
-  return 'LinkFilter(favoritesOnly: $favoritesOnly)';
+  return 'LinkFilter(favoritesOnly: $favoritesOnly, collectionId: $collectionId)';
 }
 
 
@@ -45,7 +45,7 @@ abstract mixin class $LinkFilterCopyWith<$Res>  {
   factory $LinkFilterCopyWith(LinkFilter value, $Res Function(LinkFilter) _then) = _$LinkFilterCopyWithImpl;
 @useResult
 $Res call({
- bool favoritesOnly
+ bool favoritesOnly, String? collectionId
 });
 
 
@@ -62,10 +62,11 @@ class _$LinkFilterCopyWithImpl<$Res>
 
 /// Create a copy of LinkFilter
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? favoritesOnly = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? favoritesOnly = null,Object? collectionId = freezed,}) {
   return _then(_self.copyWith(
 favoritesOnly: null == favoritesOnly ? _self.favoritesOnly : favoritesOnly // ignore: cast_nullable_to_non_nullable
-as bool,
+as bool,collectionId: freezed == collectionId ? _self.collectionId : collectionId // ignore: cast_nullable_to_non_nullable
+as String?,
   ));
 }
 
@@ -150,10 +151,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( bool favoritesOnly)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( bool favoritesOnly,  String? collectionId)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _LinkFilter() when $default != null:
-return $default(_that.favoritesOnly);case _:
+return $default(_that.favoritesOnly,_that.collectionId);case _:
   return orElse();
 
 }
@@ -171,10 +172,10 @@ return $default(_that.favoritesOnly);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( bool favoritesOnly)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( bool favoritesOnly,  String? collectionId)  $default,) {final _that = this;
 switch (_that) {
 case _LinkFilter():
-return $default(_that.favoritesOnly);case _:
+return $default(_that.favoritesOnly,_that.collectionId);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -191,10 +192,10 @@ return $default(_that.favoritesOnly);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( bool favoritesOnly)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( bool favoritesOnly,  String? collectionId)?  $default,) {final _that = this;
 switch (_that) {
 case _LinkFilter() when $default != null:
-return $default(_that.favoritesOnly);case _:
+return $default(_that.favoritesOnly,_that.collectionId);case _:
   return null;
 
 }
@@ -206,10 +207,11 @@ return $default(_that.favoritesOnly);case _:
 
 
 class _LinkFilter implements LinkFilter {
-  const _LinkFilter({this.favoritesOnly = false});
+  const _LinkFilter({this.favoritesOnly = false, this.collectionId});
   
 
 @override@JsonKey() final  bool favoritesOnly;
+@override final  String? collectionId;
 
 /// Create a copy of LinkFilter
 /// with the given fields replaced by the non-null parameter values.
@@ -221,16 +223,16 @@ _$LinkFilterCopyWith<_LinkFilter> get copyWith => __$LinkFilterCopyWithImpl<_Lin
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _LinkFilter&&(identical(other.favoritesOnly, favoritesOnly) || other.favoritesOnly == favoritesOnly));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _LinkFilter&&(identical(other.favoritesOnly, favoritesOnly) || other.favoritesOnly == favoritesOnly)&&(identical(other.collectionId, collectionId) || other.collectionId == collectionId));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,favoritesOnly);
+int get hashCode => Object.hash(runtimeType,favoritesOnly,collectionId);
 
 @override
 String toString() {
-  return 'LinkFilter(favoritesOnly: $favoritesOnly)';
+  return 'LinkFilter(favoritesOnly: $favoritesOnly, collectionId: $collectionId)';
 }
 
 
@@ -241,7 +243,7 @@ abstract mixin class _$LinkFilterCopyWith<$Res> implements $LinkFilterCopyWith<$
   factory _$LinkFilterCopyWith(_LinkFilter value, $Res Function(_LinkFilter) _then) = __$LinkFilterCopyWithImpl;
 @override @useResult
 $Res call({
- bool favoritesOnly
+ bool favoritesOnly, String? collectionId
 });
 
 
@@ -258,10 +260,11 @@ class __$LinkFilterCopyWithImpl<$Res>
 
 /// Create a copy of LinkFilter
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? favoritesOnly = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? favoritesOnly = null,Object? collectionId = freezed,}) {
   return _then(_LinkFilter(
 favoritesOnly: null == favoritesOnly ? _self.favoritesOnly : favoritesOnly // ignore: cast_nullable_to_non_nullable
-as bool,
+as bool,collectionId: freezed == collectionId ? _self.collectionId : collectionId // ignore: cast_nullable_to_non_nullable
+as String?,
   ));
 }
 

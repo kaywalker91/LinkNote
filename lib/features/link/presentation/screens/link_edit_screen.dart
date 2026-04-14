@@ -8,6 +8,7 @@ import 'package:linknote/shared/extensions/context_extensions.dart';
 import 'package:linknote/shared/widgets/error_state_widget.dart';
 import 'package:linknote/shared/widgets/primary_button_widget.dart';
 import 'package:linknote/shared/widgets/skeleton/shimmer_box.dart';
+import 'package:uuid/uuid.dart';
 
 class LinkEditScreen extends ConsumerStatefulWidget {
   const LinkEditScreen({required this.linkId, super.key});
@@ -40,7 +41,7 @@ class _LinkEditScreenState extends ConsumerState<LinkEditScreen> {
         .read(linkFormProvider(widget.linkId).notifier)
         .addTag(
           TagEntity(
-            id: 'tag_${DateTime.now().millisecondsSinceEpoch}',
+            id: const Uuid().v4(),
             name: text,
             color: '#6750A4',
           ),
