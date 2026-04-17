@@ -10,8 +10,10 @@ import 'package:linknote/features/collection/presentation/provider/collection_li
 import 'package:linknote/features/link/domain/entity/link_entity.dart';
 import 'package:linknote/features/link/domain/usecase/delete_link_usecase.dart';
 import 'package:linknote/features/link/domain/usecase/fetch_links_usecase.dart';
+import 'package:linknote/features/link/domain/usecase/get_link_detail_usecase.dart';
 import 'package:linknote/features/link/domain/usecase/toggle_favorite_usecase.dart';
 import 'package:linknote/features/link/domain/usecase/update_link_usecase.dart';
+import 'package:linknote/features/link/presentation/provider/link_detail_provider.dart';
 import 'package:linknote/features/link/presentation/provider/link_di_providers.dart';
 import 'package:linknote/features/link/presentation/provider/link_list_provider.dart';
 import 'package:linknote/shared/models/paginated_state.dart';
@@ -26,6 +28,8 @@ class MockToggleFavoriteUsecase extends Mock implements ToggleFavoriteUsecase {}
 class MockUpdateLinkUsecase extends Mock implements UpdateLinkUsecase {}
 
 class MockGetCollectionsUsecase extends Mock implements GetCollectionsUsecase {}
+
+class MockGetLinkDetailUsecase extends Mock implements GetLinkDetailUsecase {}
 
 class FakeLinkEntity extends Fake implements LinkEntity {}
 
@@ -453,6 +457,65 @@ void main() {
           // Assert — collectionList should rebuild after invalidate
           await container.read(collection_list.collectionListProvider.future);
           expect(collectionsFetchCount, 2);
+        },
+      );
+
+      test(
+        'should invalidate linkDetailProvider so detail screen refreshes',
+        () async {
+          // Arrange
+          final tUpdated = tLink1.copyWith(
+            collectionId: 'col-1',
+            collectionName: 'Dev',
+          );
+          final tState = PaginatedState<LinkEntity>(items: [tLink1]);
+          when(
+            () => mockFetch.call(
+              cursor: any(named: 'cursor'),
+              favoritesOnly: any(named: 'favoritesOnly'),
+              collectionId: any(named: 'collectionId'),
+            ),
+          ).thenAnswer((_) async => success(tState));
+          when(() => mockUpdate.call(any())).thenAnswer(
+            (_) async => success(tUpdated),
+          );
+
+          var detailFetchCount = 0;
+          final mockGetDetail = MockGetLinkDetailUsecase();
+          when(() => mockGetDetail.call(any())).thenAnswer((_) async {
+            detailFetchCount++;
+            return success(tLink1);
+          });
+
+          final container = ProviderContainer(
+            overrides: [
+              fetchLinksUsecaseProvider.overrideWithValue(mockFetch),
+              deleteLinkUsecaseProvider.overrideWithValue(mockDelete),
+              toggleFavoriteUsecaseProvider.overrideWithValue(mockToggle),
+              updateLinkUsecaseProvider.overrideWithValue(mockUpdate),
+              getLinkDetailUsecaseProvider.overrideWithValue(mockGetDetail),
+            ],
+          );
+          addTearDown(container.dispose);
+          await container.read(linkListProvider.future);
+
+          // Keep linkDetailProvider('link-1') alive
+          final sub = container.listen(
+            linkDetailProvider('link-1'),
+            (_, __) {},
+          );
+          addTearDown(sub.close);
+          await container.read(linkDetailProvider('link-1').future);
+          expect(detailFetchCount, 1);
+
+          // Act
+          await container
+              .read(linkListProvider.notifier)
+              .moveToCollection(linkId: 'link-1', collectionId: 'col-1');
+
+          // Assert — linkDetailProvider rebuilds after invalidate
+          await container.read(linkDetailProvider('link-1').future);
+          expect(detailFetchCount, 2);
         },
       );
 

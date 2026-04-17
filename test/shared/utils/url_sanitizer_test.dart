@@ -102,6 +102,21 @@ void main()
         'HTTPS://EXAMPLE.COM/PATH',
       );
     });
+
+    test('returns null for URL longer than max length (DOS guard)', ()
+    {
+      final longUrl = 'https://example.com/${'a' * 2100}';
+      expect(longUrl.length, greaterThan(2048));
+      expect(UrlSanitizer.extract(longUrl), isNull);
+    });
+
+    test('accepts URL at exactly the max length boundary', ()
+    {
+      const prefix = 'https://example.com/';
+      final url = prefix + 'a' * (2048 - prefix.length);
+      expect(url.length, 2048);
+      expect(UrlSanitizer.extract(url), url);
+    });
   });
 
   group('UrlSanitizer.wouldAlter', ()
