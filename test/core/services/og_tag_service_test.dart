@@ -272,5 +272,65 @@ void main() {
       // empty), never crash.
       expect(result.isSuccess || result.isFailure, isTrue);
     });
+
+    test(
+      'rejects response when Content-Length header exceeds max body size',
+      () async {
+        // Advertise an 8 MiB body — well above the service's 2 MiB cap.
+        final adapter = _FakeAdapter(
+          (_) => _body(
+            '<html><head></head></html>',
+            headers: {
+              'content-length': ['${8 * 1024 * 1024}'],
+            },
+          ),
+        );
+        final service = OgTagService(dio: Dio()..httpClientAdapter = adapter);
+        addTearDown(service.close);
+
+        final result = await service.fetchOgTags('https://example.com');
+
+        expect(result.isFailure, isTrue);
+        // Mapped from DioException badResponse → Failure.server
+        expect(result.failure, isA<Failure>());
+      },
+    );
+
+    test(
+      'rejects response when downloaded body exceeds max body size',
+      () async {
+        // Server omits Content-Length; deliver a body large enough to trip the
+        // post-download guard.
+        final huge =
+            '<html><head><title>Too big</title></head> '
+            '<body>${'x' * (3 * 1024 * 1024)}</body></html>';
+        final adapter = _FakeAdapter((_) => _body(huge));
+        final service = OgTagService(dio: Dio()..httpClientAdapter = adapter);
+        addTearDown(service.close);
+
+        final result = await service.fetchOgTags('https://example.com');
+
+        expect(result.isFailure, isTrue);
+      },
+    );
+
+    test('accepts response at the max body size boundary', () async {
+      // A body at exactly the 2 MiB cap must still parse.
+      const title = 'Boundary';
+      const header = '<html><head><title>$title</title></head><body>';
+      const footer = '</body></html>';
+      final filler = 'a' * (2 * 1024 * 1024 - header.length - footer.length);
+      final body = '$header$filler$footer';
+      expect(body.length, 2 * 1024 * 1024);
+
+      final adapter = _FakeAdapter((_) => _body(body));
+      final service = OgTagService(dio: Dio()..httpClientAdapter = adapter);
+      addTearDown(service.close);
+
+      final result = await service.fetchOgTags('https://example.com');
+
+      expect(result.isSuccess, isTrue);
+      expect(result.data!.title, title);
+    });
   });
 }

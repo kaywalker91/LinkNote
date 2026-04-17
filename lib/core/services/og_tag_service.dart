@@ -39,6 +39,7 @@ class OgTagService {
   static const Duration _cacheTtl = Duration(minutes: 30);
   static const int _maxCacheSize = 100;
   static const int _maxRedirects = 3;
+  static const int _maxBodyBytes = 2 * 1024 * 1024;
 
   Future<Result<OgTagResult>> fetchOgTags(String url) async {
     final cached = _cache[url];
@@ -100,7 +101,10 @@ class OgTagService {
         options: _requestOptions,
       );
       final status = response.statusCode ?? 0;
-      if (status < 300) return response;
+      if (status < 300) {
+        _assertBodyWithinLimit(response);
+        return response;
+      }
       final location = response.headers.value('location');
       if (location == null || location.isEmpty) return response;
       final next = Uri.parse(current).resolve(location).toString();
@@ -119,6 +123,31 @@ class OgTagService {
       type: DioExceptionType.badResponse,
       message: 'Too many redirects (>$_maxRedirects)',
     );
+  }
+
+  /// Rejects responses whose body (declared via Content-Length or actually
+  /// received) exceeds [_maxBodyBytes]. Guards html parsing against pathologic
+  /// memory use when a server returns multi-megabyte documents.
+  void _assertBodyWithinLimit(Response<String> response) {
+    final declared = int.tryParse(
+      response.headers.value('content-length') ?? '',
+    );
+    if (declared != null && declared > _maxBodyBytes) {
+      throw DioException(
+        requestOptions: response.requestOptions,
+        type: DioExceptionType.badResponse,
+        message: 'Response body too large: $declared > $_maxBodyBytes bytes',
+      );
+    }
+    final body = response.data;
+    if (body != null && body.length > _maxBodyBytes) {
+      throw DioException(
+        requestOptions: response.requestOptions,
+        type: DioExceptionType.badResponse,
+        message:
+            'Response body too large: ${body.length} > $_maxBodyBytes bytes',
+      );
+    }
   }
 
   Failure _mapDioError(DioException e) {

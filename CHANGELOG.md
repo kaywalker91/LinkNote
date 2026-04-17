@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed (Session 33 — Wave 5 Link P2)
+
+- **P2-C — OgTagService 대용량 응답 제한** (`lib/core/services/og_tag_service.dart`): `_maxBodyBytes = 2 MiB` 상한 추가. Content-Length 헤더가 초과하거나 실제 수신 body가 초과하면 DioException(badResponse) → `Failure.server`로 거부. html 파서 메모리 비정상 폭증 방지
+- **P2-D — moveToCollection optimistic rollback 명시** (`lib/features/link/presentation/provider/link_list_provider.dart`): `deleteLink`/`toggleFavorite`와 동일한 낙관적 업데이트 + 실패 롤백 패턴으로 재작성. UI 상태를 먼저 바꿔 즉시 반영하고, 실패 시 `previous` 상태로 복원한 뒤 `Failure`를 rethrow — 호출자(`home_screen`)의 에러 snackbar 경로 유지
+- **P2-E — null → null 컬렉션 이동 early return 가드** (`lib/features/link/presentation/provider/link_list_provider.dart`): `existing.collectionId == collectionId` 시 usecase 호출 전 early return. 동일 컬렉션 재선택 또는 null→null 입력에서 불필요한 원격 호출 제거
+- **P2-I — repository dead branch 재검증** (`lib/features/link/data/repository/link_repository_impl.dart:26-47`): Wave 3 리뷰 표시와 달리 현재 코드는 `isSuccess`이면 `cacheLinks` + return, 실패 시 `cursor == null`에서만 local fallback — dead branch 아님. 수정 불필요로 확인
+
+### Added (Session 33 — Test Coverage)
+
+- **`og_tag_service_test.dart` +3 tests**: Content-Length 헤더 초과 / 다운로드 body 초과 / 2 MiB 경계값 허용
+- **`link_list_provider_test.dart` +3 tests**: moveToCollection early return (same collectionId, null→null) + rollback on failure
+- **`url_sanitizer_test.dart` +4 tests**: IDN 도메인 허용 정책 문서화 (독일어 움라우트, 일본어, 한글 경로, 스킴 없는 IDN)
+
+### Baseline (Session 33)
+
+- 테스트: 426 → **436 GREEN** (+10), analyze 0
+
 ### Fixed (Session 32 — Wave 5 Link P1 + Review)
 
 - **P1-A — OgTagService silent fail → Result 전환** (`lib/core/services/og_tag_service.dart`, `lib/features/link/presentation/provider/link_form_provider.dart`): `fetchOgTags` 반환 타입을 `Future<OgTagResult>` → `Future<Result<OgTagResult>>`로 변경. DioException을 Failure 타입으로 분류 (timeout→NetworkFailure, 4xx/5xx→ServerFailure). `parseOgTags` 실패 시 `errorMessage`로 한국어 사용자 피드백 제공. OgTagService 생성자에 `Dio?` 주입 파라미터 추가 (테스트 용이성)

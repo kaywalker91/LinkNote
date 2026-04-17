@@ -545,6 +545,98 @@ void main() {
           throwsA(isA<Failure>()),
         );
       });
+
+      test(
+        'should early return when collectionId is unchanged (non-null → same)',
+        () async {
+          // Arrange — link is already in col-1; requesting the same collection
+          // should skip the usecase entirely.
+          final tSeeded = tLink1.copyWith(
+            collectionId: 'col-1',
+            collectionName: 'Dev',
+          );
+          final tState = PaginatedState<LinkEntity>(items: [tSeeded]);
+          when(
+            () => mockFetch.call(
+              cursor: any(named: 'cursor'),
+              favoritesOnly: any(named: 'favoritesOnly'),
+              collectionId: any(named: 'collectionId'),
+            ),
+          ).thenAnswer((_) async => success(tState));
+
+          final container = createContainer();
+          addTearDown(container.dispose);
+          await container.read(linkListProvider.future);
+
+          await container
+              .read(linkListProvider.notifier)
+              .moveToCollection(linkId: 'link-1', collectionId: 'col-1');
+
+          verifyNever(() => mockUpdate.call(any()));
+          final state = container.read(linkListProvider).value!;
+          expect(state.items[0].collectionId, 'col-1');
+        },
+      );
+
+      test(
+        'should early return when collectionId is unchanged (null → null)',
+        () async {
+          // Arrange — link has no collection; requesting null should skip.
+          final tState = PaginatedState<LinkEntity>(items: [tLink1]);
+          when(
+            () => mockFetch.call(
+              cursor: any(named: 'cursor'),
+              favoritesOnly: any(named: 'favoritesOnly'),
+              collectionId: any(named: 'collectionId'),
+            ),
+          ).thenAnswer((_) async => success(tState));
+
+          final container = createContainer();
+          addTearDown(container.dispose);
+          await container.read(linkListProvider.future);
+
+          await container
+              .read(linkListProvider.notifier)
+              .moveToCollection(linkId: 'link-1', collectionId: null);
+
+          verifyNever(() => mockUpdate.call(any()));
+        },
+      );
+
+      test('should rollback to previous state on failure', () async {
+        // Arrange — link starts in col-1; move to col-2 will fail, state
+        // should revert to col-1 so the UI stays consistent.
+        final tSeeded = tLink1.copyWith(
+          collectionId: 'col-1',
+          collectionName: 'Dev',
+        );
+        final tState = PaginatedState<LinkEntity>(items: [tSeeded]);
+        when(
+          () => mockFetch.call(
+            cursor: any(named: 'cursor'),
+            favoritesOnly: any(named: 'favoritesOnly'),
+            collectionId: any(named: 'collectionId'),
+          ),
+        ).thenAnswer((_) async => success(tState));
+        when(() => mockUpdate.call(any())).thenAnswer(
+          (_) async => error(const Failure.server(message: 'Failed')),
+        );
+
+        final container = createContainer();
+        addTearDown(container.dispose);
+        await container.read(linkListProvider.future);
+
+        await expectLater(
+          () => container
+              .read(linkListProvider.notifier)
+              .moveToCollection(linkId: 'link-1', collectionId: 'col-2'),
+          throwsA(isA<Failure>()),
+        );
+
+        final state = container.read(linkListProvider).value!;
+        expect(state.items[0].collectionId, 'col-1');
+        expect(state.items[0].collectionName, 'Dev');
+      });
     });
   });
 }

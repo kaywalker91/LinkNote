@@ -120,6 +120,11 @@ class LinkList extends _$LinkList {
   }
 
   /// Moves a link to a different collection (or clears collection if null).
+  ///
+  /// Follows the optimistic-update + rollback pattern used by [deleteLink]
+  /// and [toggleFavorite]: the in-memory state is updated immediately; on
+  /// usecase failure the previous state is restored and the underlying
+  /// Failure is rethrown so the caller can surface an error snackbar.
   Future<void> moveToCollection({
     required String linkId,
     required String? collectionId,
@@ -130,22 +135,32 @@ class LinkList extends _$LinkList {
     final existing = current.items.where((l) => l.id == linkId).firstOrNull;
     if (existing == null) return;
 
-    final updated = existing.copyWith(
+    if (existing.collectionId == collectionId) return;
+
+    final previous = current;
+    final optimistic = existing.copyWith(
       collectionId: collectionId,
       collectionName: null,
     );
+    state = AsyncData(
+      current.copyWith(
+        items: current.items
+            .map((l) => l.id == linkId ? optimistic : l)
+            .toList(),
+      ),
+    );
 
-    final result = await ref.read(updateLinkUsecaseProvider).call(updated);
+    final result = await ref.read(updateLinkUsecaseProvider).call(optimistic);
     if (result.isFailure) {
+      state = AsyncData(previous);
       Error.throwWithStackTrace(result.failure!, StackTrace.current);
     }
 
     state = AsyncData(
       current.copyWith(
-        items: current.items.map((l) {
-          if (l.id == linkId) return result.data!;
-          return l;
-        }).toList(),
+        items: current.items
+            .map((l) => l.id == linkId ? result.data! : l)
+            .toList(),
       ),
     );
 
@@ -159,8 +174,6 @@ class LinkList extends _$LinkList {
         ..invalidate(collectionLinksProvider(collectionId))
         ..invalidate(collectionDetailProvider(collectionId));
     }
-    // Refresh the collection list so linkCount badges update, and the
-    // detail provider so the detail screen reflects the new collectionId.
     ref
       ..invalidate(collectionListProvider)
       ..invalidate(linkDetailProvider(linkId));
