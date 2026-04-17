@@ -11,6 +11,10 @@
 /// Returns `null` when no URL can be salvaged.
 abstract final class UrlSanitizer
 {
+  /// Reject URLs longer than this to prevent pathological regex/parsing cost
+  /// and downstream DOS via massive query strings.
+  static const int _maxLength = 2048;
+
   static final RegExp _invisible = RegExp(
     r'[\u200b-\u200f\ufeff\u00a0\u2028\u2029]',
   );
@@ -27,6 +31,7 @@ abstract final class UrlSanitizer
   {
     final cleaned = raw.replaceAll(_invisible, '').trim();
     if (cleaned.isEmpty) return null;
+    if (cleaned.length > _maxLength) return null;
 
     // Fast path — input is already a well-formed URL.
     final direct = Uri.tryParse(cleaned);

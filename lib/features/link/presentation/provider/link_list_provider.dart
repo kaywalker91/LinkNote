@@ -3,6 +3,7 @@ import 'package:linknote/features/collection/presentation/provider/collection_de
 import 'package:linknote/features/collection/presentation/provider/collection_links_provider.dart';
 import 'package:linknote/features/collection/presentation/provider/collection_list_provider.dart';
 import 'package:linknote/features/link/domain/entity/link_entity.dart';
+import 'package:linknote/features/link/presentation/provider/link_detail_provider.dart';
 import 'package:linknote/features/link/presentation/provider/link_di_providers.dart';
 import 'package:linknote/features/link/presentation/provider/link_filter_provider.dart';
 import 'package:linknote/shared/models/paginated_state.dart';
@@ -158,7 +159,10 @@ class LinkList extends _$LinkList {
         ..invalidate(collectionLinksProvider(collectionId))
         ..invalidate(collectionDetailProvider(collectionId));
     }
-    // Refresh the collection list so linkCount badges update.
-    ref.invalidate(collectionListProvider);
+    // Refresh the collection list so linkCount badges update, and the
+    // detail provider so the detail screen reflects the new collectionId.
+    ref
+      ..invalidate(collectionListProvider)
+      ..invalidate(linkDetailProvider(linkId));
   }
 }

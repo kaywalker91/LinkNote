@@ -1,5 +1,6 @@
-import 'package:async/async.dart';
+import 'package:async/async.dart' show CancelableOperation;
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:linknote/core/error/failure.dart';
 import 'package:linknote/core/error/result.dart';
 import 'package:linknote/core/services/og_tag_service.dart';
 import 'package:linknote/features/link/domain/entity/link_entity.dart';
@@ -34,7 +35,7 @@ abstract class LinkFormState with _$LinkFormState {
 
 @riverpod
 class LinkForm extends _$LinkForm {
-  CancelableOperation<OgTagResult>? _pendingOgParse;
+  CancelableOperation<Result<OgTagResult>>? _pendingOgParse;
 
   @override
   Future<LinkFormState> build(String? linkId) async {
@@ -60,39 +61,54 @@ class LinkForm extends _$LinkForm {
     // Cancel any in-flight OG parse.
     await _pendingOgParse?.cancel();
 
-    state = AsyncData(current.copyWith(isParsingOg: true));
-    try {
-      final ogService = ref.read(ogTagServiceProvider);
-      final operation = CancelableOperation.fromFuture(
-        ogService.fetchOgTags(url),
-      );
-      _pendingOgParse = operation;
-      final result = await operation.valueOrCancellation();
-      if (result == null) return; // Cancelled.
+    state = AsyncData(
+      current.copyWith(isParsingOg: true, errorMessage: null),
+    );
+    final ogService = ref.read(ogTagServiceProvider);
+    final operation = CancelableOperation.fromFuture(
+      ogService.fetchOgTags(url),
+    );
+    _pendingOgParse = operation;
+    final result = await operation.valueOrCancellation();
+    if (result == null) return; // Cancelled.
 
-      // Re-read state after await to avoid overwriting user edits (TOCTOU).
-      final latest = state.value;
-      if (latest == null) return;
-      state = AsyncData(
-        latest.copyWith(
-          isParsingOg: false,
-          title:
-              result.title ??
-              (latest.title.isEmpty ? _extractTitle(url) : latest.title),
-          description: result.description ?? latest.description,
-          thumbnailUrl: result.imageUrl ?? latest.thumbnailUrl,
-        ),
-      );
-    } on Exception catch (_) {
-      final latest = state.value;
-      if (latest == null) return;
+    // Re-read state after await to avoid overwriting user edits (TOCTOU).
+    final latest = state.value;
+    if (latest == null) return;
+
+    if (result.isFailure) {
       state = AsyncData(
         latest.copyWith(
           isParsingOg: false,
           title: latest.title.isEmpty ? _extractTitle(url) : latest.title,
+          errorMessage: _ogFailureMessage(result.failure!),
         ),
       );
+      return;
     }
+
+    final og = result.data!;
+    state = AsyncData(
+      latest.copyWith(
+        isParsingOg: false,
+        title:
+            og.title ??
+            (latest.title.isEmpty ? _extractTitle(url) : latest.title),
+        description: og.description ?? latest.description,
+        thumbnailUrl: og.imageUrl ?? latest.thumbnailUrl,
+      ),
+    );
+  }
+
+  String _ogFailureMessage(Failure failure) {
+    return switch (failure) {
+      NetworkFailure() => '링크 정보를 불러오지 못했습니다 (네트워크 오류)',
+      ServerFailure(:final statusCode) =>
+        statusCode != null
+            ? '페이지를 불러올 수 없습니다 (HTTP $statusCode)'
+            : '페이지를 불러올 수 없습니다',
+      _ => '링크 정보를 불러오지 못했습니다',
+    };
   }
 
   void updateUrl(String url) {

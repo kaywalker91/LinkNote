@@ -7,6 +7,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed (Session 32 — Wave 5 Link P1 + Review)
+
+- **P1-A — OgTagService silent fail → Result 전환** (`lib/core/services/og_tag_service.dart`, `lib/features/link/presentation/provider/link_form_provider.dart`): `fetchOgTags` 반환 타입을 `Future<OgTagResult>` → `Future<Result<OgTagResult>>`로 변경. DioException을 Failure 타입으로 분류 (timeout→NetworkFailure, 4xx/5xx→ServerFailure). `parseOgTags` 실패 시 `errorMessage`로 한국어 사용자 피드백 제공. OgTagService 생성자에 `Dio?` 주입 파라미터 추가 (테스트 용이성)
+- **P1-B — HTTPS→HTTP redirect downgrade 차단** (`lib/core/services/og_tag_service.dart`): Dio `followRedirects: false` + 수동 `_fetchFollowingRedirects` 구현. 최대 3 hop까지 허용하며 각 hop에서 scheme downgrade(HTTPS→HTTP) 감지 시 거부. MitM 공격 surface 축소
+- **P1-D — moveToCollection 후 detail 화면 stale** (`lib/features/link/presentation/provider/link_list_provider.dart`): `moveToCollection` 성공 시 `linkDetailProvider(linkId)` invalidate 추가. detail 화면에서 컬렉션 이동 후 collectionId가 즉시 반영됨
+- **P2-A — URL 길이 제한 (DOS guard)** (`lib/shared/utils/url_sanitizer.dart`): `_maxLength = 2048` 상한 추가. 초과 URL 입력 시 `null` 반환으로 정규식/DB/네트워크 경로의 비정상 지연 방지
+
+### Added (Session 32 — Test Coverage)
+
+- **`test/core/services/og_tag_service_test.dart` 신규** (13 tests): `_FakeAdapter`로 Dio HTTP 계층 모킹. success/fallback title/empty body/cache hit/timeout/404/500/redirect(HTTPS→HTTPS)/redirect downgrade block/HTTP→HTTP/redirect loop/malformed HTML 경로 검증
+- **`link_list_provider_test.dart` 추가** (+1 test): moveToCollection 후 `linkDetailProvider` invalidate 검증
+- **`url_sanitizer_test.dart` 추가** (+2 tests): 2049자 URL 거부 + 2048자 경계값 허용
+
+### Docs (Session 32)
+
+- **Wave 5 Link 리뷰 문서** (`docs/review/wave5_link_review.md`): Link 고급 시나리오 리뷰 — 16건 발견 (P1:4, P2:6, P3:6). Wave 3 잔여 확인 포함
+
+### Baseline (Session 32)
+
+- 테스트: 410 → **426 GREEN** (+16)
+
 ### Fixed (Session 31 — Wave 4 Collection P2/P3 + Test Coverage)
 
 - **P2-A — `CollectionMapper` linkCount array fold** (`lib/features/collection/data/mapper/collection_mapper.dart`): `dto.links.first.count` 단일 요소 가정을 `dto.links.fold<int>(0, (sum, e) => sum + e.count)`로 교체. Supabase select 스키마가 multi-aggregate으로 확장되어도 침묵 실패 방지. 매퍼 테스트에 multi-aggregate + zero 케이스 2건 추가
