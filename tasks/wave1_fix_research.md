@@ -1,7 +1,7 @@
 # Wave 1 Fix Research (Stage 1)
 
 - **세션**: Session 21 (2026-04-12)
-- **입력**: `docs/code_review/2026-04-12_wave1_security.md` (6 이슈)
+- **입력**: `docs/reviews/2026-04-12-wave1-security.md` (6 이슈)
 - **파이프라인 단계**: ai-coding-pipeline Stage 1 (Research)
 - **상태**: 코드 변경 없음. `tasks/wave1_fix_plan.md` 작성을 위한 사실 정리.
 - **범위 외**: P3-A (proguard Hive keep rules) — 사용자 결정에 따라 본 스프린트 제외. `tasks/lessons.md` 한 줄 기록으로 종료.
