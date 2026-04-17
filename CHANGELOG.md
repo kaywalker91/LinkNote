@@ -39,7 +39,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Docs (Session 32)
 
-- **Wave 5 Link 리뷰 문서** (`docs/review/wave5_link_review.md`): Link 고급 시나리오 리뷰 — 16건 발견 (P1:4, P2:6, P3:6). Wave 3 잔여 확인 포함
+- **Wave 5 Link 리뷰 문서** (`docs/reviews/wave5-link-review.md`): Link 고급 시나리오 리뷰 — 16건 발견 (P1:4, P2:6, P3:6). Wave 3 잔여 확인 포함
 
 ### Baseline (Session 32)
 
@@ -73,7 +73,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed (Session 30 — Wave 4 Collection P0/P1)
 
 - **P0-A — `collectionLinksProvider` Failure 침묵 해결** (`lib/features/collection/presentation/provider/collection_links_provider.dart`): Failure 시 빈 리스트를 리턴하던 로직을 제거하고 `Error.throwWithStackTrace(result.failure!, StackTrace.current)`로 에러를 AsyncValue로 surface. 신규 단위 테스트 `test/features/collection/presentation/provider/collection_links_provider_test.dart` (success + failure 2 cases) 추가
-- **P1-A — Collection user_id 명시 필터 + RLS 문서화**: `CollectionRemoteDataSource.updateCollection/deleteCollection/getCollectionById`에 `String userId` 인자 추가 → `.eq('user_id', userId)` 이중 필터 적용 (defense in depth). `CollectionRepositoryImpl`이 기존 userId 필드를 전달. `docs/security/rls_policies.md` 신설 — Supabase RLS SELECT/INSERT/UPDATE/DELETE 정책 SQL 문서화 (collections / links / 조인 테이블). 기존 `collection_repository_impl_test.dart`의 mock 시그니처 업데이트 + userId 전달 verify 추가
+- **P1-A — Collection user_id 명시 필터 + RLS 문서화**: `CollectionRemoteDataSource.updateCollection/deleteCollection/getCollectionById`에 `String userId` 인자 추가 → `.eq('user_id', userId)` 이중 필터 적용 (defense in depth). `CollectionRepositoryImpl`이 기존 userId 필드를 전달. `docs/security/rls-policies.md` 신설 — Supabase RLS SELECT/INSERT/UPDATE/DELETE 정책 SQL 문서화 (collections / links / 조인 테이블). 기존 `collection_repository_impl_test.dart`의 mock 시그니처 업데이트 + userId 전달 verify 추가
 - **P1-B — Hive cache 타입 가드** (`lib/features/collection/data/datasource/collection_local_datasource.dart` `_trimCache`): 오염된 int-key 엔트리가 `entry.key as String` 캐스트에서 `TypeError`를 던져 cacheWrite 전체가 실패하던 문제를, 루프 시작에 `if (entry.key is! String) { await _box.delete(entry.key); continue; }` 가드로 격리. 테스트 `collection_local_datasource_test.dart`에 int-key 오염 시나리오 추가
 - **P1-C — CollectionList create/update 에러 전파 + form snackbar 분기** (`lib/features/collection/presentation/provider/collection_list_provider.dart`, `lib/features/collection/presentation/screens/collection_form_screen.dart`): provider가 Failure를 조용히 삼키고 success snackbar를 오발화하던 문제를 해결. provider는 Failure 시 `Error.throwWithStackTrace`. form `_submit`은 try/catch로 감싸 성공 시에만 success snackbar + pop, 실패 시 `context.showErrorSnackBar("컬렉션 생성/수정에 실패했습니다")` + 폼 유지. 신규 provider 단위 테스트 3 cases
 
@@ -113,7 +113,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - **P2-B**: `.github/workflows/ci.yml` `build` job이 `security` job을 `needs:`에 포함하지 않음. Semgrep 실패가 머지 게이트 역할 못 함 (3/3 만장일치 P2)
     - **P3-A**: `android/app/proguard-rules.pro` — Hive CE `@HiveType` 어댑터용 keep 룰 선제 보강 (현재 미사용이라 잠재 리스크만)
   - **회귀 매트릭스 (Session #1-6 픽스 10건 재검증)**: 8건 완전 유지, 2건 변형 — P1-2 연장(401 시 `signOut` 호출은 유지되나 Usecase 우회 → P1-A), P2-2(Semgrep `continue-on-error`는 제거 유지되나 job 단위 gating 갭 → P2-B)
-  - **보고서**: `docs/code_review/2026-04-12_wave1_security.md` (전체 3자 합의 매트릭스 + 각 이슈 file:line + 재현 + 권장 픽스 + Unverified assumptions + Recommended follow-up)
+  - **보고서**: `docs/reviews/2026-04-12-wave1-security.md` (전체 3자 합의 매트릭스 + 각 이슈 file:line + 재현 + 권장 픽스 + Unverified assumptions + Recommended follow-up)
   - **3자 합의 인프라 검증**: `codex exec` + `gemini -p` 병렬 백그라운드 실행 프로토콜이 Wave 2~6에서 재사용 가능한 상태로 확정. 공유 프롬프트는 `/tmp/linknote_wave1_review_prompt.md`에 기록되어 다음 웨이브 진입 시 구조만 재활용
   - **참고**: 코드 수정/빌드/테스트 실행 없음. P1 픽스는 별도 구현 세션에서 ai-coding-pipeline Stage 1(Research) → 2(Plan) → 3(Feedback) → 4(Implement) 파이프라인 재가동 후 진행 예정
 
@@ -197,7 +197,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - 즉석 추가 수정: `_parse`에 scheme-less fallback (`!uri.hasScheme` → `https://$trimmed` prepend) + 테스트 케이스 1건 추가 → 5/5 GREEN
     - 재설치 후에도 **동일 오류 지속** → 즉시 해결 불가, **Session 19로 이월**
     - 반성: 실제 저장된 `link.url` raw 값을 확인하지 않고 가설로 수정한 것이 잘못. Session 19는 데이터 확인부터 시작
-    - 참조: 메모리 `project_url_launcher_bug_open.md`, `docs/next_session_prompt.md` Session 19 프롬프트
+    - 참조: 메모리 `project_url_launcher_bug_open.md`, `docs/next-session-prompt.md` Session 19 프롬프트
   - **발견된 기술 부채 (별도 세션)**:
     - `~/.claude/hooks/dart-code-smell.sh`의 "중첩 깊이" 검사 정규식(`^.{16,}{`)이 **Dart named-parameter 생성자 `{`**와 **K&R 함수 brace `{`**를 "deep nesting"으로 오탐 → 신규 파일 2건(`url_launcher_helper.dart`, `url_launcher_helper_test.dart`)에 `// dart format off` + Allman-style brace 적용으로 우회. 기존 파일 편집은 경고만 발생하고 edit은 정상 적용됨 (`flutter analyze` 0 + 319 tests GREEN이 증거)
 

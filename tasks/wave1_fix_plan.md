@@ -1,7 +1,7 @@
 # Wave 1 Fix Plan (Stage 2)
 
 - **세션**: Session 21 (2026-04-12)
-- **입력**: `tasks/wave1_fix_research.md`, `docs/code_review/2026-04-12_wave1_security.md`
+- **입력**: `tasks/wave1_fix_research.md`, `docs/reviews/2026-04-12-wave1-security.md`
 - **파이프라인 단계**: ai-coding-pipeline Stage 2 (Plan)
 - **상태**: 사용자 승인 대기. 승인 후 Session 22에서 Stage 4(구현) 진입.
 - **제외**: P3-A (proguard Hive keep rules) — 사용자 결정으로 본 스프린트 미포함.
@@ -274,7 +274,7 @@ EOF
 
 - `CHANGELOG.md` — Wave 1 픽스 6건 요약 (세션 마무리 시)
 - `docs/daily_task_log/2026-04-12_session.md` — Session 21/22 연속 기록
-- `docs/next_session_prompt.md` — Session 23 프롬프트 갱신
+- `docs/next-session-prompt.md` — Session 23 프롬프트 갱신
 - `tasks/lessons.md` — P3-A 보류 근거 한 줄 + Stage 1 사전 확인이 플랜 품질을 바꾼 사례 1건
 
 ---
