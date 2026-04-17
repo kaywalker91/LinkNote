@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Chore (Session 34 — Docs 구조 정리)
+
+- **`docs/code_review/` + `docs/review/` → `docs/reviews/` 통합** (PR #15, `b9bd88b`): 동일 목적(코드 리뷰 기록)이 두 디렉토리로 분산되던 구조를 단일 `reviews/`로 합치고, 이동과 동시에 파일명을 `kebab-case`로 정규화. 8개 파일 `git mv` 로 히스토리 유지
+- **루트 문서 `snake_case` → `kebab-case`**: `linknote_PRD.md` → `linknote-prd.md`, `linknote_workflow.md` → `linknote-workflow.md`, `next_session_prompt.md` → `next-session-prompt.md`
+- **`docs/security/rls_policies.md` → `rls-policies.md`**: 단일 파일 rename
+- **참조 갱신**: `CHANGELOG.md`, `docs/next-session-prompt.md`, `tasks/wave1_fix_{plan,research}.md` 내 구 경로 문자열 치환 (8곳). `README.md/ko`는 해당 경로 미참조로 수정 없음
+- **유지(의도적 제외)**: `daily_task_log/` · `work_performance/` — 내부적으로 일관된 `snake_case` 이며 외부 참조 많아 blast radius 과대. 별도 PR로 이월
+
 ### Fixed (Session 33 — Wave 5 Link P2)
 
 - **P2-C — OgTagService 대용량 응답 제한** (`lib/core/services/og_tag_service.dart`): `_maxBodyBytes = 2 MiB` 상한 추가. Content-Length 헤더가 초과하거나 실제 수신 body가 초과하면 DioException(badResponse) → `Failure.server`로 거부. html 파서 메모리 비정상 폭증 방지
