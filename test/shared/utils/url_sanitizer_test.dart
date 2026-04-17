@@ -117,6 +117,35 @@ void main()
       expect(url.length, 2048);
       expect(UrlSanitizer.extract(url), url);
     });
+
+    test('accepts IDN (internationalized) domain — German umlaut', ()
+    {
+      // LinkNote policy: accept IDN inputs verbatim. HTTP clients convert to
+      // punycode at connection time; we preserve the user-visible form so
+      // the stored URL matches what the user pasted.
+      const url = 'https://münchen.de/';
+      expect(UrlSanitizer.extract(url), url);
+    });
+
+    test('accepts IDN (internationalized) domain — Japanese host', ()
+    {
+      const url = 'https://日本.jp/';
+      expect(UrlSanitizer.extract(url), url);
+    });
+
+    test('accepts non-ASCII characters in the URL path', ()
+    {
+      const url = 'https://example.com/한글경로';
+      expect(UrlSanitizer.extract(url), url);
+    });
+
+    test('prepends https:// for scheme-less IDN domain', ()
+    {
+      expect(
+        UrlSanitizer.extract('münchen.de/ferien'),
+        'https://münchen.de/ferien',
+      );
+    });
   });
 
   group('UrlSanitizer.wouldAlter', ()
