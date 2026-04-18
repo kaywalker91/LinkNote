@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:linknote/app/theme/app_colors.dart';
 import 'package:linknote/app/theme/app_spacing.dart';
 import 'package:linknote/features/link/domain/entity/tag_entity.dart';
 import 'package:linknote/features/link/presentation/provider/link_form_provider.dart';
@@ -77,7 +78,7 @@ class _LinkAddScreenState extends ConsumerState<LinkAddScreen> {
       ..hideCurrentSnackBar()
       ..showSnackBar(
         const SnackBar(
-          content: Text('붙여넣은 텍스트에서 URL을 추출했습니다'),
+          content: Text('URL extracted from pasted text'),
           duration: Duration(seconds: 2),
         ),
       );
@@ -108,7 +109,7 @@ class _LinkAddScreenState extends ConsumerState<LinkAddScreen> {
           TagEntity(
             id: const Uuid().v4(),
             name: text,
-            color: '#6750A4',
+            color: AppColors.defaultTagColorHex,
           ),
         );
     _tagController.clear();
@@ -249,7 +250,7 @@ class _LinkAddScreenState extends ConsumerState<LinkAddScreen> {
                           .submit();
                       if (success && context.mounted) {
                         context
-                          ..showSuccessSnackBar('링크가 저장되었습니다')
+                          ..showSuccessSnackBar('Link saved')
                           ..pop();
                       }
                     },

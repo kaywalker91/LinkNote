@@ -1,3 +1,5 @@
+import 'dart:async' show unawaited;
+
 import 'package:async/async.dart' show CancelableOperation;
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:linknote/core/error/failure.dart';
@@ -33,12 +35,17 @@ abstract class LinkFormState with _$LinkFormState {
   }) = _LinkFormState;
 }
 
+/// AutoDispose (default): form state is per-screen; discard on close.
 @riverpod
 class LinkForm extends _$LinkForm {
   CancelableOperation<Result<OgTagResult>>? _pendingOgParse;
 
   @override
   Future<LinkFormState> build(String? linkId) async {
+    ref.onDispose(() {
+      final pending = _pendingOgParse;
+      if (pending != null) unawaited(pending.cancel());
+    });
     if (linkId == null) return const LinkFormState();
     final link = await ref.read(linkDetailProvider(linkId).future);
     return LinkFormState(
@@ -102,12 +109,12 @@ class LinkForm extends _$LinkForm {
 
   String _ogFailureMessage(Failure failure) {
     return switch (failure) {
-      NetworkFailure() => '링크 정보를 불러오지 못했습니다 (네트워크 오류)',
+      NetworkFailure() => 'Could not fetch link info (network error)',
       ServerFailure(:final statusCode) =>
         statusCode != null
-            ? '페이지를 불러올 수 없습니다 (HTTP $statusCode)'
-            : '페이지를 불러올 수 없습니다',
-      _ => '링크 정보를 불러오지 못했습니다',
+            ? 'Could not load page (HTTP $statusCode)'
+            : 'Could not load page',
+      _ => 'Could not fetch link info',
     };
   }
 

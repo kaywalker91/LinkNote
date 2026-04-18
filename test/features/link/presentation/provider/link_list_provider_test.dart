@@ -285,6 +285,62 @@ void main() {
         expect(state.items[0].isFavorite, isTrue);
       });
 
+      test(
+        'should invalidate linkDetailProvider so detail screen refreshes',
+        () async {
+          final page = PaginatedState<LinkEntity>(items: [tLink1]);
+          when(
+            () => mockFetch.call(
+              cursor: any(named: 'cursor'),
+              favoritesOnly: any(named: 'favoritesOnly'),
+              collectionId: any(named: 'collectionId'),
+            ),
+          ).thenAnswer((_) async => success(page));
+          when(
+            () => mockToggle.call(
+              'link-1',
+              isFavorite: any(named: 'isFavorite'),
+            ),
+          ).thenAnswer(
+            (_) async => success(tLink1.copyWith(isFavorite: true)),
+          );
+
+          var detailFetchCount = 0;
+          final mockGetDetail = MockGetLinkDetailUsecase();
+          when(() => mockGetDetail.call(any())).thenAnswer((_) async {
+            detailFetchCount++;
+            return success(tLink1);
+          });
+
+          final container = ProviderContainer(
+            overrides: [
+              fetchLinksUsecaseProvider.overrideWithValue(mockFetch),
+              deleteLinkUsecaseProvider.overrideWithValue(mockDelete),
+              toggleFavoriteUsecaseProvider.overrideWithValue(mockToggle),
+              updateLinkUsecaseProvider.overrideWithValue(mockUpdate),
+              getLinkDetailUsecaseProvider.overrideWithValue(mockGetDetail),
+            ],
+          );
+          addTearDown(container.dispose);
+          await container.read(linkListProvider.future);
+
+          final sub = container.listen(
+            linkDetailProvider('link-1'),
+            (_, __) {},
+          );
+          addTearDown(sub.close);
+          await container.read(linkDetailProvider('link-1').future);
+          expect(detailFetchCount, 1);
+
+          await container
+              .read(linkListProvider.notifier)
+              .toggleFavorite('link-1');
+
+          await container.read(linkDetailProvider('link-1').future);
+          expect(detailFetchCount, 2);
+        },
+      );
+
       test('should rollback on toggle failure', () async {
         // Arrange
         final page = PaginatedState<LinkEntity>(items: [tLink1]);

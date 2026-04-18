@@ -26,6 +26,9 @@ abstract final class AppColors {
   static const Color border = Color(0xFFE2E8F0);
   static const Color borderLight = Color(0xFFF1F5F9);
 
+  // Hex strings (persisted in entities like TagEntity.color)
+  static const String defaultTagColorHex = '#2563EB'; // == primary
+
   // Dark palette
   static const Color surfaceDark = Color(0xFF0F172A);
   static const Color surfaceVariantDark = Color(0xFF1E293B);

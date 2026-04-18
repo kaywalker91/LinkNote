@@ -11,7 +11,9 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'link_list_provider.g.dart';
 
-@riverpod
+/// Keep the global link list alive across navigation so pagination state
+/// and cached items survive brief re-subscription (e.g., push/pop detail).
+@Riverpod(keepAlive: true)
 class LinkList extends _$LinkList {
   @override
   Future<PaginatedState<LinkEntity>> build() async {
@@ -116,7 +118,9 @@ class LinkList extends _$LinkList {
         .call(id, isFavorite: !link.isFavorite);
     if (result.isFailure) {
       state = AsyncData(previous);
+      return;
     }
+    ref.invalidate(linkDetailProvider(id));
   }
 
   /// Moves a link to a different collection (or clears collection if null).

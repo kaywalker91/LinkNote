@@ -6,6 +6,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'link_detail_provider.g.dart';
 
+/// AutoDispose (default): detail screens are per-link; release memory when popped.
 @riverpod
 class LinkDetail extends _$LinkDetail {
   @override

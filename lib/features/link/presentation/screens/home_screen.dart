@@ -184,7 +184,7 @@ class _LinkListBody extends ConsumerWidget {
                 if (confirmed ?? false) {
                   await ref.read(linkListProvider.notifier).deleteLink(linkId);
                   if (context.mounted) {
-                    context.showSuccessSnackBar('링크가 삭제되었습니다');
+                    context.showSuccessSnackBar('Link deleted');
                   }
                 }
               },
@@ -239,12 +239,14 @@ class _LinkListBody extends ConsumerWidget {
           .moveToCollection(linkId: linkId, collectionId: selected.id);
       if (context.mounted) {
         context.showSuccessSnackBar(
-          selected.id == null ? '컬렉션에서 제거했습니다' : '컬렉션으로 이동했습니다',
+          selected.id == null
+              ? 'Removed from collection'
+              : 'Moved to collection',
         );
       }
     } on Exception catch (_) {
       if (context.mounted) {
-        context.showErrorSnackBar('이동에 실패했습니다');
+        context.showErrorSnackBar('Move failed');
       }
     }
   }

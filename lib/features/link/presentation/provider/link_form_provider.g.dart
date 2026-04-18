@@ -8,12 +8,15 @@ part of 'link_form_provider.dart';
 
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
+/// AutoDispose (default): form state is per-screen; discard on close.
 
 @ProviderFor(LinkForm)
 final linkFormProvider = LinkFormFamily._();
 
+/// AutoDispose (default): form state is per-screen; discard on close.
 final class LinkFormProvider
     extends $AsyncNotifierProvider<LinkForm, LinkFormState> {
+  /// AutoDispose (default): form state is per-screen; discard on close.
   LinkFormProvider._({
     required LinkFormFamily super.from,
     required String? super.argument,
@@ -50,7 +53,9 @@ final class LinkFormProvider
   }
 }
 
-String _$linkFormHash() => r'8983ca791a0de4d6dac123cba9e273a2049f4fe8';
+String _$linkFormHash() => r'019518d28c73b02dd60950b712215fdd5b75c9cc';
+
+/// AutoDispose (default): form state is per-screen; discard on close.
 
 final class LinkFormFamily extends $Family
     with
@@ -70,12 +75,16 @@ final class LinkFormFamily extends $Family
         isAutoDispose: true,
       );
 
+  /// AutoDispose (default): form state is per-screen; discard on close.
+
   LinkFormProvider call(String? linkId) =>
       LinkFormProvider._(argument: linkId, from: this);
 
   @override
   String toString() => r'linkFormProvider';
 }
+
+/// AutoDispose (default): form state is per-screen; discard on close.
 
 abstract class _$LinkForm extends $AsyncNotifier<LinkFormState> {
   late final _$args = ref.$arg as String?;

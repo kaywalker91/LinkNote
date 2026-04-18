@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:linknote/app/theme/app_colors.dart';
 import 'package:linknote/app/theme/app_spacing.dart';
 import 'package:linknote/features/link/domain/entity/tag_entity.dart';
 import 'package:linknote/features/link/presentation/provider/link_form_provider.dart';
@@ -43,7 +44,7 @@ class _LinkEditScreenState extends ConsumerState<LinkEditScreen> {
           TagEntity(
             id: const Uuid().v4(),
             name: text,
-            color: '#6750A4',
+            color: AppColors.defaultTagColorHex,
           ),
         );
     _tagController.clear();
@@ -173,7 +174,7 @@ class _LinkEditScreenState extends ConsumerState<LinkEditScreen> {
                               .submit();
                           if (success && context.mounted) {
                             context
-                              ..showSuccessSnackBar('링크가 수정되었습니다')
+                              ..showSuccessSnackBar('Link updated')
                               ..pop();
                           }
                         },
