@@ -99,7 +99,7 @@ void main() {
         expect(result.failure, isA<AuthFailure>());
         final failure = result.failure! as AuthFailure;
         expect(failure.message, isNotNull);
-        expect(failure.message, contains('이메일'));
+        expect(failure.message, contains('verification email'));
       },
     );
 

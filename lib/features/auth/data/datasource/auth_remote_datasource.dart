@@ -64,7 +64,9 @@ class AuthRemoteDatasource {
       if (response.session == null) {
         return error(
           const Failure.auth(
-            message: '이메일 확인 링크가 발송되었습니다. 메일을 확인하고 로그인해 주세요.',
+            message:
+                'A verification email has been sent. '
+                'Please confirm your email and sign in.',
           ),
         );
       }

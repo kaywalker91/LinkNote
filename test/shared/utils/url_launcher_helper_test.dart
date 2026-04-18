@@ -47,7 +47,7 @@ Future<void> _emptyUrlCase(WidgetTester tester, _MockLauncher mock) async
   final result = await UrlLauncherHelper.launch(context, '');
   await tester.pump();
   expect(result, isFalse);
-  expect(find.text('잘못된 링크 형식입니다'), findsOneWidget);
+  expect(find.text('Invalid link format'), findsOneWidget);
   verifyNever(() => mock.canLaunch(any()));
 }
 
@@ -58,7 +58,7 @@ Future<void> _cannotLaunchCase(WidgetTester tester, _MockLauncher mock) async
   final result = await UrlLauncherHelper.launch(context, 'https://example.com');
   await tester.pump();
   expect(result, isFalse);
-  expect(find.text('링크를 열 수 없습니다'), findsOneWidget);
+  expect(find.text('Cannot open link'), findsOneWidget);
   verifyNever(() => mock.launchUrl(any(), any()));
 }
 
@@ -83,7 +83,7 @@ Future<void> _exceptionCase(WidgetTester tester, _MockLauncher mock) async
   final result = await UrlLauncherHelper.launch(context, 'https://example.com');
   await tester.pump();
   expect(result, isFalse);
-  expect(find.text('링크를 여는 중 오류가 발생했습니다'), findsOneWidget);
+  expect(find.text('Failed to open link'), findsOneWidget);
 }
 
 Future<void> _schemelessCase(WidgetTester tester, _MockLauncher mock) async
@@ -126,7 +126,7 @@ Future<void> _garbageTitleCase(WidgetTester tester, _MockLauncher mock) async
   final result = await UrlLauncherHelper.launch(context, '그냥 제목만 있는 텍스트');
   await tester.pump();
   expect(result, isFalse);
-  expect(find.text('잘못된 링크 형식입니다'), findsOneWidget);
+  expect(find.text('Invalid link format'), findsOneWidget);
   verifyNever(() => mock.canLaunch(any()));
 }
 
