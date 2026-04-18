@@ -12,7 +12,7 @@ abstract final class UrlLauncherHelper
     final extracted = UrlSanitizer.extract(url);
     if (extracted == null)
     {
-      context.showErrorSnackBar('잘못된 링크 형식입니다');
+      context.showErrorSnackBar('Invalid link format');
       return false;
     }
     final uri = Uri.parse(extracted);
@@ -23,7 +23,7 @@ abstract final class UrlLauncherHelper
       {
         if (context.mounted)
         {
-          context.showErrorSnackBar('링크를 열 수 없습니다');
+          context.showErrorSnackBar('Cannot open link');
         }
         return false;
       }
@@ -34,7 +34,7 @@ abstract final class UrlLauncherHelper
       );
       if (!launched && context.mounted)
       {
-        context.showErrorSnackBar('링크를 여는 중 오류가 발생했습니다');
+        context.showErrorSnackBar('Failed to open link');
       }
       return launched;
     }
@@ -42,7 +42,7 @@ abstract final class UrlLauncherHelper
     {
       if (context.mounted)
       {
-        context.showErrorSnackBar('링크를 여는 중 오류가 발생했습니다');
+        context.showErrorSnackBar('Failed to open link');
       }
       return false;
     }

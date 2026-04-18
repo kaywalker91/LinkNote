@@ -68,7 +68,7 @@ class _CollectionFormScreenState extends ConsumerState<CollectionFormScreen> {
       if (mounted) {
         context
           ..showSuccessSnackBar(
-            _isEditMode ? '컬렉션이 수정되었습니다' : '컬렉션이 생성되었습니다',
+            _isEditMode ? 'Collection updated' : 'Collection created',
           )
           ..pop();
       }
@@ -76,7 +76,9 @@ class _CollectionFormScreenState extends ConsumerState<CollectionFormScreen> {
       if (mounted) {
         setState(() => _isSubmitting = false);
         context.showErrorSnackBar(
-          _isEditMode ? '컬렉션 수정에 실패했습니다' : '컬렉션 생성에 실패했습니다',
+          _isEditMode
+              ? 'Failed to update collection'
+              : 'Failed to create collection',
         );
       }
     }

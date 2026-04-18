@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed (Session 36 — Wave 3 i18n 확장: Collection / Auth / url_launcher)
+
+- **i18n 정책 결정 (Option B)**: 사용자 대면 UX 카피(Search 화면 hint/empty state/recent search 라벨)는 한글 유지 + 개발자/운영성 메시지(snackbar, Exception, Failure.message)는 영문 통일. Wave 3 P3-E 의 Link 범위 결정을 다른 feature 로 확장 적용
+- **Collection snackbar 영문화** (`collection_detail_screen.dart`, `collection_form_screen.dart`): `'컬렉션이 삭제/수정/생성되었습니다'`, `'삭제/수정/생성에 실패했습니다'` 6건 → `'Collection deleted/updated/created'`, `'Failed to delete/update/create collection'`
+- **url_launcher_helper Exception 영문화** (`lib/shared/utils/url_launcher_helper.dart`): `'잘못된 링크 형식입니다'` / `'링크를 열 수 없습니다'` / `'링크를 여는 중 오류가 발생했습니다'` → `'Invalid link format'` / `'Cannot open link'` / `'Failed to open link'`. 테스트 4 expect 동시 갱신
+- **Auth 이메일 확인 안내 영문화** (`auth_remote_datasource.dart:67`): signup 후 session=null 분기에서 반환하는 `Failure.auth` 메시지를 영문화. `signup_screen` 의 snackbar 로 노출되는 사용자 대면 메시지
+
+### Docs (Session 36 — Share Intent PRD 초안)
+
+- **신규 `docs/prds/share-intent.md`**: Wave 5 P3-A 이월분. Share Intent 별도 Wave 진입 전 합의돼야 할 4개 선결 과제(payload 타입 분기 / 앱 상태별 동작 / iOS Share Extension / 패키지 선정)를 옵션-미해결 질문-우선순위-비목표-결정 로그 구조의 PRD Draft 로 정리. 실 구현은 별도 Wave
+
 ### Fixed (Session 35 — Wave 5 Link P3 + Wave 3 잔여)
 
 - **P3-B — Provider autoDispose 정책 명시** (`lib/features/link/presentation/provider/`): `link_list_provider` 는 `@Riverpod(keepAlive: true)` 로 글로벌 생존을, `link_detail_provider` / `link_form_provider` 는 기본 `@riverpod` (autoDispose) + docstring 으로 화면 단위 소멸 의도를 각각 명시

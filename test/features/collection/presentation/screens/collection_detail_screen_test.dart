@@ -282,7 +282,7 @@ void main() {
         await tester.tap(find.widgetWithText(FilledButton, 'Delete'));
         await tester.pumpAndSettle();
 
-        expect(find.text('삭제에 실패했습니다'), findsOneWidget);
+        expect(find.text('Failed to delete collection'), findsOneWidget);
       },
     );
 

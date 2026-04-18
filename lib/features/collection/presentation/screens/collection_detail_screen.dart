@@ -56,12 +56,12 @@ class CollectionDetailScreen extends ConsumerWidget {
                         .deleteCollection(collectionId);
                     if (context.mounted) {
                       context
-                        ..showSuccessSnackBar('컬렉션이 삭제되었습니다')
+                        ..showSuccessSnackBar('Collection deleted')
                         ..pop();
                     }
                   } on Exception catch (_) {
                     if (context.mounted) {
-                      context.showErrorSnackBar('삭제에 실패했습니다');
+                      context.showErrorSnackBar('Failed to delete collection');
                     }
                   }
                 }
