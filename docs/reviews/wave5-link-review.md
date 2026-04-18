@@ -163,13 +163,20 @@ if/else 양 분기가 동일한 `cacheLinks` 호출. 조건부 제거 후 단일
 
 ## P3 Findings (Nit)
 
-### P3-A: Share Intent 진입점 부재 (feature request 성격)
+### P3-A: Share Intent 진입점 부재 (feature request 성격) — ⏭️ Deferred (Session 35)
 
 **Files**: `android/app/src/main/AndroidManifest.xml`, iOS Info.plist, `lib/main.dart`
 
 `ACTION_SEND` intent-filter 없음. 브라우저 "공유 → LinkNote" 불가. Wave 5 리뷰 스코프로 식별됐으나 "버그"가 아닌 **미구현 기능**이므로 P3로 분류하고 별도 로드맵 항목으로 관리.
 
-**Next step**: PRD → 별도 Wave에서 `receive_sharing_intent` 패키지 적용 + 링크/텍스트/이미지 타입 분기 설계.
+**Decision (2026-04-18, Session 35)**: 본 스프린트에서 제외하고 별도 Wave(가칭 "Share Intent Wave")로 이관. 구현 이전에 PRD에서 다음을 확정해야 함:
+
+- 수신 payload 타입: URL / plain text / image — 각 케이스 UX 분기
+- 앱 상태별 동작: cold start / warm resume — 라우팅 정책
+- 권한 / iOS App Extension 필요성
+- 패키지 후보: `receive_sharing_intent` vs Flutter 공식 플랫폼 채널
+
+**Next step**: Share Intent PRD 초안을 별도 문서로 작성한 뒤 Wave 진입.
 
 ---
 
