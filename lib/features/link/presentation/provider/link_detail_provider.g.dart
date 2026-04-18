@@ -8,12 +8,15 @@ part of 'link_detail_provider.dart';
 
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
+/// AutoDispose (default): detail screens are per-link; release memory when popped.
 
 @ProviderFor(LinkDetail)
 final linkDetailProvider = LinkDetailFamily._();
 
+/// AutoDispose (default): detail screens are per-link; release memory when popped.
 final class LinkDetailProvider
     extends $AsyncNotifierProvider<LinkDetail, LinkEntity> {
+  /// AutoDispose (default): detail screens are per-link; release memory when popped.
   LinkDetailProvider._({
     required LinkDetailFamily super.from,
     required String super.argument,
@@ -52,6 +55,8 @@ final class LinkDetailProvider
 
 String _$linkDetailHash() => r'2d6001e669a689053ecfeeb9f614f81c37fd8526';
 
+/// AutoDispose (default): detail screens are per-link; release memory when popped.
+
 final class LinkDetailFamily extends $Family
     with
         $ClassFamilyOverride<
@@ -70,12 +75,16 @@ final class LinkDetailFamily extends $Family
         isAutoDispose: true,
       );
 
+  /// AutoDispose (default): detail screens are per-link; release memory when popped.
+
   LinkDetailProvider call(String linkId) =>
       LinkDetailProvider._(argument: linkId, from: this);
 
   @override
   String toString() => r'linkDetailProvider';
 }
+
+/// AutoDispose (default): detail screens are per-link; release memory when popped.
 
 abstract class _$LinkDetail extends $AsyncNotifier<LinkEntity> {
   late final _$args = ref.$arg as String;

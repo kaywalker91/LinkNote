@@ -2,7 +2,7 @@
 
 > **버전:** v2.1.0
 > **최종 수정:** 2026.04
-> **목적:** 목업 우선(Mockup-First) 방식 로드맵 + Android MVP → iOS → 배포 단계 전략 + Git / CI/CD / 코드 컨벤션 기준 정의
+> **목적:** 목업 우선(Mockup-First) 방식 로드맵 + Android 전 기능 구현 → Android 배포 → 배포 후 개선 반영 → iOS 기능 추가 → iOS 배포 단계 전략 + Git / CI/CD / 코드 컨벤션 기준 정의
 
 ---
 
@@ -13,7 +13,7 @@
 1. **완성 가능성 우선** — 완벽한 코드보다 돌아가는 MVP가 먼저다. 2주마다 데모 가능한 상태를 유지한다.
 2. **목업 우선 (Mockup-First)** — UI를 먼저 목업 데이터로 완성한 뒤 백엔드를 붙인다. Provider는 처음에 더미 데이터를 반환하고, 백엔드 연동 시 UseCase 호출로 교체한다. 화면이 돌아가는 것을 먼저 확인한 후 실제 데이터로 전환한다.
 3. **설명 가능한 구조** — 면접에서 "왜 이렇게 만들었나요?"에 답할 수 있는 의도적 설계를 한다.
-4. **점진적 완성** — Phase 2 (UI 완성) → Phase 3 (백엔드 연동) 순서를 지키고, 욕심내서 scope를 벌리지 않는다. 플랫폼 단계는 **Android MVP 완성 → iOS 기능 완성 → 배포 준비** 순서를 준수한다.
+4. **점진적 완성** — Phase 2 (UI 완성) → Phase 3 (백엔드 연동) 순서를 지키고, 욕심내서 scope를 벌리지 않는다. 플랫폼 단계는 **Android 전 기능 구현 → Android 배포 → 배포 후 개선 반영 → iOS 기능 추가 → iOS 배포** 순서를 준수한다. iOS는 Android 배포 + 배포 후 개선까지 끝난 "Android 최종형"을 이어받아 포팅하며, Android 와 **병행 진행하지 않는다**.
 
 ### 1.2 해서는 안 되는 것
 
@@ -35,11 +35,13 @@ Phase 1  [✅ 완료]     전체 화면 UI 구현 (목업 데이터)
 Phase 2  [✅ 완료]     UI 완성 & 개선 (누락 기능, UX 다듬기)
 Phase 3  [✅ 완료]     백엔드 연동 (Supabase Auth + Data Layer + 실 프로젝트 세팅/E2E)
 Phase 4  [✅ 완료]     로컬 캐시 & 성능 최적화
-Phase 5  [✅ 완료]     테스트 작성 (315개 테스트 전체 통과)
+Phase 5  [✅ 완료]     테스트 작성 (300+ → 437개 테스트 전체 통과, Wave 1~5 리뷰 반영 포함)
 Phase 6  [✅ 완료]     CI/CD & 코드 품질 (GitHub Actions + README bilingual + analyze 0)
+Phase 6.5[✅ 완료]     보안 감사 + 코드 리뷰 Wave 1~5 (Session 1~35 누적, 테스트 300+→437)
 Phase 7  [🔄 진행 중]  Android MVP 마무리 — Firebase ✅ / FCM / Keystore / Play Store Internal
-Phase 8  [⏳ 예정]     iOS 기능 완성 — Firebase iOS / FCM APNs / TestFlight
-Phase 9  [⏳ 예정]     배포 준비 — 스토어 리스팅 / 시연 영상 / 정책 문서 / 정식 릴리즈
+Phase 7.5[⏳ 예정]     Android 배포 + 배포 후 개선 — Play Store 릴리스 → 실사용자 피드백/버그 반영까지 완료
+Phase 8  [⏸ 대기]      iOS 기능 추가 — Phase 7.5 완료 후 진입. Android 최종형을 iOS 로 포팅 (Firebase iOS / FCM APNs / TestFlight)
+Phase 9  [⏳ 예정]     iOS 배포 + 공통 스토어 자산 — App Store 심사·배포, 양 플랫폼 공통 스토어 리스팅/시연 영상/정책 문서 마무리
 ```
 
 ---
@@ -206,7 +208,7 @@ Phase 9  [⏳ 예정]     배포 준비 — 스토어 리스팅 / 시연 영상 
 
 **목표:** 핵심 레이어 테스트 커버리지 확보
 
-**결과:** 315개 테스트 전체 통과 (`flutter test` — 00:08 +315: All tests passed!)
+**결과:** 437개 테스트 전체 통과 (300+ 기준선에서 Wave 1~5 리뷰 반영으로 확대, `flutter test` — +437: All tests passed!)
 
 #### 체크리스트
 
@@ -234,7 +236,7 @@ Phase 9  [⏳ 예정]     배포 준비 — 스토어 리스팅 / 시연 영상 
 
 #### 데모 기준
 
-> `flutter test` 실행 → 315개 테스트 전체 통과 ✅
+> `flutter test` 실행 → 437개 테스트 전체 통과 ✅
 > 커버리지 측정은 CI에서 `flutter test --coverage` + lcov 필터링으로 자동화 (generated 파일 제외)
 
 ---
@@ -276,11 +278,32 @@ Phase 9  [⏳ 예정]     배포 준비 — 스토어 리스팅 / 시연 영상 
 
 ---
 
+### Phase 6.5 — 보안 감사 & 코드 리뷰 강화 [✅ 완료]
+
+Phase 6 완료 이후 Phase 7 진입 전에 수행한 품질 보강 단계. 별도 세션(Session 1~35) 에서 누적 진행되었으며, 본 문서의 상위 Phase 6/7 완료 기준을 유지하기 위한 보조 작업이다.
+
+**보안 감사 (Session 1~3 + Firebase 보강)**
+
+- [x] P0/P1/P2 총 10건 처리 — 시크릿 분리, `.gitleaks.toml`/secret-scanning 정책, envied 키 제한
+- [x] Firebase Client API Key 보안 정책 — GCP Application/API restriction 화이트리스트, CLAUDE.md에 정식 커밋 근거 문서화
+
+**코드 리뷰 Wave 1~5 (Session 18~34)**
+
+- [x] Wave 1 — 최초 리뷰 (2026-04-12)
+- [x] Wave 2 — core 레이어 (2026-04-13)
+- [x] Wave 3 — Link feature P1/P2 + 잔여 P3 롤오버 관리
+- [x] Wave 4 — Collection feature P2/P3
+- [x] Wave 5 — Link 고급 시나리오 (OgTagService Result/redirect/크기 가드, moveToCollection cascade, Wave 3 잔여 cleanup, Share Intent는 별도 Wave로 이관)
+
+**결과물**: `docs/reviews/` (`session*-security-audit.md`, `wave{1~5}-*-review.md`), 테스트 수 300+ → 437개, cascade invalidate 패턴 확립(`feedback_aggregate_invalidate.md`), AsyncNotifier 테스트 가드레일(`feedback_riverpod_async_notifier_inflight.md`)
+
+---
+
 ### Phase 7 — Android MVP 마무리 [🔄 진행 중]
 
 **목표:** Android 단독으로 Play Store 내부 테스트 트랙에 올릴 수 있는 수준까지 완성
 
-> iOS 작업은 Phase 8에서 진행한다. Android 에서 기능/품질/배포 파이프라인을 먼저 검증한 뒤 iOS로 이관하는 것이 원칙.
+> iOS 작업은 Phase 8에서 진행한다. **Android 전 기능 구현(Phase 7) + Android 배포 및 배포 후 개선(Phase 7.5) 이 모두 끝난 뒤** iOS 포팅을 시작한다 — Android 와 iOS 를 병행하지 않는다.
 
 #### 체크리스트
 
@@ -293,7 +316,7 @@ Phase 9  [⏳ 예정]     배포 준비 — 스토어 리스팅 / 시연 영상 
 - [x] Dart 배선: `bootstrap.dart` Firebase init + Crashlytics `FlutterError` / `PlatformDispatcher.onError` 훅 (`unawaited()` 래핑)
 - [x] `main_{dev,staging,prod}.dart` flavor별 options 주입, `app_router`에 `FirebaseAnalyticsObserver` 등록
 - [x] Debug 빌드 Crashlytics 수집 비활성화 (`setCrashlyticsCollectionEnabled(!kDebugMode)`)
-- [x] 검증: `flutter build apk --flavor dev --debug` 성공, 315 tests GREEN, analyze 0
+- [x] 검증: `flutter build apk --flavor dev --debug` 성공, 437 tests GREEN, analyze 0
 
 **FCM (Android 우선)**
 
@@ -306,7 +329,7 @@ Phase 9  [⏳ 예정]     배포 준비 — 스토어 리스팅 / 시연 영상 
 **릴리스 서명 + 빌드**
 
 - [x] Android `INTERNET` 권한 추가 (`AndroidManifest.xml`) — Session 14
-- [x] Release `signingConfig` 골격 작성 (`android/app/build.gradle.kts`)
+- [x] Release `signingConfig` **골격**만 작성 (`android/app/build.gradle.kts`) — 실 keystore 미생성, 서명 빌드 검증 미완
 - [x] `key.properties.example` 템플릿 제공
 - [ ] Upload keystore 생성 (`keytool`) + 백업 정책 문서화 (분실 시 Play Store 재등록 불가)
 - [ ] `android/key.properties` (gitignored) 작성 + 실제 `signingConfig` 주입 검증
@@ -324,7 +347,7 @@ Phase 9  [⏳ 예정]     배포 준비 — 스토어 리스팅 / 시연 영상 
 
 - [ ] Play Console 앱 등록 + 내부 테스트 트랙 생성
 - [ ] AAB 업로드 + 테스터 그룹 배포
-- [ ] (선택) Firebase App Distribution CI 연동 (`develop` 브랜치 자동 배포)
+- [ ] (선택) Firebase App Distribution CI 연동 — 현재 `develop` 브랜치를 사용하지 않으므로 `main` 머지 또는 릴리스 태그 트리거로 재정의 필요
 
 #### 데모 기준
 
@@ -332,10 +355,44 @@ Phase 9  [⏳ 예정]     배포 준비 — 스토어 리스팅 / 시연 영상 
 
 ---
 
-### Phase 8 — iOS 기능 완성 [⏳ 예정]
+### Phase 7.5 — Android 배포 + 배포 후 개선 [⏳ 예정]
 
-**목표:** Android와 동일한 기능 + 품질을 iOS에서 재현, TestFlight 배포 가능 상태까지
+**목표:** Android 를 Play Store 정식 배포하고, 배포 이후 드러난 개선점을 반영해 "Android 최종형" 을 확정한다. 이 단계가 끝나야 iOS(Phase 8) 에 진입한다.
 
+#### 체크리스트
+
+**Play Store 배포 승격**
+
+- [ ] Internal Test → Closed Test → Open Test → Production 단계 승격
+- [ ] 단계별 릴리스 노트(`CHANGELOG.md` 연동) 및 Play Console 메타데이터 최종화
+- [ ] 정식 배포 시 단계 롤아웃(예: 20% → 50% → 100%) 활용
+
+**배포 후 개선 루프**
+
+- [ ] Crashlytics / Firebase Analytics 대시보드 주시 → 발견 이슈는 `fix/*` 브랜치로 처리
+- [ ] 실사용자 피드백 채널(이메일 / GitHub Issues / In-app 링크) 수집 및 반영
+- [ ] 크리티컬 버그는 정식 트랙에 핫픽스 승격 (필요 시 롤아웃 중지)
+- [ ] 개선 내용은 CHANGELOG + daily_task_log 에 누적 기록
+
+**Android 최종형 확정**
+
+- [ ] 남아 있는 P0/P1 이슈가 정리되고 Release 가 사용자에게 안정적으로 제공 가능하다는 판단이 서면 Phase 7.5 종료
+- [ ] Phase 7.5 종료 기록(최종 버전 태그, 스크린샷, 주요 결정사항)을 세션 로그에 남김 → iOS 포팅의 기준선
+
+#### 데모 기준
+
+> Play Store Production 트랙에 배포된 Android 앱이 실사용자에게 제공되고, 배포 후 개선 라운드를 마친 상태. 이 시점의 저장소 상태가 iOS 포팅의 기준선이 된다.
+
+---
+
+### Phase 8 — iOS 기능 추가 [⏸ 대기 — Phase 7.5 완료 후 진입]
+
+**목표:** Android 배포 + 배포 후 개선까지 끝난 "Android 최종형" 을 iOS 로 포팅. TestFlight 배포 가능 상태까지.
+
+> **진입 조건**
+> - Phase 7.5 완료: Android Play Store 릴리스 + 실사용자 피드백/버그 반영이 끝난 상태
+> - Android 와 병행하지 않음 — Android 개선이 진행 중이면 iOS 는 시작하지 않는다
+>
 > **선행 조건 (사용자 직접 수행):**
 > 1. Apple Developer Program 등록 ($99/년)
 > 2. Xcode 설치 + macOS 환경
@@ -369,7 +426,7 @@ Phase 9  [⏳ 예정]     배포 준비 — 스토어 리스팅 / 시연 영상 
 
 - [ ] Simulator에서 dev flavor 실행 + Firebase Analytics DebugView 확인
 - [ ] 실기기에서 prod 빌드 테스트 (로그인 → 링크 CRUD → 검색 → 컬렉션)
-- [ ] `flutter test` 315+ GREEN 유지 (iOS 플랫폼 채널 mock 확인)
+- [ ] `flutter test` 437+ GREEN 유지 (iOS 플랫폼 채널 mock 확인)
 - [ ] Info.plist 권한 설명 문자열 점검 (카메라/포토 등 사용 시)
 
 **TestFlight 준비**
@@ -385,9 +442,11 @@ Phase 9  [⏳ 예정]     배포 준비 — 스토어 리스팅 / 시연 영상 
 
 ---
 
-### Phase 9 — 배포 준비 [⏳ 예정]
+### Phase 9 — iOS 배포 + 공통 스토어 자산 [⏳ 예정]
 
-**목표:** Play Store / App Store 정식 배포를 위한 비-기술 준비물 및 정식 릴리즈
+**목표:** iOS App Store 정식 배포를 마치고, 양 플랫폼 공통 스토어 자산(스크린샷·정책 문서·시연 영상 등)을 최종화한다.
+
+> Android 스토어 리스팅은 Phase 7.5 배포 시점에 기본 틀을 완성해두고, iOS 심사 시점에 양 플랫폼 공통 자산을 함께 마무리한다.
 
 #### 체크리스트
 
@@ -411,22 +470,22 @@ Phase 9  [⏳ 예정]     배포 준비 — 스토어 리스팅 / 시연 영상 
 - [ ] 30초 프로모 영상 (App Preview용) + 60초 긴 버전
 - [ ] README + 스토어 리스팅에 GIF/영상 삽입
 
-**정식 배포**
+**정식 배포 (iOS + 공통 마무리)**
 
-- [ ] Play Store 프로덕션 트랙 배포 (단계 롤아웃 20% → 50% → 100%)
 - [ ] App Store 심사 제출 + 리뷰 피드백 대응
-- [ ] GitHub Releases에 AAB/IPA 첨부 + 버전 태그 (`v1.0.0`)
-- [ ] `CHANGELOG.md` 릴리즈 노트 작성
+- [ ] GitHub Releases에 AAB(Phase 7.5 산출물)/IPA 첨부 + 버전 태그 (`v1.0.0`)
+- [ ] `CHANGELOG.md` 릴리즈 노트 작성 (iOS 출시 + 공통 업데이트)
+- [ ] Android Play Store 프로덕션 트랙은 Phase 7.5 에서 이미 배포됨 → Phase 9 에서는 iOS 와 동시 배포를 위한 버전 정렬만 수행
 
-**모니터링**
+**모니터링 (iOS 출시 시점 재가동)**
 
-- [ ] Crashlytics 대시보드 주시 (첫 72h 집중)
-- [ ] Firebase Analytics 핵심 이벤트 정의 + 대시보드 구성 (DAU, 링크 저장 수, 리텐션)
-- [ ] 사용자 피드백 수집 경로 (이메일, GitHub Issues, In-app 링크)
+- [ ] Crashlytics 대시보드 iOS 포함 주시 (첫 72h 집중)
+- [ ] Firebase Analytics 핵심 이벤트 iOS 수치 확인 (DAU, 링크 저장 수, 리텐션)
+- [ ] 사용자 피드백 수집 경로 (이메일, GitHub Issues, In-app 링크) — Android/iOS 공통 운영
 
 #### 최종 데모 기준
 
-> Play Store + App Store 공식 페이지 링크가 README에 노출되고 실사용자가 설치 가능 → 첫 주 Crashlytics crash-free sessions 99%+ 유지
+> Play Store(Android)는 Phase 7.5 에서 이미 실사용자 배포 완료, App Store(iOS) 공식 페이지 링크가 추가되어 양 플랫폼 모두 README 에 노출되고 설치 가능한 상태.
 
 ---
 
@@ -488,12 +547,13 @@ class LinkListNotifier extends _$LinkListNotifier {
 ### 4.1 브랜치 구조
 
 ```
-main          — 최종 릴리즈용 (태그 관리)
-develop       — 통합 브랜치 (CI/CD 트리거)
+main          — 단일 통합 브랜치 (릴리즈 태그 + PR 머지 대상, Branch Protection)
 feature/*     — 기능 개발
 fix/*         — 버그 수정
 chore/*       — 설정 변경, 리팩토링
 ```
+
+> **운영 방식** (2026-04 기준): `develop`은 사용하지 않는다. `feature/*`·`fix/*`·`chore/*` 브랜치에서 `main`으로 PR을 올리고, Branch Protection(`main` 전용 + CI 4 job green 필수) 하에서 머지한다.
 
 ### 4.2 브랜치 네이밍 예시
 
@@ -627,7 +687,7 @@ linter:
 
 ### Q. CI/CD는 어떻게 구성했나요?
 
-> "GitHub Actions로 PR마다 flutter analyze, flutter test, build APK를 자동 실행하고, develop 브랜치 머지 시 Firebase App Distribution으로 내부 배포가 되도록 구성했습니다. 덕분에 매 PR에서 코드 품질을 자동으로 검증할 수 있었습니다."
+> "GitHub Actions로 `main`에 올리는 모든 PR에서 flutter analyze / flutter test / build APK 4-job을 자동 실행합니다. Branch Protection으로 머지 전 green을 강제하고, 릴리스 자동 배포(Firebase App Distribution 등)는 Phase 7에서 `main` 머지 또는 릴리스 태그 트리거로 이어갈 예정입니다."
 
 ---
 
@@ -674,4 +734,4 @@ flutter run
 
 ---
 
-*Workflow v2.1 — LinkNote Side Project (Mockup-First → Android MVP → iOS → Deployment)*
+*Workflow v2.2 — LinkNote Side Project (Mockup-First → Android MVP → Android 배포 + 개선 → iOS 기능 추가 → iOS 배포)*

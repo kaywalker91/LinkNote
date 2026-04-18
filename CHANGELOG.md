@@ -7,6 +7,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed (Session 35 — Wave 5 Link P3 + Wave 3 잔여)
+
+- **P3-B — Provider autoDispose 정책 명시** (`lib/features/link/presentation/provider/`): `link_list_provider` 는 `@Riverpod(keepAlive: true)` 로 글로벌 생존을, `link_detail_provider` / `link_form_provider` 는 기본 `@riverpod` (autoDispose) + docstring 으로 화면 단위 소멸 의도를 각각 명시
+- **P3-C — LinkFormProvider dispose 시 in-flight OG parse cancel 보장** (`link_form_provider.dart`): `ref.onDispose` 훅에서 `_pendingOgParse` 를 `unawaited` 취소. 폼 닫힘 시 백그라운드 Future leak 방지
+- **P3-E' (Wave 3) — toggleFavorite 성공 후 linkDetailProvider invalidate** (`link_list_provider.dart`): `moveToCollection` 과 동일한 cascade invalidate 패턴 적용. 리스트 favorite 토글 후 detail 화면 star 아이콘 stale 증상 해소. 테스트 +1
+- **P3-C' (Wave 3) — 태그 색상 하드코딩 제거**: `AppColors.defaultTagColorHex` 신설 (== `AppColors.primary` 의 hex 표현). `link_add_screen` / `link_edit_screen` 의 `'#6750A4'` 하드코딩 → 상수 참조
+- **P3-i18n (Wave 3) — Link feature snackbar/OG 에러 영문 일치화**: AppBar 가 영문인 반면 snackbar 만 한글이던 혼재 해소. Link 화면 범위만 변경 (Collection / Search 는 별도 스코프로 이월)
+
+### Changed (Session 35 — Refactor)
+
+- **P3-D' (Wave 3) — LinkFormFields 위젯 추출** (`lib/features/link/presentation/widgets/link_form_fields.dart`): `link_add_screen` / `link_edit_screen` 에서 ~50줄 중복되던 title/description/notes/tags/favorite 필드를 단일 위젯으로 추출. `ref.listen` 기반 controller↔state 미러링으로 프로그래매틱 state 업데이트(OG parse / URL auto-extract title)가 UI 에 반영됨. `LinkEditScreen` 은 controller 소유 중단 → `ConsumerWidget` 으로 단순화
+
+### Docs (Session 35 — Workflow sync + Share Intent 이월)
+
+- **`docs/linknote-workflow.md` stale 정정**: Section 4.1 브랜치 전략에서 `develop` 줄 제거 (실제 운영은 `main` 단일 + Branch Protection), Phase 5 테스트 수치 315 → 437, Phase 7 릴리스 서명 항목에 "골격만, 실 keystore 미생성" 명시, Q&A CI/CD 답변을 현 운영과 일치시킴
+- **Phase 6.5 신설**: 보안 감사(Session 1~3 + Firebase GCP 제약) + 코드 리뷰 Wave 1~5 (Session 18~34) 를 Phase 6 과 Phase 7 사이 별도 트랙으로 가시화. overview 표에도 반영
+- **Wave 5 P3-A Share Intent — 이월 결정 기록** (`docs/reviews/wave5-link-review.md`): Session 35 에서 구현 제외, 별도 Wave 진입 전 PRD 선결 과제 4건(payload 타입 분기 / cold start 라우팅 / iOS App Extension / 패키지 선정) 명시
+
+### Chore (Session 34 — Docs 구조 정리)
+
+- **`docs/code_review/` + `docs/review/` → `docs/reviews/` 통합** (PR #15, `b9bd88b`): 동일 목적(코드 리뷰 기록)이 두 디렉토리로 분산되던 구조를 단일 `reviews/`로 합치고, 이동과 동시에 파일명을 `kebab-case`로 정규화. 8개 파일 `git mv` 로 히스토리 유지
+- **루트 문서 `snake_case` → `kebab-case`**: `linknote_PRD.md` → `linknote-prd.md`, `linknote_workflow.md` → `linknote-workflow.md`, `next_session_prompt.md` → `next-session-prompt.md`
+- **`docs/security/rls_policies.md` → `rls-policies.md`**: 단일 파일 rename
+- **참조 갱신**: `CHANGELOG.md`, `docs/next-session-prompt.md`, `tasks/wave1_fix_{plan,research}.md` 내 구 경로 문자열 치환 (8곳). `README.md/ko`는 해당 경로 미참조로 수정 없음
+- **유지(의도적 제외)**: `daily_task_log/` · `work_performance/` — 내부적으로 일관된 `snake_case` 이며 외부 참조 많아 blast radius 과대. 별도 PR로 이월
+
 ### Fixed (Session 33 — Wave 5 Link P2)
 
 - **P2-C — OgTagService 대용량 응답 제한** (`lib/core/services/og_tag_service.dart`): `_maxBodyBytes = 2 MiB` 상한 추가. Content-Length 헤더가 초과하거나 실제 수신 body가 초과하면 DioException(badResponse) → `Failure.server`로 거부. html 파서 메모리 비정상 폭증 방지
