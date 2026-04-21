@@ -5,112 +5,140 @@
 ---
 
 ```
-Session 36 — Wave 5 P3 PR 머지 후속 + Share Intent PRD 초안 + Collection/Search i18n 정리
+Session 38 — Share Intent Phase 1: Android URL-only PoC 구현 + Session 37 PRD 갱신 동반 PR
 
 ## 미션 한 줄
 
-Wave 5 Link 리뷰 로드맵 클로즈아웃. (1) Session 35 PR(`fix/wave5-p3`) 머지 후속, (2) 이월된 Share Intent PRD 초안, (3) Collection/Search 화면 i18n 잔존 정리.
+`receive_sharing_intent` 1.8.1 도입 + Android ACTION_SEND 수신 → cold start 시 GoRouter `initialLocation` 분기 → `link/add` 폼 prefill 까지 구현하고 실기기 검증 후 Session 37 PRD Decided 커밋과 함께 PR 을 낸다.
 
 ## 배경
 
 최근 세션 히스토리:
-- **Session 33 (2026-04-18)** — Wave 5 P2 머지 (PR #14, `45f2386`): OgTag body size cap / moveToCollection optimistic+rollback+guard / IDN 정책 / dead branch 재검증. 436 GREEN
-- **Session 34 (2026-04-18)** — docs 구조 정리 (PR #15, `b9bd88b`): `reviews/` 통합 + kebab-case 정규화
-- **Session 35 (2026-04-18)** — Wave 5 P3 + Wave 3 잔여 cleanup + Workflow sync (`fix/wave5-p3` 브랜치):
-  - P3-B autoDispose 명시, P3-C onDispose cancel, P3-E' favorite→detail invalidate, P3-C' 태그 색상 토큰화, P3-i18n Link snackbar 영문 통일
-  - P3-D' LinkFormFields 위젯 추출 (ref.listen 기반 controller 미러링)
-  - Workflow doc 3건 정정 + Phase 6.5 신설 + Q&A 갱신
-  - P3-A Share Intent 이월 결정 기록 (PRD 선결 과제 4건 명시)
-  - **437 GREEN**, analyze 0
+- **Session 36 (2026-04-18)** — Share Intent PRD Draft 작성 + Wave 3 i18n 확장 (PR #17, `0b2b59a`)
+- **Session 37 (2026-04-21)** — Open Decision 4건 합의 → PRD Decided 승격. Phase 1 착수는 세션 경계 판단으로 Session 38 이월. 산출물은 로컬 브랜치 `docs/session37-share-intent-decided` 에 보관 (원격 push 미수행)
 
-현재 상태 (Session 36 시작 전):
-- `fix/wave5-p3` 브랜치가 Session 35 작업 포함한 채 **미푸시**일 수 있음 (PR 단계에 따라 확인)
-- 테스트: 437 GREEN, analyze 0
-- 로컬 브랜치: main + fix/wave5-p3
+현재 상태 (Session 38 시작 전):
+- `main` @ `0b2b59a`, 원격 깨끗
+- 로컬 브랜치 `docs/session37-share-intent-decided` 에 PRD 갱신 커밋 존재 — **Session 38 에서 이 브랜치를 기반으로 확장**
+- 437 tests GREEN, analyze 0
 - Branch Protection 활성화 — PR + CI 4 job green 필수
-- docs-only 단독 PR 금지 (chore 성격 구조 정비는 예외)
+
+## Phase 1 범위 (PRD Section 3 Decided 에 기반)
+
+- **Android only** (iOS Share Extension 은 Phase 2)
+- **URL payload only** (plain text / image 는 Phase 3+)
+- **Cold start**: GoRouter `initialLocation` 동적 분기 `/link/add?prefill=<encoded-url>`
+- **Warm / foreground**: bottom sheet (작업 중 입력 보호) — Phase 1 후반 또는 연장 범위
+- **패키지**: `receive_sharing_intent` 1.8.1
 
 ## 가장 먼저 할 일 (순서 엄수)
 
-### 0. 상태 확인
+### 0. 상태 확인 + 브랜치 정렬
 ```bash
 cd ~/AndroidStudioProjects/LinkNote
-git branch -vv
-git status
+git fetch origin
+git branch -vv                                    # docs/session37-share-intent-decided 확인
+git checkout docs/session37-share-intent-decided  # Session 37 PRD 갱신 베이스
+git log -1                                        # Session 37 커밋 확인
 flutter analyze --fatal-warnings
-flutter test --reporter=failures-only 2>&1 | tail -3   # +437: All tests passed! 기대
+flutter test --reporter=failures-only 2>&1 | tail -3   # +437 기대
 ```
 
-### 1. Session 35 PR 후속 처리
+> 브랜치 리네임 필요 시: Phase 1 코드와 섞이므로 `feat/share-intent-phase1-android` 로 리네임 권장 — `git branch -m feat/share-intent-phase1-android`
 
-- `fix/wave5-p3` 미푸시 상태면 → `git push -u origin fix/wave5-p3` (사용자 명시 승인 후)
-- PR 생성 → CI 4 job green → 사용자 승인 후 머지
-- 머지 완료 후 `git checkout main && git pull && git branch -d fix/wave5-p3`
-- 원격 tracking 브랜치 정리: `git fetch --prune`
+### 1. Plan 작성 (ai-coding-pipeline Stage 2)
 
-### 2. Share Intent PRD 초안 (P3-A 이월분)
+5+ 파일 변경 + 플랫폼 설정 + 부트 시퀀스 개편이라 Plan 필수. 작성 포인트:
+- `receive_sharing_intent` API 최신 사용법 Context7 조회 — getter(`getInitialMedia`/`getInitialText`) vs stream 구분
+- `bootstrap.dart` 의 현재 부트 순서와 `runApp` 호출 지점 확인 → initial payload 조회 삽입 위치
+- `app_router.dart` 의 `initialLocation: Routes.splash` 와 splash redirect 로직에 payload 우회 경로 설계
+- `LinkAddScreen` 이 현재 `const` 인스턴스 — `prefill` 파라미터 확장 시 기존 라우트 호출부 영향
 
-`docs/prds/share-intent.md` (신규) — 별도 Wave 진입 전 선결 과제 4건을 PRD 형식으로:
+### 2. TDD RED → GREEN (Domain 선행)
 
-1. **Payload 타입 분기** — URL / plain text / image 각각의 UX (URL: 자동 파싱 + 폼 이동 / text: URL 추출 시도 / image: 링크 + 썸네일)
-2. **앱 상태별 동작** — cold start: 초기 라우트를 `link/add` 로 분기 / warm resume: 현재 화면 위로 bottom sheet 혹은 전환
-3. **iOS App Extension** — Share Extension 필요 여부 + App Groups 설정 (공유 UserDefaults) 검토
-4. **패키지 선정** — `receive_sharing_intent` (커뮤니티) vs 플랫폼 채널 직접 구현. 장단점 비교
+필수 적용 레이어(TDD 강제):
+- `lib/features/share_intent/domain/service/shared_intent_service.dart` (신규) — payload → URL 추출 + `UrlSanitizer` 재사용
+- `test/features/share_intent/domain/shared_intent_service_test.dart` — RED 케이스:
+  - plain URL payload → 정상 추출
+  - "제목 + URL" 혼합 텍스트 payload → URL 만 추출 (Session 19 URL sanitizer 3계층 배치 적용)
+  - URL 없는 텍스트 → 실패 (`Failure` 반환)
+  - malformed URL → 실패
+- Domain 레이어 GREEN 확인 후 Presentation / bootstrap 진입
 
-(PRD 는 "초안" 수준: 옵션 / 결정 사항 / 미해결 질문 기록. 실제 구현은 Share Intent Wave 에서 별도 진행)
+### 3. 플랫폼 설정 (Android)
 
-### 3. Collection / Search i18n 정리 (Wave 3 P3-E 확장)
+- `pubspec.yaml` — `receive_sharing_intent: ^1.8.1` 추가 (알파벳 순)
+- `flutter pub get`
+- `android/app/src/main/AndroidManifest.xml` — `<activity>` 내부에 `<intent-filter>` 추가
+  - `ACTION_SEND` + `category.DEFAULT` + `mimeType="text/plain"`
+  - 필요 시 `ACTION_SEND` + `mimeType="text/*"` 도 (Twitter/YouTube 동작 확인)
 
-**Collection (`lib/features/collection/`)**:
-- `collection_detail_screen.dart:59` `'컬렉션이 삭제되었습니다'` → `'Collection deleted'`
-- `collection_form_screen.dart:71,79` 수정/생성/실패 메시지 영문화
-- 테스트에 해당 한글 문자열 references 있으면 동시 갱신 (기존 grep: 0 hits 확인)
+### 4. 부트 시퀀스 + 라우트 분기
 
-**Search (`lib/features/search/`)**:
-- `search_screen` UI 문구(`'링크를 검색하세요'`, `'링크, 메모, 태그 검색'`): 의도적으로 사용자 대면 한글로 유지할지 결정 필요 — 세션 초반 사용자 확인
-  - Option A: 모두 영문 통일 (기존 Wave 3 P3-E 방향)
-  - Option B: 사용자 대면 UX 카피는 한글 유지, 개발자 snackbar 만 영문 (현재 앱의 실제 언어 타겟을 확인)
-- `url_launcher_helper.dart` 에러 문구 3건도 같은 질문에 답이 필요
+- `lib/bootstrap.dart` — `runApp` 전에 `ReceiveSharingIntent.getInitialText()` 호출 후 `ProviderScope.overrides` 로 GoRouter initial payload 주입 (또는 일회성 `initialLocation` 계산)
+- `lib/app/router/app_router.dart`:
+  - `Routes.linkAdd` 의 `builder` 가 `state.uri.queryParameters['prefill']` 조회 → `LinkAddScreen(initialUrl: ...)` 로 전달
+  - 또는 `GoRouter.initialLocation` 을 payload 기준으로 동적 계산 (splash auth flow 와 충돌 주의 — 인증 완료 후 home 대신 linkAdd 로 redirect 하는 경로가 더 안전할 가능성)
+- `lib/features/link/presentation/screens/link_add_screen.dart` — `initialUrl` 파라미터 추가, URL 필드 초기값 세팅
 
-**불확실성이 있으면 사용자에게 먼저 `AskUserQuestion` 으로 확인**.
+### 5. Widget 테스트
 
-### 4. (선택) Auth Remote 한글 메시지
-`auth_remote_datasource.dart:67` `이메일 확인 링크가 발송되었습니다...` — 서버 메시지 경로. 사용자 대면이므로 Step 3 의 결정과 연동.
+- `LinkAddScreen(initialUrl: 'https://example.com')` → URL 필드가 해당 값으로 초기화되는지
+- (시간 허락 시) GoRouter prefill query → `LinkAddScreen` 초기값 전달 플로우
 
-### 5. PR + 머지 + 세션 마무리
-- 세션 문서: `docs/daily_task_log/YYYY-MM-DD_session36.md`
-- CHANGELOG Session 36 섹션
-- Session 36 문서는 본 코드 PR 에 묶음
+### 6. 실기기 / 에뮬레이터 검증
+
+- YouTube / Chrome / Twitter 공유 시트 → LinkNote 선택 → 폼 prefill 확인 (최소 2 앱)
+- Cold start / warm resume 각각 검증
+- URL sanitizer 3계층 배치가 Session 19 때처럼 작동하는지 확인 ("제목 + URL" 페이스트 방지)
+
+### 7. PRD / memory / 문서
+
+- `docs/prds/share-intent.md` Section 7 결정 로그 — "2026-xx-xx Phase 1 구현 완료 (Session 38)" entry 추가
+- 신규 memory: `project_share_intent.md` — Phase 1 Android PoC 완료, Phase 2 iOS Extension 대기 상태
+- `docs/daily_task_log/YYYY-MM-DD_session38.md`
+- CHANGELOG Session 38 섹션
+- `project_code_review_roadmap.md` Session 38 항목
+
+### 8. PR + 머지
+
+- 브랜치: `feat/share-intent-phase1-android` (Session 37 docs 커밋 포함)
+- PR 제목: `feat(share-intent): Phase 1 Android URL-only PoC + PRD Decided`
+- CI 4 job green 확인 후 **사용자 명시 승인** → merge
 
 ## 불변 원칙
 
 - **git push / merge 사용자 명시 승인 필수**
-- **Branch Protection 활성화** — PR + CI 4 job green 필수
-- **TDD RED → GREEN** 준수 (Domain/Data 레이어 필수, Presentation 권장)
+- **Branch Protection** — PR + CI 4 job green 필수
+- **TDD RED → GREEN** — Domain `SharedIntentService` 예외 없이 RED 선행
+- **ai-coding-pipeline** — 5+ 파일 변경 시 Plan 단계 선행
 - `.env`, keystore, Firebase service account key 커밋 금지
 - Provider Failure 전파: `Error.throwWithStackTrace(failure, StackTrace.current)`
-- docs-only 단독 PR 지양 — 코드와 묶음 (chore 성격 예외)
-- **집계(count) 배지 규칙**: cascade invalidate (`feedback_aggregate_invalidate.md`)
-- **AsyncNotifier optimistic 테스트**: mid-flight 관찰 불가. 완료 후 최종 상태만 검증 (`feedback_riverpod_async_notifier_inflight.md`)
-- **문서 네이밍**: 신규 문서는 `kebab-case`. 기존 `daily_task_log/`, `work_performance/` 는 snake_case 유지
+- **i18n Option B** — bottom sheet/스낵바 UX 카피는 한글, 운영 exception/snackbar 는 영문
+- **수치 기준 창작 금지** — 사용자가 정성 표현 쓰면 `AskUserQuestion` 으로 확인
+- **Aggregate invalidate** — 새 링크 저장 후 list/detail/collection 공급자 cascade invalidate 확인
+- **AsyncNotifier in-flight** — optimistic UX 시 Session 33 교훈 적용
 
 ## 완료 기준
 
-- [ ] Session 35 PR (`fix/wave5-p3`) 머지 완료 + 브랜치 정리
-- [ ] Share Intent PRD 초안 작성 (`docs/prds/share-intent.md`)
-- [ ] Collection/Search i18n 정책 결정 + 해당 정책대로 정리
+- [ ] `receive_sharing_intent` 1.8.1 도입 + AndroidManifest intent-filter 설정
+- [ ] `SharedIntentService` Domain TDD RED → GREEN
+- [ ] Cold start 에서 공유된 URL → `link/add` 폼 prefill 확인 (실기기 2 앱 이상)
+- [ ] PRD 결정 로그 Session 38 entry 추가
 - [ ] CI 4 job green + 사용자 승인 머지
-- [ ] Session 36 daily log + CHANGELOG + memory 업데이트
+- [ ] Session 38 daily log + CHANGELOG + memory 업데이트
 
 ## 참조 문서
 
-- **Wave 5 리뷰**: `docs/reviews/wave5-link-review.md` (P3-A Deferred 결정 기록됨)
-- **Wave 3 Link 리뷰**: `docs/reviews/wave3-link-review.md` (P3-E i18n 원항목)
-- **Session 35 로그**: `docs/daily_task_log/2026-04-18_session35.md`
+- **Session 37 로그**: `docs/daily_task_log/2026-04-21_session37.md` — 후속 작업 카드 상세
+- **Share Intent PRD Decided**: `docs/prds/share-intent.md`
+- **Session 19 URL sanitizer 교훈**: `project_url_launcher_bug_resolved.md` — "제목+URL" 페이스트 방어
+- **i18n 정책 메모리**: `feedback_i18n_policy.md`
 - **Aggregate invalidate 메모리**: `feedback_aggregate_invalidate.md`
-- **AsyncNotifier in-flight 메모리**: `feedback_riverpod_async_notifier_inflight.md`
+- **receive_sharing_intent pub.dev**: https://pub.dev/packages/receive_sharing_intent
+- **Android ACTION_SEND 공식**: https://developer.android.com/training/sharing/receive
 
 ## 세션 경계
 
-Session 35 PR 머지 후속 + Share Intent PRD 초안 + Collection/Search i18n 정리까지. Share Intent 실구현은 별도 Wave.
+Phase 1 Android URL-only PoC + 실기기 검증 + PR 머지까지. warm/foreground bottom sheet 는 Phase 1 후반 또는 별도 세션 판단. iOS Share Extension / plain text / image 는 Phase 2+ 별도 세션.
 ```

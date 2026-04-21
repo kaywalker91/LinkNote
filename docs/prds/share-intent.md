@@ -1,6 +1,6 @@
 # PRD — Share Intent (시스템 공유 인텐트로 링크 받기)
 
-> 상태: **Draft (Session 36, 2026-04-18)** — 본 문서는 Wave 5 P3-A 의 이월 결정에 따라 별도 Wave 진입 전 선결 과제 4건을 정리한 PRD 초안. 실제 구현은 Share Intent Wave 에서 별도 진행.
+> 상태: **Decided (Session 37, 2026-04-21)** — Open Decision 4건 합의 완료. Phase 1 (Android URL-only PoC) 진입 가능. 상세는 Section 3 각 항목 Decided 마크 및 Section 7 결정 로그 참조.
 
 ## 1. 배경 / 동기
 
@@ -20,58 +20,74 @@ Wave 5 리뷰에서 P3-A (Share Intent) 항목은 단순 코드 변경이 아니
 
 별도 Wave 진입 전 본 PRD 에서 합의돼야 할 항목.
 
-### 3.1 Payload 타입 분기
+### 3.1 Payload 타입 분기 — **Decided (2026-04-21)**
 
 공유 시트가 전달하는 payload 는 단일 타입이 아니다. 타입별 UX 정책이 필요하다.
 
-| 타입 | 기대 UX | 미해결 질문 |
-|------|--------|-----------|
-| URL (단순 링크) | 자동 파싱 + `link/add` 폼 prefill (URL/제목/OG 메타) | 자동 저장 vs 폼 띄우고 저장 선택권 |
-| Plain text (URL 포함) | 텍스트에서 URL 추출 시도. 추출 성공 → URL 케이스. 실패 → 메모 화면? | 메모 화면 진입을 별도 동선으로 둘지, "URL 없음" 토스트 후 무시할지 |
-| Plain text (URL 없음) | 메모로 저장? 무시? | 본 앱이 "북마크" 정체성 — 순수 텍스트 메모를 받는 게 맞는가 |
-| Image | 링크 + 썸네일로 저장 / 단독 이미지 노트 | 이미지 단독 노트 도메인 모델이 없음. 추가 시 별도 entity 또는 link.image_url? |
-| 멀티 payload (text + image) | URL 우선, 이미지는 첨부 | 첨부 모델 부재 |
+**결정**: Phase 1 은 **URL payload 만** 처리. 수신한 URL 을 `link/add` 화면으로 전달해 **폼 prefill** 하고, 사용자가 확인 후 저장. 자동 저장(폼 스킵)은 OG 메타 수정 기회가 사라지고 실패 UX 가 모호해 채택하지 않음.
 
-### 3.2 앱 상태별 동작
+**사유**:
+- LinkNote 정체성이 "북마크" 이므로 URL 이 1차 대상. Plain text/image 는 별도 엔티티·화면 도입이 필요해 Phase 3+ 로 이월.
+- 폼 prefill 이 OG 메타 수정·태그/컬렉션 선택 여지를 남겨 기존 `link/add` 사용성과 정합.
 
-공유 인텐트 수신 시점에 앱이 어떤 상태인가에 따라 UX 가 달라진다.
+| 타입 | Phase 1 UX | 비고 |
+|------|-----------|------|
+| URL (단순 링크) | 자동 파싱 + `link/add` 폼 prefill (URL 만 채움, OG 는 기존 플로우 재사용) | **Phase 1 대상** |
+| Plain text (URL 포함) | Phase 3 로 이월 — `UrlSanitizer` 재사용해 URL 추출, 성공 시 URL 케이스로 귀결 | Phase 3 |
+| Plain text (URL 없음) | 별도 PRD 필요 (메모 엔티티 모델 부재) — Phase 4+ | 이월 |
+| Image | 별도 PRD 필요 (이미지 엔티티 또는 `link.image_url` 확장) | 이월 |
+| 멀티 payload (text + image) | 첨부 모델 도입 이후 | 이월 |
 
-| 상태 | 동작 옵션 |
-|------|---------|
-| Cold start (앱이 죽어 있음) | A) 초기 라우트를 `link/add?prefill=...` 로 분기 / B) 스플래시 후 모달 표시 |
-| Warm resume (백그라운드에서 복귀) | A) 현재 화면 위로 bottom sheet / B) 강제로 `link/add` 화면 push / C) 토스트 + Inbox 같은 임시 저장소 |
-| Foreground (앱 사용 중) | A) bottom sheet (작업 흐름 보존) / B) 풀스크린 push |
+### 3.2 앱 상태별 동작 — **Decided (2026-04-21)**
 
-**미해결 질문**:
-- GoRouter 의 `initialLocation` 을 인텐트 payload 기준으로 동적으로 결정해야 하는데, `main.dart` 에서 channel 호출이 비동기 — 부트 시퀀스가 어떻게 구성돼야 하는가?
-- 작업 중 화면(폼 작성 중) 위에 share intent 가 들어왔을 때 사용자 입력을 잃지 않도록 보호하는 UX 는?
+**결정**: Cold start 는 **GoRouter `initialLocation` 동적 분기** 방식. Warm/Foreground 는 작업 흐름 보호를 위해 **bottom sheet** (혹은 스낵 액션) 로 사용자 확인 후 전환. 강제 풀스크린 push 는 입력 손실 위험으로 배제.
 
-### 3.3 iOS Share Extension
+**사유**:
+- `initialLocation` 을 부트 시퀀스에서 인텐트 payload 기준으로 계산하면 스플래시 후 모달 대비 사용자 인지 경로가 단축되고, 표준 Flutter/Deep-link 패턴에 부합.
+- 풀스크린 강제 push 는 링크 작성·메모 입력 중인 사용자의 기존 작업을 덮어써 체감 피해가 크다는 판단.
 
-iOS 는 단순 채널 호출만으로는 부족하다 — Share Extension 이 별도 binary 로 빌드되어 시스템에 등록된다.
+| 상태 | Phase 1 동작 |
+|------|-------------|
+| Cold start (앱이 죽어 있음) | 부트 시 payload 확인 → `initialLocation = /link/add?prefill=<encoded-url>` 로 분기. payload 없으면 기본 home. |
+| Warm resume (백그라운드 복귀) | Phase 1 범위 검토 — cold-start 우선. warm 처리는 Phase 1 후반/2 에서 bottom sheet 채택. |
+| Foreground (앱 사용 중) | 동일. 현재 화면 위 bottom sheet / 스낵바 "새 링크 저장" 액션. 풀스크린 push 금지. |
 
-| 항목 | 결정 사항 |
-|------|---------|
-| Share Extension 추가 여부 | **필요 (iOS 표준 패턴)** — Extension 없이 iOS 공유 시트에 LinkNote 가 노출될 수 없음 |
-| App Groups 설정 | 필요 — Extension 이 받은 payload 를 메인 앱에 전달하려면 공유 UserDefaults / shared container 가 필요 |
-| Extension UI | A) 풀 SwiftUI 미니 앱 (URL 미리보기 + 저장) / B) 캡처만 + 메인 앱에서 처리 |
-| Extension 빌드 환경 | Flutter 의 iOS host 위에 native Swift Extension 추가 — Xcode 프로젝트 수정 필요 |
+**구현 노트**:
+- 부트 시퀀스: `main.dart` → `receive_sharing_intent` 초기 getter (비동기) → `runApp` 전에 payload 확정 → GoRouter 에 전달.
+- Warm/foreground 스트림 구독은 app shell 단계에서 구독, 도착 시 bottom sheet 표시.
+- 작업 중 입력 보호: 폼 dirty 상태일 때 "새 링크가 들어왔어요" 스낵바로 대체, 사용자가 수락 시에만 이동.
 
-**미해결 질문**:
-- Extension 에서 직접 Supabase 에 저장할 것인가, 아니면 캡처만 하고 메인 앱이 후처리할 것인가? (백그라운드 fetch 신뢰성 검토)
-- Extension 에서 OG 메타 fetch 까지 할지 (network entitlement) — 수 초 안에 종료되는 Extension lifetime 제약
+### 3.3 iOS Share Extension — **Decided (2026-04-21): Phase 2 이월**
 
-### 3.4 패키지 선정
+**결정**: Phase 1 에서는 **iOS Share Extension 작업 일체 보류**. Phase 2 진입 시점에 Extension UI 범위 / Extension vs 메인 앱 저장 / App Groups / entitlement 을 재결정한다.
 
-| 옵션 | 장점 | 단점 |
-|------|------|------|
-| `receive_sharing_intent` (커뮤니티) | Android/iOS 양쪽 추상화. 빠른 PoC | 유지보수 활성도 변동, iOS Share Extension 코드는 직접 작성 / 가이드 의존 |
-| 플랫폼 채널 직접 구현 | 완전한 제어, deps 0 | Android `Intent` + iOS Extension 양쪽 native 작성 비용 |
-| Hybrid (수신은 패키지, OG 처리는 자체) | 일반적인 절충 | 패키지의 stream/event 형식에 도메인이 결합됨 |
+**사유**:
+- Phase 1 목표는 Android URL-only PoC 로 공유 인텐트 기본 흐름 검증. iOS Extension 은 Xcode 프로젝트 수정·native Swift·App Groups·서명까지 범위가 급증해 한 세션 경계 안에 안정적 종료가 어려움.
+- Phase 1 에서 검증한 payload → GoRouter 분기 → `link/add` prefill 체계를 iOS 에서도 그대로 재사용할 수 있어 선행 가치가 크다.
 
-**미해결 질문**:
-- `receive_sharing_intent` 의 최신 버전이 Flutter 3.41 / iOS 17+ 와 호환되는지 (Context7 조회 필요)
-- Android 13 이상의 photo picker / scoped storage 변경에 패키지가 대응하는지
+**Phase 2 재검토 질문** (Phase 2 진입 세션에서 다시 연다):
+- Extension UI 는 풀 SwiftUI 미니 앱 vs 캡처만 (메인 앱 후처리)?
+- Extension 이 직접 Supabase 저장 vs 캡처 → App Group 저장 → 메인 앱 fetch?
+- Extension OG 메타 fetch 여부 (network entitlement + lifetime 제약)?
+
+### 3.4 패키지 선정 — **Decided (2026-04-21)**
+
+**결정**: **`receive_sharing_intent` 1.8.1** 채택.
+
+**호환성 확인** (pub.dev 조회, 2026-04-21):
+- 버전: 1.8.1 (verified publisher `kasem.dev`)
+- 최신 배포: 18개월 전 — 활성도 주의 (위험은 Phase 2 재평가 포인트)
+- 플랫폼 제약: Android SDK 19+ (Kotlin 1.9.22), iOS 12.0+ (Swift 5.0)
+- LinkNote 타겟: iOS 15.0 (Podfile/pbxproj), Android `flutter.*SdkVersion` — 모두 충족
+
+**사유**:
+- Phase 1 Android 만이라도 패키지가 ACTION_SEND 인텐트 필터 + Kotlin 브리지 + Dart 스트림을 일체 제공 → PoC 속도 확보.
+- Phase 2 iOS Share Extension 진입 시 동일 패키지가 Extension 템플릿과 App Group 브리지를 제공해 재사용성 높음.
+- "18개월 무업데이트" 는 리스크지만, Phase 2 진입 시점에 대체 수단(플랫폼 채널 직접 / fork) 을 다시 평가하는 것으로 위험을 지연.
+
+**미채택 이유**:
+- Hybrid (Android 직접 채널 + iOS 만 패키지) — Phase 2 에서야 가치가 발생하는 구조이고, Phase 1 에서 부트 시퀀스·스트림 구독을 우리가 직접 만들어야 해 코드량이 더 큼.
+- 완전 자체 구현 — 일정 대비 이득 부족, Phase 1 범위를 벗어남.
 
 ## 4. 우선순위 (제안)
 
@@ -95,12 +111,17 @@ PRD 합의 후 별도 Wave 진입 시 다음 순서를 권장:
 - Android `ACTION_SEND` 공식 문서: https://developer.android.com/training/sharing/receive
 - iOS App Extension Programming Guide: https://developer.apple.com/library/archive/documentation/General/Conceptual/ExtensibilityPG/
 
-## 7. 결정 로그 (Draft 단계)
+## 7. 결정 로그
 
 | 일자 | 결정 | 사유 |
 |------|------|------|
 | 2026-04-18 | PRD 를 Draft 로 시작, 4개 선결 과제 명시 | Wave 5 P3-A 구현 차단 — 단일 코드 PR 로 처리 불가 판단 |
+| 2026-04-21 | 3.1 Payload — **Phase 1 은 URL only + 폼 prefill** | 북마크 정체성 우선, plain text/image 는 엔티티 모델 도입 필요로 이월 |
+| 2026-04-21 | 3.2 App State — **Cold start 는 GoRouter initialLocation 동적 분기**, warm/foreground 는 bottom sheet | 표준 Flutter/deep-link 패턴, 풀스크린 강제 push 는 입력 손실 위험 |
+| 2026-04-21 | 3.3 iOS Share Extension — **Phase 2 이월** | Xcode·native Swift·App Groups 범위가 크다. Phase 1 은 Android 만 |
+| 2026-04-21 | 3.4 Package — **`receive_sharing_intent` 1.8.1 채택** | iOS 15 / Android default minSdk 와 호환, PoC 속도·Phase 2 iOS Extension 재사용 |
+| 2026-04-21 | PRD 상태 **Draft → Decided** 승격, Phase 1 진입 가능 | 4건 합의 완료 (Session 37) |
 
 ---
 
-> **다음 액션**: 본 PRD 의 Open Decision 4건에 대해 사용자/스테이크홀더 합의 → Decided 항목 갱신 → Share Intent Wave 진입.
+> **다음 액션**: Phase 1 Android URL-only PoC 구현 진입. 구성 요소: `receive_sharing_intent` 추가 → AndroidManifest `<intent-filter>` → `main.dart` 부트 시퀀스 → GoRouter `initialLocation` 분기 → `link/add` `prefill` query 수용.

@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Docs (Session 37 — Share Intent PRD Decided 승격)
+
+- **`docs/prds/share-intent.md` Draft → Decided (2026-04-21)**: Open Decision 4건 합의 완료. Phase 1 (Android URL-only PoC) 진입 가능
+  - **3.1 Payload**: Phase 1 은 URL only + `link/add` 폼 prefill. plain text/image 는 Phase 3+ 이월
+  - **3.2 App State**: Cold start 는 GoRouter `initialLocation` 동적 분기, warm/foreground 는 bottom sheet. 풀스크린 강제 push 배제(입력 손실 위험)
+  - **3.3 iOS Share Extension**: Phase 2 이월 (Xcode·native Swift·App Groups·서명 범위 큼). Phase 2 진입 세션 재검토 질문 3건 보존
+  - **3.4 Package**: `receive_sharing_intent` 1.8.1 채택. iOS 15/Android default minSdk 와 호환(pub.dev 조회 2026-04-21). 18개월 무업데이트는 Phase 2 재평가 포인트
+  - Section 7 결정 로그에 2026-04-21 엔트리 5건 추가
+- **Phase 1 PoC 구현은 Session 38 이월** — 5+ 파일 변경·실기기 검증 필요로 세션 경계 안 안정 종료 어려움 판단. docs-only 단독 PR 금지 정책상 본 세션 산출물은 Session 38 Phase 1 코드 PR 에 묶음
+
 ### Fixed (Session 36 — Wave 3 i18n 확장: Collection / Auth / url_launcher)
 
 - **i18n 정책 결정 (Option B)**: 사용자 대면 UX 카피(Search 화면 hint/empty state/recent search 라벨)는 한글 유지 + 개발자/운영성 메시지(snackbar, Exception, Failure.message)는 영문 통일. Wave 3 P3-E 의 Link 범위 결정을 다른 feature 로 확장 적용
