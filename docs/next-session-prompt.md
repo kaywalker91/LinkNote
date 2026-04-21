@@ -5,112 +5,110 @@
 ---
 
 ```
-Session 36 — Wave 5 P3 PR 머지 후속 + Share Intent PRD 초안 + Collection/Search i18n 정리
+Session 39 — Share Intent Phase 1 실기기 검증 결과 반영 + Phase 1 연장(warm/foreground bottom sheet) 판단
 
 ## 미션 한 줄
 
-Wave 5 Link 리뷰 로드맵 클로즈아웃. (1) Session 35 PR(`fix/wave5-p3`) 머지 후속, (2) 이월된 Share Intent PRD 초안, (3) Collection/Search 화면 i18n 잔존 정리.
+Session 38 에서 구현·빌드한 Phase 1 Android URL-only PoC 를 실기기 2앱(YouTube/Chrome/Twitter 중) 이상에서 검증하고, 결과에 따라 버그 패치 또는 Phase 1 연장(warm/foreground stream + bottom sheet) 진입 여부를 결정한다.
 
 ## 배경
 
-최근 세션 히스토리:
-- **Session 33 (2026-04-18)** — Wave 5 P2 머지 (PR #14, `45f2386`): OgTag body size cap / moveToCollection optimistic+rollback+guard / IDN 정책 / dead branch 재검증. 436 GREEN
-- **Session 34 (2026-04-18)** — docs 구조 정리 (PR #15, `b9bd88b`): `reviews/` 통합 + kebab-case 정규화
-- **Session 35 (2026-04-18)** — Wave 5 P3 + Wave 3 잔여 cleanup + Workflow sync (`fix/wave5-p3` 브랜치):
-  - P3-B autoDispose 명시, P3-C onDispose cancel, P3-E' favorite→detail invalidate, P3-C' 태그 색상 토큰화, P3-i18n Link snackbar 영문 통일
-  - P3-D' LinkFormFields 위젯 추출 (ref.listen 기반 controller 미러링)
-  - Workflow doc 3건 정정 + Phase 6.5 신설 + Q&A 갱신
-  - P3-A Share Intent 이월 결정 기록 (PRD 선결 과제 4건 명시)
-  - **437 GREEN**, analyze 0
+Session 38 (2026-04-21):
+- `receive_sharing_intent: ^1.8.1` 도입 + `ACTION_SEND text/plain` intent-filter
+- Domain `SharedIntentService` TDD RED→GREEN (9 케이스), `PendingSharedUrl` Notifier (5 케이스), Widget prefill (2 케이스) — **453 tests GREEN** (+16)
+- `bootstrap.dart` cold-start seed → GoRouter redirect consume → `LinkAddScreen.initialUrl` prefill
+- `android/build.gradle.kts` subprojects JVM 17 정렬 (plugin 1.8.1 Kotlin 17 / Java 기본 1.8 충돌 해결)
+- Android dev/staging debug APK 빌드 성공. **실기기 공유 시트 검증은 미수행** (세션 종료 시점 Android 디바이스 미연결)
+- PRD `docs/prds/share-intent.md` 상태 `Phase 1 구현 (Session 38)` 로 갱신
+- Session 37 PRD Decided 커밋 + Session 38 코드를 묶어 PR 생성 (`feat(share-intent): Phase 1 Android URL-only PoC + PRD Decided`)
 
-현재 상태 (Session 36 시작 전):
-- `fix/wave5-p3` 브랜치가 Session 35 작업 포함한 채 **미푸시**일 수 있음 (PR 단계에 따라 확인)
-- 테스트: 437 GREEN, analyze 0
-- 로컬 브랜치: main + fix/wave5-p3
-- Branch Protection 활성화 — PR + CI 4 job green 필수
-- docs-only 단독 PR 금지 (chore 성격 구조 정비는 예외)
+현재 상태 (Session 39 시작 전):
+- main 최신 — Session 38 PR 머지 상태 가정
+- 453 tests GREEN, analyze 0, Branch Protection 활성
 
-## 가장 먼저 할 일 (순서 엄수)
+## Phase 1 검증 시나리오 (순서 엄수)
 
-### 0. 상태 확인
+### 0. 사전 확인
 ```bash
 cd ~/AndroidStudioProjects/LinkNote
-git branch -vv
-git status
+git fetch origin
+git checkout main && git pull
 flutter analyze --fatal-warnings
-flutter test --reporter=failures-only 2>&1 | tail -3   # +437: All tests passed! 기대
+flutter test --reporter=failures-only 2>&1 | tail -3    # +453 기대
+adb devices                                             # Android 실기기 연결 확인
 ```
 
-### 1. Session 35 PR 후속 처리
+### 1. 실기기 설치 + 검증 (핵심)
 
-- `fix/wave5-p3` 미푸시 상태면 → `git push -u origin fix/wave5-p3` (사용자 명시 승인 후)
-- PR 생성 → CI 4 job green → 사용자 승인 후 머지
-- 머지 완료 후 `git checkout main && git pull && git branch -d fix/wave5-p3`
-- 원격 tracking 브랜치 정리: `git fetch --prune`
+```bash
+flutter build apk --debug --flavor dev -t lib/main_dev.dart
+adb install -r build/app/outputs/flutter-apk/app-dev-debug.apk
+```
 
-### 2. Share Intent PRD 초안 (P3-A 이월분)
+검증 체크리스트:
+- **Cold start (앱 죽어있음)**:
+  - YouTube 동영상 → 공유 시트 → LinkNote DEV 선택 → 로그인 후 `/links/new` 폼 URL 필드에 YouTube URL prefill 확인
+  - Chrome 웹페이지 → 공유 시트 → LinkNote → URL prefill 확인
+  - Twitter 트윗(제목+URL 혼합 텍스트) → 공유 시트 → LinkNote → URL 만 추출 prefill (Session 19 3계층 배치)
+- **인증 상태별**:
+  - 로그인 상태 유지 시: splash → 즉시 `/links/new?prefill=...`
+  - 로그아웃 상태: splash → login → 성공 후 `/links/new?prefill=...` (pending URL 보존)
+- **Warm resume (앱 백그라운드 복귀)**:
+  - 앱 열어 둔 상태에서 공유 시 동작 — Phase 1 에는 미구현이므로 "공유 시트에 LinkNote 표시되지만 수신하지 않음" 이 예상 동작
+  - 이 동작이 허용되는지 사용자 판단 후 Phase 1.5 착수 여부 결정
 
-`docs/prds/share-intent.md` (신규) — 별도 Wave 진입 전 선결 과제 4건을 PRD 형식으로:
+### 2. 결과별 분기
 
-1. **Payload 타입 분기** — URL / plain text / image 각각의 UX (URL: 자동 파싱 + 폼 이동 / text: URL 추출 시도 / image: 링크 + 썸네일)
-2. **앱 상태별 동작** — cold start: 초기 라우트를 `link/add` 로 분기 / warm resume: 현재 화면 위로 bottom sheet 혹은 전환
-3. **iOS App Extension** — Share Extension 필요 여부 + App Groups 설정 (공유 UserDefaults) 검토
-4. **패키지 선정** — `receive_sharing_intent` (커뮤니티) vs 플랫폼 채널 직접 구현. 장단점 비교
+**A. 버그 발견 시** — 즉시 패치 PR
+- Domain(`SharedIntentService`) / Provider / Router / Screen 중 원인 식별
+- TDD RED → GREEN 로 재현 케이스 고정
+- `feat/share-intent-phase1-fix` 브랜치 + CI 4 job green + 사용자 승인 머지
 
-(PRD 는 "초안" 수준: 옵션 / 결정 사항 / 미해결 질문 기록. 실제 구현은 Share Intent Wave 에서 별도 진행)
+**B. 검증 통과 + Phase 1.5 승인** — warm/foreground bottom sheet 진입
+- `ReceiveSharingIntent.instance.getMediaStream().listen(...)` 구독을 app shell 단계에 추가
+- 폼 dirty(입력 중) 시 스낵바 "새 링크가 들어왔어요" + CTA, 아니면 즉시 bottom sheet
+- `SharedIntentService` 재사용, `PendingSharedUrl` 또는 별도 stream provider 도입
+- i18n Option B: bottom sheet/snackbar UX 카피는 한글, 운영 exception 은 영문
 
-### 3. Collection / Search i18n 정리 (Wave 3 P3-E 확장)
+**C. 검증 통과 + Phase 1.5 이월** — Phase 2 iOS Extension 재평가 세션 준비
+- PRD Section 3.3 재검토 질문 3건(Extension UI 범위 / 저장 전략 / OG fetch) 재오픈
+- iOS 서명 인프라(`project_release_signing.md`) 선행 작업 목록화
 
-**Collection (`lib/features/collection/`)**:
-- `collection_detail_screen.dart:59` `'컬렉션이 삭제되었습니다'` → `'Collection deleted'`
-- `collection_form_screen.dart:71,79` 수정/생성/실패 메시지 영문화
-- 테스트에 해당 한글 문자열 references 있으면 동시 갱신 (기존 grep: 0 hits 확인)
+### 3. 문서 / 커밋
 
-**Search (`lib/features/search/`)**:
-- `search_screen` UI 문구(`'링크를 검색하세요'`, `'링크, 메모, 태그 검색'`): 의도적으로 사용자 대면 한글로 유지할지 결정 필요 — 세션 초반 사용자 확인
-  - Option A: 모두 영문 통일 (기존 Wave 3 P3-E 방향)
-  - Option B: 사용자 대면 UX 카피는 한글 유지, 개발자 snackbar 만 영문 (현재 앱의 실제 언어 타겟을 확인)
-- `url_launcher_helper.dart` 에러 문구 3건도 같은 질문에 답이 필요
-
-**불확실성이 있으면 사용자에게 먼저 `AskUserQuestion` 으로 확인**.
-
-### 4. (선택) Auth Remote 한글 메시지
-`auth_remote_datasource.dart:67` `이메일 확인 링크가 발송되었습니다...` — 서버 메시지 경로. 사용자 대면이므로 Step 3 의 결정과 연동.
-
-### 5. PR + 머지 + 세션 마무리
-- 세션 문서: `docs/daily_task_log/YYYY-MM-DD_session36.md`
-- CHANGELOG Session 36 섹션
-- Session 36 문서는 본 코드 PR 에 묶음
+- `docs/daily_task_log/YYYY-MM-DD_session39.md`
+- CHANGELOG Session 39 섹션
+- `project_share_intent.md` memory 갱신 (검증 결과 + Phase 1.5 결정)
+- `project_code_review_roadmap.md` Session 39 entry
+- PR 머지 후 `origin` 브랜치 삭제
 
 ## 불변 원칙
 
 - **git push / merge 사용자 명시 승인 필수**
-- **Branch Protection 활성화** — PR + CI 4 job green 필수
-- **TDD RED → GREEN** 준수 (Domain/Data 레이어 필수, Presentation 권장)
+- **Branch Protection** — PR + CI 4 job green 필수
+- **TDD RED → GREEN** — 버그 재현 시 예외 없이 테스트 선행
 - `.env`, keystore, Firebase service account key 커밋 금지
 - Provider Failure 전파: `Error.throwWithStackTrace(failure, StackTrace.current)`
-- docs-only 단독 PR 지양 — 코드와 묶음 (chore 성격 예외)
-- **집계(count) 배지 규칙**: cascade invalidate (`feedback_aggregate_invalidate.md`)
-- **AsyncNotifier optimistic 테스트**: mid-flight 관찰 불가. 완료 후 최종 상태만 검증 (`feedback_riverpod_async_notifier_inflight.md`)
-- **문서 네이밍**: 신규 문서는 `kebab-case`. 기존 `daily_task_log/`, `work_performance/` 는 snake_case 유지
+- **i18n Option B** — bottom sheet/스낵바 UX 카피는 한글, 운영 exception/snackbar 는 영문
+- **수치 기준 창작 금지** — 사용자가 정성 표현 쓰면 `AskUserQuestion` 으로 확인
+- **Aggregate invalidate** — 새 링크 저장 후 list/detail/collection 공급자 cascade invalidate 확인
 
 ## 완료 기준
 
-- [ ] Session 35 PR (`fix/wave5-p3`) 머지 완료 + 브랜치 정리
-- [ ] Share Intent PRD 초안 작성 (`docs/prds/share-intent.md`)
-- [ ] Collection/Search i18n 정책 결정 + 해당 정책대로 정리
-- [ ] CI 4 job green + 사용자 승인 머지
-- [ ] Session 36 daily log + CHANGELOG + memory 업데이트
+- [ ] 실기기 2앱 이상에서 cold-start 공유 → prefill 동작 확인 (또는 버그 패치 머지)
+- [ ] 미구현 시나리오 목록 PRD + memory 업데이트
+- [ ] Phase 1.5 진입 또는 이월 결정 기록
+- [ ] CHANGELOG + daily log + memory 갱신
 
 ## 참조 문서
 
-- **Wave 5 리뷰**: `docs/reviews/wave5-link-review.md` (P3-A Deferred 결정 기록됨)
-- **Wave 3 Link 리뷰**: `docs/reviews/wave3-link-review.md` (P3-E i18n 원항목)
-- **Session 35 로그**: `docs/daily_task_log/2026-04-18_session35.md`
-- **Aggregate invalidate 메모리**: `feedback_aggregate_invalidate.md`
-- **AsyncNotifier in-flight 메모리**: `feedback_riverpod_async_notifier_inflight.md`
+- **Session 38 로그**: `docs/daily_task_log/2026-04-21_session38.md`
+- **Share Intent PRD**: `docs/prds/share-intent.md` (상태: Phase 1 구현)
+- **Session 19 URL sanitizer 교훈**: `project_url_launcher_bug_resolved.md`
+- **i18n 정책**: `feedback_i18n_policy.md`
+- **receive_sharing_intent pub.dev**: https://pub.dev/packages/receive_sharing_intent
 
 ## 세션 경계
 
-Session 35 PR 머지 후속 + Share Intent PRD 초안 + Collection/Search i18n 정리까지. Share Intent 실구현은 별도 Wave.
+실기기 검증 + 결과 반영(버그 패치 또는 Phase 1.5 진입 결정)까지. Phase 2 iOS Share Extension 은 별도 세션.
 ```

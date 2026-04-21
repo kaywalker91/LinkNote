@@ -9,7 +9,11 @@ import 'package:linknote/shared/utils/url_sanitizer.dart';
 import 'package:linknote/shared/widgets/primary_button_widget.dart';
 
 class LinkAddScreen extends ConsumerStatefulWidget {
-  const LinkAddScreen({super.key});
+  const LinkAddScreen({this.initialUrl, super.key});
+
+  /// Optional URL to seed the URL field with — used by the share-intent
+  /// cold-start flow (`/links/new?prefill=...`).
+  final String? initialUrl;
 
   @override
   ConsumerState<LinkAddScreen> createState() => _LinkAddScreenState();
@@ -17,6 +21,19 @@ class LinkAddScreen extends ConsumerStatefulWidget {
 
 class _LinkAddScreenState extends ConsumerState<LinkAddScreen> {
   final _urlController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    final seed = widget.initialUrl;
+    if (seed != null && seed.isNotEmpty) {
+      _urlController.text = seed;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        ref.read(linkFormProvider(null).notifier).updateUrl(seed);
+      });
+    }
+  }
 
   @override
   void dispose() {

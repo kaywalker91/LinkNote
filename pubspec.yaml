@@ -28,6 +28,7 @@ dependencies:
   intl:
   json_annotation:
   logger:
+  receive_sharing_intent: ^1.8.1
   retrofit:
   riverpod_annotation:
   supabase_flutter:

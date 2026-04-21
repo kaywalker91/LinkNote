@@ -18,6 +18,7 @@ import 'package:linknote/features/notification/presentation/screens/notification
 import 'package:linknote/features/profile/presentation/screens/profile_screen.dart';
 import 'package:linknote/features/profile/presentation/screens/settings_screen.dart';
 import 'package:linknote/features/search/presentation/screens/search_screen.dart';
+import 'package:linknote/features/share_intent/presentation/provider/pending_shared_url_provider.dart';
 import 'package:linknote/shared/widgets/app_scaffold_with_nav_bar.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -69,6 +70,14 @@ GoRouter appRouter(Ref ref) {
 
       if (!isAuthenticated && !isLoginOrSignup) return Routes.login;
       if (isAuthenticated && (isLoginOrSignup || location == Routes.splash)) {
+        // Cold-start share intent: when a URL payload was captured at boot,
+        // consume it once and land on the prefill form instead of home.
+        final pending = ref.read(pendingSharedUrlProvider);
+        if (pending != null) {
+          ref.read(pendingSharedUrlProvider.notifier).consume();
+          final encoded = Uri.encodeComponent(pending);
+          return '${Routes.linkAdd}?prefill=$encoded';
+        }
         return Routes.home;
       }
       return null;
@@ -105,7 +114,9 @@ GoRouter appRouter(Ref ref) {
       GoRoute(
         path: Routes.linkAdd,
         parentNavigatorKey: _rootNavigatorKey,
-        builder: (context, state) => const LinkAddScreen(),
+        builder: (context, state) => LinkAddScreen(
+          initialUrl: state.uri.queryParameters['prefill'],
+        ),
       ),
       GoRoute(
         path: Routes.linkDetail,
