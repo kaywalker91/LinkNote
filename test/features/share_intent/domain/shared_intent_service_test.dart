@@ -32,11 +32,17 @@ void main() {
 
     test('extracts URL when embedded in tweet-like prose', () {
       const raw = 'Check this out https://example.com/article';
-      expect(SharedIntentService.extractUrl(raw), 'https://example.com/article');
+      expect(
+        SharedIntentService.extractUrl(raw),
+        'https://example.com/article',
+      );
     });
 
     test('returns null when payload has no extractable URL', () {
-      expect(SharedIntentService.extractUrl('just a note with no link'), isNull);
+      expect(
+        SharedIntentService.extractUrl('just a note with no link'),
+        isNull,
+      );
     });
 
     test('returns null for malformed scheme-only text', () {
