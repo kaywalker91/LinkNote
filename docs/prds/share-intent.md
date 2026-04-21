@@ -1,6 +1,6 @@
 # PRD — Share Intent (시스템 공유 인텐트로 링크 받기)
 
-> 상태: **Decided (Session 37, 2026-04-21)** — Open Decision 4건 합의 완료. Phase 1 (Android URL-only PoC) 진입 가능. 상세는 Section 3 각 항목 Decided 마크 및 Section 7 결정 로그 참조.
+> 상태: **Phase 1 구현 (Session 38, 2026-04-21)** — Android URL-only PoC cold-start prefill 구현 완료. Phase 2 (iOS Share Extension) 및 warm/foreground bottom sheet 는 후속 세션. 상세는 Section 3 각 항목 Decided 마크 및 Section 7 결정 로그 참조.
 
 ## 1. 배경 / 동기
 
@@ -121,7 +121,9 @@ PRD 합의 후 별도 Wave 진입 시 다음 순서를 권장:
 | 2026-04-21 | 3.3 iOS Share Extension — **Phase 2 이월** | Xcode·native Swift·App Groups 범위가 크다. Phase 1 은 Android 만 |
 | 2026-04-21 | 3.4 Package — **`receive_sharing_intent` 1.8.1 채택** | iOS 15 / Android default minSdk 와 호환, PoC 속도·Phase 2 iOS Extension 재사용 |
 | 2026-04-21 | PRD 상태 **Draft → Decided** 승격, Phase 1 진입 가능 | 4건 합의 완료 (Session 37) |
+| 2026-04-21 | **Phase 1 Android URL-only PoC 구현** (Session 38) | `SharedIntentService` (UrlSanitizer 재사용) + `PendingSharedUrl` provider + AndroidManifest ACTION_SEND text/plain intent-filter + bootstrap cold-start read + GoRouter redirect 분기 + `LinkAddScreen(initialUrl:)` prefill. 453 tests GREEN, Android dev/staging debug APK 빌드 성공. **실기기 공유 시트 검증은 사용자 수동 확인 필요**. Plugin 통합 부수효과로 Gradle subprojects JVM 17 정렬 적용. |
+| 2026-04-21 | 로드맵 갱신 — Phase 1 잔여 + Phase 2 재평가 | warm/foreground bottom sheet, URL 이 아닌 payload 예외 처리, 실기기 multi-app 검증 후 iOS Share Extension 진입 |
 
 ---
 
-> **다음 액션**: Phase 1 Android URL-only PoC 구현 진입. 구성 요소: `receive_sharing_intent` 추가 → AndroidManifest `<intent-filter>` → `main.dart` 부트 시퀀스 → GoRouter `initialLocation` 분기 → `link/add` `prefill` query 수용.
+> **다음 액션**: ① 실기기 2앱 이상 (YouTube/Chrome/Twitter) 에서 공유 시트 → LinkNote → 폼 prefill 확인. ② Phase 1 후반: warm/foreground 스트림 구독 + bottom sheet UX. ③ Phase 2: iOS Share Extension (App Groups / entitlement / SwiftUI vs 캡처-전용 재결정).

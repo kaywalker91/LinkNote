@@ -4,10 +4,10 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:linknote/features/link/presentation/screens/link_add_screen.dart';
 
 void main() {
-  Widget buildSubject() {
-    return const ProviderScope(
+  Widget buildSubject({String? initialUrl}) {
+    return ProviderScope(
       child: MaterialApp(
-        home: LinkAddScreen(),
+        home: LinkAddScreen(initialUrl: initialUrl),
       ),
     );
   }
@@ -94,5 +94,34 @@ void main() {
       expect(find.text('Description'), findsOneWidget);
       expect(find.text('Notes'), findsOneWidget);
     });
+
+    testWidgets(
+      'should seed URL field from initialUrl (share-intent prefill)',
+      (tester) async {
+        // Arrange & Act
+        await tester.pumpWidget(
+          buildSubject(initialUrl: 'https://example.com/shared'),
+        );
+        await tester.pumpAndSettle();
+
+        // Assert
+        expect(find.text('https://example.com/shared'), findsOneWidget);
+      },
+    );
+
+    testWidgets(
+      'should leave URL field empty when initialUrl is null',
+      (tester) async {
+        // Arrange & Act
+        await tester.pumpWidget(buildSubject());
+        await tester.pumpAndSettle();
+
+        // Assert — placeholder hint remains visible, URL text does not.
+        final urlField = tester.widget<TextField>(
+          find.widgetWithText(TextField, 'URL *'),
+        );
+        expect(urlField.controller?.text ?? '', isEmpty);
+      },
+    );
   });
 }

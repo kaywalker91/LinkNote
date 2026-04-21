@@ -7,6 +7,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added (Session 38 — Share Intent Phase 1: Android URL-only PoC)
+
+- **Cold-start share intent → `link/add` prefill** (Android 전용, Phase 1 Decision 3.1~3.4 에 따름)
+  - 신규 `lib/features/share_intent/domain/service/shared_intent_service.dart` — payload → URL 추출, `UrlSanitizer` 재사용 (title+URL / tweet prose / hidden Unicode / malformed 처리)
+  - 신규 `lib/features/share_intent/presentation/provider/pending_shared_url_provider.dart` — Riverpod `keepAlive` Notifier. 부트 seed + redirect 1회 consume
+  - `lib/bootstrap.dart` — `runApp` 전 `ReceiveSharingIntent.getInitialMedia()` 1회 읽기 + `reset()`. 플러그인 예외는 warn 로그 + null 반환으로 격리
+  - `lib/app/router/app_router.dart` — 인증 완료 후 splash/login/signup → home 리다이렉트 직전 pending URL 있으면 consume + `/links/new?prefill=<encoded>` 로 분기
+  - `lib/features/link/presentation/screens/link_add_screen.dart` — `initialUrl` 파라미터 추가. `initState` 에서 URL controller seed + post-frame callback 으로 `linkFormProvider.updateUrl`
+- **플랫폼 설정**
+  - `pubspec.yaml` — `receive_sharing_intent: ^1.8.1`
+  - `android/app/src/main/AndroidManifest.xml` — `ACTION_SEND` + `category.DEFAULT` + `text/plain` intent-filter (기존 deep link `linknote://` 와 공존)
+  - `android/build.gradle.kts` — subprojects Kotlin/Java JVM 17 정렬 (plugin 의 Kotlin `jvmTarget=17` 과 Java 1.8 불일치 해결)
+- **테스트** (+16: 437 → 453)
+  - `test/features/share_intent/domain/shared_intent_service_test.dart` — TDD RED → GREEN 9 케이스
+  - `test/features/share_intent/presentation/pending_shared_url_provider_test.dart` — 5 케이스 (default null / setInitial / null·empty guard / consume)
+  - `test/features/link/presentation/screens/link_add_screen_test.dart` — prefill seed / prefill absent 2 케이스
+- **빌드 검증**: `flutter build apk --debug --flavor dev` 및 `--flavor staging` 모두 성공
+- **미검증 (사용자 수동 확인 필요)**: 실기기/에뮬레이터에서 YouTube/Chrome/Twitter 공유 시트 → LinkNote 선택 → 폼 prefill 동작
+
+### Docs (Session 38 — PRD 갱신)
+
+- **`docs/prds/share-intent.md`**
+  - 상단 상태 배너: `Decided (Session 37)` → `Phase 1 구현 (Session 38)`
+  - Section 7 결정 로그: "2026-04-21 Phase 1 Android URL-only PoC 구현" + 로드맵 갱신 2 entry 추가
+  - "다음 액션" 을 ① 실기기 2앱 검증 ② warm/foreground bottom sheet ③ Phase 2 iOS Extension 3단계로 재구성
+
 ### Docs (Session 37 — Share Intent PRD Decided 승격)
 
 - **`docs/prds/share-intent.md` Draft → Decided (2026-04-21)**: Open Decision 4건 합의 완료. Phase 1 (Android URL-only PoC) 진입 가능

@@ -53,7 +53,7 @@ final class LinkFormProvider
   }
 }
 
-String _$linkFormHash() => r'019518d28c73b02dd60950b712215fdd5b75c9cc';
+String _$linkFormHash() => r'e0dd8a320a7ba11c7e90763dcdd02d7411f5af05';
 
 /// AutoDispose (default): form state is per-screen; discard on close.
 
