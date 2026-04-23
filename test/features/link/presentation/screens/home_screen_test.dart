@@ -7,6 +7,7 @@ import 'package:linknote/features/link/domain/entity/link_entity.dart';
 import 'package:linknote/features/link/presentation/provider/link_list_provider.dart';
 import 'package:linknote/features/link/presentation/screens/home_screen.dart';
 import 'package:linknote/shared/models/paginated_state.dart';
+import 'package:linknote/shared/widgets/ln/ln_brand.dart';
 
 /// Notifier that never completes — keeps the provider in AsyncLoading.
 class _LoadingLinkList extends LinkList {
@@ -63,7 +64,7 @@ void main() {
       await tester.pump();
 
       // Assert — loading state shows skeleton items
-      expect(find.text('LinkNote'), findsOneWidget);
+      expect(find.byType(LinkNoteWordmark), findsOneWidget);
       // ListView.builder with 8 LinkCardSkeleton items
       expect(find.byType(ListView), findsOneWidget);
     });
@@ -145,7 +146,7 @@ void main() {
       expect(find.text('Dart'), findsOneWidget);
     });
 
-    testWidgets('should show filter chips (All and Favorites)', (tester) async {
+    testWidgets('should show segmented filter (전체 / ★ 즐겨찾기)', (tester) async {
       // Arrange & Act
       await tester.pumpWidget(
         ProviderScope(
@@ -160,8 +161,8 @@ void main() {
       await tester.pumpAndSettle();
 
       // Assert
-      expect(find.text('All'), findsOneWidget);
-      expect(find.text('Favorites'), findsOneWidget);
+      expect(find.text('전체'), findsOneWidget);
+      expect(find.text('★ 즐겨찾기'), findsOneWidget);
     });
 
     testWidgets('should show FAB for adding links', (tester) async {

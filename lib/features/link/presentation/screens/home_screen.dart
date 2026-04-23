@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:linknote/app/router/routes.dart';
-import 'package:linknote/app/theme/app_spacing.dart';
+import 'package:linknote/app/theme/app_colors.dart';
 import 'package:linknote/features/collection/domain/entity/collection_entity.dart';
 import 'package:linknote/features/collection/presentation/provider/collection_list_provider.dart';
 import 'package:linknote/features/link/domain/entity/link_entity.dart';
@@ -14,7 +14,11 @@ import 'package:linknote/shared/widgets/confirmation_dialog_widget.dart';
 import 'package:linknote/shared/widgets/empty_state_illustration.dart';
 import 'package:linknote/shared/widgets/empty_state_widget.dart';
 import 'package:linknote/shared/widgets/error_state_widget.dart';
-import 'package:linknote/shared/widgets/link_list_tile.dart';
+import 'package:linknote/shared/widgets/ln/ln_brand.dart';
+import 'package:linknote/shared/widgets/ln/ln_icon_btn.dart';
+import 'package:linknote/shared/widgets/ln/ln_link_card.dart';
+import 'package:linknote/shared/widgets/ln/ln_segmented.dart';
+import 'package:linknote/shared/widgets/ln/ln_top_bar.dart';
 import 'package:linknote/shared/widgets/paginated_list_view.dart';
 import 'package:linknote/shared/widgets/skeleton/link_card_skeleton.dart';
 
@@ -24,79 +28,94 @@ class HomeScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final linksAsync = ref.watch(linkListProvider);
+    final items = linksAsync.value?.items ?? const <LinkEntity>[];
+    final total = items.length;
+    final now = DateTime.now();
+    final thisWeek = items
+        .where((l) => now.difference(l.createdAt).inDays < 7)
+        .length;
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('LinkNote'),
-        bottom: const PreferredSize(
-          preferredSize: Size.fromHeight(48),
-          child: _FilterChipsBar(),
+      backgroundColor: AppColors.bgAlt,
+      appBar: LnTopBar(
+        large: true,
+        leading: const Padding(
+          padding: EdgeInsets.only(left: 8),
+          child: LinkNoteWordmark(),
         ),
+        actions: [
+          LnIconBtn(
+            icon: Icons.notifications_none_rounded,
+            badge: true,
+            tooltip: '알림',
+            onPressed: () {},
+          ),
+          LnIconBtn(
+            icon: Icons.swap_vert_rounded,
+            tooltip: '정렬',
+            onPressed: () {},
+          ),
+          const SizedBox(width: 4),
+        ],
+        displayTitle: '내 서랍',
+        displaySubtitle: _buildMetaLine(total: total, thisWeek: thisWeek),
       ),
-      body: linksAsync.when(
-        loading: () => ListView.builder(
-          itemCount: 8,
-          itemBuilder: (_, __) => const LinkCardSkeleton(),
-        ),
-        error: (error, _) => ErrorStateWidget.fromError(
-          error,
-          onRetry: () => ref.read(linkListProvider.notifier).refresh(),
-        ),
-        data: (_) => const _LinkListBody(),
+      body: Column(
+        children: [
+          const Padding(
+            padding: EdgeInsets.fromLTRB(16, 12, 16, 8),
+            child: _HomeSegmented(),
+          ),
+          Expanded(
+            child: linksAsync.when(
+              loading: () => ListView.builder(
+                itemCount: 8,
+                itemBuilder: (_, __) => const LinkCardSkeleton(),
+              ),
+              error: (error, _) => ErrorStateWidget.fromError(
+                error,
+                onRetry: () => ref.read(linkListProvider.notifier).refresh(),
+              ),
+              data: (_) => const _LinkListBody(),
+            ),
+          ),
+        ],
       ),
       floatingActionButton: Padding(
-        padding: const EdgeInsets.only(bottom: 8, right: 4),
+        padding: const EdgeInsets.only(bottom: 8),
         child: FloatingActionButton(
           heroTag: 'home_fab',
-          onPressed: () => context.push(Routes.linkAdd),
+          backgroundColor: AppColors.forest,
+          foregroundColor: Colors.white,
           elevation: 6,
-          child: const Icon(Icons.add),
+          onPressed: () => context.push(Routes.linkAdd),
+          child: const Icon(Icons.add_rounded, size: 24),
         ),
       ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
+  }
+
+  String _buildMetaLine({required int total, required int thisWeek}) {
+    if (total == 0) return '첫 링크를 저장해 보세요';
+    if (thisWeek == 0) return '저장한 링크 $total';
+    return '저장한 링크 $total · 이번 주 +$thisWeek';
   }
 }
 
-class _FilterChipsBar extends ConsumerWidget {
-  const _FilterChipsBar();
+class _HomeSegmented extends ConsumerWidget {
+  const _HomeSegmented();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final filter = ref.watch(linkFilterProvider);
-    return Padding(
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.screenPadding,
-        vertical: AppSpacing.sm,
-      ),
-      child: Row(
-        children: [
-          FilterChip(
-            label: const Text('All'),
-            selected: !filter.favoritesOnly,
-            shape: const StadiumBorder(),
-            padding: const EdgeInsets.symmetric(
-              horizontal: AppSpacing.sm,
-              vertical: AppSpacing.xs,
-            ),
-            onSelected: (_) => ref
-                .read(linkFilterProvider.notifier)
-                .setFavoritesOnly(value: false),
-          ),
-          const SizedBox(width: AppSpacing.sm),
-          FilterChip(
-            label: const Text('Favorites'),
-            selected: filter.favoritesOnly,
-            shape: const StadiumBorder(),
-            padding: const EdgeInsets.symmetric(
-              horizontal: AppSpacing.sm,
-              vertical: AppSpacing.xs,
-            ),
-            onSelected: (_) => ref
-                .read(linkFilterProvider.notifier)
-                .setFavoritesOnly(value: true),
-          ),
-        ],
-      ),
+    final selected = filter.favoritesOnly ? 1 : 0;
+    return LnSegmented(
+      labels: const ['전체', '★ 즐겨찾기'],
+      selectedIndex: selected,
+      onChanged: (idx) => ref
+          .read(linkFilterProvider.notifier)
+          .setFavoritesOnly(value: idx == 1),
     );
   }
 }
@@ -123,7 +142,7 @@ class _LinkListBody extends ConsumerWidget {
         actionLabel: 'Add Link',
         onAction: () => context.push(Routes.linkAdd),
       ),
-      itemBuilder: (context, link, _) => LinkListTile(
+      itemBuilder: (context, link, _) => LnLinkCard(
         link: link,
         onTap: () => UrlLauncherHelper.launch(context, link.url),
         onLongPress: () => context.push(Routes.linkDetailPath(link.id)),
