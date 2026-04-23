@@ -1,35 +1,73 @@
 import 'package:flutter/material.dart';
 
 abstract final class AppColors {
-  // Primary
-  static const Color primary = Color(0xFF2563EB);
-  static const Color primaryLight = Color(0xFF60A5FA);
-  static const Color primaryDark = Color(0xFF1D4ED8);
+  // Brand — forest (primary accent)
+  static const Color forest = Color(0xFF1F6E53);
+  static const Color forestInk = Color(0xFF134433);
+  static const Color forestSoft = Color(0xFFE8F1EC);
 
-  // Surface
-  static const Color surface = Color(0xFFFFFFFF);
-  static const Color surfaceVariant = Color(0xFFF8FAFC);
-  static const Color background = Color(0xFFF1F5F9);
+  // Accent — amber (favorite / memo highlight)
+  static const Color amber = Color(0xFFC8863E);
+  static const Color amberSoft = Color(0xFFFBF1DF);
+  static const Color amberInk = Color(0xFF6B4319);
 
-  // Text
-  static const Color textPrimary = Color(0xFF0F172A);
-  static const Color textSecondary = Color(0xFF64748B);
-  static const Color textHint = Color(0xFF94A3B8);
+  // Accent — slate (tech tag)
+  static const Color slate = Color(0xFF2E3A47);
+  static const Color slateSoft = Color(0xFFEBEEF1);
 
-  // Semantic
+  // Accent — rose (design tag / notification)
+  static const Color rose = Color(0xFFB85450);
+  static const Color roseSoft = Color(0xFFF6E5E3);
+
+  // Accent — lilac (AI / tool tag)
+  static const Color lilac = Color(0xFF7A6AA8);
+  static const Color lilacSoft = Color(0xFFEEE8F5);
+
+  // Surfaces
+  static const Color bg = Color(0xFFFFFFFF);
+  static const Color bgAlt = Color(0xFFFAFAF7);
+  static const Color bgSunk = Color(0xFFF4F4EF);
+
+  // Ink (text)
+  static const Color ink = Color(0xFF111714);
+  static const Color ink2 = Color(0xFF3D453F);
+  static const Color ink3 = Color(0xFF6F7671);
+  static const Color ink4 = Color(0xFFA5ABA7);
+  static const Color ink5 = Color(0xFFCDD1CD);
+
+  // Lines
+  static const Color line = Color(0xFFEEEEE9);
+  static const Color lineStrong = Color(0xFFE2E2DB);
+
+  // Primary aliases (backward compat)
+  static const Color primary = forest;
+  static const Color primaryLight = forestSoft;
+  static const Color primaryDark = forestInk;
+
+  // Surface aliases (backward compat — previous palette used surface/surfaceVariant/background)
+  static const Color surface = bg;
+  static const Color surfaceVariant = bgAlt;
+  static const Color background = bgAlt;
+
+  // Text aliases (backward compat)
+  static const Color textPrimary = ink;
+  static const Color textSecondary = ink3;
+  static const Color textHint = ink4;
+
+  // Border aliases (backward compat)
+  static const Color border = lineStrong;
+  static const Color borderLight = line;
+
+  // Semantic (kept from prior palette; handoff uses rose as destructive accent in UI)
   static const Color success = Color(0xFF22C55E);
-  static const Color warning = Color(0xFFF59E0B);
-  static const Color error = Color(0xFFEF4444);
+  static const Color warning = amber;
+  static const Color error = rose;
   static const Color info = Color(0xFF3B82F6);
 
-  // Border
-  static const Color border = Color(0xFFE2E8F0);
-  static const Color borderLight = Color(0xFFF1F5F9);
-
   // Hex strings (persisted in entities like TagEntity.color)
-  static const String defaultTagColorHex = '#2563EB'; // == primary
+  static const String defaultTagColorHex = '#1F6E53'; // forest
 
-  // Dark palette
+  // Dark palette — 1st iteration keeps prior dark surfaces, only primary swapped to forest.
   static const Color surfaceDark = Color(0xFF0F172A);
   static const Color surfaceVariantDark = Color(0xFF1E293B);
   static const Color backgroundDark = Color(0xFF020617);

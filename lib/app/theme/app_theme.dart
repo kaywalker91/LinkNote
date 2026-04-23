@@ -1,35 +1,41 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:linknote/app/theme/app_colors.dart';
+import 'package:linknote/app/theme/app_radius.dart';
+import 'package:linknote/app/theme/app_text_styles.dart';
 
 abstract final class AppTheme {
   static ThemeData get light => _build(
     colorScheme: ColorScheme.fromSeed(
-      seedColor: AppColors.primary,
-      surface: AppColors.surface,
+      seedColor: AppColors.forest,
+      primary: AppColors.forest,
+      onPrimary: Colors.white,
+      surface: AppColors.bg,
+      onSurface: AppColors.ink,
       error: AppColors.error,
     ),
-    scaffoldBackground: AppColors.background,
-    appBarBackground: AppColors.surface,
-    appBarForeground: AppColors.textPrimary,
-    cardColor: AppColors.surface,
-    dividerColor: AppColors.border,
-    inputBorder: AppColors.border,
-    navBarBackground: AppColors.surface,
-    navBarIndicator: AppColors.primary.withValues(alpha: 0.12),
-    navBarSelectedIcon: AppColors.primary,
-    navBarUnselectedIcon: AppColors.textSecondary,
-    chipBackground: AppColors.surfaceVariant,
-    chipBorder: AppColors.border,
-    fabBackground: AppColors.primary,
+    scaffoldBackground: AppColors.bgAlt,
+    appBarBackground: AppColors.bg,
+    appBarForeground: AppColors.ink,
+    cardColor: AppColors.bg,
+    dividerColor: AppColors.line,
+    inputBorder: AppColors.lineStrong,
+    navBarBackground: AppColors.bg,
+    navBarIndicator: AppColors.forestSoft,
+    navBarSelectedIcon: AppColors.forest,
+    navBarUnselectedIcon: AppColors.ink4,
+    chipBackground: AppColors.bgSunk,
+    chipBorder: AppColors.line,
+    fabBackground: AppColors.forest,
     fabForeground: Colors.white,
-    snackBarBackground: AppColors.textPrimary,
-    snackBarForeground: AppColors.surface,
+    snackBarBackground: AppColors.ink,
+    snackBarForeground: AppColors.bg,
   );
 
   static ThemeData get dark => _build(
     brightness: Brightness.dark,
     colorScheme: ColorScheme.fromSeed(
-      seedColor: AppColors.primary,
+      seedColor: AppColors.forest,
       brightness: Brightness.dark,
       surface: AppColors.surfaceDark,
       error: AppColors.error,
@@ -41,12 +47,12 @@ abstract final class AppTheme {
     dividerColor: AppColors.borderDark,
     inputBorder: AppColors.borderDark,
     navBarBackground: AppColors.surfaceDark,
-    navBarIndicator: AppColors.primaryLight.withValues(alpha: 0.16),
-    navBarSelectedIcon: AppColors.primaryLight,
+    navBarIndicator: AppColors.forestSoft.withValues(alpha: 0.16),
+    navBarSelectedIcon: AppColors.forestSoft,
     navBarUnselectedIcon: AppColors.textSecondaryDark,
     chipBackground: AppColors.surfaceVariantDark,
     chipBorder: AppColors.borderDark,
-    fabBackground: AppColors.primary,
+    fabBackground: AppColors.forest,
     fabForeground: Colors.white,
     snackBarBackground: AppColors.surfaceVariantDark,
     snackBarForeground: AppColors.textPrimaryDark,
@@ -72,22 +78,43 @@ abstract final class AppTheme {
     required Color snackBarForeground,
     Brightness brightness = Brightness.light,
   }) {
+    final textTheme =
+        GoogleFonts.interTextTheme(
+          ThemeData(brightness: brightness).textTheme,
+        ).copyWith(
+          displayLarge: AppTextStyles.displaySans,
+          displayMedium: AppTextStyles.displaySerif,
+          headlineLarge: AppTextStyles.heading1,
+          headlineMedium: AppTextStyles.heading2,
+          headlineSmall: AppTextStyles.heading3,
+          titleLarge: AppTextStyles.titleL,
+          titleMedium: AppTextStyles.titleM,
+          bodyLarge: AppTextStyles.bodyLarge,
+          bodyMedium: AppTextStyles.bodyMedium,
+          bodySmall: AppTextStyles.bodySmall,
+          labelLarge: AppTextStyles.label,
+          labelMedium: AppTextStyles.caption,
+          labelSmall: AppTextStyles.caption,
+        );
+
     return ThemeData(
       useMaterial3: true,
       brightness: brightness,
       colorScheme: colorScheme,
       scaffoldBackgroundColor: scaffoldBackground,
+      textTheme: textTheme,
       appBarTheme: AppBarTheme(
         backgroundColor: appBarBackground,
         foregroundColor: appBarForeground,
         elevation: 0,
         centerTitle: true,
+        titleTextStyle: AppTextStyles.titleL.copyWith(color: appBarForeground),
       ),
       cardTheme: CardThemeData(
         color: cardColor,
         elevation: 0,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(AppRadius.card),
         ),
         margin: EdgeInsets.zero,
       ),
@@ -97,26 +124,26 @@ abstract final class AppTheme {
       ),
       inputDecorationTheme: InputDecorationTheme(
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(AppRadius.input),
           borderSide: BorderSide(color: inputBorder),
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(AppRadius.input),
           borderSide: BorderSide(color: inputBorder),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(AppRadius.input),
           borderSide: const BorderSide(
-            color: AppColors.primary,
+            color: AppColors.forest,
             width: 2,
           ),
         ),
         errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(AppRadius.input),
           borderSide: const BorderSide(color: AppColors.error),
         ),
         focusedErrorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(AppRadius.input),
           borderSide: const BorderSide(color: AppColors.error, width: 2),
         ),
         contentPadding: const EdgeInsets.symmetric(
@@ -126,10 +153,10 @@ abstract final class AppTheme {
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
-          backgroundColor: AppColors.primary,
+          backgroundColor: AppColors.forest,
           foregroundColor: Colors.white,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(AppRadius.button),
           ),
           padding: const EdgeInsets.symmetric(
             horizontal: 24,
@@ -153,7 +180,7 @@ abstract final class AppTheme {
       chipTheme: ChipThemeData(
         backgroundColor: chipBackground,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(AppRadius.full),
           side: BorderSide(color: chipBorder),
         ),
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
@@ -162,7 +189,7 @@ abstract final class AppTheme {
         backgroundColor: fabBackground,
         foregroundColor: fabForeground,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(AppRadius.fab),
         ),
       ),
       snackBarTheme: SnackBarThemeData(
