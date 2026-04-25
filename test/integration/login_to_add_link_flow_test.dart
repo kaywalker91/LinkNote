@@ -12,6 +12,7 @@ import 'package:linknote/features/link/presentation/provider/link_list_provider.
 import 'package:linknote/features/link/presentation/screens/home_screen.dart';
 import 'package:linknote/features/link/presentation/screens/link_add_screen.dart';
 import 'package:linknote/shared/models/paginated_state.dart';
+import 'package:linknote/shared/widgets/ln/ln_brand.dart';
 
 // ---------------------------------------------------------------------------
 // Mock notifiers
@@ -230,7 +231,7 @@ void main() {
       await tester.pump(const Duration(milliseconds: 100));
 
       // Assert — on home
-      expect(find.text('LinkNote'), findsOneWidget);
+      expect(find.byType(LinkNoteWordmark), findsOneWidget);
 
       // Act — navigate to link add (do NOT await push — the Future completes on pop)
       unawaited(router.push('/links/new'));

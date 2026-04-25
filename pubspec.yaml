@@ -22,6 +22,7 @@ dependencies:
   flutter_secure_storage:
   freezed_annotation:
   go_router:
+  google_fonts: ^6.2.1
   hive_ce:
   hive_ce_flutter:
   html: ^0.15.6
@@ -64,7 +65,7 @@ flutter_launcher_icons:
   android: true
   ios: true
   image_path: "assets/images/app_icon.png"
-  adaptive_icon_background: "#4A90D9"
+  adaptive_icon_background: "#1F6E53"
   adaptive_icon_foreground: "assets/images/app_icon.png"
   min_sdk_android: 21
   remove_alpha_ios: true

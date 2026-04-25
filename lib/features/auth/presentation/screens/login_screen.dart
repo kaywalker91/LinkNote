@@ -2,11 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:linknote/app/router/routes.dart';
+import 'package:linknote/app/theme/app_colors.dart';
 import 'package:linknote/app/theme/app_spacing.dart';
+import 'package:linknote/app/theme/app_text_styles.dart';
 import 'package:linknote/core/error/failure_ui.dart';
 import 'package:linknote/features/auth/presentation/provider/auth_provider.dart';
 import 'package:linknote/shared/extensions/context_extensions.dart';
 import 'package:linknote/shared/providers/session_expired_provider.dart';
+import 'package:linknote/shared/widgets/ln/ln_brand.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
@@ -56,6 +59,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     });
 
     return Scaffold(
+      backgroundColor: AppColors.bg,
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(AppSpacing.screenPadding),
@@ -65,21 +69,21 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                const Icon(
-                  Icons.bookmarks_rounded,
-                  size: 48,
-                  color: Colors.blue,
-                ),
-                const SizedBox(height: AppSpacing.lg),
+                const Align(child: LinkNoteMark(size: 40)),
+                const SizedBox(height: AppSpacing.md),
+                const Align(child: LinkNoteWordmark(fontSize: 22)),
+                const SizedBox(height: AppSpacing.xxl),
                 Text(
                   'Welcome back',
-                  style: Theme.of(context).textTheme.headlineMedium,
+                  style: AppTextStyles.heading2.copyWith(color: AppColors.ink),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: AppSpacing.xxl),
                 TextFormField(
                   controller: _emailController,
                   keyboardType: TextInputType.emailAddress,
+                  textInputAction: TextInputAction.next,
+                  autofillHints: const [AutofillHints.email],
                   decoration: const InputDecoration(labelText: 'Email'),
                   validator: (v) => (v?.isEmpty ?? true) ? 'Enter email' : null,
                 ),
@@ -87,9 +91,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 TextFormField(
                   controller: _passwordController,
                   obscureText: true,
+                  textInputAction: TextInputAction.done,
+                  autofillHints: const [AutofillHints.password],
                   decoration: const InputDecoration(labelText: 'Password'),
                   validator: (v) =>
                       (v?.isEmpty ?? true) ? 'Enter password' : null,
+                  onFieldSubmitted: (_) => _submit(),
                 ),
                 const SizedBox(height: AppSpacing.xxl),
                 FilledButton(
