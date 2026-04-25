@@ -59,7 +59,11 @@ class LinkRemoteDataSource {
       );
     } on PostgrestException catch (e) {
       return error(Failure.server(message: e.message));
-    } on Exception catch (e) {
+    } on Object catch (e) {
+      // Catches Dart `Error` subtypes (e.g. `_TypeError` from JSON cast
+      // failures) in addition to Exceptions, so they surface as Failure
+      // instead of escaping to AsyncValue.error as raw Errors. The same
+      // policy applies to every catch block below.
       return error(Failure.unknown(message: e.toString()));
     }
   }
@@ -75,7 +79,7 @@ class LinkRemoteDataSource {
       return success(LinkMapper.toEntity(LinkDto.fromJson(response)));
     } on PostgrestException catch (e) {
       return error(Failure.server(message: e.message));
-    } on Exception catch (e) {
+    } on Object catch (e) {
       return error(Failure.unknown(message: e.toString()));
     }
   }
@@ -104,7 +108,7 @@ class LinkRemoteDataSource {
       return success(createdLink);
     } on PostgrestException catch (e) {
       return error(Failure.server(message: e.message));
-    } on Exception catch (e) {
+    } on Object catch (e) {
       return error(Failure.unknown(message: e.toString()));
     }
   }
@@ -125,7 +129,7 @@ class LinkRemoteDataSource {
       return getLinkById(link.id);
     } on PostgrestException catch (e) {
       return error(Failure.server(message: e.message));
-    } on Exception catch (e) {
+    } on Object catch (e) {
       return error(Failure.unknown(message: e.toString()));
     }
   }
@@ -136,7 +140,7 @@ class LinkRemoteDataSource {
       return success(null);
     } on PostgrestException catch (e) {
       return error(Failure.server(message: e.message));
-    } on Exception catch (e) {
+    } on Object catch (e) {
       return error(Failure.unknown(message: e.toString()));
     }
   }
@@ -153,7 +157,7 @@ class LinkRemoteDataSource {
       return getLinkById(id);
     } on PostgrestException catch (e) {
       return error(Failure.server(message: e.message));
-    } on Exception catch (e) {
+    } on Object catch (e) {
       return error(Failure.unknown(message: e.toString()));
     }
   }

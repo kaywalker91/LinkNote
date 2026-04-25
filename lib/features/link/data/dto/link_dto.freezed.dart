@@ -344,7 +344,11 @@ $CollectionNameDtoCopyWith<$Res>? get collections {
 /// @nodoc
 mixin _$LinkTagDto {
 
- TagDto get tags;
+// Nullable: Supabase `link_tags(tags(*))` join can return null when the
+// referenced `tags` row is hidden by RLS or deleted. Treating this as
+// required throws a `_TypeError` on parse, which `on Exception` cannot
+// catch (Error vs Exception). Filter null entries in `LinkMapper`.
+ TagDto? get tags;
 /// Create a copy of LinkTagDto
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -377,11 +381,11 @@ abstract mixin class $LinkTagDtoCopyWith<$Res>  {
   factory $LinkTagDtoCopyWith(LinkTagDto value, $Res Function(LinkTagDto) _then) = _$LinkTagDtoCopyWithImpl;
 @useResult
 $Res call({
- TagDto tags
+ TagDto? tags
 });
 
 
-$TagDtoCopyWith<$Res> get tags;
+$TagDtoCopyWith<$Res>? get tags;
 
 }
 /// @nodoc
@@ -394,19 +398,22 @@ class _$LinkTagDtoCopyWithImpl<$Res>
 
 /// Create a copy of LinkTagDto
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? tags = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? tags = freezed,}) {
   return _then(_self.copyWith(
-tags: null == tags ? _self.tags : tags // ignore: cast_nullable_to_non_nullable
-as TagDto,
+tags: freezed == tags ? _self.tags : tags // ignore: cast_nullable_to_non_nullable
+as TagDto?,
   ));
 }
 /// Create a copy of LinkTagDto
 /// with the given fields replaced by the non-null parameter values.
 @override
 @pragma('vm:prefer-inline')
-$TagDtoCopyWith<$Res> get tags {
-  
-  return $TagDtoCopyWith<$Res>(_self.tags, (value) {
+$TagDtoCopyWith<$Res>? get tags {
+    if (_self.tags == null) {
+    return null;
+  }
+
+  return $TagDtoCopyWith<$Res>(_self.tags!, (value) {
     return _then(_self.copyWith(tags: value));
   });
 }
@@ -491,7 +498,7 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( TagDto tags)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( TagDto? tags)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _LinkTagDto() when $default != null:
 return $default(_that.tags);case _:
@@ -512,7 +519,7 @@ return $default(_that.tags);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( TagDto tags)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( TagDto? tags)  $default,) {final _that = this;
 switch (_that) {
 case _LinkTagDto():
 return $default(_that.tags);case _:
@@ -532,7 +539,7 @@ return $default(_that.tags);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( TagDto tags)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( TagDto? tags)?  $default,) {final _that = this;
 switch (_that) {
 case _LinkTagDto() when $default != null:
 return $default(_that.tags);case _:
@@ -547,10 +554,14 @@ return $default(_that.tags);case _:
 @JsonSerializable()
 
 class _LinkTagDto implements LinkTagDto {
-  const _LinkTagDto({required this.tags});
+  const _LinkTagDto({this.tags});
   factory _LinkTagDto.fromJson(Map<String, dynamic> json) => _$LinkTagDtoFromJson(json);
 
-@override final  TagDto tags;
+// Nullable: Supabase `link_tags(tags(*))` join can return null when the
+// referenced `tags` row is hidden by RLS or deleted. Treating this as
+// required throws a `_TypeError` on parse, which `on Exception` cannot
+// catch (Error vs Exception). Filter null entries in `LinkMapper`.
+@override final  TagDto? tags;
 
 /// Create a copy of LinkTagDto
 /// with the given fields replaced by the non-null parameter values.
@@ -585,11 +596,11 @@ abstract mixin class _$LinkTagDtoCopyWith<$Res> implements $LinkTagDtoCopyWith<$
   factory _$LinkTagDtoCopyWith(_LinkTagDto value, $Res Function(_LinkTagDto) _then) = __$LinkTagDtoCopyWithImpl;
 @override @useResult
 $Res call({
- TagDto tags
+ TagDto? tags
 });
 
 
-@override $TagDtoCopyWith<$Res> get tags;
+@override $TagDtoCopyWith<$Res>? get tags;
 
 }
 /// @nodoc
@@ -602,10 +613,10 @@ class __$LinkTagDtoCopyWithImpl<$Res>
 
 /// Create a copy of LinkTagDto
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? tags = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? tags = freezed,}) {
   return _then(_LinkTagDto(
-tags: null == tags ? _self.tags : tags // ignore: cast_nullable_to_non_nullable
-as TagDto,
+tags: freezed == tags ? _self.tags : tags // ignore: cast_nullable_to_non_nullable
+as TagDto?,
   ));
 }
 
@@ -613,9 +624,12 @@ as TagDto,
 /// with the given fields replaced by the non-null parameter values.
 @override
 @pragma('vm:prefer-inline')
-$TagDtoCopyWith<$Res> get tags {
-  
-  return $TagDtoCopyWith<$Res>(_self.tags, (value) {
+$TagDtoCopyWith<$Res>? get tags {
+    if (_self.tags == null) {
+    return null;
+  }
+
+  return $TagDtoCopyWith<$Res>(_self.tags!, (value) {
     return _then(_self.copyWith(tags: value));
   });
 }

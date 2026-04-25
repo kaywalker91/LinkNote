@@ -28,7 +28,11 @@ abstract class LinkDto with _$LinkDto {
 @freezed
 abstract class LinkTagDto with _$LinkTagDto {
   const factory LinkTagDto({
-    required TagDto tags,
+    // Nullable: Supabase `link_tags(tags(*))` join can return null when the
+    // referenced `tags` row is hidden by RLS or deleted. Treating this as
+    // required throws a `_TypeError` on parse, which `on Exception` cannot
+    // catch (Error vs Exception). Filter null entries in `LinkMapper`.
+    TagDto? tags,
   }) = _LinkTagDto;
 
   factory LinkTagDto.fromJson(Map<String, dynamic> json) =>

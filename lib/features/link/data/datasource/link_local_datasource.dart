@@ -1,6 +1,7 @@
 import 'package:hive_ce/hive_ce.dart';
 import 'package:linknote/core/error/failure.dart';
 import 'package:linknote/core/error/result.dart';
+import 'package:linknote/core/logger/app_logger.dart';
 import 'package:linknote/core/storage/i_clearable_cache.dart';
 import 'package:linknote/features/link/domain/entity/link_entity.dart';
 import 'package:linknote/shared/models/paginated_state.dart';
@@ -42,7 +43,7 @@ class LinkLocalDataSource implements IClearableCache {
       return success(
         PaginatedState<LinkEntity>(items: entities),
       );
-    } on Exception catch (e) {
+    } on Object catch (e) {
       return error(Failure.cache(message: e.toString()));
     }
   }
@@ -60,7 +61,7 @@ class LinkLocalDataSource implements IClearableCache {
         );
       }
       return success(entity);
-    } on Exception catch (e) {
+    } on Object catch (e) {
       return error(Failure.cache(message: e.toString()));
     }
   }
@@ -78,8 +79,9 @@ class LinkLocalDataSource implements IClearableCache {
       };
       await _box.putAll(entries);
       await _trimCache();
-    } on Exception catch (_) {
-      // Silent failure — cache write should not break the app
+    } on Object catch (e, st) {
+      // Silent failure — cache write should not break the app. Log for diag.
+      appLogger.w('cacheLinks failed', error: e, stackTrace: st);
     }
   }
 
@@ -89,13 +91,13 @@ class LinkLocalDataSource implements IClearableCache {
       map['_cachedAt'] = DateTime.now().toIso8601String();
       await _box.put(link.id, map);
       await _trimCache();
-    } on Exception catch (_) {}
+    } on Object catch (_) {}
   }
 
   Future<void> removeCachedLink(String id) async {
     try {
       await _box.delete(id);
-    } on Exception catch (_) {}
+    } on Object catch (_) {}
   }
 
   Future<void> updateCachedFavorite(
@@ -108,14 +110,14 @@ class LinkLocalDataSource implements IClearableCache {
       final updated = Map<String, dynamic>.from(raw);
       updated['isFavorite'] = isFavorite;
       await _box.put(id, updated);
-    } on Exception catch (_) {}
+    } on Object catch (_) {}
   }
 
   @override
   Future<void> clearAll() async {
     try {
       await _box.clear();
-    } on Exception catch (_) {}
+    } on Object catch (_) {}
   }
 
   // ---------------------------------------------------------------------------
@@ -159,7 +161,7 @@ class LinkLocalDataSource implements IClearableCache {
             ? DateTime.parse(cachedAt)
             : DateTime.parse(json['createdAt'] as String);
         parsed.add(MapEntry(entry.key as String, timestamp));
-      } on Exception catch (_) {
+      } on Object catch (_) {
         // Remove unparseable entries
         await _box.delete(entry.key);
       }

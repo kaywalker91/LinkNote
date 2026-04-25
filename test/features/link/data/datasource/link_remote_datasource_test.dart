@@ -73,6 +73,21 @@ void main() {
       expect(result.isFailure, isTrue);
       expect(result.failure, isA<UnknownFailure>());
     });
+
+    test(
+      'should return Failure.unknown on Error (Exception is not Error)',
+      () async {
+        // Dart `Error` subtypes (e.g. `_TypeError` from JSON cast failures)
+        // are not caught by `on Exception`, so the catch block must use
+        // `on Object` to avoid leaking raw Errors to AsyncValue.error.
+        when(() => mockClient.from('links')).thenThrow(ArgumentError('bad'));
+
+        final result = await sut.deleteLink('link-1');
+
+        expect(result.isFailure, isTrue);
+        expect(result.failure, isA<UnknownFailure>());
+      },
+    );
   });
 
   group('toggleFavorite', () {

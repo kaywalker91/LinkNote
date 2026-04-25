@@ -44,8 +44,11 @@ Map<String, dynamic> _$LinkDtoToJson(_LinkDto instance) => <String, dynamic>{
   'collections': instance.collections,
 };
 
-_LinkTagDto _$LinkTagDtoFromJson(Map<String, dynamic> json) =>
-    _LinkTagDto(tags: TagDto.fromJson(json['tags'] as Map<String, dynamic>));
+_LinkTagDto _$LinkTagDtoFromJson(Map<String, dynamic> json) => _LinkTagDto(
+  tags: json['tags'] == null
+      ? null
+      : TagDto.fromJson(json['tags'] as Map<String, dynamic>),
+);
 
 Map<String, dynamic> _$LinkTagDtoToJson(_LinkTagDto instance) =>
     <String, dynamic>{'tags': instance.tags};

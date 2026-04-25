@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:linknote/core/error/failure.dart';
 
@@ -45,6 +46,15 @@ extension FailureUiX on Failure {
       message: '앱을 다시 시작해 주세요.',
       icon: Icons.storage_rounded,
     ),
+    // Surface the real message in debug builds so unexpected failures are
+    // easy to diagnose; release builds keep the user-friendly fallback.
+    UnknownFailure(:final message)
+        when kDebugMode && message != null && message.isNotEmpty =>
+      FailureUi(
+        title: '오류가 발생했습니다 (debug)',
+        message: message,
+        icon: Icons.error_outline_rounded,
+      ),
     UnknownFailure() => const FailureUi(
       title: '오류가 발생했습니다',
       message: '잠시 후 다시 시도해 주세요.',
@@ -55,6 +65,13 @@ extension FailureUiX on Failure {
 
 FailureUi failureUiFromError(Object error) {
   if (error is Failure) return error.toUi();
+  if (kDebugMode) {
+    return FailureUi(
+      title: '오류가 발생했습니다 (debug)',
+      message: error.toString(),
+      icon: Icons.error_outline_rounded,
+    );
+  }
   return const FailureUi(
     title: '오류가 발생했습니다',
     message: '잠시 후 다시 시도해 주세요.',
