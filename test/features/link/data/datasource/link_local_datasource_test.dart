@@ -4,6 +4,7 @@ import 'package:linknote/core/error/failure.dart';
 import 'package:linknote/core/error/result.dart';
 import 'package:linknote/features/link/data/datasource/link_local_datasource.dart';
 import 'package:linknote/features/link/domain/entity/link_entity.dart';
+import 'package:linknote/features/link/domain/entity/tag_entity.dart';
 import 'package:mocktail/mocktail.dart';
 
 class MockBox extends Mock implements Box<Map<dynamic, dynamic>> {}
@@ -236,6 +237,56 @@ void main() {
       // Act & Assert — should not throw
       await sut.cacheLinks(tLinks);
     });
+
+    test(
+      'should serialize nested tags as List<Map> so Hive can store them',
+      () async {
+        // Regression: LinkEntity.toJson() leaves nested TagEntity instances
+        // as-is (`'tags': instance.tags`). Hive then throws
+        // `HiveError: Cannot write, unknown type: _TagEntity`.
+        final tLinks = [
+          LinkEntity(
+            id: 'link-1',
+            url: 'https://example.com',
+            title: 'Test',
+            createdAt: DateTime(2026),
+            updatedAt: DateTime(2026),
+            tags: const [
+              TagEntity(id: 'tag-1', name: 'Flutter', color: '#FF0000'),
+              TagEntity(id: 'tag-2', name: 'Dart', color: '#0000FF'),
+            ],
+          ),
+        ];
+        Map<String, Map<String, dynamic>>? captured;
+        when(() => mockBox.putAll(any())).thenAnswer((invocation) async {
+          captured =
+              invocation.positionalArguments.first
+                  as Map<String, Map<String, dynamic>>;
+        });
+        when(() => mockBox.length).thenReturn(1);
+
+        // Act
+        await sut.cacheLinks(tLinks);
+
+        // Assert — every nested tag must be a plain Map, not a TagEntity.
+        expect(captured, isNotNull);
+        final stored = captured!['link-1'];
+        expect(stored, isNotNull);
+        final tags = stored!['tags'];
+        expect(tags, isA<List<dynamic>>());
+        for (final tag in tags as List<dynamic>) {
+          expect(
+            tag,
+            isA<Map<String, dynamic>>(),
+            reason:
+                'Hive cannot serialize TagEntity instances; '
+                'nested tags must be Map<String, dynamic>',
+          );
+        }
+        expect((tags.first as Map<String, dynamic>)['id'], 'tag-1');
+        expect((tags.first as Map<String, dynamic>)['name'], 'Flutter');
+      },
+    );
   });
 
   // ---------------------------------------------------------------------------
@@ -262,6 +313,41 @@ void main() {
       // Assert
       verify(() => mockBox.put('link-1', any())).called(1);
     });
+
+    test(
+      'should serialize nested tags as List<Map> when caching one',
+      () async {
+        // Same regression as cacheLinks — but via the single-link write path.
+        final tLink = LinkEntity(
+          id: 'link-1',
+          url: 'https://example.com',
+          title: 'Test',
+          createdAt: DateTime(2026),
+          updatedAt: DateTime(2026),
+          tags: const [
+            TagEntity(id: 'tag-1', name: 'Flutter', color: '#FF0000'),
+          ],
+        );
+        Map<String, dynamic>? captured;
+        when(
+          () => mockBox.put(any<dynamic>(), any<Map<dynamic, dynamic>>()),
+        ).thenAnswer((invocation) async {
+          captured = invocation.positionalArguments[1] as Map<String, dynamic>;
+        });
+        when(() => mockBox.length).thenReturn(1);
+
+        // Act
+        await sut.cacheSingleLink(tLink);
+
+        // Assert
+        expect(captured, isNotNull);
+        final tags = captured!['tags'];
+        expect(tags, isA<List<dynamic>>());
+        for (final tag in tags as List<dynamic>) {
+          expect(tag, isA<Map<String, dynamic>>());
+        }
+      },
+    );
   });
 
   // ---------------------------------------------------------------------------

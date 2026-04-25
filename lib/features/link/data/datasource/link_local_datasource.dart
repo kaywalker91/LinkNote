@@ -144,7 +144,12 @@ class LinkLocalDataSource implements IClearableCache {
   }
 
   Map<String, dynamic> _entityToMap(LinkEntity entity) {
-    return entity.toJson();
+    // Boundary fix: LinkEntity.toJson() leaves nested TagEntity instances
+    // as-is (no `explicitToJson: true`), which Hive cannot serialize
+    // (`HiveError: Cannot write, unknown type: _TagEntity`).
+    final map = entity.toJson();
+    map['tags'] = entity.tags.map((t) => t.toJson()).toList();
+    return map;
   }
 
   /// Keeps only the most recent [_maxCacheSize] links by cache-write time.
