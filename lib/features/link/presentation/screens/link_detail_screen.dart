@@ -52,9 +52,9 @@ class LinkDetailScreen extends ConsumerWidget {
                   onPressed: () async {
                     final confirm = await ConfirmationDialogWidget.show(
                       context,
-                      title: 'Delete Link',
-                      message: 'This action cannot be undone.',
-                      confirmLabel: 'Delete',
+                      title: '링크 삭제',
+                      message: '되돌릴 수 없습니다.',
+                      confirmLabel: '삭제',
                       isDestructive: true,
                     );
                     if ((confirm ?? false) && context.mounted) {
@@ -117,7 +117,8 @@ class LinkDetailScreen extends ConsumerWidget {
                 ),
                 const SizedBox(height: AppSpacing.sm),
                 Text(
-                  'Added ${link.createdAt.timeAgo()}',
+                  '${link.createdAt.timeAgo()} 저장 · '
+                  '${link.createdAt.formattedDate()}',
                   style: AppTextStyles.bodySmall.copyWith(
                     color: AppColors.ink3,
                   ),
@@ -169,7 +170,7 @@ class LinkDetailScreen extends ConsumerWidget {
                     color: AppColors.line,
                   ),
                   Text(
-                    'Tags',
+                    '태그',
                     style: AppTextStyles.titleM.copyWith(
                       color: AppColors.ink,
                     ),

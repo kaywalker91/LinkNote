@@ -163,10 +163,33 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      expect(find.text('Tags'), findsOneWidget);
+      expect(find.text('태그'), findsOneWidget);
       final tagFinder = find.byType(LnTag);
       expect(tagFinder, findsOneWidget);
       expect(tester.widget<LnTag>(tagFinder).name, 'flutter');
+    });
+
+    testWidgets('should show saved date with relative + absolute format', (
+      tester,
+    ) async {
+      // tLink.createdAt = DateTime(2026, 1, 1) → '2026.01.01'
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            linkDetailProvider.overrideWith(() => _DataLinkDetail(tLink)),
+            linkListProvider.overrideWith(_StubLinkList.new),
+          ],
+          child: const MaterialApp(
+            home: LinkDetailScreen(linkId: '1'),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      // Absolute date should always render regardless of relative-time variance.
+      expect(find.textContaining('2026.01.01'), findsOneWidget);
+      // Korean relative-time prefix should accompany the absolute date.
+      expect(find.textContaining('저장 ·'), findsOneWidget);
     });
 
     testWidgets('should show action buttons when data is loaded', (

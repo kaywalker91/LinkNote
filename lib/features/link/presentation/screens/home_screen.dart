@@ -137,9 +137,9 @@ class _LinkListBody extends ConsumerWidget {
       onLoadMore: () => ref.read(linkListProvider.notifier).loadMore(),
       empty: EmptyStateWidget(
         illustration: const EmptyStateIllustration.links(),
-        message: 'No links yet',
-        subMessage: 'Tap + to save your first link',
-        actionLabel: 'Add Link',
+        message: '저장된 링크가 없어요',
+        subMessage: '+ 버튼을 눌러 첫 링크를 저장해 보세요',
+        actionLabel: '링크 추가',
         onAction: () => context.push(Routes.linkAdd),
       ),
       itemBuilder: (context, link, _) => LnLinkCard(
@@ -166,7 +166,7 @@ class _LinkListBody extends ConsumerWidget {
           children: [
             ListTile(
               leading: const Icon(Icons.info_outline),
-              title: const Text('View Details'),
+              title: const Text('상세 보기'),
               onTap: () async {
                 Navigator.of(sheetContext).pop();
                 await context.push(Routes.linkDetailPath(linkId));
@@ -174,7 +174,7 @@ class _LinkListBody extends ConsumerWidget {
             ),
             ListTile(
               leading: const Icon(Icons.edit_outlined),
-              title: const Text('Edit'),
+              title: const Text('편집'),
               onTap: () async {
                 Navigator.of(sheetContext).pop();
                 await context.push(Routes.linkEditPath(linkId));
@@ -182,7 +182,7 @@ class _LinkListBody extends ConsumerWidget {
             ),
             ListTile(
               leading: const Icon(Icons.folder_outlined),
-              title: const Text('Move to Collection'),
+              title: const Text('컬렉션으로 이동'),
               onTap: () async {
                 Navigator.of(sheetContext).pop();
                 await _showCollectionPicker(context, ref, linkId);
@@ -190,14 +190,14 @@ class _LinkListBody extends ConsumerWidget {
             ),
             ListTile(
               leading: const Icon(Icons.delete_outline, color: Colors.red),
-              title: const Text('Delete', style: TextStyle(color: Colors.red)),
+              title: const Text('삭제', style: TextStyle(color: Colors.red)),
               onTap: () async {
                 Navigator.of(sheetContext).pop();
                 final confirmed = await ConfirmationDialogWidget.show(
                   context,
-                  title: 'Delete Link',
-                  message: 'This link will be permanently removed.',
-                  confirmLabel: 'Delete',
+                  title: '링크 삭제',
+                  message: '이 링크는 영구적으로 삭제됩니다.',
+                  confirmLabel: '삭제',
                   isDestructive: true,
                 );
                 if (confirmed ?? false) {
@@ -230,7 +230,7 @@ class _LinkListBody extends ConsumerWidget {
           children: [
             ListTile(
               leading: const Icon(Icons.folder_off_outlined),
-              title: const Text('None'),
+              title: const Text('없음'),
               onTap: () => Navigator.of(sheetContext).pop(
                 const _CollectionPick(id: null),
               ),

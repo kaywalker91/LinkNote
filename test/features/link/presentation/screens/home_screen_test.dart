@@ -105,8 +105,8 @@ void main() {
       await tester.pumpAndSettle();
 
       // Assert
-      expect(find.text('No links yet'), findsOneWidget);
-      expect(find.text('Add Link'), findsOneWidget);
+      expect(find.text('저장된 링크가 없어요'), findsOneWidget);
+      expect(find.text('링크 추가'), findsOneWidget);
     });
 
     testWidgets('should show link list when data has links', (tester) async {

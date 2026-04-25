@@ -39,5 +39,28 @@ void main() {
         expect(time.timeAgo(), equals('1년 전'));
       });
     });
+
+    group('formattedDate', () {
+      test('should format with dot separator and zero-padded month/day', () {
+        expect(
+          DateTime(2026, 1, 22).formattedDate(),
+          equals('2026.01.22'),
+        );
+      });
+
+      test('should zero-pad single-digit month and day', () {
+        expect(
+          DateTime(2026, 9, 5).formattedDate(),
+          equals('2026.09.05'),
+        );
+      });
+
+      test('should preserve double-digit month/day', () {
+        expect(
+          DateTime(2025, 12, 31).formattedDate(),
+          equals('2025.12.31'),
+        );
+      });
+    });
   });
 }

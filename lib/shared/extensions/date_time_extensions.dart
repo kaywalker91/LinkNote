@@ -11,4 +11,10 @@ extension DateTimeExtensions on DateTime {
     if (diff.inDays < 365) return '${(diff.inDays / 30).floor()}개월 전';
     return '${(diff.inDays / 365).floor()}년 전';
   }
+
+  String formattedDate() {
+    final mm = month.toString().padLeft(2, '0');
+    final dd = day.toString().padLeft(2, '0');
+    return '$year.$mm.$dd';
+  }
 }
