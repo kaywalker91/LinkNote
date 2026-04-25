@@ -111,12 +111,21 @@ class SearchFilterBar extends ConsumerWidget {
     );
 
     if (picked != null) {
+      // DateRangePicker hands back midnight DateTimes for both ends.
+      // Anchor the upper bound to end-of-day so links created later in
+      // the picked end date are still included.
+      final inclusiveEnd = DateTime(
+        picked.end.year,
+        picked.end.month,
+        picked.end.day,
+        23,
+        59,
+        59,
+        999,
+      );
       ref
           .read(searchProvider.notifier)
-          .setDateRange(
-            picked.start,
-            picked.end,
-          );
+          .setDateRange(picked.start, inclusiveEnd);
     }
   }
 }
