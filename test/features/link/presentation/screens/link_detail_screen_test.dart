@@ -9,6 +9,7 @@ import 'package:linknote/features/link/presentation/provider/link_detail_provide
 import 'package:linknote/features/link/presentation/provider/link_list_provider.dart';
 import 'package:linknote/features/link/presentation/screens/link_detail_screen.dart';
 import 'package:linknote/shared/models/paginated_state.dart';
+import 'package:linknote/shared/widgets/ln/ln_tag.dart';
 
 class _LoadingLinkDetail extends LinkDetail {
   @override
@@ -144,7 +145,7 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      expect(find.text('Notes'), findsOneWidget);
+      expect(find.text('메모'), findsOneWidget);
       expect(find.text('Must read'), findsOneWidget);
     });
 
@@ -163,7 +164,9 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('Tags'), findsOneWidget);
-      expect(find.text('flutter'), findsOneWidget);
+      final tagFinder = find.byType(LnTag);
+      expect(tagFinder, findsOneWidget);
+      expect(tester.widget<LnTag>(tagFinder).name, 'flutter');
     });
 
     testWidgets('should show action buttons when data is loaded', (
