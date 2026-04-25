@@ -21,7 +21,10 @@ class LinkMapper {
       collectionName: dto.collections?.name,
       memo: dto.memo,
       isFavorite: dto.isFavorite,
-      tags: dto.linkTags.map((lt) => _tagToEntity(lt.tags)).toList(),
+      tags: dto.linkTags
+          .where((lt) => lt.tags != null)
+          .map((lt) => _tagToEntity(lt.tags!))
+          .toList(),
       createdAt: DateTime.parse(dto.createdAt),
       updatedAt: DateTime.parse(dto.updatedAt),
     );

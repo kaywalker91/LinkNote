@@ -60,6 +60,47 @@ void main() {
       );
     });
 
+    test('should drop link_tags entries whose tags is null', () {
+      // Simulates Supabase `link_tags(tags(*))` join when the referenced
+      // tag row is hidden by RLS or has been deleted: the join returns the
+      // row with `tags` set to null instead of omitting it.
+      const dto = LinkDto(
+        id: 'dto-id',
+        userId: 'user-1',
+        url: 'https://example.com',
+        title: 'Test',
+        createdAt: '2026-01-01T00:00:00.000Z',
+        updatedAt: '2026-01-01T00:00:00.000Z',
+        linkTags: [
+          LinkTagDto(),
+          LinkTagDto(
+            tags: TagDto(id: 'tag-1', name: 'flutter', color: '#42A5F5'),
+          ),
+        ],
+      );
+
+      final entity = LinkMapper.toEntity(dto);
+
+      expect(entity.tags, hasLength(1));
+      expect(entity.tags.single.name, 'flutter');
+    });
+
+    test('should parse JSON with null tags entry without throwing', () {
+      final json = <String, dynamic>{
+        'id': 'dto-id',
+        'user_id': 'user-1',
+        'url': 'https://example.com',
+        'title': 'Test',
+        'created_at': '2026-01-01T00:00:00.000Z',
+        'updated_at': '2026-01-01T00:00:00.000Z',
+        'link_tags': [
+          {'tags': null},
+        ],
+      };
+
+      expect(() => LinkDto.fromJson(json), returnsNormally);
+    });
+
     test('should handle nullable fields as null', () {
       // Arrange
       const dto = LinkDto(

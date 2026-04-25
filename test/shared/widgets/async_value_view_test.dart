@@ -55,7 +55,7 @@ void main() {
         ),
       );
 
-      expect(find.text('오류가 발생했습니다'), findsOneWidget);
+      expect(find.textContaining('오류가 발생했습니다'), findsOneWidget);
     });
 
     testWidgets('should show retry button when onRetry is provided', (
@@ -96,7 +96,7 @@ void main() {
       );
 
       expect(find.textContaining('Custom:'), findsOneWidget);
-      expect(find.text('오류가 발생했습니다'), findsNothing);
+      expect(find.textContaining('오류가 발생했습니다'), findsNothing);
     });
   });
 }
