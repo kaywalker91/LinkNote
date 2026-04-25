@@ -3,6 +3,7 @@ import 'package:linknote/core/error/failure.dart';
 import 'package:linknote/core/error/result.dart';
 import 'package:linknote/features/link/data/datasource/link_remote_datasource.dart';
 import 'package:linknote/features/link/domain/entity/link_entity.dart';
+import 'package:linknote/features/link/domain/entity/tag_entity.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -110,6 +111,70 @@ void main() {
 
       expect(result.isFailure, isTrue);
       expect(result.failure, isA<UnknownFailure>());
+    });
+  });
+
+  group('parseRows', () {
+    Map<String, dynamic> validRow({
+      required String id,
+      List<Map<String, dynamic>>? linkTags,
+    }) => <String, dynamic>{
+      'id': id,
+      'user_id': 'u-1',
+      'url': 'https://example.com/$id',
+      'title': 'Title $id',
+      'created_at': '2026-01-01T00:00:00Z',
+      'updated_at': '2026-01-01T00:00:00Z',
+      'link_tags': ?linkTags,
+    };
+
+    test('returns all rows when every row parses cleanly', () {
+      final rows = [
+        validRow(id: 'a'),
+        validRow(
+          id: 'b',
+          linkTags: [
+            {
+              'tags': {'id': 't-1', 'name': 'flutter', 'color': '#2196F3'},
+            },
+          ],
+        ),
+      ];
+
+      final entities = LinkRemoteDataSource.parseRows(rows);
+
+      expect(entities.map((e) => e.id), ['a', 'b']);
+      expect(entities[1].tags.single, isA<TagEntity>());
+    });
+
+    test('skips rows that fail to parse and reports each via onError', () {
+      final errors = <Object>[];
+      final rows = [
+        validRow(id: 'good-1'),
+        // Row with malformed nested tag (missing required `color` field).
+        validRow(
+          id: 'bad-1',
+          linkTags: [
+            {
+              'tags': {'id': 't-1', 'name': 'flutter'},
+            },
+          ],
+        ),
+        validRow(id: 'good-2'),
+      ];
+
+      final entities = LinkRemoteDataSource.parseRows(
+        rows,
+        onError: (error, _) => errors.add(error),
+      );
+
+      expect(entities.map((e) => e.id), ['good-1', 'good-2']);
+      expect(errors.length, 1);
+    });
+
+    test('returns empty list and zero errors when input is empty', () {
+      final entities = LinkRemoteDataSource.parseRows(const []);
+      expect(entities, isEmpty);
     });
   });
 }
