@@ -29,17 +29,19 @@ class SearchRemoteDataSource {
   }) async {
     try {
       final tsQuery = sanitizeTsQuery(query);
+      final hasFilter = filter != null && filter.hasActiveFilters;
 
-      if (tsQuery.isEmpty) return success([]);
+      if (tsQuery.isEmpty && !hasFilter) return success([]);
 
-      var queryBuilder = _client
-          .from('links')
-          .select('''
+      var queryBuilder = _client.from('links').select('''
             *,
             link_tags(tags(*)),
             collections(name)
-          ''')
-          .textSearch('fts', tsQuery);
+          ''');
+
+      if (tsQuery.isNotEmpty) {
+        queryBuilder = queryBuilder.textSearch('fts', tsQuery);
+      }
 
       if (filter != null) {
         if (filter.favoritesOnly) {

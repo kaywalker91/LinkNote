@@ -88,8 +88,9 @@ class _SearchBody extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(searchProvider);
+    final hasActiveFilter = state.filter.hasActiveFilters;
 
-    if (state.query.isEmpty) {
+    if (state.query.isEmpty && !hasActiveFilter) {
       if (state.recentSearches.isEmpty) {
         return const EmptyStateWidget(
           illustration: EmptyStateIllustration.search(),
@@ -151,13 +152,16 @@ class _SearchBody extends ConsumerWidget {
     }
 
     if (state.results.isEmpty) {
+      final emptyMessage = state.query.isNotEmpty
+          ? '"${state.query}" 검색 결과 없음'
+          : '검색 결과 없음';
       return Column(
         children: [
           SearchSuggestionsListWidget(onSuggestionTap: onSuggestionTap),
           Expanded(
             child: EmptyStateWidget(
               illustration: const EmptyStateIllustration.noResults(),
-              message: '"${state.query}" 검색 결과 없음',
+              message: emptyMessage,
             ),
           ),
         ],
