@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:linknote/app/router/app_router.dart';
 import 'package:linknote/app/theme/app_theme.dart';
@@ -7,6 +8,20 @@ import 'package:linknote/shared/providers/theme_mode_provider.dart';
 
 class LinkNoteApp extends ConsumerWidget {
   const LinkNoteApp({super.key});
+
+  static const List<LocalizationsDelegate<Object?>> localizationsDelegates =
+      <LocalizationsDelegate<Object?>>[
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ];
+
+  static const List<Locale> supportedLocales = <Locale>[
+    Locale('ko'),
+    Locale('en'),
+  ];
+
+  static const Locale defaultLocale = Locale('ko');
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -21,6 +36,9 @@ class LinkNoteApp extends ConsumerWidget {
       themeAnimationDuration: const Duration(milliseconds: 300),
       themeAnimationCurve: Curves.easeInOut,
       routerConfig: router,
+      localizationsDelegates: localizationsDelegates,
+      supportedLocales: supportedLocales,
+      locale: defaultLocale,
       debugShowCheckedModeBanner: false,
     );
   }
