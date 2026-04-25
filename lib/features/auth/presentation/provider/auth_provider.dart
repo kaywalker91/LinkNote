@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:linknote/core/error/result.dart';
 import 'package:linknote/features/auth/domain/entity/auth_state_entity.dart';
@@ -29,7 +31,7 @@ class Auth extends _$Auth with ChangeNotifier {
   @override
   Future<AuthStateEntity> build() async {
     // Notify GoRouter's refreshListenable whenever auth state changes.
-    listenSelf((_, next) => notifyListeners());
+    listenSelf((_, __) => notifyListeners());
 
     // Subscribe to real-time auth state changes (session expiry, remote
     // sign-out, token rotation, password change via userUpdated event).
@@ -44,7 +46,15 @@ class Auth extends _$Auth with ChangeNotifier {
 
     // Check existing Supabase session.
     final checkSession = ref.read(checkSessionUsecaseProvider);
-    return checkSession();
+    final result = await checkSession();
+    // The first AsyncLoading -> AsyncData transition is assigned by Riverpod
+    // outside the listenSelf cycle, so the initial state can land without
+    // notifyListeners ever firing — which leaves GoRouter's refreshListenable
+    // asleep and the splash route stuck. Schedule a one-shot tick after the
+    // microtask queue drains so the router re-evaluates the redirect for the
+    // first rendered frame.
+    scheduleMicrotask(notifyListeners);
+    return result;
   }
 
   Future<void> signIn({

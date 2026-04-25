@@ -92,7 +92,7 @@ class HomeScreen extends ConsumerWidget {
           child: const Icon(Icons.add_rounded, size: 24),
         ),
       ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
     );
   }
 
