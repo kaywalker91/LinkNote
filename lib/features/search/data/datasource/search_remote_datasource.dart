@@ -1,7 +1,6 @@
 import 'package:linknote/core/error/failure.dart';
 import 'package:linknote/core/error/result.dart';
-import 'package:linknote/features/link/data/dto/link_dto.dart';
-import 'package:linknote/features/link/data/mapper/link_mapper.dart';
+import 'package:linknote/features/link/data/datasource/link_remote_datasource.dart';
 import 'package:linknote/features/link/domain/entity/link_entity.dart';
 import 'package:linknote/features/link/domain/entity/tag_entity.dart';
 import 'package:linknote/features/search/domain/entity/search_filter_entity.dart';
@@ -65,15 +64,13 @@ class SearchRemoteDataSource {
           .order('created_at', ascending: false)
           .limit(50);
 
-      final items = response
-          .map(
-            (json) => LinkMapper.toEntity(LinkDto.fromJson(json)),
-          )
-          .toList();
+      final items = LinkRemoteDataSource.parseRows(
+        response.cast<Map<String, dynamic>>(),
+      );
       return success(items);
     } on PostgrestException catch (e) {
       return error(Failure.server(message: e.message));
-    } on Exception catch (e) {
+    } on Object catch (e) {
       return error(Failure.unknown(message: e.toString()));
     }
   }

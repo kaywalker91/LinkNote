@@ -1,5 +1,6 @@
 import 'package:linknote/core/error/failure.dart';
 import 'package:linknote/core/error/result.dart';
+import 'package:linknote/core/logger/app_logger.dart';
 import 'package:linknote/features/link/data/dto/link_dto.dart';
 import 'package:linknote/features/link/data/mapper/link_mapper.dart';
 import 'package:linknote/features/link/domain/entity/link_entity.dart';
@@ -16,6 +17,33 @@ class LinkRemoteDataSource {
     link_tags(tags(*)),
     collections(name)
   ''';
+
+  /// Maps Supabase row maps into [LinkEntity] instances per-item, so a single
+  /// malformed row (e.g. a tag join missing `color`) cannot wipe out the
+  /// entire page. Every parse failure is forwarded to [onError] for
+  /// observability instead of being silently swallowed.
+  static List<LinkEntity> parseRows(
+    List<Map<String, dynamic>> rows, {
+    void Function(Object error, StackTrace stackTrace)? onError,
+  }) {
+    final items = <LinkEntity>[];
+    for (final row in rows) {
+      try {
+        items.add(LinkMapper.toEntity(LinkDto.fromJson(row)));
+      } on Object catch (e, st) {
+        (onError ?? _logParseError)(e, st);
+      }
+    }
+    return items;
+  }
+
+  static void _logParseError(Object error, StackTrace stackTrace) {
+    appLogger.w(
+      'LinkRemoteDataSource: failed to parse a link row, skipping',
+      error: error,
+      stackTrace: stackTrace,
+    );
+  }
 
   Future<Result<PaginatedState<LinkEntity>>> getLinks({
     String? cursor,
@@ -42,11 +70,7 @@ class LinkRemoteDataSource {
 
       final hasMore = response.length > pageSize;
       final rawItems = hasMore ? response.sublist(0, pageSize) : response;
-      final items = rawItems
-          .map(
-            (json) => LinkMapper.toEntity(LinkDto.fromJson(json)),
-          )
-          .toList();
+      final items = parseRows(rawItems.cast<Map<String, dynamic>>());
 
       return success(
         PaginatedState<LinkEntity>(
