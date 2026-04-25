@@ -5,110 +5,122 @@
 ---
 
 ```
-Session 39 — Share Intent Phase 1 실기기 검증 결과 반영 + Phase 1 연장(warm/foreground bottom sheet) 판단
+Session 41 — 태그 추가 후 link list UnknownFailure 진단 + 근본 수정
 
 ## 미션 한 줄
 
-Session 38 에서 구현·빌드한 Phase 1 Android URL-only PoC 를 실기기 2앱(YouTube/Chrome/Twitter 중) 이상에서 검증하고, 결과에 따라 버그 패치 또는 Phase 1 연장(warm/foreground stream + bottom sheet) 진입 여부를 결정한다.
+Session 40 (Phase 2 i18n) 머지 직후, 사용자가 LinkAdd/LinkEdit 폼에서 첫 태그("news")를 추가하고 홈 진입 시 link list 가 "오류가 발생했습니다 / 잠시 후 다시 시도해 주세요" (UnknownFailure UI) 로 빈 화면이 되는 잠재 버그가 노출됨. 정확한 stack trace 를 캡처하여 근본 원인을 확정하고 별도 PR 로 수정한다.
 
 ## 배경
 
-Session 38 (2026-04-21):
-- `receive_sharing_intent: ^1.8.1` 도입 + `ACTION_SEND text/plain` intent-filter
-- Domain `SharedIntentService` TDD RED→GREEN (9 케이스), `PendingSharedUrl` Notifier (5 케이스), Widget prefill (2 케이스) — **453 tests GREEN** (+16)
-- `bootstrap.dart` cold-start seed → GoRouter redirect consume → `LinkAddScreen.initialUrl` prefill
-- `android/build.gradle.kts` subprojects JVM 17 정렬 (plugin 1.8.1 Kotlin 17 / Java 기본 1.8 충돌 해결)
-- Android dev/staging debug APK 빌드 성공. **실기기 공유 시트 검증은 미수행** (세션 종료 시점 Android 디바이스 미연결)
-- PRD `docs/prds/share-intent.md` 상태 `Phase 1 구현 (Session 38)` 로 갱신
-- Session 37 PRD Decided 커밋 + Session 38 코드를 묶어 PR 생성 (`feat(share-intent): Phase 1 Android URL-only PoC + PRD Decided`)
+Session 40 (2026-04-25, PR Phase 2):
+- LinkEdit amber + LinkAdd/Collection i18n 머지
+- 실기기 시각 검증 통과 직후 사용자가 태그 1개("news") 추가
+- 홈 재진입 시 link list 화면이 ErrorStateWidget 으로 전환
 
-현재 상태 (Session 39 시작 전):
-- main 최신 — Session 38 PR 머지 상태 가정
-- 453 tests GREEN, analyze 0, Branch Protection 활성
+증상 분석 (Session 40 중 수행):
+- 화면 표기: title="오류가 발생했습니다", message="잠시 후 다시 시도해 주세요." → `failureUiFromError` 의 fallback (`error is Failure` false 케이스)
+- 즉, AsyncValue.error 에 들어 있는 객체가 `Failure` sealed class 가 아닌 raw `Error`/`Object`
+- 첫 태그 추가 직후 트리거 → 이전엔 `link_tags` 가 빈 배열이라 파싱 분기 미진입, tag 1개 생기자 노출
 
-## Phase 1 검증 시나리오 (순서 엄수)
+가설 (확정 필요):
+- `lib/features/link/data/datasource/link_remote_datasource.dart:60-64` 의 `getLinks` 가 `on PostgrestException` + `on Exception` 만 catch
+- `LinkDto.fromJson` → `LinkTagDto.fromJson` → `tags: TagDto.fromJson(json['tags'] as Map<String, dynamic>)` 에서 `json['tags']` 가 `null` 이면 cast `_TypeError` (=`Error`) 발생
+- Dart 에서 `Error` 는 `Exception` 의 자식이 아님 → `on Exception catch` 가 못 잡고 위로 전파
+- `AsyncValue.guard` (또는 build 내 throw) 가 raw Error 를 그대로 AsyncValue.error 에 저장 → UnknownFailure UI
 
-### 0. 사전 확인
+왜 `tags` 가 null 이 될 수 있나 (후보):
+1. **Supabase RLS** — `tags` 테이블 SELECT 정책 부재 → join 응답에서 `tags` 만 null
+2. **FK/관계 정의 미일치** — `link_tags(tags(*))` join 자체가 결과를 못 만들고 null 채움
+3. **데이터 정합성** — `_syncTags` upsert 후 `link_tags.tag_id` 가 가리키는 `tags` row 가 RLS/삭제로 안 보임
+
+## 작업 범위
+
+### Stage 1 — 진단 (임시 변경, 커밋 금지)
+- `lib/features/link/data/datasource/link_remote_datasource.dart` `getLinks` catch 블록을 `on Object catch (e, st)` 로 확장 + `appLogger.e('getLinks', error: e, stackTrace: st)` 추가
+- 또는 `lib/bootstrap.dart` 에 `ProviderObserver` 등록하여 모든 provider 의 `providerDidFail` 을 로깅
+- 재빌드 → 사용자 재시도 → flutter run stdout 에서 stack trace 확보
+
+### Stage 2 — 근본 수정 (별도 PR)
+가설 확정 시점에 두 트랙 병행:
+- **데이터 레이어 방어**:
+  - `LinkTagDto.tags` 를 `TagDto?` 로 변경 + `LinkMapper.toEntity` 에서 `dto.linkTags.where((lt) => lt.tags != null).map((lt) => _tagToEntity(lt.tags!))` 필터
+  - 또는 `LinkDto.fromJson` 에 custom converter 로 null tags 무시
+  - `on Exception` → `on Object` 통일 (Error 도 Failure.unknown 으로 래핑)
+- **Supabase 측 정책 점검**:
+  - dashboard 에서 `tags` 테이블 RLS SELECT policy 확인 (`auth.uid() = user_id` 같은 정책 존재 여부)
+  - 없으면 정책 추가
+  - `link_tags(tags(*))` join 의 응답 형태를 supabase REST 직접 호출로 검증
+
+### Stage 3 — UnknownFailure UI 개선 (선택)
+- 현재 `lib/core/error/failure_ui.dart` 의 UnknownFailure 는 message 무시하고 하드코딩
+- debug 모드에서만 실제 message 노출하도록 분기 → 향후 비슷한 잠재 버그 조기 발견
+
+## 검증 절차
+
 ```bash
 cd ~/AndroidStudioProjects/LinkNote
-git fetch origin
-git checkout main && git pull
-flutter analyze --fatal-warnings
-flutter test --reporter=failures-only 2>&1 | tail -3    # +453 기대
-adb devices                                             # Android 실기기 연결 확인
+git fetch origin && git checkout main && git pull --ff-only
+git checkout -b fix/link-list-tag-parse-error
+
+# Stage 1 — 임시 진단 변경 (이 변경은 커밋 X)
+flutter run --flavor dev -t lib/main_dev.dart -d RFCW615RBFT
+# → 사용자 휴대폰: 홈 진입 → 오류 화면 → "다시 시도" 탭
+# → flutter run stdout 에서 TypeError stack trace 확보 → 가설 확정
+
+# Stage 2 — 진단 변경 되돌리고 근본 수정 작성
+dart format <변경 파일>
+flutter analyze --fatal-warnings              # 0 issues 기대
+flutter test --reporter=failures-only         # 463+ tests GREEN
+
+# 실기기 회귀 검증
+flutter run --flavor dev -t lib/main_dev.dart -d RFCW615RBFT
+# → 홈 진입 시 태그 있는 링크 정상 표시
+# → 새 태그 추가 후에도 정상
+# → 일부러 잘못된 응답 시뮬레이션 (Stage 2 단위테스트 추가 권장)
 ```
 
-### 1. 실기기 설치 + 검증 (핵심)
+## 단위/위젯 테스트
 
-```bash
-flutter build apk --debug --flavor dev -t lib/main_dev.dart
-adb install -r build/app/outputs/flutter-apk/app-dev-debug.apk
-```
+- `test/features/link/data/datasource/link_remote_datasource_test.dart` — 신규 또는 갱신:
+  - `link_tags: [{tags: null}]` 응답에 대해 빈 tags 로 처리되는지
+  - parse 실패 시 Failure.unknown 로 래핑되는지 (Error → Failure)
+- `test/features/link/data/mapper/link_mapper_test.dart` — null-tags 필터링 검증
 
-검증 체크리스트:
-- **Cold start (앱 죽어있음)**:
-  - YouTube 동영상 → 공유 시트 → LinkNote DEV 선택 → 로그인 후 `/links/new` 폼 URL 필드에 YouTube URL prefill 확인
-  - Chrome 웹페이지 → 공유 시트 → LinkNote → URL prefill 확인
-  - Twitter 트윗(제목+URL 혼합 텍스트) → 공유 시트 → LinkNote → URL 만 추출 prefill (Session 19 3계층 배치)
-- **인증 상태별**:
-  - 로그인 상태 유지 시: splash → 즉시 `/links/new?prefill=...`
-  - 로그아웃 상태: splash → login → 성공 후 `/links/new?prefill=...` (pending URL 보존)
-- **Warm resume (앱 백그라운드 복귀)**:
-  - 앱 열어 둔 상태에서 공유 시 동작 — Phase 1 에는 미구현이므로 "공유 시트에 LinkNote 표시되지만 수신하지 않음" 이 예상 동작
-  - 이 동작이 허용되는지 사용자 판단 후 Phase 1.5 착수 여부 결정
+## 알려진 인접 이슈 (이번 PR 무관)
 
-### 2. 결과별 분기
-
-**A. 버그 발견 시** — 즉시 패치 PR
-- Domain(`SharedIntentService`) / Provider / Router / Screen 중 원인 식별
-- TDD RED → GREEN 로 재현 케이스 고정
-- `feat/share-intent-phase1-fix` 브랜치 + CI 4 job green + 사용자 승인 머지
-
-**B. 검증 통과 + Phase 1.5 승인** — warm/foreground bottom sheet 진입
-- `ReceiveSharingIntent.instance.getMediaStream().listen(...)` 구독을 app shell 단계에 추가
-- 폼 dirty(입력 중) 시 스낵바 "새 링크가 들어왔어요" + CTA, 아니면 즉시 bottom sheet
-- `SharedIntentService` 재사용, `PendingSharedUrl` 또는 별도 stream provider 도입
-- i18n Option B: bottom sheet/snackbar UX 카피는 한글, 운영 exception 은 영문
-
-**C. 검증 통과 + Phase 1.5 이월** — Phase 2 iOS Extension 재평가 세션 준비
-- PRD Section 3.3 재검토 질문 3건(Extension UI 범위 / 저장 전략 / OG fetch) 재오픈
-- iOS 서명 인프라(`project_release_signing.md`) 선행 작업 목록화
-
-### 3. 문서 / 커밋
-
-- `docs/daily_task_log/YYYY-MM-DD_session39.md`
-- CHANGELOG Session 39 섹션
-- `project_share_intent.md` memory 갱신 (검증 결과 + Phase 1.5 결정)
-- `project_code_review_roadmap.md` Session 39 entry
-- PR 머지 후 `origin` 브랜치 삭제
+- **DateRangePicker MaterialLocalizations 누락** — Search/Collection date filter 시 발견. `lib/app/app.dart` 에 `flutter_localizations` 등록 필요. 별도 PR.
+- **Collection 화면들의 디자인 토큰 정합성** — Phase 2 에서는 카피 한글화만. LnIconBtn/AppRadius/forest 토큰화는 화면별 단독 PR 권장.
+- **HomeScreen 빈 상태 한글화** — 'No links yet'/'Add Link' 등 영문. 디자인 오버홀 Phase 3 에 묶기.
 
 ## 불변 원칙
 
 - **git push / merge 사용자 명시 승인 필수**
 - **Branch Protection** — PR + CI 4 job green 필수
-- **TDD RED → GREEN** — 버그 재현 시 예외 없이 테스트 선행
-- `.env`, keystore, Firebase service account key 커밋 금지
-- Provider Failure 전파: `Error.throwWithStackTrace(failure, StackTrace.current)`
-- **i18n Option B** — bottom sheet/스낵바 UX 카피는 한글, 운영 exception/snackbar 는 영문
+- **TDD RED → GREEN** — 데이터 레이어 변경은 테스트 선행 필수 (rules/testing-rules.md Domain/Data 필수)
+- **i18n Option B** — UI 사용자 대면 카피는 한글, snackbar/Exception/Failure.message 는 영문
+- **CI dart format 선행** — 푸시 전 로컬 `dart format`
+- **omit_local_variable_types** — 로컬 변수는 `var`
 - **수치 기준 창작 금지** — 사용자가 정성 표현 쓰면 `AskUserQuestion` 으로 확인
-- **Aggregate invalidate** — 새 링크 저장 후 list/detail/collection 공급자 cascade invalidate 확인
+- **on Exception 만 catch 금지** — Dart `Error` 는 `Exception` 의 자식이 아님. raw cast/parse 실패까지 잡으려면 `on Object` 또는 명시적 `on TypeError, on FormatException` 추가
 
 ## 완료 기준
 
-- [ ] 실기기 2앱 이상에서 cold-start 공유 → prefill 동작 확인 (또는 버그 패치 머지)
-- [ ] 미구현 시나리오 목록 PRD + memory 업데이트
-- [ ] Phase 1.5 진입 또는 이월 결정 기록
-- [ ] CHANGELOG + daily log + memory 갱신
+- [ ] Stage 1 stack trace 확보 + 가설 확정 (RLS / FK / null tags 중 어느 것)
+- [ ] Stage 2 근본 수정 + 회귀 테스트 추가 GREEN
+- [ ] flutter analyze 0
+- [ ] 실기기 회귀 검증 통과 (태그 있는 링크/없는 링크 모두 정상 표시)
+- [ ] PR 생성 + 사용자 승인 머지 + 로컬 브랜치 정리
+- [ ] 메모리 갱신: 새 feedback 메모 (`feedback_dart_error_vs_exception.md` 등), `project_code_review_roadmap.md` Session 41 entry, MEMORY.md 인덱스
 
-## 참조 문서
+## 참조 문서/메모리
 
-- **Session 38 로그**: `docs/daily_task_log/2026-04-21_session38.md`
-- **Share Intent PRD**: `docs/prds/share-intent.md` (상태: Phase 1 구현)
-- **Session 19 URL sanitizer 교훈**: `project_url_launcher_bug_resolved.md`
+- **Session 40 PR (Phase 2 i18n)**: 머지 후 SHA 갱신
+- **버그 진단 컨텍스트**: 본 문서 "배경" + "가설" 섹션
 - **i18n 정책**: `feedback_i18n_policy.md`
-- **receive_sharing_intent pub.dev**: https://pub.dev/packages/receive_sharing_intent
+- **Failure 분류**: `lib/core/error/failure.dart`, `lib/core/error/failure_ui.dart`
 
 ## 세션 경계
 
-실기기 검증 + 결과 반영(버그 패치 또는 Phase 1.5 진입 결정)까지. Phase 2 iOS Share Extension 은 별도 세션.
+태그-induced UnknownFailure 진단 + 근본 수정 PR 단일 머지까지. UnknownFailure UI 개선(Stage 3), DateRangePicker localizations, HomeScreen 한글화, Collection 화면 디자인 토큰 정합성은 별도 세션.
 ```

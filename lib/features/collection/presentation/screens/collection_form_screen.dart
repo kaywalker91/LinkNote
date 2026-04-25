@@ -96,7 +96,7 @@ class _CollectionFormScreenState extends ConsumerState<CollectionFormScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(_isEditMode ? 'Edit Collection' : 'New Collection'),
+        title: Text(_isEditMode ? '컬렉션 편집' : '새 컬렉션'),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(AppSpacing.screenPadding),
@@ -106,8 +106,8 @@ class _CollectionFormScreenState extends ConsumerState<CollectionFormScreen> {
             TextField(
               controller: _nameController,
               decoration: const InputDecoration(
-                labelText: 'Name *',
-                hintText: 'e.g. Dev Resources',
+                labelText: '이름 *',
+                hintText: '예: 개발 자료',
               ),
               autofocus: !_isEditMode,
               textCapitalization: TextCapitalization.sentences,
@@ -117,14 +117,14 @@ class _CollectionFormScreenState extends ConsumerState<CollectionFormScreen> {
               controller: _descController,
               maxLines: 3,
               decoration: const InputDecoration(
-                labelText: 'Description',
-                hintText: 'What is this collection about?',
+                labelText: '설명',
+                hintText: '이 컬렉션은 어떤 내용인가요?',
               ),
               textCapitalization: TextCapitalization.sentences,
             ),
             const SizedBox(height: AppSpacing.xxl),
             PrimaryButtonWidget(
-              label: _isEditMode ? 'Save Changes' : 'Create Collection',
+              label: _isEditMode ? '저장' : '컬렉션 만들기',
               isLoading: _isSubmitting,
               onPressed: _isSubmitting ? null : _submit,
             ),

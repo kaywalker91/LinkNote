@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:linknote/app/theme/app_colors.dart';
+import 'package:linknote/app/theme/app_radius.dart';
 import 'package:linknote/app/theme/app_spacing.dart';
 import 'package:linknote/features/link/domain/entity/tag_entity.dart';
 import 'package:linknote/features/link/presentation/provider/link_form_provider.dart';
@@ -105,21 +106,31 @@ class _LinkFormFieldsState extends ConsumerState<LinkFormFields> {
           ),
         TextField(
           controller: _titleController,
-          decoration: const InputDecoration(labelText: 'Title *'),
+          decoration: const InputDecoration(labelText: '제목 *'),
           onChanged: notifier.updateTitle,
         ),
         const SizedBox(height: AppSpacing.md),
         TextField(
           controller: _descController,
           maxLines: 3,
-          decoration: const InputDecoration(labelText: 'Description'),
+          decoration: const InputDecoration(labelText: '설명'),
           onChanged: notifier.updateDescription,
         ),
         const SizedBox(height: AppSpacing.md),
         TextField(
           controller: _memoController,
           maxLines: 3,
-          decoration: const InputDecoration(labelText: 'Notes'),
+          decoration: InputDecoration(
+            labelText: '메모',
+            floatingLabelStyle: const TextStyle(color: AppColors.amberInk),
+            focusedBorder: OutlineInputBorder(
+              borderSide: const BorderSide(
+                color: AppColors.amber,
+                width: 2,
+              ),
+              borderRadius: BorderRadius.circular(AppRadius.input),
+            ),
+          ),
           onChanged: notifier.updateMemo,
         ),
         const SizedBox(height: AppSpacing.lg),
@@ -142,8 +153,8 @@ class _LinkFormFieldsState extends ConsumerState<LinkFormFields> {
         TextField(
           controller: _tagController,
           decoration: InputDecoration(
-            labelText: 'Tags',
-            hintText: 'Add a tag and press enter',
+            labelText: '태그',
+            hintText: '태그를 입력하고 엔터',
             suffixIcon: IconButton(
               icon: const Icon(Icons.add),
               onPressed: _addTag,
@@ -154,7 +165,7 @@ class _LinkFormFieldsState extends ConsumerState<LinkFormFields> {
         const SizedBox(height: AppSpacing.lg),
         Row(
           children: [
-            const Text('Favorite'),
+            const Text('즐겨찾기'),
             const Spacer(),
             Switch(
               value: formState.isFavorite,

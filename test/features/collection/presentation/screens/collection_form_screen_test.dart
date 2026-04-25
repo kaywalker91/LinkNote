@@ -47,7 +47,7 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      expect(find.text('New Collection'), findsOneWidget);
+      expect(find.text('새 컬렉션'), findsOneWidget);
     });
 
     testWidgets('should show name and description fields', (tester) async {
@@ -61,8 +61,8 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      expect(find.text('Name *'), findsOneWidget);
-      expect(find.text('Description'), findsOneWidget);
+      expect(find.text('이름 *'), findsOneWidget);
+      expect(find.text('설명'), findsOneWidget);
     });
 
     testWidgets('should show Create Collection button', (tester) async {
@@ -76,7 +76,7 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      expect(find.text('Create Collection'), findsOneWidget);
+      expect(find.text('컬렉션 만들기'), findsOneWidget);
     });
 
     testWidgets('should show hint texts in text fields', (tester) async {
@@ -90,8 +90,8 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      expect(find.text('e.g. Dev Resources'), findsOneWidget);
-      expect(find.text('What is this collection about?'), findsOneWidget);
+      expect(find.text('예: 개발 자료'), findsOneWidget);
+      expect(find.text('이 컬렉션은 어떤 내용인가요?'), findsOneWidget);
     });
   });
 }

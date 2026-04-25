@@ -19,7 +19,7 @@ class CollectionListScreen extends ConsumerWidget {
     final collectionsAsync = ref.watch(collectionListProvider);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Collections')),
+      appBar: AppBar(title: const Text('컬렉션')),
       floatingActionButton: FloatingActionButton(
         heroTag: 'collections_fab',
         onPressed: () => context.push(Routes.collectionNew),
@@ -43,8 +43,8 @@ class CollectionListScreen extends ConsumerWidget {
               ref.read(collectionListProvider.notifier).loadMore(),
           empty: const EmptyStateWidget(
             illustration: EmptyStateIllustration.collections(),
-            message: 'No collections yet',
-            subMessage: 'Organize your links into collections',
+            message: '아직 컬렉션이 없어요',
+            subMessage: '링크를 컬렉션으로 정리해보세요',
           ),
           itemBuilder: (context, collection, _) =>
               _CollectionCard(collection: collection),

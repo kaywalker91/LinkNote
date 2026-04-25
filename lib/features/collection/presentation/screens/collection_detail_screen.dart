@@ -30,7 +30,7 @@ class CollectionDetailScreen extends ConsumerWidget {
       appBar: AppBar(
         title: detailAsync.maybeWhen(
           data: (c) => Text(c.name),
-          orElse: () => const Text('Collection'),
+          orElse: () => const Text('컬렉션'),
         ),
         actions: detailAsync.maybeWhen(
           data: (_) => [
@@ -44,9 +44,9 @@ class CollectionDetailScreen extends ConsumerWidget {
               onPressed: () async {
                 final confirmed = await ConfirmationDialogWidget.show(
                   context,
-                  title: 'Delete Collection',
-                  message: 'This collection and all its data will be removed.',
-                  confirmLabel: 'Delete',
+                  title: '컬렉션 삭제',
+                  message: '이 컬렉션과 모든 데이터가 삭제됩니다.',
+                  confirmLabel: '삭제',
                   isDestructive: true,
                 );
                 if ((confirmed ?? false) && context.mounted) {
@@ -161,8 +161,8 @@ class CollectionDetailScreen extends ConsumerWidget {
             const SliverToBoxAdapter(
               child: EmptyStateWidget(
                 illustration: EmptyStateIllustration.links(),
-                message: 'No links in this collection',
-                subMessage: 'Add links to this collection from the home screen',
+                message: '이 컬렉션에 링크가 없어요',
+                subMessage: '홈 화면에서 링크를 이 컬렉션에 추가해보세요',
               ),
             ),
           ];

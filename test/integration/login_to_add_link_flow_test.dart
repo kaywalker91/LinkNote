@@ -169,12 +169,12 @@ void main() {
 
       // Assert — form fields visible
       expect(find.text('URL *'), findsOneWidget);
-      expect(find.text('Title *'), findsOneWidget);
+      expect(find.text('제목 *'), findsOneWidget);
 
       // Act — submit empty
-      await tester.ensureVisible(find.text('Save Link'));
+      await tester.ensureVisible(find.text('저장'));
       await tester.pumpAndSettle();
-      await tester.tap(find.text('Save Link'));
+      await tester.tap(find.text('저장'));
       await tester.pumpAndSettle();
 
       // Assert — validation
@@ -240,7 +240,7 @@ void main() {
 
       // Assert — on link add
       expect(find.text('URL *'), findsOneWidget);
-      expect(find.text('Save Link'), findsOneWidget);
+      expect(find.text('저장'), findsOneWidget);
     });
   });
 }

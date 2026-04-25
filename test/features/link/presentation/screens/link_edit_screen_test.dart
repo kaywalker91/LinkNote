@@ -57,7 +57,7 @@ void main() {
       );
       await tester.pump();
 
-      expect(find.text('Edit Link'), findsOneWidget);
+      expect(find.text('링크 편집'), findsOneWidget);
     });
 
     testWidgets('should show loading indicator when loading', (tester) async {
@@ -94,9 +94,9 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('https://flutter.dev'), findsOneWidget);
-      expect(find.text('Title *'), findsOneWidget);
-      expect(find.text('Description'), findsOneWidget);
-      expect(find.text('Notes'), findsOneWidget);
+      expect(find.text('제목 *'), findsOneWidget);
+      expect(find.text('설명'), findsOneWidget);
+      expect(find.text('메모'), findsOneWidget);
     });
 
     testWidgets('should show tags when present', (tester) async {
@@ -120,7 +120,7 @@ void main() {
       expect(find.byType(Chip), findsOneWidget);
     });
 
-    testWidgets('should show Update Link button', (tester) async {
+    testWidgets('should show 저장 button', (tester) async {
       const formState = LinkFormState(
         url: 'https://flutter.dev',
         title: 'Flutter',
@@ -136,7 +136,7 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      expect(find.text('Update Link'), findsOneWidget);
+      expect(find.text('저장'), findsOneWidget);
     });
 
     testWidgets('should show favorite switch', (tester) async {
@@ -156,7 +156,7 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      expect(find.text('Favorite'), findsOneWidget);
+      expect(find.text('즐겨찾기'), findsOneWidget);
       expect(find.byType(Switch), findsOneWidget);
     });
   });

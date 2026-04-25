@@ -106,8 +106,8 @@ void main() {
       await tester.pumpAndSettle();
 
       // Assert
-      expect(find.text('No collections yet'), findsOneWidget);
-      expect(find.text('Organize your links into collections'), findsOneWidget);
+      expect(find.text('아직 컬렉션이 없어요'), findsOneWidget);
+      expect(find.text('링크를 컬렉션으로 정리해보세요'), findsOneWidget);
     });
 
     testWidgets('should show collection cards with link count', (tester) async {
@@ -143,10 +143,10 @@ void main() {
       await tester.pumpAndSettle();
 
       // Assert
-      expect(find.text('New Collection'), findsOneWidget);
-      expect(find.text('Name *'), findsOneWidget);
-      expect(find.text('Description'), findsOneWidget);
-      expect(find.text('Create Collection'), findsOneWidget);
+      expect(find.text('새 컬렉션'), findsOneWidget);
+      expect(find.text('이름 *'), findsOneWidget);
+      expect(find.text('설명'), findsOneWidget);
+      expect(find.text('컬렉션 만들기'), findsOneWidget);
     });
 
     testWidgets('should not submit when name is empty', (tester) async {
@@ -162,11 +162,11 @@ void main() {
       await tester.pumpAndSettle();
 
       // Act — tap create with empty name
-      await tester.tap(find.text('Create Collection'));
+      await tester.tap(find.text('컬렉션 만들기'));
       await tester.pumpAndSettle();
 
       // Assert — still on form (name empty check in _submit returns early)
-      expect(find.text('New Collection'), findsOneWidget);
+      expect(find.text('새 컬렉션'), findsOneWidget);
     });
 
     testWidgets('should navigate list → form → back with new collection', (
@@ -205,7 +205,7 @@ void main() {
       await tester.pump(const Duration(milliseconds: 100));
 
       // Assert — on collection list with empty state
-      expect(find.text('No collections yet'), findsOneWidget);
+      expect(find.text('아직 컬렉션이 없어요'), findsOneWidget);
 
       // Act — navigate to form (do NOT await push — the Future completes on pop,
       // which would deadlock here)
@@ -214,18 +214,18 @@ void main() {
       await tester.pump(const Duration(milliseconds: 100));
 
       // Assert — on form screen
-      expect(find.text('New Collection'), findsOneWidget);
+      expect(find.text('새 컬렉션'), findsOneWidget);
 
       // Act — fill form and create
       await tester.enterText(
-        find.widgetWithText(TextField, 'Name *'),
+        find.widgetWithText(TextField, '이름 *'),
         'My Collection',
       );
       await tester.enterText(
-        find.widgetWithText(TextField, 'Description'),
+        find.widgetWithText(TextField, '설명'),
         'Test description',
       );
-      await tester.tap(find.text('Create Collection'));
+      await tester.tap(find.text('컬렉션 만들기'));
       // Use pump sequence instead of pumpAndSettle to avoid hanging on
       // CircularProgressIndicator (shown by PrimaryButtonWidget.isLoading)
       await tester.pump(); // start _submit(), setState(isSubmitting=true)

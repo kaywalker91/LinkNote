@@ -68,7 +68,7 @@ void main() {
       );
       await tester.pump();
 
-      expect(find.text('Collections'), findsOneWidget);
+      expect(find.text('컬렉션'), findsOneWidget);
     });
 
     testWidgets('should show skeletons when loading', (tester) async {
@@ -115,7 +115,7 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      expect(find.text('No collections yet'), findsOneWidget);
+      expect(find.text('아직 컬렉션이 없어요'), findsOneWidget);
     });
 
     testWidgets('should show collection cards when data is loaded', (

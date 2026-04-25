@@ -116,7 +116,7 @@ class _LinkAddScreenState extends ConsumerState<LinkAddScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Add Link'),
+        title: const Text('링크 추가'),
         actions: [
           if (isParsingOg)
             const Padding(
@@ -156,7 +156,7 @@ class _LinkAddScreenState extends ConsumerState<LinkAddScreen> {
             const LinkFormFields(linkId: null),
             const SizedBox(height: AppSpacing.xxl),
             PrimaryButtonWidget(
-              label: 'Save Link',
+              label: '저장',
               isLoading: isSubmitting,
               onPressed: isSubmitting
                   ? null

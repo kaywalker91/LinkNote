@@ -137,7 +137,7 @@ void main() {
       );
       await tester.pump();
 
-      expect(find.text('Collection'), findsOneWidget);
+      expect(find.text('컬렉션'), findsOneWidget);
     });
 
     testWidgets('should show error state with retry', (tester) async {
@@ -250,8 +250,8 @@ void main() {
         await tester.tap(find.byIcon(Icons.delete_outline));
         await tester.pumpAndSettle();
 
-        expect(find.text('Delete Collection'), findsOneWidget);
-        expect(find.text('Delete'), findsOneWidget);
+        expect(find.text('컬렉션 삭제'), findsOneWidget);
+        expect(find.text('삭제'), findsOneWidget);
         expect(find.text('Cancel'), findsOneWidget);
       },
     );
@@ -279,7 +279,7 @@ void main() {
         await tester.tap(find.byIcon(Icons.delete_outline));
         await tester.pumpAndSettle();
         // Confirm delete
-        await tester.tap(find.widgetWithText(FilledButton, 'Delete'));
+        await tester.tap(find.widgetWithText(FilledButton, '삭제'));
         await tester.pumpAndSettle();
 
         expect(find.text('Failed to delete collection'), findsOneWidget);
@@ -305,7 +305,7 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      expect(find.text('No links in this collection'), findsOneWidget);
+      expect(find.text('이 컬렉션에 링크가 없어요'), findsOneWidget);
     });
   });
 }
