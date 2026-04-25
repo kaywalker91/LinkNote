@@ -18,6 +18,8 @@ dependencies:
   firebase_messaging:
   flutter:
     sdk: flutter
+  flutter_localizations:
+    sdk: flutter
   flutter_riverpod:
   flutter_secure_storage:
   freezed_annotation:
