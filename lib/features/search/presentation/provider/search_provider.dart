@@ -26,11 +26,13 @@ class Search extends _$Search {
   }
 
   void updateQuery(String query) {
-    state = state.copyWith(query: query, isSearching: query.isNotEmpty);
-    if (query.isEmpty) {
+    state = state.copyWith(query: query);
+    if (query.isEmpty && !state.filter.hasActiveFilters) {
+      _debouncer.cancel();
       state = state.copyWith(results: [], isSearching: false);
       return;
     }
+    state = state.copyWith(isSearching: true);
     _debouncer(() => _performSearch(query));
   }
 
@@ -50,6 +52,7 @@ class Search extends _$Search {
   }
 
   void clearSearch() {
+    _debouncer.cancel();
     state = state.copyWith(query: '', results: [], isSearching: false);
   }
 
@@ -118,10 +121,14 @@ class Search extends _$Search {
   }
 
   void _reSearchIfNeeded() {
-    if (state.query.isNotEmpty) {
-      state = state.copyWith(isSearching: true);
-      _debouncer(() => _performSearch(state.query));
+    if (state.query.isEmpty && !state.filter.hasActiveFilters) {
+      _debouncer.cancel();
+      state = state.copyWith(results: [], isSearching: false);
+      return;
     }
+    final query = state.query;
+    state = state.copyWith(isSearching: true);
+    _debouncer(() => _performSearch(query));
   }
 
   /// Optimistic favorite toggle — mirrors link_list_provider pattern.

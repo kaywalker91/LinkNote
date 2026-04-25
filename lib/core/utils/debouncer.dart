@@ -13,6 +13,11 @@ class Debouncer {
     _timer = Timer(duration, action);
   }
 
+  void cancel() {
+    _timer?.cancel();
+    _timer = null;
+  }
+
   void dispose() {
     _timer?.cancel();
   }
