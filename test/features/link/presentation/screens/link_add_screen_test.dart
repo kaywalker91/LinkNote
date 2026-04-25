@@ -14,9 +14,9 @@ void main() {
 
   /// Scrolls until the Save Link button is visible, then taps it.
   Future<void> tapSaveButton(WidgetTester tester) async {
-    await tester.ensureVisible(find.text('Save Link'));
+    await tester.ensureVisible(find.text('저장'));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Save Link'));
+    await tester.tap(find.text('저장'));
     await tester.pumpAndSettle();
   }
 
@@ -28,7 +28,7 @@ void main() {
 
       // Assert
       expect(find.text('URL *'), findsOneWidget);
-      expect(find.text('Title *'), findsOneWidget);
+      expect(find.text('제목 *'), findsOneWidget);
     });
 
     testWidgets('should show error when submitting with empty URL and title', (
@@ -54,7 +54,7 @@ void main() {
 
       // Act
       await tester.enterText(
-        find.widgetWithText(TextField, 'Title *'),
+        find.widgetWithText(TextField, '제목 *'),
         'My Link',
       );
       await tester.pumpAndSettle();
@@ -91,8 +91,8 @@ void main() {
       await tester.pumpAndSettle();
 
       // Assert
-      expect(find.text('Description'), findsOneWidget);
-      expect(find.text('Notes'), findsOneWidget);
+      expect(find.text('설명'), findsOneWidget);
+      expect(find.text('메모'), findsOneWidget);
     });
 
     testWidgets(
