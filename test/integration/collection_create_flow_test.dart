@@ -125,9 +125,9 @@ void main() {
       // Assert
       expect(find.text('Dev Resources'), findsOneWidget);
       expect(find.text('Useful dev links'), findsOneWidget);
-      expect(find.text('5 links'), findsOneWidget);
+      expect(find.text('링크 5개'), findsOneWidget);
       expect(find.text('Design Inspiration'), findsOneWidget);
-      expect(find.text('3 links'), findsOneWidget);
+      expect(find.text('링크 3개'), findsOneWidget);
     });
 
     testWidgets('should render new collection form', (tester) async {
@@ -236,7 +236,7 @@ void main() {
 
       // Assert — back on list, new collection visible
       expect(find.text('My Collection'), findsOneWidget);
-      expect(find.text('0 links'), findsOneWidget);
+      expect(find.text('링크 0개'), findsOneWidget);
     });
   });
 }

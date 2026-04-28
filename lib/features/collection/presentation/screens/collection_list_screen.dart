@@ -2,12 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:linknote/app/router/routes.dart';
+import 'package:linknote/app/theme/app_colors.dart';
+import 'package:linknote/app/theme/app_radius.dart';
 import 'package:linknote/app/theme/app_spacing.dart';
+import 'package:linknote/app/theme/app_text_styles.dart';
 import 'package:linknote/features/collection/domain/entity/collection_entity.dart';
 import 'package:linknote/features/collection/presentation/provider/collection_list_provider.dart';
 import 'package:linknote/shared/widgets/empty_state_illustration.dart';
 import 'package:linknote/shared/widgets/empty_state_widget.dart';
 import 'package:linknote/shared/widgets/error_state_widget.dart';
+import 'package:linknote/shared/widgets/ln/ln_icon_btn.dart';
+import 'package:linknote/shared/widgets/ln/ln_top_bar.dart';
 import 'package:linknote/shared/widgets/paginated_list_view.dart';
 import 'package:linknote/shared/widgets/skeleton/collection_card_skeleton.dart';
 
@@ -17,14 +22,36 @@ class CollectionListScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final collectionsAsync = ref.watch(collectionListProvider);
+    final items = collectionsAsync.value?.items ?? const <CollectionEntity>[];
+    final total = items.length;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('컬렉션')),
-      floatingActionButton: FloatingActionButton(
-        heroTag: 'collections_fab',
-        onPressed: () => context.push(Routes.collectionNew),
-        child: const Icon(Icons.add),
+      backgroundColor: AppColors.bgAlt,
+      appBar: LnTopBar(
+        large: true,
+        displayTitle: '컬렉션',
+        displaySubtitle: _buildMetaLine(total),
+        actions: [
+          LnIconBtn(
+            icon: Icons.add_rounded,
+            tooltip: '컬렉션 추가',
+            onPressed: () => context.push(Routes.collectionNew),
+          ),
+          const SizedBox(width: 4),
+        ],
       ),
+      floatingActionButton: Padding(
+        padding: const EdgeInsets.only(bottom: AppSpacing.sm),
+        child: FloatingActionButton(
+          heroTag: 'collections_fab',
+          backgroundColor: AppColors.forest,
+          foregroundColor: Colors.white,
+          elevation: 6,
+          onPressed: () => context.push(Routes.collectionNew),
+          child: const Icon(Icons.add_rounded, size: 24),
+        ),
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       body: collectionsAsync.when(
         loading: () => ListView.builder(
           itemCount: 6,
@@ -38,6 +65,12 @@ class CollectionListScreen extends ConsumerWidget {
           items: state.items,
           hasMore: state.hasMore,
           isLoadingMore: state.isLoadingMore,
+          padding: const EdgeInsets.fromLTRB(
+            AppSpacing.lg,
+            AppSpacing.md,
+            AppSpacing.lg,
+            AppSpacing.huge,
+          ),
           onRefresh: () => ref.read(collectionListProvider.notifier).refresh(),
           onLoadMore: () =>
               ref.read(collectionListProvider.notifier).loadMore(),
@@ -52,6 +85,11 @@ class CollectionListScreen extends ConsumerWidget {
       ),
     );
   }
+
+  String _buildMetaLine(int total) {
+    if (total == 0) return '첫 컬렉션을 만들어 보세요';
+    return '컬렉션 $total개';
+  }
 }
 
 class _CollectionCard extends StatelessWidget {
@@ -60,58 +98,75 @@ class _CollectionCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    return Card(
-      margin: const EdgeInsets.only(bottom: AppSpacing.md),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(12),
-        onTap: () => context.push(Routes.collectionDetailPath(collection.id)),
-        child: Padding(
-          padding: const EdgeInsets.all(AppSpacing.lg),
-          child: Row(
-            children: [
-              Container(
-                width: 48,
-                height: 48,
-                decoration: BoxDecoration(
-                  color: colorScheme.primaryContainer,
-                  borderRadius: BorderRadius.circular(12),
+    return Padding(
+      padding: const EdgeInsets.only(bottom: AppSpacing.md),
+      child: Material(
+        color: AppColors.bg,
+        borderRadius: BorderRadius.circular(AppRadius.lg),
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          onTap: () => context.push(Routes.collectionDetailPath(collection.id)),
+          child: Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(AppRadius.lg),
+              border: Border.all(color: AppColors.line),
+            ),
+            padding: const EdgeInsets.all(AppSpacing.lg),
+            child: Row(
+              children: [
+                Container(
+                  width: 44,
+                  height: 44,
+                  decoration: BoxDecoration(
+                    color: AppColors.forestSoft,
+                    borderRadius: BorderRadius.circular(AppRadius.md),
+                  ),
+                  child: const Icon(
+                    Icons.folder_rounded,
+                    color: AppColors.forest,
+                    size: 22,
+                  ),
                 ),
-                child: Icon(
-                  Icons.folder_rounded,
-                  color: colorScheme.primary,
-                  size: 24,
-                ),
-              ),
-              const SizedBox(width: AppSpacing.md),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      collection.name,
-                      style: Theme.of(context).textTheme.titleSmall,
-                    ),
-                    if (collection.description != null)
+                const SizedBox(width: AppSpacing.md),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
                       Text(
-                        collection.description!,
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: colorScheme.outline,
+                        collection.name,
+                        style: AppTextStyles.titleM.copyWith(
+                          color: AppColors.ink,
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
-                    Text(
-                      '${collection.linkCount} links',
-                      style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                        color: colorScheme.outline,
+                      if (collection.description != null) ...[
+                        const SizedBox(height: 2),
+                        Text(
+                          collection.description!,
+                          style: AppTextStyles.bodySmall.copyWith(
+                            color: AppColors.ink3,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
+                      const SizedBox(height: 4),
+                      Text(
+                        '링크 ${collection.linkCount}개',
+                        style: AppTextStyles.caption.copyWith(
+                          color: AppColors.ink3,
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-              Icon(Icons.chevron_right, color: colorScheme.outline),
-            ],
+                const Icon(
+                  Icons.chevron_right_rounded,
+                  color: AppColors.ink4,
+                ),
+              ],
+            ),
           ),
         ),
       ),

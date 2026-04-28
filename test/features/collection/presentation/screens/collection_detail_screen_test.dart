@@ -182,7 +182,7 @@ void main() {
 
       expect(find.text('Flutter Resources'), findsAtLeast(1));
       expect(find.text('Best Flutter links'), findsOneWidget);
-      expect(find.text('5 links'), findsOneWidget);
+      expect(find.text('링크 5개'), findsOneWidget);
     });
 
     testWidgets('should show links in the collection', (tester) async {
