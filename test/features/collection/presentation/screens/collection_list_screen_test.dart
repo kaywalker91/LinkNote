@@ -155,9 +155,9 @@ void main() {
 
       expect(find.text('Flutter Resources'), findsOneWidget);
       expect(find.text('Best Flutter links'), findsOneWidget);
-      expect(find.text('5 links'), findsOneWidget);
+      expect(find.text('링크 5개'), findsOneWidget);
       expect(find.text('Dart Tips'), findsOneWidget);
-      expect(find.text('3 links'), findsOneWidget);
+      expect(find.text('링크 3개'), findsOneWidget);
     });
 
     testWidgets('should show FAB for adding collections', (tester) async {
@@ -176,7 +176,8 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.byType(FloatingActionButton), findsOneWidget);
-      expect(find.byIcon(Icons.add), findsOneWidget);
+      // FAB + LnTopBar action both render Icons.add_rounded.
+      expect(find.byIcon(Icons.add_rounded), findsNWidgets(2));
     });
   });
 }

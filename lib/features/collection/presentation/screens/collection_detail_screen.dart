@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:linknote/app/router/routes.dart';
+import 'package:linknote/app/theme/app_colors.dart';
 import 'package:linknote/app/theme/app_spacing.dart';
+import 'package:linknote/app/theme/app_text_styles.dart';
 import 'package:linknote/features/collection/presentation/provider/collection_detail_provider.dart';
 import 'package:linknote/features/collection/presentation/provider/collection_links_provider.dart';
 import 'package:linknote/features/collection/presentation/provider/collection_list_provider.dart';
@@ -13,7 +15,9 @@ import 'package:linknote/shared/widgets/confirmation_dialog_widget.dart';
 import 'package:linknote/shared/widgets/empty_state_illustration.dart';
 import 'package:linknote/shared/widgets/empty_state_widget.dart';
 import 'package:linknote/shared/widgets/error_state_widget.dart';
-import 'package:linknote/shared/widgets/link_list_tile.dart';
+import 'package:linknote/shared/widgets/ln/ln_icon_btn.dart';
+import 'package:linknote/shared/widgets/ln/ln_link_card.dart';
+import 'package:linknote/shared/widgets/ln/ln_top_bar.dart';
 import 'package:linknote/shared/widgets/skeleton/link_card_skeleton.dart';
 import 'package:linknote/shared/widgets/skeleton/profile_header_skeleton.dart';
 
@@ -27,48 +31,34 @@ class CollectionDetailScreen extends ConsumerWidget {
     final linksAsync = ref.watch(collectionLinksProvider(collectionId));
 
     return Scaffold(
-      appBar: AppBar(
+      backgroundColor: AppColors.bgAlt,
+      appBar: LnTopBar(
+        leading: LnIconBtn(
+          icon: Icons.arrow_back_rounded,
+          tooltip: '뒤로',
+          onPressed: () => context.pop(),
+        ),
         title: detailAsync.maybeWhen(
-          data: (c) => Text(c.name),
-          orElse: () => const Text('컬렉션'),
+          data: (c) => c.name,
+          orElse: () => '컬렉션',
         ),
         actions: detailAsync.maybeWhen(
           data: (_) => [
-            IconButton(
-              icon: const Icon(Icons.edit_outlined),
+            LnIconBtn(
+              icon: Icons.edit_outlined,
+              tooltip: '편집',
               onPressed: () =>
                   context.push(Routes.collectionEditPath(collectionId)),
             ),
-            IconButton(
-              icon: const Icon(Icons.delete_outline),
-              onPressed: () async {
-                final confirmed = await ConfirmationDialogWidget.show(
-                  context,
-                  title: '컬렉션 삭제',
-                  message: '이 컬렉션과 모든 데이터가 삭제됩니다.',
-                  confirmLabel: '삭제',
-                  isDestructive: true,
-                );
-                if ((confirmed ?? false) && context.mounted) {
-                  try {
-                    await ref
-                        .read(collectionListProvider.notifier)
-                        .deleteCollection(collectionId);
-                    if (context.mounted) {
-                      context
-                        ..showSuccessSnackBar('Collection deleted')
-                        ..pop();
-                    }
-                  } on Exception catch (_) {
-                    if (context.mounted) {
-                      context.showErrorSnackBar('Failed to delete collection');
-                    }
-                  }
-                }
-              },
+            LnIconBtn(
+              icon: Icons.delete_outline,
+              tooltip: '삭제',
+              color: AppColors.rose,
+              onPressed: () => _confirmDelete(context, ref),
             ),
+            const SizedBox(width: 4),
           ],
-          orElse: () => null,
+          orElse: () => const <Widget>[],
         ),
       ),
       body: detailAsync.when(
@@ -91,45 +81,81 @@ class CollectionDetailScreen extends ConsumerWidget {
             slivers: [
               SliverToBoxAdapter(
                 child: Padding(
-                  padding: const EdgeInsets.all(AppSpacing.screenPadding),
+                  padding: const EdgeInsets.fromLTRB(
+                    AppSpacing.screenPadding,
+                    AppSpacing.lg,
+                    AppSpacing.screenPadding,
+                    AppSpacing.md,
+                  ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
                         collection.name,
-                        style: Theme.of(context).textTheme.headlineSmall,
+                        style: AppTextStyles.heading2.copyWith(
+                          color: AppColors.ink,
+                        ),
                       ),
                       if (collection.description != null) ...[
                         const SizedBox(height: AppSpacing.sm),
                         Text(
                           collection.description!,
-                          style: Theme.of(context).textTheme.bodyMedium
-                              ?.copyWith(
-                                color: Theme.of(
-                                  context,
-                                ).colorScheme.onSurfaceVariant,
-                              ),
+                          style: AppTextStyles.bodyMedium.copyWith(
+                            color: AppColors.ink2,
+                          ),
                         ),
                       ],
                       const SizedBox(height: AppSpacing.sm),
                       Text(
-                        '${collection.linkCount} links',
-                        style: Theme.of(context).textTheme.labelMedium
-                            ?.copyWith(
-                              color: Theme.of(context).colorScheme.outline,
-                            ),
+                        '링크 ${collection.linkCount}개',
+                        style: AppTextStyles.caption.copyWith(
+                          color: AppColors.ink3,
+                        ),
                       ),
-                      const Divider(height: AppSpacing.xxl),
+                      const SizedBox(height: AppSpacing.lg),
+                      const Divider(
+                        height: 1,
+                        thickness: 1,
+                        color: AppColors.line,
+                      ),
                     ],
                   ),
                 ),
               ),
               ..._buildLinksSection(context, ref, linksAsync),
+              const SliverPadding(
+                padding: EdgeInsets.only(bottom: AppSpacing.huge),
+              ),
             ],
           ),
         ),
       ),
     );
+  }
+
+  Future<void> _confirmDelete(BuildContext context, WidgetRef ref) async {
+    final confirmed = await ConfirmationDialogWidget.show(
+      context,
+      title: '컬렉션 삭제',
+      message: '이 컬렉션과 모든 데이터가 삭제됩니다.',
+      confirmLabel: '삭제',
+      isDestructive: true,
+    );
+    if (!(confirmed ?? false) || !context.mounted) return;
+    try {
+      await ref
+          .read(collectionListProvider.notifier)
+          .deleteCollection(collectionId);
+      if (context.mounted) {
+        context
+          ..showSuccessSnackBar('Collection deleted')
+          ..pop();
+      }
+    } on Object catch (_) {
+      if (context.mounted) {
+        context.showErrorSnackBar('Failed to delete collection');
+      }
+    }
   }
 
   List<Widget> _buildLinksSection(
@@ -172,12 +198,11 @@ class CollectionDetailScreen extends ConsumerWidget {
             delegate: SliverChildBuilderDelegate(
               (ctx, i) {
                 final link = links[i];
-                return LinkListTile(
+                return LnLinkCard(
                   link: link,
                   onTap: () => UrlLauncherHelper.launch(context, link.url),
                   onLongPress: () =>
                       context.push(Routes.linkDetailPath(link.id)),
-                  onFavoriteTap: () {},
                 );
               },
               childCount: links.length,
