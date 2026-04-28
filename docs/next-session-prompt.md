@@ -5,57 +5,56 @@
 ---
 
 ```
-Session 45 — Collection 화면 디자인 토큰 정합성 (Phase 3 잔여)
+Session 46 — 실기기 시각 검증 + Phase 4 디자인 오버홀 진입
 
 ## 미션 한 줄
 
-Phase 3 디자인 오버홀에서 Home / LinkDetail / LinkAdd / LinkEdit 까지는 forest/amber 톤 + Ln 위젯으로 정렬되었으나 Collection 화면(목록 + 상세)은 여전히 구 토큰을 사용 중. LnIconBtn / AppRadius / AppColors.forest 같은 디자인 토큰을 일괄 적용해 톤·갭·radius 가 다른 화면들과 어긋나지 않도록 정렬한다.
+Session 45 PR #28 로 Collection 목록/상세가 forest/amber 토큰으로 정렬되었으나 실기기 시각 검증이 별도 트랙으로 미뤄졌다. 우선 Home / LinkDetail / Collection 톤 일관성을 실기기에서 확인 후, Phase 4 디자인 오버홀의 다음 후보 (Search 헤더 / LnTabBar / Dark mode 중 1개) 를 사용자와 합의해 단일 PR 로 진행한다.
 
 ## 배경
 
-**Session 44 (2026-04-25~26, 직전 세션) 결과**:
-- PR #25 `4229b10` 머지 — Search 필터 단독 트리거 fix + DateRangePicker 종료일 inclusive
-- PR #26 `7ac5693` 머지 — Link list per-row 파싱 fault tolerance (`parseRows` 헬퍼 + appLogger.w)
-- PR #27 `0fc1011` 머지 — i18n Home 빈상태/more sheet/삭제 다이얼로그 한글화 + LinkDetail saved date 한글+절대 날짜 병행
+**Session 45 (2026-04-28, 직전 세션) 결과**:
+- PR #28 `d49b292` 머지 — Collection list/detail 디자인 토큰 정렬 (LnTopBar, LnIconBtn, LnLinkCard, AppColors.forest/ink, AppRadius.lg, AppTextStyles, "링크 N개" 한글)
 - 484 tests GREEN, analyze 0 issues, CI 4 job ALL GREEN
-- 신규 헬퍼 `LinkRemoteDataSource.parseRows`, 신규 확장 `DateTimeExtensions.formattedDate()`
+- `on Exception` → `on Object` 일관성 정렬 (Session 28/41 학습 답습)
+- 실기기 시각 검증은 사용자 사정으로 본 세션 스킵
 
-**Phase 3 잔여 (Session 40 PR #21 후 OOS 로 분리됐던 마지막 항목)**:
-- Collection 화면이 forest/amber 디자인 토큰 미적용 상태
-- LnIconBtn / AppRadius.* / AppColors.forest|amber|amberSoft 등 공유 토큰 활용 0건
-- Home/LinkDetail 의 spacing(AppSpacing.*), 타이포(AppTextStyles.*) 와 시각 차이 발생 → 화면 간 톤 어긋남
+**Phase 3 디자인 오버홀 종결** — Home(PR #19) + LinkDetail(PR #20) + LinkEdit/Add/Collection i18n(PR #21) + DateRangePicker localizations(PR #24) + HomeScreen 빈상태 + LinkDetail saved date(PR #27) + Collection 토큰(PR #28)
+
+**Phase 4+ 후보 (`project_design_overhaul.md` OOS 표)**:
+- Search debounce 300ms · blink caret · forest-soft 매칭 하이라이트
+- LinkAdd share-sheet bottom-sheet variant (현 full-screen 폼 유지)
+- LnTabBar 중앙 FAB 교체 (라우터 branch 재구성 수반)
+- Dark mode forest 팔레트 튜닝
+- Collection 디자인 (2열 그리드/그라디언트/Lock·Globe pill — 별도 Wave)
 
 ## 작업 범위
 
-### Stage 1 — Collection 목록 화면 토큰 정렬
+### Stage 1 — 실기기 시각 검증 (필수)
 
-**대상 파일**:
-- `lib/features/collection/presentation/screens/collection_list_screen.dart` (또는 home 통합 형태일 경우 그 위치)
-- `lib/features/collection/presentation/widgets/collection_*.dart` (카드/타일/빈상태)
+`flutter run --flavor dev -t lib/main_dev.dart -d <device>` 로 실기기 진입 후:
+- Home → Collection 탭 진입 시 톤 일관성 (forest 액센트, ink 컬러, AppRadius.lg, AppSpacing 갭) 확인
+- Collection 목록 → 상세 진입 시 LnTopBar 뒤로 화살표/편집/삭제(rose) 동작
+- Collection 상세 → LnLinkCard 탭 시 외부 브라우저 launch + 길게 눌러 LinkDetail 진입 동작
+- 빈 상태 한글 카피 ('아직 컬렉션이 없어요' / '이 컬렉션에 링크가 없어요') 노출
+- Home / LinkDetail 와 시각 어긋남 없는지 사용자 OK
 
-**기대 변화**:
-- AppBar 액션 → `LnIconBtn` 변경 (Home/LinkDetail 와 동일 hit-target)
-- 카드/타일 radius → `AppRadius.lg` (예: 16) 통일
-- primary 컬러 사용처 → `AppColors.forest`
-- 빈 상태 → `EmptyStateWidget` + 한글 카피 (`'아직 컬렉션이 없어요'` 류)
-- spacing 정수 → `AppSpacing.*` 매핑
+검증 결과 메모리/daily log 에 기록.
 
-### Stage 2 — Collection 상세 화면 토큰 정렬
+### Stage 2 — Phase 4 후보 1개 선정 + 구현
 
-**대상 파일**:
-- `lib/features/collection/presentation/screens/collection_detail_screen.dart`
+세션 시작 시 사용자에게 AskUserQuestion 으로 Phase 4 후보 중 1개 선택 받아 단일 PR 로 진행.
 
-**기대 변화**:
-- 헤더/액션 → LnIconBtn / Material 3 IconButton 정합성
-- 컬렉션 메타 영역 → AppTextStyles.titleM / bodySmall + ink/ink2/ink3 컬러 토큰
-- 안에 들어있는 링크 카드 → `LnLinkCard` (또는 변형) 사용
-- 빈 상태 → `'이 컬렉션에 저장된 링크가 없어요'` 류
+**후보별 작업 시 참고**:
+- **Search 헤더**: `lib/features/search/presentation/screens/search_screen.dart`, `widgets/search_filter_bar.dart`. forest-soft 매칭 하이라이트는 `RichText` + `TextSpan` 으로 분할. debounce 300ms 는 이미 있을 가능성 높음 — 확인 후 적용.
+- **LnTabBar 중앙 FAB**: `lib/shared/widgets/app_scaffold_with_nav_bar.dart` 와 `lib/app/router/app_router.dart` 의 `StatefulShellRoute.indexedStack`. Notifications 탭을 AppBar bell 로 이동시키거나 5탭 → 4탭 + 중앙 FAB. **라우터 변경은 회귀 위험** — RED 테스트 우선.
+- **Dark mode**: `lib/app/theme/app_colors.dart` 의 `*Dark` 팔레트 + `app_theme.dart` 의 `ThemeData.dark()` 정의. forest primary 만 적용된 상태에서 surface/ink 계열까지 forest-tone 으로 정렬.
 
 ### TDD / 회귀
 
-- Collection 화면 위젯 테스트가 있는지 먼저 확인 (`test/features/collection/presentation/screens/`).
-- 기존 셀렉터(영문/구토큰)가 있다면 새 토큰·한글 카피로 셀렉터 동기화.
-- golden test 가 있다면 디자인 변경 후 baseline 갱신 필요할 수 있음.
+- 라우터 변경 (LnTabBar) 는 위젯 테스트 우선 (`test/app/app_router_test.dart` 같은 위치).
+- Search 하이라이트는 `RichText` 자식 검증.
+- Dark mode 는 visual 검증 위주 — golden 테스트 baseline 갱신 정책 사용자와 합의.
 
 ## 검증 절차
 
@@ -64,32 +63,28 @@ cd ~/AndroidStudioProjects/LinkNote
 
 git checkout main && git pull --ff-only
 
-git checkout -b feat/collection-design-tokens
+git checkout -b feat/<phase4-topic>      # 사용자 합의 후 결정
 
-# Stage 1 → Stage 2 순차 작업
-# - 각 단계마다 dart format / flutter analyze / flutter test 통과 확인
+# Stage 1 (실기기 검증) — main 에서 직접
+flutter run --flavor dev -t lib/main_dev.dart -d <device>
 
+# Stage 2 (구현) — 새 브랜치
 dart format lib/ test/
 flutter analyze --fatal-warnings              # 0 issues
 flutter test --reporter=failures-only         # 484+ GREEN
 
-# 실기기 검증
-flutter run --flavor dev -t lib/main_dev.dart -d RFCW615RBFT
-# → Collection 목록 / 상세 화면 톤·radius·spacing 이 Home / LinkDetail 과 일관되는지 시각 확인
-# → 빈 상태 한글 카피 노출 확인
-
 # 푸시 + PR (사용자 명시 승인 필수)
-git push -u origin feat/collection-design-tokens
+git push -u origin feat/<phase4-topic>
 gh pr create --base main --title "..." --body "..."
 ```
 
-## 알려진 인접 이슈 (Session 45 무관, 별도 세션)
+## 알려진 인접 이슈 (Session 46 무관, 별도 세션)
 
-- **Search 헤더 / LnTabBar 라벨 / Dark mode 토글** — Phase 4+ 묶음
 - **HomeScreen `_showCollectionPicker` snackbar i18n** — Option B 대로 영문 유지 중. ARB 기반 정식 intl 도입 시 일괄 외부화
 - **Phase 2 iOS Share Extension** — Session 38 PoC 후속, 별도 트랙
-- **DTO parse 실패 근본 추적** — Session 44 PR #26 의 `appLogger.w` 가 미래 재발 시 캡처 예정
+- **DTO parse 실패 근본 추적** — PR #26 의 `appLogger.w` 가 미래 재발 시 캡처 예정
 - **Supabase RLS / FK 점검** — dashboard 액세스 별도 트랙
+- **Collection 디자인 (2열 그리드/그라디언트/Lock·Globe pill)** — 별도 Wave (Phase 4+ 후보지만 작업량 큼)
 
 ## 불변 원칙
 
@@ -99,44 +94,45 @@ gh pr create --base main --title "..." --body "..."
 - **i18n Option B** — UI 사용자 대면 카피는 한글, snackbar / Exception / Failure.message 는 영문
 - **CI dart format 선행** — 푸시 전 로컬 `dart format`
 - **omit_local_variable_types** — 로컬 변수는 `var`
-- **on Exception 만 catch 금지** — 데이터 경계는 `on Object` (Session 28 / 41 학습)
+- **`on Exception catch` 만 사용 금지** — 데이터 경계는 `on Object` (Session 28/41/45 학습)
 - **Freezed nested toJson 주의** — Hive/JSON 직렬화 경계에서 nested 필드 명시 처리 (Session 42)
 - **per-row 파싱 fault tolerance** — remote list fetch 는 `parseRows` 패턴 답습 (Session 44 학습)
 - **수치 기준 창작 금지** — 사용자가 정성 표현 쓰면 `AskUserQuestion` 으로 확인
+- **`gh pr checks` 모니터링은 `--json` 사용** — awk whitespace split 함정 회피 (Session 45 학습)
 
 ## 완료 기준
 
-- [ ] Stage 1 Collection 목록 화면 디자인 토큰 적용 + 한글 카피
-- [ ] Stage 2 Collection 상세 화면 디자인 토큰 적용 + 한글 카피
-- [ ] 위젯 테스트 셀렉터 동기화
-- [ ] 실기기 — Home / LinkDetail 과 시각 일관성 확인
-- [ ] PR 생성 + CI 4 job green + 사용자 머지
+- [ ] Stage 1 실기기 시각 검증 결과 기록
+- [ ] Stage 2 Phase 4 후보 1개 선정 + 단일 PR
+- [ ] 위젯/통합 테스트 셀렉터 정합성
 - [ ] flutter analyze 0
 - [ ] flutter test all GREEN
+- [ ] CI 4 job green + 사용자 머지
 - [ ] 메모리 갱신:
-  - [ ] `project_code_review_roadmap.md` Session 45 entry
+  - [ ] `project_code_review_roadmap.md` Session 46 entry
   - [ ] `MEMORY.md` 인덱스 갱신
-  - [ ] `project_design_overhaul.md` Phase 3 잔여 항목 완료 표기
+  - [ ] `project_design_overhaul.md` Phase 4 진입 표기
 
 ## 참조 문서/메모리
 
-- **Session 44 commits**: `4229b10` (PR #25) / `7ac5693` (PR #26) / `0fc1011` (PR #27)
-- **Session 44 daily log**: `docs/daily_task_log/2026-04-26_session44.md`
+- **Session 45 commit**: `d49b292` (PR #28)
+- **Session 45 daily log**: `docs/daily_task_log/2026-04-28_session45.md`
 - **디자인 오버홀 진행 상태**: `project_design_overhaul.md`
 - **공유 토큰**:
   - `lib/app/theme/app_colors.dart` — forest / amber / ink / ink2 / ink3 / line / bgAlt
   - `lib/app/theme/app_radius.dart` — sm / md / lg / xl / full
   - `lib/app/theme/app_spacing.dart` — xs / sm / md / lg / xl / xxl / screenPadding
-  - `lib/app/theme/app_text_styles.dart` — titleM / bodyMedium / bodySmall / label
+  - `lib/app/theme/app_text_styles.dart` — heading1~3 / titleL / titleM / bodyMedium / bodySmall / label
 - **Ln 위젯 라이브러리**: `lib/shared/widgets/ln/`
 - **i18n 정책**: `feedback_i18n_policy.md`
 
 ## 세션 경계
 
-Stage 1 + Stage 2 단일 PR. Search 헤더 / LnTabBar / Dark mode / Phase 2 iOS Share Extension / 정식 ARB intl 화는 별도 세션.
+Stage 1 (실기기 검증) + Stage 2 (Phase 4 후보 1개) 단일 흐름. Phase 2 iOS Share Extension / 정식 ARB intl 화 / Collection 2열 그리드 같은 큰 Wave 는 별도 세션.
 
 ## 시작 시 사용자 확인 항목
 
-1. Collection 화면(목록 + 상세) 단일 PR 묶음 진행 OK
-2. golden test baseline 변경 발생 시 갱신 방침 (PR 에 같이 포함 vs 별도 정리)
+1. 실기기 검증 가능 시점 (Stage 1)
+2. Phase 4 후보 중 진행할 1개 (Search 헤더 / LnTabBar / Dark mode 등)
+3. golden test baseline 정책 (Dark mode 선택 시 특히 관련)
 ```
