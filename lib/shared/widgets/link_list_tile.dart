@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:linknote/app/theme/app_colors.dart';
 import 'package:linknote/app/theme/app_spacing.dart';
 import 'package:linknote/features/link/domain/entity/link_entity.dart';
 import 'package:linknote/shared/widgets/og_thumbnail_widget.dart';
@@ -14,6 +15,7 @@ class LinkListTile extends StatelessWidget {
     this.onMoreTap,
     this.isCompact = false,
     this.favoriteBusy = false,
+    this.highlightText,
   });
 
   final LinkEntity link;
@@ -23,10 +25,15 @@ class LinkListTile extends StatelessWidget {
   final VoidCallback? onMoreTap;
   final bool isCompact;
   final bool favoriteBusy;
+  final String? highlightText;
 
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final titleStyle = Theme.of(context).textTheme.titleSmall;
+    final urlStyle = Theme.of(context).textTheme.labelSmall?.copyWith(
+      color: colorScheme.onSurfaceVariant,
+    );
     return InkWell(
       onTap: onTap,
       onLongPress: onLongPress,
@@ -47,20 +54,16 @@ class LinkListTile extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    link.title,
-                    style: Theme.of(context).textTheme.titleSmall,
+                  _highlightedText(
+                    text: link.title,
+                    style: titleStyle,
                     maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
                   ),
                   const SizedBox(height: 2),
-                  Text(
-                    _displayUrl(link.url),
-                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                      color: colorScheme.onSurfaceVariant,
-                    ),
+                  _highlightedText(
+                    text: _displayUrl(link.url),
+                    style: urlStyle,
                     maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
                   ),
                   if (link.collectionName != null) ...[
                     const SizedBox(height: 4),
@@ -145,6 +148,70 @@ class LinkListTile extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  Widget _highlightedText({
+    required String text,
+    required TextStyle? style,
+    required int maxLines,
+  }) {
+    final query = highlightText;
+    if (query == null || query.isEmpty) {
+      return Text(
+        text,
+        style: style,
+        maxLines: maxLines,
+        overflow: TextOverflow.ellipsis,
+      );
+    }
+    final spans = _buildHighlightedSpans(text: text, query: query);
+    if (spans == null) {
+      return Text(
+        text,
+        style: style,
+        maxLines: maxLines,
+        overflow: TextOverflow.ellipsis,
+      );
+    }
+    return Text.rich(
+      TextSpan(style: style, children: spans),
+      maxLines: maxLines,
+      overflow: TextOverflow.ellipsis,
+    );
+  }
+
+  List<TextSpan>? _buildHighlightedSpans({
+    required String text,
+    required String query,
+  }) {
+    final lowerText = text.toLowerCase();
+    final lowerQuery = query.toLowerCase();
+    final spans = <TextSpan>[];
+    var cursor = 0;
+    var matched = false;
+    while (cursor < text.length) {
+      final hit = lowerText.indexOf(lowerQuery, cursor);
+      if (hit == -1) {
+        spans.add(TextSpan(text: text.substring(cursor)));
+        break;
+      }
+      if (hit > cursor) {
+        spans.add(TextSpan(text: text.substring(cursor, hit)));
+      }
+      spans.add(
+        TextSpan(
+          text: text.substring(hit, hit + query.length),
+          style: const TextStyle(
+            backgroundColor: AppColors.forestSoft,
+            color: AppColors.forestInk,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      );
+      matched = true;
+      cursor = hit + query.length;
+    }
+    return matched ? spans : null;
   }
 
   String _displayUrl(String url) {

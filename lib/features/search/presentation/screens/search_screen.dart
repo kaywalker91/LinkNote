@@ -2,7 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:linknote/app/router/routes.dart';
+import 'package:linknote/app/theme/app_colors.dart';
+import 'package:linknote/app/theme/app_radius.dart';
 import 'package:linknote/app/theme/app_spacing.dart';
+import 'package:linknote/app/theme/app_text_styles.dart';
 import 'package:linknote/features/search/presentation/provider/search_provider.dart';
 import 'package:linknote/features/search/presentation/widgets/search_filter_bar.dart';
 import 'package:linknote/features/search/presentation/widgets/search_suggestions_list.dart';
@@ -10,6 +13,7 @@ import 'package:linknote/shared/utils/url_launcher_helper.dart';
 import 'package:linknote/shared/widgets/empty_state_illustration.dart';
 import 'package:linknote/shared/widgets/empty_state_widget.dart';
 import 'package:linknote/shared/widgets/link_list_tile.dart';
+import 'package:linknote/shared/widgets/ln/ln_icon_btn.dart';
 import 'package:linknote/shared/widgets/skeleton/link_card_skeleton.dart';
 import 'package:linknote/shared/widgets/tag_chip_widget.dart';
 
@@ -48,26 +52,68 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
     final hasQuery = ref.watch(
       searchProvider.select((s) => s.query.isNotEmpty),
     );
-    final clearButton = hasQuery
-        ? IconButton(
-            icon: const Icon(Icons.clear),
-            onPressed: _onClearPressed,
-          )
-        : null;
 
     return Scaffold(
+      backgroundColor: AppColors.bg,
       appBar: AppBar(
-        title: TextField(
-          controller: _controller,
-          focusNode: _focusNode,
-          decoration: InputDecoration(
-            hintText: '링크, 메모, 태그 검색',
-            border: InputBorder.none,
-            suffixIcon: clearButton,
+        backgroundColor: AppColors.bg,
+        surfaceTintColor: AppColors.bg,
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        shape: const Border(bottom: BorderSide(color: AppColors.line)),
+        titleSpacing: 0,
+        title: Padding(
+          padding: const EdgeInsets.symmetric(
+            horizontal: AppSpacing.screenPadding,
+            vertical: AppSpacing.xs,
           ),
-          onChanged: (v) => ref.read(searchProvider.notifier).updateQuery(v),
-          onSubmitted: (v) =>
-              ref.read(searchProvider.notifier).addRecentSearch(v),
+          child: Container(
+            decoration: BoxDecoration(
+              color: AppColors.bgSunk,
+              borderRadius: BorderRadius.circular(AppRadius.lg),
+              border: Border.all(color: AppColors.line),
+            ),
+            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
+            child: Row(
+              children: [
+                const Icon(
+                  Icons.search,
+                  size: 20,
+                  color: AppColors.ink3,
+                ),
+                const SizedBox(width: AppSpacing.sm),
+                Expanded(
+                  child: TextField(
+                    controller: _controller,
+                    focusNode: _focusNode,
+                    cursorColor: AppColors.forest,
+                    style: AppTextStyles.bodyMedium.copyWith(
+                      color: AppColors.ink,
+                    ),
+                    decoration: InputDecoration(
+                      hintText: '링크, 메모, 태그 검색',
+                      hintStyle: AppTextStyles.bodyMedium.copyWith(
+                        color: AppColors.ink3,
+                      ),
+                      border: InputBorder.none,
+                      isDense: true,
+                      contentPadding: const EdgeInsets.symmetric(vertical: 10),
+                    ),
+                    onChanged: (v) =>
+                        ref.read(searchProvider.notifier).updateQuery(v),
+                    onSubmitted: (v) =>
+                        ref.read(searchProvider.notifier).addRecentSearch(v),
+                  ),
+                ),
+                if (hasQuery)
+                  LnIconBtn(
+                    icon: Icons.close_rounded,
+                    color: AppColors.ink3,
+                    onPressed: _onClearPressed,
+                  ),
+              ],
+            ),
+          ),
         ),
       ),
       body: Column(
@@ -108,12 +154,17 @@ class _SearchBody extends ConsumerWidget {
               children: [
                 Text(
                   '최근 검색',
-                  style: Theme.of(context).textTheme.titleSmall,
+                  style: AppTextStyles.label.copyWith(color: AppColors.ink2),
                 ),
                 TextButton(
                   onPressed: () =>
                       ref.read(searchProvider.notifier).clearRecentSearches(),
-                  child: const Text('전체 삭제'),
+                  child: Text(
+                    '전체 삭제',
+                    style: AppTextStyles.label.copyWith(
+                      color: AppColors.forest,
+                    ),
+                  ),
                 ),
               ],
             ),
@@ -178,6 +229,7 @@ class _SearchBody extends ConsumerWidget {
               final link = state.results[index];
               return LinkListTile(
                 link: link,
+                highlightText: state.query,
                 onTap: () => UrlLauncherHelper.launch(context, link.url),
                 onLongPress: () => context.push(Routes.linkDetailPath(link.id)),
                 onFavoriteTap: () =>
