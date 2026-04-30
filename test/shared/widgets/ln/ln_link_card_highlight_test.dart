@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:linknote/app/theme/app_colors.dart';
 import 'package:linknote/features/link/domain/entity/link_entity.dart';
-import 'package:linknote/shared/widgets/link_list_tile.dart';
+import 'package:linknote/shared/widgets/ln/ln_link_card.dart';
 
 LinkEntity _link({
   String title = 'Flutter Forest Guide',
@@ -22,25 +22,23 @@ Widget _wrap(Widget child) {
 }
 
 void main() {
-  group('LinkListTile highlightText', () {
+  group('LnLinkCard highlightText', () {
     testWidgets(
       'should render title as plain Text when highlightText is null',
       (tester) async {
-        await tester.pumpWidget(_wrap(LinkListTile(link: _link())));
+        await tester.pumpWidget(_wrap(LnLinkCard(link: _link())));
         await tester.pumpAndSettle();
 
-        final titleFinder = find.text('Flutter Forest Guide');
-        expect(titleFinder, findsOneWidget);
-        expect(find.byType(RichText), findsWidgets);
+        expect(find.text('Flutter Forest Guide'), findsOneWidget);
       },
     );
 
     testWidgets(
-      'should split title into spans when highlightText matches case-insensitively',
+      'should split title into highlighted spans on case-insensitive match',
       (tester) async {
         await tester.pumpWidget(
           _wrap(
-            LinkListTile(
+            LnLinkCard(
               link: _link(),
               highlightText: 'forest',
             ),
@@ -60,7 +58,7 @@ void main() {
       (tester) async {
         await tester.pumpWidget(
           _wrap(
-            LinkListTile(
+            LnLinkCard(
               link: _link(),
               highlightText: '',
             ),
@@ -77,7 +75,7 @@ void main() {
       (tester) async {
         await tester.pumpWidget(
           _wrap(
-            LinkListTile(
+            LnLinkCard(
               link: _link(),
               highlightText: 'xyz',
             ),

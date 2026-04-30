@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:linknote/app/theme/app_colors.dart';
 import 'package:linknote/app/theme/app_text_styles.dart';
 import 'package:linknote/features/link/domain/entity/link_entity.dart';
+import 'package:linknote/shared/utils/highlight_text.dart';
 import 'package:linknote/shared/widgets/ln/ln_tag.dart';
 import 'package:linknote/shared/widgets/ln/ln_thumb.dart';
 
@@ -20,6 +21,7 @@ class LnLinkCard extends StatelessWidget {
     this.onFavoriteTap,
     this.onMoreTap,
     this.favoriteBusy = false,
+    this.highlightText,
   });
 
   final LinkEntity link;
@@ -29,6 +31,7 @@ class LnLinkCard extends StatelessWidget {
   final VoidCallback? onFavoriteTap;
   final VoidCallback? onMoreTap;
   final bool favoriteBusy;
+  final String? highlightText;
 
   @override
   Widget build(BuildContext context) {
@@ -72,12 +75,7 @@ class LnLinkCard extends StatelessWidget {
           ],
         ),
         const SizedBox(height: 4),
-        Text(
-          link.title,
-          style: AppTextStyles.titleM.copyWith(color: AppColors.ink),
-          maxLines: 2,
-          overflow: TextOverflow.ellipsis,
-        ),
+        _title(),
         if (link.tags.isNotEmpty) ...[
           const SizedBox(height: 8),
           Wrap(
@@ -111,6 +109,33 @@ class LnLinkCard extends StatelessWidget {
           ),
         ],
       ],
+    );
+  }
+
+  Widget _title() {
+    final style = AppTextStyles.titleM.copyWith(color: AppColors.ink);
+    final query = highlightText;
+    if (query == null || query.isEmpty) {
+      return Text(
+        link.title,
+        style: style,
+        maxLines: 2,
+        overflow: TextOverflow.ellipsis,
+      );
+    }
+    final spans = buildHighlightedSpans(text: link.title, query: query);
+    if (spans == null) {
+      return Text(
+        link.title,
+        style: style,
+        maxLines: 2,
+        overflow: TextOverflow.ellipsis,
+      );
+    }
+    return Text.rich(
+      TextSpan(style: style, children: spans),
+      maxLines: 2,
+      overflow: TextOverflow.ellipsis,
     );
   }
 
