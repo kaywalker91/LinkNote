@@ -12,8 +12,8 @@ import 'package:linknote/features/search/presentation/widgets/search_suggestions
 import 'package:linknote/shared/utils/url_launcher_helper.dart';
 import 'package:linknote/shared/widgets/empty_state_illustration.dart';
 import 'package:linknote/shared/widgets/empty_state_widget.dart';
-import 'package:linknote/shared/widgets/link_list_tile.dart';
 import 'package:linknote/shared/widgets/ln/ln_icon_btn.dart';
+import 'package:linknote/shared/widgets/ln/ln_link_card.dart';
 import 'package:linknote/shared/widgets/skeleton/link_card_skeleton.dart';
 import 'package:linknote/shared/widgets/tag_chip_widget.dart';
 
@@ -227,7 +227,7 @@ class _SearchBody extends ConsumerWidget {
             itemCount: state.results.length,
             itemBuilder: (context, index) {
               final link = state.results[index];
-              return LinkListTile(
+              return LnLinkCard(
                 link: link,
                 highlightText: state.query,
                 onTap: () => UrlLauncherHelper.launch(context, link.url),
