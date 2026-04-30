@@ -171,7 +171,7 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.text('Flutter Dev'), findsOneWidget);
 
-      await tester.tap(find.byIcon(Icons.clear));
+      await tester.tap(find.byIcon(Icons.close_rounded));
       await tester.pumpAndSettle();
 
       expect(find.text('Flutter Dev'), findsNothing);
