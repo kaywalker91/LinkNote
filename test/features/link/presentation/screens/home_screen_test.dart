@@ -165,7 +165,9 @@ void main() {
       expect(find.text('★ 즐겨찾기'), findsOneWidget);
     });
 
-    testWidgets('should show FAB for adding links', (tester) async {
+    testWidgets('should NOT have its own FAB (shell provides central FAB)', (
+      tester,
+    ) async {
       // Arrange & Act
       await tester.pumpWidget(
         ProviderScope(
@@ -180,7 +182,7 @@ void main() {
       await tester.pumpAndSettle();
 
       // Assert
-      expect(find.byType(FloatingActionButton), findsOneWidget);
+      expect(find.byType(FloatingActionButton), findsNothing);
     });
   });
 }

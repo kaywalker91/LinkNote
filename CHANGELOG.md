@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed (Session 47 — Phase 4: Search 결과 카드 → LnLinkCard 통일)
+
+- **공유 유틸 추출** — 신규 `lib/shared/utils/highlight_text.dart`. `buildHighlightedSpans({text, query})` 헬퍼가 PR #29 의 `LinkListTile._buildHighlightedSpans` 로직을 재사용 가능 형태로 분리. case-insensitive lower-cased indexOf 반복, 매칭 토큰만 `forestSoft` 배경 + `forestInk` 글자 + `w600`. 미매치/empty query 시 `null` 반환.
+- **`lib/shared/widgets/ln/ln_link_card.dart`** — `String? highlightText` 파라미터 추가. 매칭 시 title 을 `Text.rich` 로 분할, 그 외엔 기존 `Text` 경로.
+- **`lib/features/search/presentation/screens/search_screen.dart`** — 결과 ListView 의 `LinkListTile` → `LnLinkCard` 1:1 교체. Home 카드와 시각 토큰 일관성 확보 (라우터/상태 변경 없음).
+
+### Removed (Session 47)
+
+- `lib/shared/widgets/link_list_tile.dart` 삭제 — Search 외 사용처 0건. orphan 정리 (backwards-compat shim 두지 않음).
+- `test/shared/widgets/link_list_tile_highlight_test.dart` 삭제 — 대상 위젯 orphan.
+
+### Tests (Session 47 — TDD RED → GREEN, 488 → 492)
+
+- `test/shared/utils/highlight_text_test.dart` 신규 4 cases: empty / no-match / case-insensitive split / multi-occurrence.
+- `test/shared/widgets/ln/ln_link_card_highlight_test.dart` 신규 4 cases: null / 매칭(case-insensitive) / 빈 문자열 / 미매치.
+
 ### Added (Session 38 — Share Intent Phase 1: Android URL-only PoC)
 
 - **Cold-start share intent → `link/add` prefill** (Android 전용, Phase 1 Decision 3.1~3.4 에 따름)

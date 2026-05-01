@@ -29,9 +29,6 @@ final _rootNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'root');
 final _homeNavKey = GlobalKey<NavigatorState>(debugLabel: 'home');
 final _searchNavKey = GlobalKey<NavigatorState>(debugLabel: 'search');
 final _collectionsNavKey = GlobalKey<NavigatorState>(debugLabel: 'collections');
-final _notificationsNavKey = GlobalKey<NavigatorState>(
-  debugLabel: 'notifications',
-);
 final _profileNavKey = GlobalKey<NavigatorState>(debugLabel: 'profile');
 
 @Riverpod(keepAlive: true)
@@ -133,7 +130,14 @@ GoRouter appRouter(Ref ref) {
         ),
       ),
 
-      // Shell with 5-tab bottom nav
+      // Notifications — pushed onto root navigator from AppBar bell
+      GoRoute(
+        path: Routes.notifications,
+        parentNavigatorKey: _rootNavigatorKey,
+        builder: (context, state) => const NotificationScreen(),
+      ),
+
+      // Shell with 4-tab bottom nav + central FAB
       StatefulShellRoute.indexedStack(
         builder: (context, state, shell) =>
             AppScaffoldWithNavBar(navigationShell: shell),
@@ -176,17 +180,6 @@ GoRouter appRouter(Ref ref) {
                     ),
                   ),
                 ],
-              ),
-            ],
-          ),
-          StatefulShellBranch(
-            navigatorKey: _notificationsNavKey,
-            routes: [
-              GoRoute(
-                path: Routes.notifications,
-                pageBuilder: (context, state) => const NoTransitionPage(
-                  child: NotificationScreen(),
-                ),
               ),
             ],
           ),
