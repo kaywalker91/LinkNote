@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:linknote/app/theme/app_colors.dart';
 import 'package:linknote/app/theme/app_radius.dart';
+import 'package:linknote/shared/extensions/context_extensions.dart';
 
 /// 40×40 tap target · radius 10 · optional rose badge dot.
 class LnIconBtn extends StatelessWidget {
@@ -21,7 +21,8 @@ class LnIconBtn extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final iconColor = color ?? AppColors.ink;
+    final palette = context.palette;
+    final iconColor = color ?? palette.ink;
     final button = Material(
       color: Colors.transparent,
       borderRadius: BorderRadius.circular(AppRadius.md),
@@ -44,9 +45,9 @@ class LnIconBtn extends StatelessWidget {
                     width: 7,
                     height: 7,
                     decoration: BoxDecoration(
-                      color: AppColors.rose,
+                      color: palette.rose,
                       shape: BoxShape.circle,
-                      border: Border.all(color: AppColors.bg, width: 1.5),
+                      border: Border.all(color: palette.bg, width: 1.5),
                     ),
                   ),
                 ),

@@ -18,12 +18,26 @@ void main() {
       expect(lnTagToneFor('x-random-tag'), LnTagTone.slate);
     });
 
-    test('tone exposes both background and foreground colors', () {
-      expect(LnTagTone.forest.background, AppColors.forestSoft);
-      expect(LnTagTone.forest.foreground, AppColors.forestInk);
-      expect(LnTagTone.amber.background, AppColors.amberSoft);
-      expect(LnTagTone.rose.foreground, AppColors.rose);
-    });
+    testWidgets(
+      'tone exposes both background and foreground colors via context',
+      (tester) async {
+        late BuildContext ctx;
+        await tester.pumpWidget(
+          MaterialApp(
+            home: Builder(
+              builder: (c) {
+                ctx = c;
+                return const SizedBox();
+              },
+            ),
+          ),
+        );
+        expect(LnTagTone.forest.background(ctx), AppColors.forestSoft);
+        expect(LnTagTone.forest.foreground(ctx), AppColors.forestInk);
+        expect(LnTagTone.amber.background(ctx), AppColors.amberSoft);
+        expect(LnTagTone.rose.foreground(ctx), AppColors.rose);
+      },
+    );
   });
 
   group('LnTag widget', () {

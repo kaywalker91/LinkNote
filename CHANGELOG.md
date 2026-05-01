@@ -7,6 +7,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added (Session 50 — Phase 4: Dark mode forest 팔레트 + AppPalette ThemeExtension)
+
+- **신규 `lib/app/theme/app_palette.dart`** — `AppPalette extends ThemeExtension<AppPalette>` 22 design 토큰(forest/forestSoft/forestInk, amber/amberSoft/amberInk, slate/slateSoft, rose/roseSoft, lilac/lilacSoft, bg/bgAlt/bgSunk, ink~ink5, line/lineStrong) 보유. `factory light()` 는 기존 `AppColors` 와 byte-identical, `factory dark()` 는 forest-tuned 다크 팔레트(`bg #141A17`, `ink #E8EDE9`, `forest #3FA37C` 등). `copyWith` + `lerp` 풀 구현.
+- **`lib/app/theme/app_theme.dart` 재작성** — light/dark 빌더 모두 AppPalette 인스턴스 단일 진입점. `extensions: [palette]` 등록, ColorScheme 가 palette 토큰에서 파생. AppBar / Card / NavigationBar / Chip / Snackbar / FAB / Input 모든 컴포넌트가 palette 사용.
+- **`lib/shared/extensions/context_extensions.dart`** — `AppPalette get palette` getter. 미등록 시 `AppPalette.light()` fallback (기존 위젯 테스트 호환).
+- **신규 `test/app/theme/app_palette_test.dart` (10 cases)** + **`test/shared/widgets/ln/ln_widgets_dark_test.dart` (8 cases)** — AppPalette light↔AppColors 동등 검증, dark factory 차이 검증, ThemeData wiring, context.palette 분기, 8 Ln 위젯이 dark theme 하에서 dark 토큰 적용해 렌더하는지 회귀 보호.
+
+### Changed (Session 50)
+
+- **Ln 위젯 마이그레이션 (`AppColors.X` → `context.palette.X`)** — `ln_link_card.dart`, `ln_collection_card.dart`, `ln_top_bar.dart`, `ln_icon_btn.dart`, `ln_segmented.dart`, `ln_brand.dart`, `ln_tag.dart`, `ln_thumb.dart`, `ln_tags.dart` 9 파일. ThemeData.dark() 만으로는 변하지 않던 위젯 색이 brightness 따라 자동 분기.
+- **`LnTagTone` extension API breaking change** — `Color get background` / `Color get foreground` getter → method `(BuildContext context)`. 호출부(`ln_tag.dart` / `ln_thumb.dart`) 동시 마이그레이션. 외부에서 LnTagTone 컬러 직접 사용처 없음.
+- **`lib/app/theme/app_colors.dart` 정리** — light 상수/alias/Hex 모두 유지(backward compat). 사용처 사라진 slate-blue *Dark 상수 8개(`surfaceDark`, `surfaceVariantDark`, `backgroundDark`, `textPrimaryDark`, `textSecondaryDark`, `textHintDark`, `borderDark`, `borderLightDark`) 제거.
+
+### Tests (Session 50 — TDD GREEN, 500 → 518)
+
+- 신규 dark mode 회귀 테스트 18개 추가 (palette 10 + Ln widgets dark 8).
+- 기존 `test/shared/widgets/ln/ln_tag_test.dart` 의 LnTagTone color API 사용 케이스를 `MaterialApp + Builder` ctx 캡처 패턴으로 마이그레이션.
+
+### Notes (Session 50)
+
+- **시각 golden baseline 은 deferred** — `golden_toolkit` 미설치 + CI cross-platform 픽셀 차이 우려. 동등한 회귀 보호를 structural 어설션으로 대체. Phase 4.5+ 에서 `golden_toolkit` 도입 후 visual baseline 수립.
+- **실기기 시각 검증 6 세션 연속 스킵** — Home / LinkDetail / Collection grid / Search / Bottom Nav / Notifications + light↔dark 토글, Session 51 우선순위 최상.
+
 ### Changed (Session 49 — Phase 4: Collection 2열 그리드 + 그라디언트 카드)
 
 - **신규 `lib/shared/widgets/ln/ln_collection_card.dart`** — 그라디언트 헤더 카드 위젯. 78px 헤더에 4톤(forest/lilac/slate/amber) `LnCollectionTone.values` 중 `id` 해시(31진법)로 결정적 분배 → 같은 컬렉션은 항상 동일 톤. 헤더 좌하단 `Icons.folder_rounded` white. 하단 패널: 이름 `titleM`(2 lines, ellipsis) + "링크 N개" `caption ink3`. `static LnCollectionTone toneForId(String id)` 노출(테스트 + 외부 재사용).

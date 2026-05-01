@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:linknote/app/theme/app_colors.dart';
 import 'package:linknote/app/theme/app_radius.dart';
 import 'package:linknote/app/theme/app_shadows.dart';
 import 'package:linknote/app/theme/app_text_styles.dart';
+import 'package:linknote/shared/extensions/context_extensions.dart';
 
 /// Pill segmented control — bg-sunk track, white+sh1 active segment.
 class LnSegmented extends StatelessWidget {
@@ -19,10 +19,11 @@ class LnSegmented extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.palette;
     return Container(
       padding: const EdgeInsets.all(4),
       decoration: BoxDecoration(
-        color: AppColors.bgSunk,
+        color: palette.bgSunk,
         borderRadius: BorderRadius.circular(AppRadius.full),
       ),
       child: Row(
@@ -54,6 +55,7 @@ class _Segment extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.palette;
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(AppRadius.full),
@@ -61,7 +63,7 @@ class _Segment extends StatelessWidget {
         duration: const Duration(milliseconds: 180),
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
         decoration: BoxDecoration(
-          color: selected ? AppColors.bg : Colors.transparent,
+          color: selected ? palette.bg : Colors.transparent,
           borderRadius: BorderRadius.circular(AppRadius.full),
           boxShadow: selected ? AppShadows.sh1 : null,
         ),
@@ -69,7 +71,7 @@ class _Segment extends StatelessWidget {
         child: Text(
           label,
           style: AppTextStyles.label.copyWith(
-            color: selected ? AppColors.ink : AppColors.ink3,
+            color: selected ? palette.ink : palette.ink3,
             fontWeight: selected ? FontWeight.w600 : FontWeight.w500,
             fontSize: 12.5,
           ),

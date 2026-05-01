@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:linknote/app/theme/app_colors.dart';
+import 'package:linknote/shared/extensions/context_extensions.dart';
 
 /// Wordmark: `link` (Inter) + `note` (Fraunces italic · forest).
 class LinkNoteWordmark extends StatelessWidget {
@@ -10,14 +10,15 @@ class LinkNoteWordmark extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.palette;
     final inkStyle = GoogleFonts.fraunces(
       fontSize: fontSize,
       fontWeight: FontWeight.w500,
-      color: AppColors.ink,
+      color: palette.ink,
       letterSpacing: -0.015 * fontSize,
     );
     final forestItalic = inkStyle.copyWith(
-      color: AppColors.forest,
+      color: palette.forest,
       fontStyle: FontStyle.italic,
     );
     return Semantics(
@@ -47,7 +48,7 @@ class LinkNoteMark extends StatelessWidget {
       width: size,
       height: size,
       decoration: BoxDecoration(
-        color: AppColors.forest,
+        color: context.palette.forest,
         borderRadius: BorderRadius.circular(size * 0.25),
       ),
       alignment: Alignment.center,

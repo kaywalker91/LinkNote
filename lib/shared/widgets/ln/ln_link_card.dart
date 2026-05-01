@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:linknote/app/theme/app_colors.dart';
 import 'package:linknote/app/theme/app_text_styles.dart';
 import 'package:linknote/features/link/domain/entity/link_entity.dart';
+import 'package:linknote/shared/extensions/context_extensions.dart';
 import 'package:linknote/shared/utils/highlight_text.dart';
 import 'package:linknote/shared/widgets/ln/ln_tag.dart';
 import 'package:linknote/shared/widgets/ln/ln_thumb.dart';
@@ -54,6 +54,7 @@ class LnLinkCard extends StatelessWidget {
   }
 
   Widget _body(BuildContext context) {
+    final palette = context.palette;
     final host = _hostOf(link.url);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -66,7 +67,7 @@ class LnLinkCard extends StatelessWidget {
                 style: GoogleFonts.jetBrainsMono(
                   fontSize: 11,
                   fontWeight: FontWeight.w500,
-                  color: AppColors.ink3,
+                  color: palette.ink3,
                 ),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
@@ -75,7 +76,7 @@ class LnLinkCard extends StatelessWidget {
           ],
         ),
         const SizedBox(height: 4),
-        _title(),
+        _title(context),
         if (link.tags.isNotEmpty) ...[
           const SizedBox(height: 8),
           Wrap(
@@ -91,16 +92,16 @@ class LnLinkCard extends StatelessWidget {
           const SizedBox(height: 6),
           Row(
             children: [
-              const Icon(
+              Icon(
                 Icons.folder_rounded,
                 size: 12,
-                color: AppColors.ink4,
+                color: palette.ink4,
               ),
               const SizedBox(width: 4),
               Flexible(
                 child: Text(
                   link.collectionName!,
-                  style: AppTextStyles.caption.copyWith(color: AppColors.ink3),
+                  style: AppTextStyles.caption.copyWith(color: palette.ink3),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -112,8 +113,8 @@ class LnLinkCard extends StatelessWidget {
     );
   }
 
-  Widget _title() {
-    final style = AppTextStyles.titleM.copyWith(color: AppColors.ink);
+  Widget _title(BuildContext context) {
+    final style = AppTextStyles.titleM.copyWith(color: context.palette.ink);
     final query = highlightText;
     if (query == null || query.isEmpty) {
       return Text(
@@ -140,6 +141,7 @@ class LnLinkCard extends StatelessWidget {
   }
 
   Widget _trailing(BuildContext context) {
+    final palette = context.palette;
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -156,7 +158,7 @@ class LnLinkCard extends StatelessWidget {
           IconButton(
             icon: Icon(
               link.isFavorite ? Icons.star_rounded : Icons.star_outline_rounded,
-              color: link.isFavorite ? AppColors.amber : AppColors.ink4,
+              color: link.isFavorite ? palette.amber : palette.ink4,
               size: 22,
             ),
             visualDensity: VisualDensity.compact,
@@ -164,9 +166,9 @@ class LnLinkCard extends StatelessWidget {
           ),
         if (onMoreTap != null)
           IconButton(
-            icon: const Icon(
+            icon: Icon(
               Icons.more_horiz_rounded,
-              color: AppColors.ink4,
+              color: palette.ink4,
               size: 20,
             ),
             visualDensity: VisualDensity.compact,

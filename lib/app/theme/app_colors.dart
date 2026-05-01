@@ -66,14 +66,4 @@ abstract final class AppColors {
 
   // Hex strings (persisted in entities like TagEntity.color)
   static const String defaultTagColorHex = '#1F6E53'; // forest
-
-  // Dark palette — 1st iteration keeps prior dark surfaces, only primary swapped to forest.
-  static const Color surfaceDark = Color(0xFF0F172A);
-  static const Color surfaceVariantDark = Color(0xFF1E293B);
-  static const Color backgroundDark = Color(0xFF020617);
-  static const Color textPrimaryDark = Color(0xFFF8FAFC);
-  static const Color textSecondaryDark = Color(0xFF94A3B8);
-  static const Color textHintDark = Color(0xFF475569);
-  static const Color borderDark = Color(0xFF334155);
-  static const Color borderLightDark = Color(0xFF1E293B);
 }

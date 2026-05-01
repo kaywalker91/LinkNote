@@ -21,8 +21,8 @@ class LnTag extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final effectiveTone = tone ?? lnTagToneFor(name);
-    final fg = effectiveTone.foreground;
-    final bg = effectiveTone.background;
+    final fg = effectiveTone.foreground(context);
+    final bg = effectiveTone.background(context);
     final horizontal = dense ? 8.0 : 10.0;
     final vertical = dense ? 2.0 : 3.0;
 

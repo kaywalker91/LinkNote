@@ -1,36 +1,38 @@
-import 'package:flutter/painting.dart';
-import 'package:linknote/app/theme/app_colors.dart';
+import 'package:flutter/widgets.dart';
+import 'package:linknote/shared/extensions/context_extensions.dart';
 
 enum LnTagTone { forest, amber, slate, rose, lilac }
 
 extension LnTagToneColors on LnTagTone {
-  Color get background {
+  Color background(BuildContext context) {
+    final p = context.palette;
     switch (this) {
       case LnTagTone.forest:
-        return AppColors.forestSoft;
+        return p.forestSoft;
       case LnTagTone.amber:
-        return AppColors.amberSoft;
+        return p.amberSoft;
       case LnTagTone.slate:
-        return AppColors.slateSoft;
+        return p.slateSoft;
       case LnTagTone.rose:
-        return AppColors.roseSoft;
+        return p.roseSoft;
       case LnTagTone.lilac:
-        return AppColors.lilacSoft;
+        return p.lilacSoft;
     }
   }
 
-  Color get foreground {
+  Color foreground(BuildContext context) {
+    final p = context.palette;
     switch (this) {
       case LnTagTone.forest:
-        return AppColors.forestInk;
+        return p.forestInk;
       case LnTagTone.amber:
-        return AppColors.amberInk;
+        return p.amberInk;
       case LnTagTone.slate:
-        return AppColors.slate;
+        return p.slate;
       case LnTagTone.rose:
-        return AppColors.rose;
+        return p.rose;
       case LnTagTone.lilac:
-        return AppColors.lilac;
+        return p.lilac;
     }
   }
 }

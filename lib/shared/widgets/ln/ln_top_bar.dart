@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:linknote/app/theme/app_colors.dart';
 import 'package:linknote/app/theme/app_text_styles.dart';
+import 'package:linknote/shared/extensions/context_extensions.dart';
 
 /// Top bar variants per handoff: standard (56h + bottom border) and large (display title below).
 class LnTopBar extends StatelessWidget implements PreferredSizeWidget {
@@ -35,6 +35,7 @@ class LnTopBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.palette;
     final content = <Widget>[
       SizedBox(
         height: _standardHeight,
@@ -51,7 +52,7 @@ class LnTopBar extends StatelessWidget implements PreferredSizeWidget {
                         ? Text(
                             title!,
                             style: AppTextStyles.titleL.copyWith(
-                              color: AppColors.ink,
+                              color: palette.ink,
                             ),
                             overflow: TextOverflow.ellipsis,
                           )
@@ -62,19 +63,19 @@ class LnTopBar extends StatelessWidget implements PreferredSizeWidget {
           ),
         ),
       ),
-      if (large) _buildLargeBlock(),
+      if (large) _buildLargeBlock(context),
     ];
 
     return Material(
-      color: AppColors.bg,
+      color: palette.bg,
       child: SafeArea(
         bottom: false,
         child: DecoratedBox(
           decoration: large
               ? const BoxDecoration()
-              : const BoxDecoration(
+              : BoxDecoration(
                   border: Border(
-                    bottom: BorderSide(color: AppColors.line),
+                    bottom: BorderSide(color: palette.line),
                   ),
                 ),
           child: Column(
@@ -87,7 +88,8 @@ class LnTopBar extends StatelessWidget implements PreferredSizeWidget {
     );
   }
 
-  Widget _buildLargeBlock() {
+  Widget _buildLargeBlock(BuildContext context) {
+    final palette = context.palette;
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
       child: Column(
@@ -96,20 +98,20 @@ class LnTopBar extends StatelessWidget implements PreferredSizeWidget {
           if (displayTitle != null)
             Text(
               displayTitle!,
-              style: AppTextStyles.heading1.copyWith(color: AppColors.ink),
+              style: AppTextStyles.heading1.copyWith(color: palette.ink),
             ),
           if (displaySubtitle != null) ...[
             const SizedBox(height: 4),
             Text(
               displaySubtitle!,
-              style: AppTextStyles.bodySmall.copyWith(color: AppColors.ink3),
+              style: AppTextStyles.bodySmall.copyWith(color: palette.ink3),
             ),
           ],
           if (subtitle != null) ...[
             const SizedBox(height: 2),
             Text(
               subtitle!,
-              style: AppTextStyles.caption.copyWith(color: AppColors.ink3),
+              style: AppTextStyles.caption.copyWith(color: palette.ink3),
             ),
           ],
         ],

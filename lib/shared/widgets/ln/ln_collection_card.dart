@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:linknote/app/theme/app_colors.dart';
 import 'package:linknote/app/theme/app_radius.dart';
 import 'package:linknote/app/theme/app_spacing.dart';
 import 'package:linknote/app/theme/app_text_styles.dart';
 import 'package:linknote/features/collection/domain/entity/collection_entity.dart';
+import 'package:linknote/shared/extensions/context_extensions.dart';
 
 enum LnCollectionTone { forest, lilac, slate, amber }
 
@@ -45,9 +45,10 @@ class LnCollectionCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.palette;
     final tone = toneForId(collection.id);
     return Material(
-      color: AppColors.bg,
+      color: palette.bg,
       borderRadius: BorderRadius.circular(AppRadius.lg),
       clipBehavior: Clip.antiAlias,
       child: InkWell(
@@ -56,7 +57,7 @@ class LnCollectionCard extends StatelessWidget {
         child: DecoratedBox(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(AppRadius.lg),
-            border: Border.all(color: AppColors.line),
+            border: Border.all(color: palette.line),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -75,7 +76,7 @@ class LnCollectionCard extends StatelessWidget {
                     Text(
                       collection.name,
                       style: AppTextStyles.titleM.copyWith(
-                        color: AppColors.ink,
+                        color: palette.ink,
                       ),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
@@ -84,7 +85,7 @@ class LnCollectionCard extends StatelessWidget {
                     Text(
                       '링크 ${collection.linkCount}개',
                       style: AppTextStyles.caption.copyWith(
-                        color: AppColors.ink3,
+                        color: palette.ink3,
                       ),
                     ),
                   ],

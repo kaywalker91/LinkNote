@@ -1,79 +1,58 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:linknote/app/theme/app_colors.dart';
+import 'package:linknote/app/theme/app_palette.dart';
 import 'package:linknote/app/theme/app_radius.dart';
 import 'package:linknote/app/theme/app_text_styles.dart';
 
 abstract final class AppTheme {
-  static ThemeData get light => _build(
-    colorScheme: ColorScheme.fromSeed(
-      seedColor: AppColors.forest,
-      primary: AppColors.forest,
-      onPrimary: Colors.white,
-      surface: AppColors.bg,
-      onSurface: AppColors.ink,
-      error: AppColors.error,
-    ),
-    scaffoldBackground: AppColors.bgAlt,
-    appBarBackground: AppColors.bg,
-    appBarForeground: AppColors.ink,
-    cardColor: AppColors.bg,
-    dividerColor: AppColors.line,
-    inputBorder: AppColors.lineStrong,
-    navBarBackground: AppColors.bg,
-    navBarIndicator: AppColors.forestSoft,
-    navBarSelectedIcon: AppColors.forest,
-    navBarUnselectedIcon: AppColors.ink4,
-    chipBackground: AppColors.bgSunk,
-    chipBorder: AppColors.line,
-    fabBackground: AppColors.forest,
-    fabForeground: Colors.white,
-    snackBarBackground: AppColors.ink,
-    snackBarForeground: AppColors.bg,
-  );
+  static ThemeData get light {
+    final palette = AppPalette.light();
+    return _build(
+      palette: palette,
+      colorScheme: ColorScheme.fromSeed(
+        seedColor: palette.forest,
+        primary: palette.forest,
+        onPrimary: Colors.white,
+        surface: palette.bg,
+        onSurface: palette.ink,
+        error: AppColors.error,
+      ),
+      navBarIndicator: palette.forestSoft,
+      navBarSelectedIcon: palette.forest,
+      snackBarBackground: palette.ink,
+      snackBarForeground: palette.bg,
+    );
+  }
 
-  static ThemeData get dark => _build(
-    brightness: Brightness.dark,
-    colorScheme: ColorScheme.fromSeed(
-      seedColor: AppColors.forest,
+  static ThemeData get dark {
+    final palette = AppPalette.dark();
+    return _build(
       brightness: Brightness.dark,
-      surface: AppColors.surfaceDark,
-      error: AppColors.error,
-    ),
-    scaffoldBackground: AppColors.backgroundDark,
-    appBarBackground: AppColors.surfaceDark,
-    appBarForeground: AppColors.textPrimaryDark,
-    cardColor: AppColors.surfaceDark,
-    dividerColor: AppColors.borderDark,
-    inputBorder: AppColors.borderDark,
-    navBarBackground: AppColors.surfaceDark,
-    navBarIndicator: AppColors.forestSoft.withValues(alpha: 0.16),
-    navBarSelectedIcon: AppColors.forestSoft,
-    navBarUnselectedIcon: AppColors.textSecondaryDark,
-    chipBackground: AppColors.surfaceVariantDark,
-    chipBorder: AppColors.borderDark,
-    fabBackground: AppColors.forest,
-    fabForeground: Colors.white,
-    snackBarBackground: AppColors.surfaceVariantDark,
-    snackBarForeground: AppColors.textPrimaryDark,
-  );
+      palette: palette,
+      colorScheme: ColorScheme.fromSeed(
+        seedColor: palette.forest,
+        brightness: Brightness.dark,
+        primary: palette.forest,
+        onPrimary: Colors.white,
+        surface: palette.bg,
+        onSurface: palette.ink,
+        error: AppColors.error,
+      ),
+      // Soft forest tint for dark indicator (forestSoft is already dark in dark
+      // palette so we use it directly without an alpha overlay).
+      navBarIndicator: palette.forestSoft,
+      navBarSelectedIcon: palette.forestInk,
+      snackBarBackground: palette.bgSunk,
+      snackBarForeground: palette.ink,
+    );
+  }
 
   static ThemeData _build({
+    required AppPalette palette,
     required ColorScheme colorScheme,
-    required Color scaffoldBackground,
-    required Color appBarBackground,
-    required Color appBarForeground,
-    required Color cardColor,
-    required Color dividerColor,
-    required Color inputBorder,
-    required Color navBarBackground,
     required Color navBarIndicator,
     required Color navBarSelectedIcon,
-    required Color navBarUnselectedIcon,
-    required Color chipBackground,
-    required Color chipBorder,
-    required Color fabBackground,
-    required Color fabForeground,
     required Color snackBarBackground,
     required Color snackBarForeground,
     Brightness brightness = Brightness.light,
@@ -101,17 +80,18 @@ abstract final class AppTheme {
       useMaterial3: true,
       brightness: brightness,
       colorScheme: colorScheme,
-      scaffoldBackgroundColor: scaffoldBackground,
+      scaffoldBackgroundColor: palette.bgAlt,
       textTheme: textTheme,
+      extensions: <ThemeExtension<dynamic>>[palette],
       appBarTheme: AppBarTheme(
-        backgroundColor: appBarBackground,
-        foregroundColor: appBarForeground,
+        backgroundColor: palette.bg,
+        foregroundColor: palette.ink,
         elevation: 0,
         centerTitle: true,
-        titleTextStyle: AppTextStyles.titleL.copyWith(color: appBarForeground),
+        titleTextStyle: AppTextStyles.titleL.copyWith(color: palette.ink),
       ),
       cardTheme: CardThemeData(
-        color: cardColor,
+        color: palette.bg,
         elevation: 0,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(AppRadius.card),
@@ -119,22 +99,22 @@ abstract final class AppTheme {
         margin: EdgeInsets.zero,
       ),
       dividerTheme: DividerThemeData(
-        color: dividerColor,
+        color: palette.line,
         thickness: 1,
       ),
       inputDecorationTheme: InputDecorationTheme(
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(AppRadius.input),
-          borderSide: BorderSide(color: inputBorder),
+          borderSide: BorderSide(color: palette.lineStrong),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(AppRadius.input),
-          borderSide: BorderSide(color: inputBorder),
+          borderSide: BorderSide(color: palette.lineStrong),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(AppRadius.input),
-          borderSide: const BorderSide(
-            color: AppColors.forest,
+          borderSide: BorderSide(
+            color: palette.forest,
             width: 2,
           ),
         ),
@@ -153,7 +133,7 @@ abstract final class AppTheme {
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
-          backgroundColor: AppColors.forest,
+          backgroundColor: palette.forest,
           foregroundColor: Colors.white,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(AppRadius.button),
@@ -165,29 +145,29 @@ abstract final class AppTheme {
         ),
       ),
       navigationBarTheme: NavigationBarThemeData(
-        backgroundColor: navBarBackground,
+        backgroundColor: palette.bg,
         indicatorColor: navBarIndicator,
         iconTheme: WidgetStateProperty.resolveWith((states) {
           if (states.contains(WidgetState.selected)) {
             return IconThemeData(color: navBarSelectedIcon);
           }
-          return IconThemeData(color: navBarUnselectedIcon);
+          return IconThemeData(color: palette.ink4);
         }),
         elevation: 0,
         height: 64,
         labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
       ),
       chipTheme: ChipThemeData(
-        backgroundColor: chipBackground,
+        backgroundColor: palette.bgSunk,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(AppRadius.full),
-          side: BorderSide(color: chipBorder),
+          side: BorderSide(color: palette.line),
         ),
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
       ),
       floatingActionButtonTheme: FloatingActionButtonThemeData(
-        backgroundColor: fabBackground,
-        foregroundColor: fabForeground,
+        backgroundColor: palette.forest,
+        foregroundColor: Colors.white,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(AppRadius.fab),
         ),
