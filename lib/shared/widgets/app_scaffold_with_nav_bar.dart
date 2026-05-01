@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:linknote/app/router/routes.dart';
+import 'package:linknote/app/theme/app_colors.dart';
 import 'package:linknote/shared/widgets/offline_banner_widget.dart';
 
 class AppScaffoldWithNavBar extends StatelessWidget {
@@ -7,6 +9,13 @@ class AppScaffoldWithNavBar extends StatelessWidget {
     required this.navigationShell,
     super.key,
   });
+
+  static const List<String> destinationLabels = <String>[
+    'Home',
+    'Search',
+    'Collections',
+    'Profile',
+  ];
 
   final StatefulNavigationShell navigationShell;
 
@@ -19,6 +28,16 @@ class AppScaffoldWithNavBar extends StatelessWidget {
           Expanded(child: navigationShell),
         ],
       ),
+      floatingActionButton: FloatingActionButton(
+        heroTag: 'shell_fab',
+        backgroundColor: AppColors.forest,
+        foregroundColor: Colors.white,
+        elevation: 6,
+        tooltip: '링크 추가',
+        onPressed: () => context.push(Routes.linkAdd),
+        child: const Icon(Icons.add_rounded, size: 24),
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       bottomNavigationBar: Theme(
         data: Theme.of(context).copyWith(
           navigationBarTheme: NavigationBarThemeData(
@@ -50,11 +69,6 @@ class AppScaffoldWithNavBar extends StatelessWidget {
               icon: Icon(Icons.collections_bookmark_outlined),
               selectedIcon: Icon(Icons.collections_bookmark),
               label: 'Collections',
-            ),
-            NavigationDestination(
-              icon: Icon(Icons.notifications_outlined),
-              selectedIcon: Icon(Icons.notifications),
-              label: 'Notifications',
             ),
             NavigationDestination(
               icon: Icon(Icons.person_outlined),

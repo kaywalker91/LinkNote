@@ -48,7 +48,7 @@ class HomeScreen extends ConsumerWidget {
             icon: Icons.notifications_none_rounded,
             badge: true,
             tooltip: '알림',
-            onPressed: () {},
+            onPressed: () => context.push(Routes.notifications),
           ),
           LnIconBtn(
             icon: Icons.swap_vert_rounded,
@@ -81,18 +81,6 @@ class HomeScreen extends ConsumerWidget {
           ),
         ],
       ),
-      floatingActionButton: Padding(
-        padding: const EdgeInsets.only(bottom: 8),
-        child: FloatingActionButton(
-          heroTag: 'home_fab',
-          backgroundColor: AppColors.forest,
-          foregroundColor: Colors.white,
-          elevation: 6,
-          onPressed: () => context.push(Routes.linkAdd),
-          child: const Icon(Icons.add_rounded, size: 24),
-        ),
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
     );
   }
 
