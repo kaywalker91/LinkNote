@@ -122,9 +122,8 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      // Assert
+      // Assert — grid card shows name + count (description omitted per design)
       expect(find.text('Dev Resources'), findsOneWidget);
-      expect(find.text('Useful dev links'), findsOneWidget);
       expect(find.text('링크 5개'), findsOneWidget);
       expect(find.text('Design Inspiration'), findsOneWidget);
       expect(find.text('링크 3개'), findsOneWidget);

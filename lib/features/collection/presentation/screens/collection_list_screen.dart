@@ -3,17 +3,16 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:linknote/app/router/routes.dart';
 import 'package:linknote/app/theme/app_colors.dart';
-import 'package:linknote/app/theme/app_radius.dart';
 import 'package:linknote/app/theme/app_spacing.dart';
-import 'package:linknote/app/theme/app_text_styles.dart';
 import 'package:linknote/features/collection/domain/entity/collection_entity.dart';
 import 'package:linknote/features/collection/presentation/provider/collection_list_provider.dart';
+import 'package:linknote/shared/models/paginated_state.dart';
 import 'package:linknote/shared/widgets/empty_state_illustration.dart';
 import 'package:linknote/shared/widgets/empty_state_widget.dart';
 import 'package:linknote/shared/widgets/error_state_widget.dart';
+import 'package:linknote/shared/widgets/ln/ln_collection_card.dart';
 import 'package:linknote/shared/widgets/ln/ln_icon_btn.dart';
 import 'package:linknote/shared/widgets/ln/ln_top_bar.dart';
-import 'package:linknote/shared/widgets/paginated_list_view.dart';
 import 'package:linknote/shared/widgets/skeleton/collection_card_skeleton.dart';
 
 class CollectionListScreen extends ConsumerWidget {
@@ -53,35 +52,27 @@ class CollectionListScreen extends ConsumerWidget {
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       body: collectionsAsync.when(
-        loading: () => ListView.builder(
-          itemCount: 6,
-          itemBuilder: (_, __) => const CollectionCardSkeleton(),
-        ),
+        loading: () => const _SkeletonGrid(),
         error: (error, _) => ErrorStateWidget.fromError(
           error,
           onRetry: () => ref.read(collectionListProvider.notifier).refresh(),
         ),
-        data: (state) => PaginatedListView(
-          items: state.items,
-          hasMore: state.hasMore,
-          isLoadingMore: state.isLoadingMore,
-          padding: const EdgeInsets.fromLTRB(
-            AppSpacing.lg,
-            AppSpacing.md,
-            AppSpacing.lg,
-            AppSpacing.huge,
-          ),
-          onRefresh: () => ref.read(collectionListProvider.notifier).refresh(),
-          onLoadMore: () =>
-              ref.read(collectionListProvider.notifier).loadMore(),
-          empty: const EmptyStateWidget(
-            illustration: EmptyStateIllustration.collections(),
-            message: '아직 컬렉션이 없어요',
-            subMessage: '링크를 컬렉션으로 정리해보세요',
-          ),
-          itemBuilder: (context, collection, _) =>
-              _CollectionCard(collection: collection),
-        ),
+        data: (state) {
+          if (state.items.isEmpty) {
+            return const EmptyStateWidget(
+              illustration: EmptyStateIllustration.collections(),
+              message: '아직 컬렉션이 없어요',
+              subMessage: '링크를 컬렉션으로 정리해보세요',
+            );
+          }
+          return _PaginatedGrid(
+            state: state,
+            onRefresh: () =>
+                ref.read(collectionListProvider.notifier).refresh(),
+            onLoadMore: () =>
+                ref.read(collectionListProvider.notifier).loadMore(),
+          );
+        },
       ),
     );
   }
@@ -92,83 +83,115 @@ class CollectionListScreen extends ConsumerWidget {
   }
 }
 
-class _CollectionCard extends StatelessWidget {
-  const _CollectionCard({required this.collection});
-  final CollectionEntity collection;
+class _SkeletonGrid extends StatelessWidget {
+  const _SkeletonGrid();
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: AppSpacing.md),
-      child: Material(
-        color: AppColors.bg,
-        borderRadius: BorderRadius.circular(AppRadius.lg),
-        clipBehavior: Clip.antiAlias,
-        child: InkWell(
-          onTap: () => context.push(Routes.collectionDetailPath(collection.id)),
-          child: Container(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(AppRadius.lg),
-              border: Border.all(color: AppColors.line),
+    return GridView.builder(
+      padding: const EdgeInsets.fromLTRB(
+        AppSpacing.md + 2,
+        AppSpacing.md,
+        AppSpacing.md + 2,
+        AppSpacing.huge,
+      ),
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 2,
+        crossAxisSpacing: AppSpacing.md,
+        mainAxisSpacing: AppSpacing.md,
+        childAspectRatio: 0.95,
+      ),
+      itemCount: 6,
+      itemBuilder: (_, __) => const CollectionCardSkeleton(),
+    );
+  }
+}
+
+class _PaginatedGrid extends StatefulWidget {
+  const _PaginatedGrid({
+    required this.state,
+    required this.onRefresh,
+    required this.onLoadMore,
+  });
+
+  final PaginatedState<CollectionEntity> state;
+  final Future<void> Function() onRefresh;
+  final VoidCallback onLoadMore;
+
+  @override
+  State<_PaginatedGrid> createState() => _PaginatedGridState();
+}
+
+class _PaginatedGridState extends State<_PaginatedGrid> {
+  final _controller = ScrollController();
+
+  @override
+  void initState() {
+    super.initState();
+    _controller.addListener(_onScroll);
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void _onScroll() {
+    if (!widget.state.hasMore || widget.state.isLoadingMore) return;
+    final position = _controller.position;
+    if (position.pixels >= position.maxScrollExtent - 200) {
+      widget.onLoadMore();
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final state = widget.state;
+    return RefreshIndicator(
+      onRefresh: widget.onRefresh,
+      child: CustomScrollView(
+        controller: _controller,
+        slivers: [
+          SliverPadding(
+            padding: const EdgeInsets.fromLTRB(
+              AppSpacing.md + 2,
+              AppSpacing.md,
+              AppSpacing.md + 2,
+              0,
             ),
-            padding: const EdgeInsets.all(AppSpacing.lg),
-            child: Row(
-              children: [
-                Container(
-                  width: 44,
-                  height: 44,
-                  decoration: BoxDecoration(
-                    color: AppColors.forestSoft,
-                    borderRadius: BorderRadius.circular(AppRadius.md),
-                  ),
-                  child: const Icon(
-                    Icons.folder_rounded,
-                    color: AppColors.forest,
-                    size: 22,
-                  ),
-                ),
-                const SizedBox(width: AppSpacing.md),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        collection.name,
-                        style: AppTextStyles.titleM.copyWith(
-                          color: AppColors.ink,
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      if (collection.description != null) ...[
-                        const SizedBox(height: 2),
-                        Text(
-                          collection.description!,
-                          style: AppTextStyles.bodySmall.copyWith(
-                            color: AppColors.ink3,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ],
-                      const SizedBox(height: 4),
-                      Text(
-                        '링크 ${collection.linkCount}개',
-                        style: AppTextStyles.caption.copyWith(
-                          color: AppColors.ink3,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const Icon(
-                  Icons.chevron_right_rounded,
-                  color: AppColors.ink4,
-                ),
-              ],
+            sliver: SliverGrid(
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+                crossAxisSpacing: AppSpacing.md,
+                mainAxisSpacing: AppSpacing.md,
+                childAspectRatio: 0.95,
+              ),
+              delegate: SliverChildBuilderDelegate(
+                (context, index) {
+                  final collection = state.items[index];
+                  return LnCollectionCard(
+                    collection: collection,
+                    onTap: () => context.push(
+                      Routes.collectionDetailPath(collection.id),
+                    ),
+                  );
+                },
+                childCount: state.items.length,
+              ),
             ),
           ),
-        ),
+          if (state.hasMore)
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: AppSpacing.lg),
+                child: state.isLoadingMore
+                    ? const Center(child: CircularProgressIndicator())
+                    : const SizedBox.shrink(),
+              ),
+            ),
+          const SliverToBoxAdapter(child: SizedBox(height: AppSpacing.huge)),
+        ],
       ),
     );
   }

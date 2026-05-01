@@ -7,6 +7,7 @@ import 'package:linknote/features/collection/domain/entity/collection_entity.dar
 import 'package:linknote/features/collection/presentation/provider/collection_list_provider.dart';
 import 'package:linknote/features/collection/presentation/screens/collection_list_screen.dart';
 import 'package:linknote/shared/models/paginated_state.dart';
+import 'package:linknote/shared/widgets/ln/ln_collection_card.dart';
 
 class _LoadingCollectionList extends CollectionList {
   @override
@@ -71,7 +72,7 @@ void main() {
       expect(find.text('컬렉션'), findsOneWidget);
     });
 
-    testWidgets('should show skeletons when loading', (tester) async {
+    testWidgets('should show skeleton grid when loading', (tester) async {
       await tester.pumpWidget(
         ProviderScope(
           overrides: [
@@ -82,7 +83,7 @@ void main() {
       );
       await tester.pump();
 
-      expect(find.byType(ListView), findsOneWidget);
+      expect(find.byType(GridView), findsOneWidget);
     });
 
     testWidgets('should show error state with retry button', (tester) async {
@@ -118,7 +119,7 @@ void main() {
       expect(find.text('아직 컬렉션이 없어요'), findsOneWidget);
     });
 
-    testWidgets('should show collection cards when data is loaded', (
+    testWidgets('should render LnCollectionCards in grid when loaded', (
       tester,
     ) async {
       final collections = [
@@ -153,8 +154,8 @@ void main() {
       );
       await tester.pumpAndSettle();
 
+      expect(find.byType(LnCollectionCard), findsNWidgets(2));
       expect(find.text('Flutter Resources'), findsOneWidget);
-      expect(find.text('Best Flutter links'), findsOneWidget);
       expect(find.text('링크 5개'), findsOneWidget);
       expect(find.text('Dart Tips'), findsOneWidget);
       expect(find.text('링크 3개'), findsOneWidget);
