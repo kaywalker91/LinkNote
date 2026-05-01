@@ -7,6 +7,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed (Session 49 — Phase 4: Collection 2열 그리드 + 그라디언트 카드)
+
+- **신규 `lib/shared/widgets/ln/ln_collection_card.dart`** — 그라디언트 헤더 카드 위젯. 78px 헤더에 4톤(forest/lilac/slate/amber) `LnCollectionTone.values` 중 `id` 해시(31진법)로 결정적 분배 → 같은 컬렉션은 항상 동일 톤. 헤더 좌하단 `Icons.folder_rounded` white. 하단 패널: 이름 `titleM`(2 lines, ellipsis) + "링크 N개" `caption ink3`. `static LnCollectionTone toneForId(String id)` 노출(테스트 + 외부 재사용).
+- **`lib/features/collection/presentation/screens/collection_list_screen.dart`** — `PaginatedListView`(ListView) → `CustomScrollView + SliverGrid`(crossAxisCount=2, crossAxisSpacing/mainAxisSpacing=12, childAspectRatio=0.95). 빈/에러/로딩 분기 유지, 스크롤 페이지네이션 + RefreshIndicator 인라인. `_PaginatedGrid` 내부 위젯 + `_SkeletonGrid`. shell add-link FAB(centerDocked) 와 collection FAB(endFloat, `collections_fab`) 위치 충돌 없음 유지.
+- **`lib/shared/widgets/skeleton/collection_card_skeleton.dart`** — 그리드 셀 카드 폼(헤더 78 ShimmerBox + 텍스트 라인 2개)으로 재구성, 가로 패딩 제거(셀 단위 렌더).
+
+### Tests (Session 49 — TDD RED → GREEN, 495 → 500)
+
+- `test/shared/widgets/ln/ln_collection_card_test.dart` 신규 5 cases — RED(`No such file 'ln_collection_card.dart'`) → GREEN. name/count 렌더링, onTap, folder icon, `toneForId` 결정성, 팔레트 분포(20개 id → 1개 톤 collapse 방지).
+- `test/features/collection/presentation/screens/collection_list_screen_test.dart` — 스켈레톤 finder `ListView` → `GridView`, 셀렉터에 `LnCollectionCard.findsNWidgets(2)` 추가.
+- `test/integration/collection_create_flow_test.dart` — 카드가 description 미표시(디자인 spec) 반영해 `find.text('Useful dev links')` assertion 제거.
+- 500 GREEN, analyze 0, format clean. CI 4 job ALL PASS + 사용자 수동 머지(commit `207dd1a`).
+
+### Decision (Session 49)
+
+- **Lock/Globe visibility pill 미도입** — `CollectionEntity` 에 `visibility` 필드 없음. "수치 기준 창작 금지" 정책 확장 적용: 모델에 없는 속성을 UI에서 임의로 표기하지 않음. public/private 데이터 모델 도입 시 후속 PR.
+- **emoji slot → folder 아이콘 유지** — `CollectionEntity` 에 `emoji` 필드 없음. 디자인 spec 의 emoji 자리는 `Icons.folder_rounded` (white on gradient) 로 대체.
+- **description 카드 미표시** — 디자인 spec 그대로. description 은 상세 화면에서만 노출.
+
 ### Changed (Session 48 — Phase 4: LnTabBar 5탭→4탭 + 중앙 FAB)
 
 - **`lib/shared/widgets/app_scaffold_with_nav_bar.dart`** — `NavigationBar.destinations` 5개→4개. Notifications destination 제거 → Home/Search/Collections/Profile. `Scaffold.floatingActionButton` 신설(forest, `Icons.add_rounded`, heroTag `shell_fab`, → `Routes.linkAdd`) + `floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked`. `static const List<String> destinationLabels` 공개해 테스트 셀렉터로 활용.
