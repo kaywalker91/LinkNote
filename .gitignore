@@ -64,3 +64,8 @@ docs/work_performance/
 # *.g.dart
 # *.freezed.dart
 # *.gen.dart
+
+# Alchemist platform-specific goldens (only goldens/ci/ is tracked)
+**/goldens/macos
+**/goldens/linux
+**/goldens/windows

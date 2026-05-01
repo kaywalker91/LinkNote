@@ -1,0 +1,6 @@
+# Test runner configuration. See https://pub.dev/packages/test#configuring-tests
+tags:
+  # Tag added automatically by `goldenTest()` from package:alchemist.
+  # Run only goldens: `flutter test --tags golden`
+  # Skip goldens:    `flutter test --exclude-tags golden`
+  golden:
