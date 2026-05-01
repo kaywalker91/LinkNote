@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added (Session 51 — Phase 4.5: Visual baseline (alchemist + bundled fonts))
+
+- **신규 `dev_dependencies: alchemist ^0.14.0`** — Betterment 의 golden test 라이브러리. `golden_toolkit` 이 archived 인 점 + CI 의 cross-platform 픽셀 차이 우려를 해결(Ahem 폰트로 CI golden 통일). `goldenTest` 1 호출 = 1 PNG, `GoldenTestGroup` + `GoldenTestScenario` 로 컬럼 그리드 매트릭스 캡처.
+- **신규 `test/flutter_test_config.dart`** — `GoogleFonts.config.allowRuntimeFetching = false` (번들 폰트 사용, 네트워크 페치 차단) + `AlchemistConfig` 의 `platformGoldensConfig.enabled = !isRunningInCi` 분기(로컬 macOS 골든 가독성 + CI ahem golden 결정성 동시 보호). 컴파일 타임 `bool.fromEnvironment('CI')` 사용.
+- **신규 `dart_test.yaml`** — alchemist 가 부여하는 `golden` 태그 등록 → 테스트 실행 시 "tag was used that wasn't specified" 경고 제거. 사용 패턴: `flutter test --tags golden` (only goldens), `flutter test --exclude-tags golden` (skip).
+- **신규 `assets/fonts/`** — Inter Regular/Medium/SemiBold/Bold + JetBrainsMono Regular/Medium + Fraunces-Medium(Fraunces72pt-Regular 리네임) 7 파일, 약 2.2MB. 출처: rsms/inter v4.1, JetBrains/JetBrainsMono v2.304, undercasetype/Fraunces v1.0. `pubspec.yaml` 의 `flutter.assets` 에 등록 → `google_fonts` 패키지가 prefix endsWith 매칭으로 자동 인식. 부수 이점: 프로덕션 첫 로드 시 폰트 페치 대기 제거.
+- **신규 `test/shared/widgets/ln/golden/_golden_helpers.dart`** — `themedScenario({dark, child, padding, width})` 헬퍼. 위젯을 `Theme(data: AppTheme.dark/light)` + bgAlt 배경에 래핑해 light/dark 시나리오를 같은 PNG 안에서 비교 가능.
+- **신규 8 alchemist `goldenTest` (3 파일, 42 `GoldenTestScenario`)** + **8 CI golden PNG baseline** (`test/shared/widgets/ln/golden/goldens/ci/*.png`):
+  - `ln_brand_golden_test.dart` — LinkNoteWordmark / LinkNoteMark × light/dark.
+  - `ln_cards_golden_test.dart` — LnLinkCard (favorite + 2 tags + collection name) × light/dark, LnCollectionCard 4 tone(forest/lilac/slate/amber 4 컬렉션 id) × light/dark.
+  - `ln_atoms_golden_test.dart` — LnTopBar(`내 서랍`), LnIconBtn(plain/badge), LnSegmented(전체/즐겨찾기), LnTag 5 tone, LnThumb sm/md/lg(hostPill) × light/dark.
+
+### Changed (Session 51)
+
+- **`.gitignore`** — `**/goldens/macos`, `**/goldens/linux`, `**/goldens/windows` 추가. alchemist 의 platform-specific 골든은 host 의존이므로 `goldens/ci/*.png` 만 트래킹.
+
 ### Added (Session 50 — Phase 4: Dark mode forest 팔레트 + AppPalette ThemeExtension)
 
 - **신규 `lib/app/theme/app_palette.dart`** — `AppPalette extends ThemeExtension<AppPalette>` 22 design 토큰(forest/forestSoft/forestInk, amber/amberSoft/amberInk, slate/slateSoft, rose/roseSoft, lilac/lilacSoft, bg/bgAlt/bgSunk, ink~ink5, line/lineStrong) 보유. `factory light()` 는 기존 `AppColors` 와 byte-identical, `factory dark()` 는 forest-tuned 다크 팔레트(`bg #141A17`, `ink #E8EDE9`, `forest #3FA37C` 등). `copyWith` + `lerp` 풀 구현.
