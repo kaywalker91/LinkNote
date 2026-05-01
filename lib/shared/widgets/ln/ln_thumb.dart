@@ -59,10 +59,10 @@ class LnThumb extends StatelessWidget {
           height: size.edge,
           borderRadius: radius,
         ),
-        errorWidget: (_, __, ___) => _gradient(),
+        errorWidget: (_, __, ___) => _gradient(context),
       );
     } else {
-      child = _gradient();
+      child = _gradient(context);
     }
 
     Widget wrapped = ClipRRect(
@@ -96,9 +96,9 @@ class LnThumb extends StatelessWidget {
     return wrapped;
   }
 
-  Widget _gradient() {
-    final a = tone.background;
-    final b = tone.foreground.withValues(alpha: 0.25);
+  Widget _gradient(BuildContext context) {
+    final a = tone.background(context);
+    final b = tone.foreground(context).withValues(alpha: 0.25);
     return DecoratedBox(
       decoration: BoxDecoration(
         gradient: LinearGradient(
@@ -110,7 +110,7 @@ class LnThumb extends StatelessWidget {
       child: Center(
         child: Icon(
           Icons.link_rounded,
-          color: tone.foreground.withValues(alpha: 0.35),
+          color: tone.foreground(context).withValues(alpha: 0.35),
           size: _iconSize,
         ),
       ),
