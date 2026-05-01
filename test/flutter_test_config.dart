@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:alchemist/alchemist.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -18,14 +19,14 @@ import 'package:google_fonts/google_fonts.dart';
 Future<void> testExecutable(FutureOr<void> Function() testMain) async {
   GoogleFonts.config.allowRuntimeFetching = false;
 
-  const isRunningInCi = bool.fromEnvironment('CI');
+  // Detect CI at runtime — GitHub Actions, GitLab, CircleCI, Travis, and most
+  // hosted runners set `CI=true` in the environment. `bool.fromEnvironment`
+  // would only see compile-time --dart-define values, so it always evaluated
+  // to false in our CI workflow and accidentally enabled platform goldens.
+  final isRunningInCi = Platform.environment['CI']?.toLowerCase() == 'true';
 
   return AlchemistConfig.runWithConfig(
-    config: const AlchemistConfig(
-      // Compile-time `!isRunningInCi` matches the default when running locally,
-      // but when CI=true the const folds to `enabled: false`. Both branches
-      // matter, so the redundancy hint is wrong here.
-      // ignore: avoid_redundant_argument_values
+    config: AlchemistConfig(
       platformGoldensConfig: PlatformGoldensConfig(enabled: !isRunningInCi),
     ),
     run: testMain,
