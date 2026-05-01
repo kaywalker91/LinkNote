@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed (Session 48 — Phase 4: LnTabBar 5탭→4탭 + 중앙 FAB)
+
+- **`lib/shared/widgets/app_scaffold_with_nav_bar.dart`** — `NavigationBar.destinations` 5개→4개. Notifications destination 제거 → Home/Search/Collections/Profile. `Scaffold.floatingActionButton` 신설(forest, `Icons.add_rounded`, heroTag `shell_fab`, → `Routes.linkAdd`) + `floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked`. `static const List<String> destinationLabels` 공개해 테스트 셀렉터로 활용.
+- **`lib/app/router/app_router.dart`** — `_notificationsNavKey` + notifications `StatefulShellBranch` 제거. Notifications 는 top-level `GoRoute(path: Routes.notifications, parentNavigatorKey: _rootNavigatorKey)` 로 이전. 경로 (`/notifications`) 자체는 변경 없음.
+- **`lib/features/link/presentation/screens/home_screen.dart`** — 로컬 `floatingActionButton`(home_fab, endFloat) 블록 삭제(shell 제공). bell `LnIconBtn(icon: Icons.notifications_none_rounded, badge: true, tooltip: '알림')` 의 no-op `onPressed: () {}` → `context.push(Routes.notifications)`.
+
+### Tests (Session 48 — TDD RED → GREEN, 492 → 495)
+
+- `test/shared/widgets/app_scaffold_with_nav_bar_test.dart` 신규 3 cases — RED(`Member not found: destinationLabels`) → GREEN. `destinationLabels.length == 4`, in-order Home/Search/Collections/Profile, 'Notifications' 부재.
+- `test/features/link/presentation/screens/home_screen_test.dart` "should show FAB for adding links" → "should NOT have its own FAB (shell provides central FAB)" 로 기대 반전(`findsOneWidget` → `findsNothing`).
+
 ### Changed (Session 47 — Phase 4: Search 결과 카드 → LnLinkCard 통일)
 
 - **공유 유틸 추출** — 신규 `lib/shared/utils/highlight_text.dart`. `buildHighlightedSpans({text, query})` 헬퍼가 PR #29 의 `LinkListTile._buildHighlightedSpans` 로직을 재사용 가능 형태로 분리. case-insensitive lower-cased indexOf 반복, 매칭 토큰만 `forestSoft` 배경 + `forestInk` 글자 + `w600`. 미매치/empty query 시 `null` 반환.
