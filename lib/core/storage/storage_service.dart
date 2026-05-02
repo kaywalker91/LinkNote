@@ -27,4 +27,8 @@ Future<void> initHive() async {
     encryptionCipher: cipher,
   );
   await Hive.openBox<String>('search_history', encryptionCipher: cipher);
+  await Hive.openBox<Map<dynamic, dynamic>>(
+    'reading_stats',
+    encryptionCipher: cipher,
+  );
 }

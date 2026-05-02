@@ -56,7 +56,7 @@ final class PendingSharedUrlProvider
   }
 }
 
-String _$pendingSharedUrlHash() => r'31321074c12aa099381bcbd0987928656175aa5a';
+String _$pendingSharedUrlHash() => r'04916013f3eab004af597d00005755a91e9c964a';
 
 /// One-shot holder for a URL delivered via cold-start share intent.
 ///
