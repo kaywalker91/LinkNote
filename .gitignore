@@ -69,3 +69,6 @@ docs/work_performance/
 **/goldens/macos
 **/goldens/linux
 **/goldens/windows
+
+# Harness v2.1 runs (validation artifacts)
+.claude/harness/runs/
