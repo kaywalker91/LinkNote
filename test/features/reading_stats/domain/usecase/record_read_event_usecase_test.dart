@@ -51,21 +51,23 @@ void main() {
       },
     );
 
-    test('should propagate failure when repository returns an error result',
-        () async {
-      // Arrange
-      const tFailure = Failure.cache(message: 'write error');
-      when(
-        () => mockRepository.recordReadEvent(any()),
-      ).thenAnswer((_) async => error(tFailure));
+    test(
+      'should propagate failure when repository returns an error result',
+      () async {
+        // Arrange
+        const tFailure = Failure.cache(message: 'write error');
+        when(
+          () => mockRepository.recordReadEvent(any()),
+        ).thenAnswer((_) async => error(tFailure));
 
-      // Act
-      final result = await sut.call(tValidEntity);
+        // Act
+        final result = await sut.call(tValidEntity);
 
-      // Assert
-      expect(result.isFailure, isTrue);
-      expect(result.failure, equals(tFailure));
-    });
+        // Assert
+        expect(result.isFailure, isTrue);
+        expect(result.failure, equals(tFailure));
+      },
+    );
   });
 
   // ---------------------------------------------------------------------------

@@ -13,7 +13,10 @@ class FakeBox extends Fake implements Box<Map<dynamic, dynamic>> {
   final Map<dynamic, Map<dynamic, dynamic>> _store = {};
 
   @override
-  Map<dynamic, dynamic>? get(dynamic key, {Map<dynamic, dynamic>? defaultValue}) {
+  Map<dynamic, dynamic>? get(
+    dynamic key, {
+    Map<dynamic, dynamic>? defaultValue,
+  }) {
     return _store[key] ?? defaultValue;
   }
 
@@ -66,17 +69,19 @@ void main() {
   // AC-10 (a): recordEvent on empty box creates entry with one event
   // ---------------------------------------------------------------------------
   group('recordEvent — AC-10 (a) empty box creates entry', () {
-    test('should create a new entry with one event for unknown linkId',
-        () async {
-      // Act
-      await sut.recordEvent('link-1', tEvent1);
+    test(
+      'should create a new entry with one event for unknown linkId',
+      () async {
+        // Act
+        await sut.recordEvent('link-1', tEvent1);
 
-      // Assert
-      final stored = fakeBox.get('link-1');
-      expect(stored, isNotNull);
-      final events = stored!['events'] as List<dynamic>;
-      expect(events, hasLength(1));
-    });
+        // Assert
+        final stored = fakeBox.get('link-1');
+        expect(stored, isNotNull);
+        final events = stored!['events'] as List<dynamic>;
+        expect(events, hasLength(1));
+      },
+    );
   });
 
   // ---------------------------------------------------------------------------
@@ -102,62 +107,68 @@ void main() {
   // AC-10 (c): getStats returns totalReads=count and lastReadAt=max(timestamps)
   // ---------------------------------------------------------------------------
   group('getStats — AC-10 (c) aggregate', () {
-    test('should return totalReads == 2 and lastReadAt == max timestamp',
-        () async {
-      // Arrange
-      await sut.recordEvent('link-1', tEvent1); // 09:00
-      await sut.recordEvent('link-1', tEvent2); // 11:00
+    test(
+      'should return totalReads == 2 and lastReadAt == max timestamp',
+      () async {
+        // Arrange
+        await sut.recordEvent('link-1', tEvent1); // 09:00
+        await sut.recordEvent('link-1', tEvent2); // 11:00
 
-      // Act
-      final stats = await sut.getStats('link-1');
+        // Act
+        final stats = await sut.getStats('link-1');
 
-      // Assert
-      expect(stats.totalReads, 2);
-      expect(stats.lastReadAt, tTimestamp2); // max is 11:00
-    });
+        // Assert
+        expect(stats.totalReads, 2);
+        expect(stats.lastReadAt, tTimestamp2); // max is 11:00
+      },
+    );
 
-    test('should pick the maximum timestamp regardless of insertion order',
-        () async {
-      // Arrange — three events with out-of-order timestamps
-      final eventA = ReadingEventEntity(
-        linkId: 'link-2',
-        timestamp: tTimestamp2, // 11:00
-      );
-      final eventB = ReadingEventEntity(
-        linkId: 'link-2',
-        timestamp: tTimestamp3, // 08:00
-      );
-      final eventC = ReadingEventEntity(
-        linkId: 'link-2',
-        timestamp: tTimestamp1, // 09:00
-      );
-      await sut.recordEvent('link-2', eventA);
-      await sut.recordEvent('link-2', eventB);
-      await sut.recordEvent('link-2', eventC);
+    test(
+      'should pick the maximum timestamp regardless of insertion order',
+      () async {
+        // Arrange — three events with out-of-order timestamps
+        final eventA = ReadingEventEntity(
+          linkId: 'link-2',
+          timestamp: tTimestamp2, // 11:00
+        );
+        final eventB = ReadingEventEntity(
+          linkId: 'link-2',
+          timestamp: tTimestamp3, // 08:00
+        );
+        final eventC = ReadingEventEntity(
+          linkId: 'link-2',
+          timestamp: tTimestamp1, // 09:00
+        );
+        await sut.recordEvent('link-2', eventA);
+        await sut.recordEvent('link-2', eventB);
+        await sut.recordEvent('link-2', eventC);
 
-      // Act
-      final stats = await sut.getStats('link-2');
+        // Act
+        final stats = await sut.getStats('link-2');
 
-      // Assert
-      expect(stats.totalReads, 3);
-      expect(stats.lastReadAt, tTimestamp2);
-    });
+        // Assert
+        expect(stats.totalReads, 3);
+        expect(stats.lastReadAt, tTimestamp2);
+      },
+    );
   });
 
   // ---------------------------------------------------------------------------
   // AC-10 (d): getStats for unknown linkId returns totalReads=0, lastReadAt=null
   // ---------------------------------------------------------------------------
   group('getStats — AC-10 (d) unknown linkId', () {
-    test('should return totalReads=0 and lastReadAt=null for unknown linkId',
-        () async {
-      // Act
-      final stats = await sut.getStats('unknown-link');
+    test(
+      'should return totalReads=0 and lastReadAt=null for unknown linkId',
+      () async {
+        // Act
+        final stats = await sut.getStats('unknown-link');
 
-      // Assert
-      expect(stats.totalReads, 0);
-      expect(stats.lastReadAt, isNull);
-      expect(stats.linkId, 'unknown-link');
-    });
+        // Assert
+        expect(stats.totalReads, 0);
+        expect(stats.lastReadAt, isNull);
+        expect(stats.linkId, 'unknown-link');
+      },
+    );
   });
 
   // ---------------------------------------------------------------------------
