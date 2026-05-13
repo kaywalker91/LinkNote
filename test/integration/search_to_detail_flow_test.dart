@@ -2,17 +2,30 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
+import 'package:linknote/core/error/result.dart';
 import 'package:linknote/features/link/domain/entity/link_entity.dart';
 import 'package:linknote/features/link/domain/entity/tag_entity.dart';
 import 'package:linknote/features/link/presentation/provider/link_detail_provider.dart';
 import 'package:linknote/features/link/presentation/provider/link_list_provider.dart';
 import 'package:linknote/features/link/presentation/screens/link_detail_screen.dart';
+import 'package:linknote/features/reading_stats/domain/entity/reading_event_entity.dart';
+import 'package:linknote/features/reading_stats/domain/entity/reading_stats_entity.dart';
+import 'package:linknote/features/reading_stats/domain/usecase/get_reading_stats_usecase.dart';
+import 'package:linknote/features/reading_stats/domain/usecase/record_read_event_usecase.dart';
+import 'package:linknote/features/reading_stats/presentation/provider/reading_stats_di_providers.dart';
 import 'package:linknote/features/search/domain/entity/search_state_entity.dart';
 import 'package:linknote/features/search/presentation/provider/search_provider.dart';
 import 'package:linknote/features/search/presentation/provider/search_suggestions_provider.dart';
 import 'package:linknote/features/search/presentation/provider/user_tags_provider.dart';
 import 'package:linknote/features/search/presentation/screens/search_screen.dart';
 import 'package:linknote/shared/models/paginated_state.dart';
+import 'package:mocktail/mocktail.dart';
+
+class _StubRecordReadEvent extends Mock implements RecordReadEventUsecase {}
+
+class _StubGetReadingStats extends Mock implements GetReadingStatsUsecase {}
+
+class _FakeReadingEventEntity extends Fake implements ReadingEventEntity {}
 
 // ---------------------------------------------------------------------------
 // Test data
@@ -81,11 +94,16 @@ class _MockSearch extends Search {
   Future<void> toggleFavorite(String id) async {}
 }
 
+final _stubRecord = _StubRecordReadEvent();
+final _stubGet = _StubGetReadingStats();
+
 /// Common extra overrides for providers required by SearchScreen.
 // ignore: specify_nonobvious_property_types
 final _extraOverrides = [
   userTagsProvider.overrideWith((ref) => Future.value(<TagEntity>[])),
   searchSuggestionsProvider.overrideWith((ref) => <SearchSuggestion>[]),
+  recordReadEventUsecaseProvider.overrideWithValue(_stubRecord),
+  getReadingStatsUsecaseProvider.overrideWithValue(_stubGet),
 ];
 
 /// LinkDetail notifier that returns a fixed link entity.
@@ -120,6 +138,14 @@ class _EmptyLinkList extends LinkList {
 }
 
 void main() {
+  setUpAll(() {
+    registerFallbackValue(_FakeReadingEventEntity());
+    when(() => _stubRecord.call(any())).thenAnswer((_) async => success(null));
+    when(() => _stubGet.call(any())).thenAnswer(
+      (_) async => success(const ReadingStatsEntity(linkId: 'link-1')),
+    );
+  });
+
   group('Search → Results → Detail flow', () {
     testWidgets('should show empty state initially', (tester) async {
       await tester.pumpWidget(

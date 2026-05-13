@@ -3,13 +3,28 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:linknote/core/error/result.dart';
 import 'package:linknote/features/link/domain/entity/link_entity.dart';
 import 'package:linknote/features/link/domain/entity/tag_entity.dart';
 import 'package:linknote/features/link/presentation/provider/link_detail_provider.dart';
 import 'package:linknote/features/link/presentation/provider/link_list_provider.dart';
 import 'package:linknote/features/link/presentation/screens/link_detail_screen.dart';
+import 'package:linknote/features/reading_stats/domain/entity/reading_event_entity.dart';
+import 'package:linknote/features/reading_stats/domain/entity/reading_stats_entity.dart';
+import 'package:linknote/features/reading_stats/domain/usecase/get_reading_stats_usecase.dart';
+import 'package:linknote/features/reading_stats/domain/usecase/record_read_event_usecase.dart';
+import 'package:linknote/features/reading_stats/presentation/provider/reading_stats_di_providers.dart';
 import 'package:linknote/shared/models/paginated_state.dart';
 import 'package:linknote/shared/widgets/ln/ln_tag.dart';
+import 'package:mocktail/mocktail.dart';
+
+class _MockRecordReadEventUsecase extends Mock
+    implements RecordReadEventUsecase {}
+
+class _MockGetReadingStatsUsecase extends Mock
+    implements GetReadingStatsUsecase {}
+
+class _FakeReadingEventEntity extends Fake implements ReadingEventEntity {}
 
 class _LoadingLinkDetail extends LinkDetail {
   @override
@@ -61,6 +76,22 @@ class _StubLinkList extends LinkList {
 }
 
 void main() {
+  setUpAll(() {
+    registerFallbackValue(_FakeReadingEventEntity());
+  });
+
+  late _MockRecordReadEventUsecase mockRecord;
+  late _MockGetReadingStatsUsecase mockGet;
+
+  setUp(() {
+    mockRecord = _MockRecordReadEventUsecase();
+    mockGet = _MockGetReadingStatsUsecase();
+    when(() => mockRecord.call(any())).thenAnswer((_) async => success(null));
+    when(() => mockGet.call(any())).thenAnswer(
+      (_) async => success(const ReadingStatsEntity(linkId: '1')),
+    );
+  });
+
   final tLink = LinkEntity(
     id: '1',
     url: 'https://flutter.dev',
@@ -82,6 +113,8 @@ void main() {
           overrides: [
             linkDetailProvider.overrideWith(_LoadingLinkDetail.new),
             linkListProvider.overrideWith(_StubLinkList.new),
+            recordReadEventUsecaseProvider.overrideWithValue(mockRecord),
+            getReadingStatsUsecaseProvider.overrideWithValue(mockGet),
           ],
           child: const MaterialApp(
             home: LinkDetailScreen(linkId: '1'),
@@ -100,6 +133,8 @@ void main() {
           overrides: [
             linkDetailProvider.overrideWith(_ErrorLinkDetail.new),
             linkListProvider.overrideWith(_StubLinkList.new),
+            recordReadEventUsecaseProvider.overrideWithValue(mockRecord),
+            getReadingStatsUsecaseProvider.overrideWithValue(mockGet),
           ],
           child: const MaterialApp(
             home: LinkDetailScreen(linkId: '1'),
@@ -118,6 +153,8 @@ void main() {
           overrides: [
             linkDetailProvider.overrideWith(() => _DataLinkDetail(tLink)),
             linkListProvider.overrideWith(_StubLinkList.new),
+            recordReadEventUsecaseProvider.overrideWithValue(mockRecord),
+            getReadingStatsUsecaseProvider.overrideWithValue(mockGet),
           ],
           child: const MaterialApp(
             home: LinkDetailScreen(linkId: '1'),
@@ -137,6 +174,8 @@ void main() {
           overrides: [
             linkDetailProvider.overrideWith(() => _DataLinkDetail(tLink)),
             linkListProvider.overrideWith(_StubLinkList.new),
+            recordReadEventUsecaseProvider.overrideWithValue(mockRecord),
+            getReadingStatsUsecaseProvider.overrideWithValue(mockGet),
           ],
           child: const MaterialApp(
             home: LinkDetailScreen(linkId: '1'),
@@ -155,6 +194,8 @@ void main() {
           overrides: [
             linkDetailProvider.overrideWith(() => _DataLinkDetail(tLink)),
             linkListProvider.overrideWith(_StubLinkList.new),
+            recordReadEventUsecaseProvider.overrideWithValue(mockRecord),
+            getReadingStatsUsecaseProvider.overrideWithValue(mockGet),
           ],
           child: const MaterialApp(
             home: LinkDetailScreen(linkId: '1'),
@@ -178,6 +219,8 @@ void main() {
           overrides: [
             linkDetailProvider.overrideWith(() => _DataLinkDetail(tLink)),
             linkListProvider.overrideWith(_StubLinkList.new),
+            recordReadEventUsecaseProvider.overrideWithValue(mockRecord),
+            getReadingStatsUsecaseProvider.overrideWithValue(mockGet),
           ],
           child: const MaterialApp(
             home: LinkDetailScreen(linkId: '1'),
@@ -200,6 +243,8 @@ void main() {
           overrides: [
             linkDetailProvider.overrideWith(() => _DataLinkDetail(tLink)),
             linkListProvider.overrideWith(_StubLinkList.new),
+            recordReadEventUsecaseProvider.overrideWithValue(mockRecord),
+            getReadingStatsUsecaseProvider.overrideWithValue(mockGet),
           ],
           child: const MaterialApp(
             home: LinkDetailScreen(linkId: '1'),
@@ -213,5 +258,38 @@ void main() {
       expect(find.byIcon(Icons.edit_outlined), findsOneWidget);
       expect(find.byIcon(Icons.delete_outline), findsOneWidget);
     });
+  });
+
+  group('LinkDetailScreen — AC-6 fire-and-forget read event', () {
+    testWidgets(
+      'should invoke recordReadEventUsecase exactly once after first frame',
+      (tester) async {
+        await tester.pumpWidget(
+          ProviderScope(
+            overrides: [
+              linkDetailProvider.overrideWith(() => _DataLinkDetail(tLink)),
+              linkListProvider.overrideWith(_StubLinkList.new),
+              recordReadEventUsecaseProvider.overrideWithValue(mockRecord),
+              getReadingStatsUsecaseProvider.overrideWithValue(mockGet),
+            ],
+            child: const MaterialApp(
+              home: LinkDetailScreen(linkId: '1'),
+            ),
+          ),
+        );
+        await tester.pump();
+        await tester.pump(Duration.zero);
+        await tester.pumpAndSettle();
+
+        final captured = verify(
+          () => mockRecord.call(captureAny()),
+        ).captured;
+        expect(captured, hasLength(1));
+        final event = captured.single as ReadingEventEntity;
+        expect(event.linkId, equals('1'));
+        expect(event.timestamp.isUtc, isTrue);
+        expect(event.durationSeconds, isNull);
+      },
+    );
   });
 }
