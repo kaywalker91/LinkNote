@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -9,6 +11,10 @@ import 'package:linknote/app/theme/app_spacing.dart';
 import 'package:linknote/app/theme/app_text_styles.dart';
 import 'package:linknote/features/link/presentation/provider/link_detail_provider.dart';
 import 'package:linknote/features/link/presentation/provider/link_list_provider.dart';
+import 'package:linknote/features/reading_stats/domain/entity/reading_event_entity.dart';
+import 'package:linknote/features/reading_stats/presentation/provider/link_reading_stats_provider.dart';
+import 'package:linknote/features/reading_stats/presentation/provider/reading_stats_di_providers.dart';
+import 'package:linknote/features/reading_stats/presentation/widget/reading_stats_badge.dart';
 import 'package:linknote/shared/extensions/date_time_extensions.dart';
 import 'package:linknote/shared/utils/url_launcher_helper.dart';
 import 'package:linknote/shared/widgets/confirmation_dialog_widget.dart';
@@ -18,12 +24,40 @@ import 'package:linknote/shared/widgets/ln/ln_tag.dart';
 import 'package:linknote/shared/widgets/ln/ln_thumb.dart';
 import 'package:linknote/shared/widgets/skeleton/link_card_skeleton.dart';
 
-class LinkDetailScreen extends ConsumerWidget {
+class LinkDetailScreen extends ConsumerStatefulWidget {
   const LinkDetailScreen({required this.linkId, super.key});
   final String linkId;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<LinkDetailScreen> createState() => _LinkDetailScreenState();
+}
+
+class _LinkDetailScreenState extends ConsumerState<LinkDetailScreen> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      unawaited(
+        ref
+            .read(recordReadEventUsecaseProvider)
+            .call(
+              ReadingEventEntity(
+                linkId: widget.linkId,
+                timestamp: DateTime.now().toUtc(),
+              ),
+            )
+            .then((_) {
+              if (mounted) {
+                ref.invalidate(linkReadingStatsProvider(widget.linkId));
+              }
+            }),
+      );
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final linkId = widget.linkId;
     final linkAsync = ref.watch(linkDetailProvider(linkId));
 
     return Scaffold(
@@ -123,6 +157,8 @@ class LinkDetailScreen extends ConsumerWidget {
                     color: AppColors.ink3,
                   ),
                 ),
+                const SizedBox(height: AppSpacing.sm),
+                ReadingStatsBadge(linkId: linkId),
                 if (link.description?.isNotEmpty ?? false) ...[
                   const Divider(
                     height: AppSpacing.xxl,
