@@ -5,168 +5,143 @@
 ---
 
 ```
-Session 51 — 실기기 6 화면 시각 검증 (light↔dark 토글) + 후속 우선순위 결정
+Session 54 — Track C(실기기 시각 검증) 또는 Track B(Sprint-2 ReadingStats UI integration)
 
 ## 미션 한 줄
 
-Session 50 머지로 Dark mode forest 팔레트(AppPalette ThemeExtension + Ln 위젯 9개 brightness-aware) 까지 들어갔지만 실기기 시각 검증이 6 세션 연속 스킵된 상태. 우선 Home / LinkDetail / Collection grid / Search / Bottom Nav + 중앙 FAB / Notifications push 흐름을 light↔dark 토글까지 한 번에 확인. 그다음 후속 우선순위(golden_toolkit / Phase 5+ Lock·Globe pill / iOS Share Extension / ARB 정식 i18n) 사용자와 합의 후 단일 트랙 진입.
+Session 53 머지로 Sprint-1 follow-up F2(repository_impl unit test gap) closure 완료. Session 54 는 Track C(실기기 시각 검증, 8 세션 누적 deferred) 또는 Track B(Sprint-2 ReadingStats UI integration) 진입 중 사용자 합의 후 단일 트랙.
 
 ## 배경
 
-**Session 50 (2026-05-02, 직전 세션) 결과**:
-- 신규 `lib/app/theme/app_palette.dart` — `AppPalette extends ThemeExtension<AppPalette>` 22 design 토큰 보유. `factory light()` AppColors byte-identical mirror, `factory dark()` forest-tuned (`bg #141A17`, `ink #E8EDE9`, `forest #3FA37C` 등). `copyWith` + `lerp` 풀 구현.
-- `lib/app/theme/app_theme.dart` 재작성 — light/dark 모두 AppPalette 단일 진입점. `extensions: [palette]` 등록. ColorScheme 가 palette 토큰에서 파생.
-- `lib/shared/extensions/context_extensions.dart` — `AppPalette get palette` getter, 미등록 시 `AppPalette.light()` fallback (기존 widget 테스트 호환).
-- Ln 위젯 9 파일 마이그레이션(`AppColors.X` → `context.palette.X`): ln_link_card / ln_collection_card / ln_top_bar / ln_icon_btn / ln_segmented / ln_brand / ln_tag / ln_thumb / ln_tags.
-- `LnTagTone` API breaking change: getter → method `(BuildContext)`.
-- `AppColors` 의 사용처 사라진 slate-blue *Dark 8개 제거.
-- 신규 회귀 테스트 18개 (`test/app/theme/app_palette_test.dart` 10 + `test/shared/widgets/ln/ln_widgets_dark_test.dart` 8). **518 tests GREEN, analyze 0**, format clean.
-- **Visual golden 은 deferred** — `golden_toolkit` 미설치 + CI cross-platform 픽셀 차이 우려. structural 어설션으로 동등한 회귀 보호.
-- Stage 1 실기기 검증은 사용자 요청으로 스킵 → Session 51 합쳐서 처리(6 세션 연속).
+**Session 53 (2026-05-12) 결과**:
+- 신규 `test/features/reading_stats/data/repository/reading_stats_repository_impl_test.dart` — 6 케이스(success + HiveError + Exception × recordReadEvent/getReadingStats) all GREEN.
+- `docs/harness-followups.md` F2 RESOLVED 마크.
+- Session 52 잔여 docs(`tasks/lessons.md`, daily_log, CHANGELOG) 묶어서 단일 실코드 PR 머지.
+- 전체 테스트 550 → 556 GREEN, analyze 0, CI 4 job green.
 
-**Phase 4 현재 상태** (`project_design_overhaul.md`):
-- ✅ Search 헤더 + 매칭 하이라이트 (PR #29, Session 46)
-- ✅ Search 결과 카드 → LnLinkCard + highlight_text 공유 유틸 (PR #30, Session 47)
-- ✅ LnTabBar 5탭→4탭 + 중앙 FAB (PR #31, Session 48)
-- ✅ Collection 2열 그리드 + 그라디언트 카드 (PR #32, Session 49)
-- ✅ Dark mode forest 팔레트 + AppPalette ThemeExtension (Session 50, PR pending or merged)
-- ⏳ visual golden baseline (`golden_toolkit` 도입 후, Phase 4.5)
-- ⏳ Lock/Globe visibility pill — `CollectionEntity` 모델 확장 필요 (Phase 5+)
+**남은 follow-up (`docs/harness-followups.md` 발췌)**:
+- **F1**(low, out-of-scope) — Contract `forbidden_files_codegen_exception` 절. **Track B(Sprint-2) 진입 전 Planner Contract 템플릿 반영 필요** — 미반영 시 동일 부수효과 재발.
+- **F3**(low, in-contract) — `_writeQueue` `identical()` cleanup 영원히 false. 동시성 invariant 보존이라 low priority.
+- **F4~F9** 잔여 — 모두 low severity, backlog.
 
-## 작업 범위
+## 작업 범위 — 후보 트랙
 
-### Stage 1 — 실기기 시각 검증 (필수, 6 화면 + light↔dark 토글)
+### Track C — 실기기 시각 검증 (8 세션 연속 deferred) ⭐추천1
 
-`flutter run --flavor dev -t lib/main_dev.dart -d <device>` 진입 후 light/dark 양쪽 토글하며 검증:
+- **규모**: 검증 활동 자체는 소(30~60분), 발견 시 fix 사이즈는 가변.
+- **의존성**: 실기기 또는 에뮬레이터 연결.
+- **범위**: Home/LinkDetail/Collection grid/Search/Bottom Nav + 중앙 FAB/Notifications, light↔dark 토글.
+- **가치**: Phase 4 dark mode forest 팔레트(Session 50) + Phase 4.5 alchemist baseline(Session 51) 머지 후 실제 사용자 시각 검증이 한 번도 안 됨. 회귀 위험 누적 상태.
+- **PR**: 발견된 회귀 fix 가 있으면 단일 PR, 없으면 검증 리포트만 daily_log 에 기록.
 
-**Bottom Nav + 중앙 FAB**
-- 4탭만 노출: Home / Search / Collections / Profile (Notifications 부재)
-- 중앙 FAB: forest, `+` 아이콘, NavigationBar 위 절반 오버랩(`centerDocked`)
-- FAB 탭 → `Routes.linkAdd` (LinkAddScreen) 진입
-- Collections 탭: shell FAB(centerDocked, `shell_fab`) + collection FAB(endFloat, `collections_fab`) 시각/heroTag 충돌 없음
+### Track B — Sprint-2 진입 (ReadingStats UI integration)
 
-**Home (light + dark)**
-- LnTopBar Wordmark + 내 서랍 + 전체/★즐겨찾기 세그먼트 + LnLinkCard
-- AppBar bell 탭 → Notifications 화면 푸시
-- Dark: bg `#0E1311`, 카드 표면 `#141A17`, 텍스트 `#E8EDE9`, forest `#3FA37C`
-- 빈 상태 한글 카피
+- **규모**: 중~대
+- **의존성**: F1 권고(Contract codegen exception) 반영 필요. Planner Contract 템플릿 사전 정비.
+- **범위 후보**:
+  - LinkDetail 진입 시 `RecordReadEventUsecase` 호출(durationSeconds 옵션).
+  - LinkDetail 또는 Home 카드에 `GetReadingStatsUsecase` 기반 totalReads/lastReadAt 배지 표시.
+  - Riverpod provider 통합(읽기는 `FutureProvider`, 쓰기는 fire-and-forget).
+- **harness 사용**: Sprint-2 로 정식 진행 권장. Planner 시 F1 반영 + F6(clock regression) AC 포함 여부 결정.
 
-**LinkDetail (light + dark)**
-- amber 메모 인용 바 + amberSoft "📝 메모" pill (dark: amberSoft `#3D2E1A`)
-- AppBar LnIconBtn (favorite=amber/ink3, edit=ink, delete=rose)
+### Track D — Linux golden 재생성
 
-**Collection (light + dark)**
-- **목록 (2열 그리드)**: 카드 4톤 그라디언트 헤더(forest/lilac/slate/amber) — dark 배경 위에서 그라디언트가 어떻게 보이는지 확인. 그라디언트 색상은 light/dark 동일(고정 hex) — 의도된 디자인.
-- **상세**: 기존 LnLinkCard 일관성 + 삭제 LnIconBtn rose
+- **규모**: 소
+- **의존성**: 없음(GitHub Actions workflow_dispatch).
+- **가치**: Phase 4.5 머지 시 CI 가 `--exclude-tags golden` 임시 상태. Linux baseline 생성하면 CI 가 다시 golden 검증 가능.
+- **PR**: golden PNG diff 커밋.
 
-**Search (light + dark)**
-- 헤더 검색 입력 + LnLinkCard 결과 + 매칭 하이라이트 forestSoft (dark: `#1B3A2D`)
+### Track E — iOS Share Extension (Phase 2)
 
-**Notifications (light + dark)**
-- AppBar bell 에서 푸시 후 정상 표시 / 뒤로 가기 → 원래 탭 복귀
+- **규모**: 대
+- **의존성**: iOS 인증서 / Apple Developer 계정. 미해결.
+- **현실성**: 인프라 차단으로 진입 불가일 가능성 높음.
 
-검증 결과는 daily log + 메모리 기록.
+### Track F — ARB 정식 i18n
 
-### Stage 2 — 후속 우선순위 결정
+- **규모**: 대
+- **의존성**: Option B 임시 가이드 → ARB 마이그레이션. 기존 한글 카피 전수 추출.
 
-Stage 1 검증 후 사용자와 다음 트랙 합의:
-
-| 후보 | 규모 | 의존성 |
-|------|------|--------|
-| **A) golden_toolkit 도입 + visual baseline** | 중 | Session 50 dark mode 의 후속 |
-| **B) Lock/Globe visibility pill** (Phase 5 진입) | 중 | `CollectionEntity` 모델 확장 (visibility/color/emoji 필드) |
-| **C) iOS Share Extension** (Phase 2) | 대 | iOS 인증서 / Apple Developer 계정 |
-| **D) ARB 정식 i18n** | 대 | Option B 임시 가이드 → ARB 마이그레이션 |
-| **E) 잔여 영문 카피 i18n** | 소 | "URL *", OG 추출 snackbar 등 사용자 대면 잔존 |
-
-기본 추천: **A** (Phase 4 후속 자연 흐름) 또는 **E** (소규모 깔끔 마무리). Stage 1 결과에 따라 dark mode 미세 튜닝이 필요하면 그것 우선.
+**기본 추천**:
+- 우선순위 1: **C (실기기 검증)** — 8 세션 연속 deferred, 누적 회귀 위험. 짧은 검증 사이클로 한 번 끊고 가는 게 위생적.
+- 우선순위 2: **B (Sprint-2 진입)** — F1 Contract 권고 반영 후 본 사이클 진입.
+- 우선순위 3: **D (Linux golden 재생성)** — CI golden 복원, 소규모.
 
 ## 검증 절차
 
 ```bash
 cd ~/AndroidStudioProjects/LinkNote
-
 git checkout main && git pull --ff-only
 
-# Stage 1 (실기기 검증) — main 에서 직접
-flutter run --flavor dev -t lib/main_dev.dart -d <device>
-# light/dark 토글: 시스템 설정 또는 디버그 콘솔에서 brightness 변경
+# Track C 또는 B/D 선택 후 새 브랜치
+git checkout -b <feat/...|sprint-2/...>
 
-# Stage 2 (후속 작업) — 합의 후 새 브랜치
-git checkout -b feat/<chosen-track>
-
+# 푸시 전 강제 시퀀스 (Session 52~53 학습 — dart format 2회 재발 방지)
 dart format lib/ test/
 flutter analyze --fatal-warnings              # 0 issues
-flutter test --reporter=failures-only         # 518+ GREEN
+flutter test --reporter=failures-only         # 556+ GREEN
+# 셋 다 통과 후에만 push
 
-# 푸시 + PR (사용자 명시 승인 필수)
-git push -u origin feat/<chosen-track>
+git push -u origin <branch>
 gh pr create --base main --title "..." --body "..."
 ```
 
-## 알려진 인접 이슈 (Session 51 무관, 별도 세션)
+## 알려진 인접 이슈 (Session 54 무관, 별도 세션)
 
-- **HomeScreen `_showCollectionPicker` snackbar i18n** — Option B 영문 유지 중
-- **Phase 2 iOS Share Extension** — Session 38 PoC 후속, 별도 트랙
-- **DTO parse 실패 근본 추적** — PR #26 의 `appLogger.w` 가 미래 재발 시 캡처 예정
-- **Supabase RLS / FK 점검** — dashboard 액세스 별도 트랙
-- **StatefulShellRoute.indexedStack 탭 전환 logScreenView** — `app_router.dart` NOTE 주석 참조, 별도 세션
-- **CollectionEntity 모델 확장** (visibility / color / emoji) — Phase 5+ Lock/Globe pill, 사용자 지정 색상 / 이모지
-- **`shimmer_box.dart` 의 `Theme.of(c).brightness` 직접 검사** — palette 통합 가능, Session 50 마이그레이션에서 의도적 미포함
+- **Phase 4 dark mode 토큰 미세 튜닝** — 실기기 검증(Track C) 후 발견될 수 있음.
+- **Supabase RLS / FK 점검** — dashboard 액세스 별도 트랙.
+- **`StatefulShellRoute.indexedStack` 탭 전환 `logScreenView`** — `app_router.dart` NOTE 주석, 별도 세션.
+- **`CollectionEntity` 모델 확장** (visibility / color / emoji) — Phase 5+ Lock·Globe pill.
+- **`shimmer_box.dart` `Theme.of(c).brightness` 직접 검사** — palette 통합 가능.
+- **harness deterministic_verifier 에 `dart format --set-exit-if-changed` 추가** — Sprint-2 진입 시 반영.
 
 ## 불변 원칙
 
 - **git push / merge 사용자 명시 승인 필수**
 - **Branch Protection** — PR + CI 4 job green 필수
 - **TDD RED → GREEN** — 데이터/도메인/프로바이더 변경은 테스트 선행
-- **i18n Option B** — UI 사용자 대면 카피는 한글, snackbar / Exception / Failure.message 는 영문
-- **CI dart format 선행** — 푸시 전 로컬 `dart format`
+- **i18n Option B** — UI 사용자 대면 카피는 한글, snackbar/Exception/Failure.message 는 영문
+- **CI dart format atomic 시퀀스** — `dart format && flutter analyze && flutter test` 하나라도 빠지면 푸시 금지 (Session 52 학습, 2회 재발 후 강화)
 - **omit_local_variable_types** — 로컬 변수는 `var`
-- **`on Exception catch` 만 사용 금지** — 데이터 경계는 `on Object` (Session 28/41/45 학습)
+- **`on Exception catch` 만 사용 금지** — 데이터 경계는 `on Object` (Session 28/41/45/52 학습)
 - **Freezed nested toJson 주의** — Hive/JSON 직렬화 경계에서 nested 필드 명시 처리 (Session 42)
-- **per-row 파싱 fault tolerance** — remote list fetch 는 `parseRows` 패턴 답습 (Session 44 학습)
-- **수치 기준 창작 금지** — 사용자가 정성 표현 쓰면 `AskUserQuestion` 으로 확인. 모델에 없는 속성을 UI에서 임의로 표기하지 않음 (Session 49 확장)
-- **`gh pr checks` 모니터링은 `--json` 사용** — awk whitespace split 함정 회피 (Session 45 학습)
+- **per-row 파싱 fault tolerance** — remote list fetch 는 `parseRows` 패턴 답습 (Session 44)
+- **수치 기준 창작 금지** — 사용자가 정성 표현 쓰면 `AskUserQuestion` 으로 확인 (Session 49)
+- **`gh pr checks` 모니터링은 `--json` 사용** — awk whitespace split 함정 회피 (Session 45)
 - **Docs-only PR 금지** — 문서만 변경한 브랜치는 단독 PR 생성하지 말고 다음 실코드 PR 에 묶기
-- **Light 회귀 zero 원칙** — design token 변경 시 `AppPalette.light()` 는 기존 `AppColors` 와 byte-identical 유지 (Session 50 학습)
-- **ThemeExtension 패턴** — 디자인 토큰 brightness-aware 분기는 `ThemeExtension<T>` + `context.palette` fallback. ColorScheme 6슬롯 강제 매핑 / AppColors.bgDark 별도 상수는 안티패턴 (Session 50 학습)
+- **Light 회귀 zero 원칙** — design token 변경 시 `AppPalette.light()` 는 기존 `AppColors` 와 byte-identical 유지 (Session 50)
+- **ThemeExtension 패턴** — 디자인 토큰 brightness-aware 분기는 `ThemeExtension<T>` + `context.palette` fallback (Session 50)
+- **Harness Path B isolation** — codegen 부수효과는 zero behavioral delta 검증 후 의무 follow-up 등록과 함께 PASS (Session 52). `docs/harness-followups.md` 에 영속.
 
 ## 완료 기준
 
-- [ ] Stage 1 6 화면 + nav 실기기 light↔dark 검증 결과 기록
-- [ ] Stage 2 후속 트랙 합의 및 작업 진입
+- [ ] 트랙 결정 + 작업 진입
 - [ ] flutter analyze 0
 - [ ] flutter test all GREEN
-- [ ] CI 4 job green + 사용자 머지
+- [ ] CI 4 job green + 사용자 머지 (Track C 검증만이면 PR 없을 수 있음)
 - [ ] 메모리 갱신:
-  - [ ] `project_code_review_roadmap.md` Session 51 entry
-  - [ ] `MEMORY.md` 인덱스 갱신
-  - [ ] `project_design_overhaul.md` Phase 4 진척 표기
+  - [ ] `project_code_review_roadmap.md` Session 54 entry (선택)
+  - [ ] `MEMORY.md` 인덱스 갱신 (선택)
+  - [ ] Track별 관련 메모리(`project_harness_pipeline.md` follow-up closure, `project_design_overhaul.md` 등)
 
 ## 참조 문서/메모리
 
-- **Session 50 daily log**: `docs/daily_task_log/2026-05-02_session50.md`
-- **Session 49 commit**: `207dd1a` (PR #32)
-- **디자인 오버홀 진행 상태**: `project_design_overhaul.md`
-- **공유 토큰**:
-  - `lib/app/theme/app_palette.dart` (NEW Session 50) — 22 design 토큰, light/dark factory
-  - `lib/app/theme/app_colors.dart` — light 상수 backward compat 유지
-  - `lib/app/theme/app_radius.dart`, `app_spacing.dart`, `app_text_styles.dart`
-- **Ln 위젯 라이브러리** (Session 50 부터 brightness-aware): `lib/shared/widgets/ln/`
-  - 모두 `context.palette` 기반
-- **공유 유틸**: `lib/shared/utils/highlight_text.dart`
-- **Shell scaffold**: `lib/shared/widgets/app_scaffold_with_nav_bar.dart` (`destinationLabels` 셀렉터 + centerDocked FAB)
-- **i18n 정책**: `feedback_i18n_policy.md`
-- **ThemeExtension 패턴 lesson**: `feedback_theme_extension_pattern.md`
-- **디자인 핸드오프**: `/Users/kaywalker/Downloads/design_handoff_linknote/` (현재 비어 있음)
+- **Session 53 daily log**: `docs/daily_task_log/2026-05-12_session53.md` (작성 예정)
+- **Session 52 daily log**: `docs/daily_task_log/2026-05-11_session52.md`
+- **Sprint-1 squash commit**: `7aa539d` (PR #35)
+- **Harness follow-up registry**: `docs/harness-followups.md` (영속, cross-sprint, F2 RESOLVED)
+- **Harness 파이프라인 메모리**: `project_harness_pipeline.md`
+- **CI dart format 강화**: `feedback_ci_dart_format.md` + `tasks/lessons.md` 2026-05-11
+- **ReadingStats 코드/테스트**: `lib/features/reading_stats/` + `test/features/reading_stats/` (data/repository/ 신규)
+- **공유 토큰/Ln 위젯**: `lib/app/theme/app_palette.dart`, `lib/shared/widgets/ln/`
 
 ## 세션 경계
 
-Stage 1 (6 화면 + nav 실기기 light↔dark 검증) + Stage 2 (후속 트랙 합의 후 진입) 단일 흐름. golden_toolkit / iOS Share Extension / ARB intl / Phase 5 같은 큰 Wave 는 합의된 1개만 이번 세션 진입.
+트랙 합의 후 단일 흐름. Track C(실기기 검증)는 발견 사항에 따라 후속 결정. Track B(Sprint-2)는 harness 사이클 1개.
 
 ## 시작 시 사용자 확인 항목
 
-1. 실기기 검증 가능 시점 (Stage 1) — 6 세션 연속 스킵 상태이므로 우선 처리 권장
-2. Stage 2 후속 트랙 — A(golden_toolkit) / B(Phase 5 Lock·Globe) / C(iOS Share Ext) / D(ARB intl) / E(잔여 영문 카피) 중 우선순위
-3. Dark mode 토큰 미세 튜닝 필요 발견 시 — Stage 2 후속 작업과 별도 단일 PR vs 묶음
+1. Track 선택 (C/B/D/E/F 또는 사용자 정의)
+2. Track B 선택 시: F1 Contract codegen exception 절 반영 시점(이번 sprint 진입 전 vs 진입 후 patch)
+3. Track C 선택 시: 실기기 연결 가능 시점
 ```

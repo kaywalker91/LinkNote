@@ -7,6 +7,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added (Session 53 — Sprint-1 closure: F2 repository test gap)
+
+- **신규 `test/features/reading_stats/data/repository/reading_stats_repository_impl_test.dart`** — `_MockDatasource` (mocktail) 사용해 6 케이스 커버: recordReadEvent/getReadingStats 각각 (a) 정상 → `success`, (b) HiveError 던짐 → `Failure.cache`, (c) generic Exception 던짐 → `Failure.cache`. AC-12 명세("when datasource throws HiveError, repository returns CacheFailure")의 test side 충족.
+- **`docs/harness-followups.md` F2 RESOLVED 마크** — Sprint-1 medium-severity follow-up closure 기록.
+- **`tasks/lessons.md` 2026-05-11 dart format 강화 항목** — Session 52 작성분 묶음.
+- **`docs/daily_task_log/2026-05-11_session52.md`** — Session 52 daily log (Session 52 작성분 묶음).
+- 전체 테스트 550 → 556 GREEN, flutter analyze 0 issues.
+
+### Added (Session 52 — Harness Sprint-1: ReadingStats subsystem (PR #35))
+
+- **신규 `lib/features/reading_stats/`** — Clean Architecture(domain/data/presentation) 풀스택 도입. `ReadingEventEntity`(linkId/timestamp/durationSeconds?) + `ReadingStatsEntity`(linkId/totalReads@Default(0)/lastReadAt?) + `IReadingStatsRepository`(`Result<T>` typedef + 톱레벨 `success<T>()`/`error<T>()`) + `RecordReadEventUsecase`(empty linkId / future timestamp / negative duration 검증, `Failure.cache(message: 'Validation: ...')` 접두어) + `GetReadingStatsUsecase`(thin wrapper).
+- **신규 `ReadingStatsLocalDatasource`** — Hive `Box<Map<dynamic, dynamic>>` 사용, hand-rolled `Map<String, Future<void>> _writeQueue` 로 per-linkId 동시성 직렬화(`synchronized` 패키지 미사용, 무신규 의존성). 10-way `Future.wait` concurrency 테스트로 distinct timestamp 10개 보존 검증.
+- **신규 `ReadingStatsRepositoryImpl`** — `on Object catch` 패턴(HiveError extends Error 대응) + 톱레벨 `error<T>(Failure.cache(message: '<context>: $e'))` 반환.
+- **신규 Riverpod DI 프로바이더** — `@riverpod` codegen, `reading_stats_di_providers.dart` + `.g.dart`.
+- **`lib/core/storage/storage_service.dart`** — 4줄 추가(`await Hive.openBox<Map<dynamic, dynamic>>('reading_stats', encryptionCipher: cipher);`). Contract `allowed_exceptions` 범위 내, 기존 5 box 와 동일 `HiveAesCipher` 사용.
+- **신규 `docs/harness-followups.md`** — Harness Planner-Generator-Evaluator 파이프라인 cross-sprint 영속 registry. Sprint-1 F1~F9 9건 follow-up 등록 + cross-sprint pattern 섹션. `.claude/harness/runs/` 산출물이 gitignored 이므로 squash merge 후에도 살아남는 영속 도큐먼트.
+- **테스트 16개 (full suite 550 GREEN)** — `test/features/reading_stats/data/datasource/` FakeBox + 동시성 + out-of-order timestamp aggregation, `test/features/reading_stats/domain/usecase/` 13 AC 커버.
+
+### Process
+
+- **Harness 파이프라인 첫 정식 사이클 완주** — Planner(opus) → Generator(sonnet-4-6) → 4-evaluator 합의(Mode B Opus 74/80 + Codex AC-11 PASS + Gemini AC-12 PASS + Round 4 Opus 독립 재평가 73/80). 모든 측정 차원 floor 충족, threshold 60 대비 weighted 73~74.
+- **Path B isolation judgment** — build_runner 의 결정적 부수효과로 `lib/{app/router, features/{auth,search,share}, core/constants/env_*}` 등 forbidden territory 의 `.g.dart` 5 파일 재생성(riverpod hash 재계산 + envied XOR seed 회전). 모두 zero behavioral delta. 4-evaluator 모두 Path B(semantic/lenient) 동의. 의무 follow-up `forbidden_files_codegen_exception` 절 다음 Planner Contract 권고.
+- **`tasks/lessons.md` 2026-05-11 항목 추가** — `dart format` 누락이 CI Analyze 를 2 회 실패시킴(Session 38 PR #18 + Session 52 PR #35). 메모리 entry 만으로는 재발 방지 부족 결론, 자동 메커니즘(pre-push hook / harness deterministic_verifier 에 `dart format --set-exit-if-changed` 추가) 권고.
+
 ### Added (Session 51 — Phase 4.5: Visual baseline (alchemist + bundled fonts))
 
 - **신규 `dev_dependencies: alchemist ^0.14.0`** — Betterment 의 golden test 라이브러리. `golden_toolkit` 이 archived 인 점 + CI 의 cross-platform 픽셀 차이 우려를 해결(Ahem 폰트로 CI golden 통일). `goldenTest` 1 호출 = 1 PNG, `GoldenTestGroup` + `GoldenTestScenario` 로 컬럼 그리드 매트릭스 캡처.

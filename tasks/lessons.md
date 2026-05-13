@@ -46,3 +46,28 @@
 - `failure_ui.dart`의 각 `XxxFailure` 분기는 `message`를 반드시 surface하거나, 최소한 `isNotEmpty`일 때는 관통시킨다.
 - 데이터소스에서 `Failure.auth(message: e.message)`를 호출하는 모든 경로는 해당 메시지가 UI에 **실제로 도달하는지** 수동 확인한다.
 - 보안/리뷰 세션에서 "에러 처리 일관성"은 독립 dimension으로 추가 검토 가치 있음.
+
+---
+
+## 2026-05-11 — `dart format` 누락이 CI Analyze를 두 번째 떨어뜨림 (2회 재발)
+
+**무엇을 배웠나**: PR #35 (harness Sprint-1 ReadingStats) 푸시 직후 CI **Analyze 잡이 `dart format --set-exit-if-changed` 단계에서 실패**. 원인은 신규 테스트 파일 2개가 dart format 결과와 다르게 작성됨. 동일한 실패 모드가 **Session 38 PR #18에서도 발생**했고 (`feedback_ci_dart_format.md`로 메모리에 기록되어 있었음) 그럼에도 이번에 다시 재현됨.
+
+**구체 사례 (이번 PR #35)**:
+- `test/features/reading_stats/data/datasource/reading_stats_local_datasource_test.dart` — 함수 시그니처 multi-param wrap 누락
+- `test/features/reading_stats/domain/usecase/record_read_event_usecase_test.dart` — `test('...', () async {})` 인자 정렬 누락
+- 로컬 `flutter analyze`는 통과 (analyze는 format 비검사) → 푸시 후 CI에서만 노출
+- 4-evaluator harness 검증 단계 모두 통과시킨 코드여도 format 갭이 별개 layer에서 잔존
+
+**근본 원인**: 메모리에 lesson은 있었으나 푸시 전 체크리스트에 **자동 강제 단계가 없음**. 인간/에이전트 모두 "analyze 통과 = format 통과"로 잘못 일반화하기 쉬움.
+
+**예방 규칙 (강화)**:
+1. **푸시 전 강제 시퀀스**: `dart format lib/ test/ && flutter analyze && flutter test` 를 **하나의 atomic 명령**으로 실행. 하나라도 빠지면 푸시 금지.
+2. **Pre-push hook 도입 검토** (별도 작업): `.git/hooks/pre-push` 또는 husky 패턴으로 `dart format --set-exit-if-changed` 자동 실행 → 로컬에서 차단.
+3. **Harness 파이프라인 게이트 추가 검토**: Generator Hand-off에 "`dart format --set-exit-if-changed lib/ test/` exit 0" 결정적 검증 항목 추가. 현재 harness deterministic_verifier에 `flutter analyze`는 있지만 `dart format`는 없음 → 같은 사각지대.
+4. **메모리 → 자동화 승격**: lesson을 단순 메모리로만 두지 말고 **실행 시점에 강제되는 메커니즘**(hook / CI 사전 step / 에이전트 체크리스트 슬롯)으로 승격해야 재발 방지 효과 발생. "기록만 한 lesson"은 2번째 발생에 무력함.
+
+**Action items 백로그**:
+- [ ] `.git/hooks/pre-push` 추가 또는 `lefthook`/`pre-commit` 도입
+- [ ] Harness Generator Hand-off 검증 항목에 `dart format` 추가 (`docs/harness-followups.md` cross-sprint patterns 섹션에 등록 검토)
+- [ ] `feedback_ci_dart_format.md` 메모리 항목 갱신 — "강제 자동화 필요" 표기 추가

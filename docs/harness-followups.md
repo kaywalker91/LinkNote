@@ -28,12 +28,12 @@ build_runner의 결정적 부수효과로 `lib/app/router/app_router.g.dart`, `l
 
 **Alternative** (Generator-side mitigation): `dart run build_runner build --build-filter='lib/features/<feature>/**' --delete-conflicting-outputs` — 다만 riverpod_generator hash propagation 때문에 완전 격리는 어려움. Contract exception 절이 더 안정적.
 
-### F2 — AC-12 repository_impl unit test absent (test coverage gap)
+### F2 — AC-12 repository_impl unit test absent (test coverage gap) — RESOLVED
 
 - **severity**: medium
 - **scope**: in_current_contract
 - **source**: Round 4 evaluator inspection
-- **next_action_hint**: Sprint-1 touchup OR Sprint-2 preface AC
+- **resolved**: Session 53 (2026-05-12, branch `feat/reading-stats-repo-tests`) — `test/features/reading_stats/data/repository/reading_stats_repository_impl_test.dart` 신규(6 tests, all GREEN). mocktail `_MockDatasource`로 HiveError + generic Exception + 정상 케이스 커버.
 
 Contract AC-12 명세는 "Test: when datasource throws HiveError, repository returns CacheFailure"를 요구. 구현은 정확 (`on Object catch` + 톱레벨 `error<T>(Failure.cache(...))`)하지만 `test/features/reading_stats/data/repository/` 디렉토리 자체가 없음. mocktail `MockReadingStatsLocalDatasource`로 HiveError 던지는 테스트 30줄이면 갭 종료.
 
