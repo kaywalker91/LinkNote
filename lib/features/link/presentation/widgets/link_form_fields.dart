@@ -5,6 +5,7 @@ import 'package:linknote/app/theme/app_radius.dart';
 import 'package:linknote/app/theme/app_spacing.dart';
 import 'package:linknote/features/link/domain/entity/tag_entity.dart';
 import 'package:linknote/features/link/presentation/provider/link_form_provider.dart';
+import 'package:linknote/shared/extensions/context_extensions.dart';
 import 'package:uuid/uuid.dart';
 
 /// Shared form fields for add/edit link screens.
@@ -77,6 +78,7 @@ class _LinkFormFieldsState extends ConsumerState<LinkFormFields> {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.palette;
     ref.listen(linkFormProvider(widget.linkId), (prev, next) {
       final state = next.value;
       if (state == null) return;
@@ -122,10 +124,10 @@ class _LinkFormFieldsState extends ConsumerState<LinkFormFields> {
           maxLines: 3,
           decoration: InputDecoration(
             labelText: '메모',
-            floatingLabelStyle: const TextStyle(color: AppColors.amberInk),
+            floatingLabelStyle: TextStyle(color: palette.amberInk),
             focusedBorder: OutlineInputBorder(
-              borderSide: const BorderSide(
-                color: AppColors.amber,
+              borderSide: BorderSide(
+                color: palette.amber,
                 width: 2,
               ),
               borderRadius: BorderRadius.circular(AppRadius.input),

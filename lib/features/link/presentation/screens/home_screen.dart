@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:linknote/app/router/routes.dart';
-import 'package:linknote/app/theme/app_colors.dart';
 import 'package:linknote/features/collection/domain/entity/collection_entity.dart';
 import 'package:linknote/features/collection/presentation/provider/collection_list_provider.dart';
 import 'package:linknote/features/link/domain/entity/link_entity.dart';
@@ -36,7 +35,7 @@ class HomeScreen extends ConsumerWidget {
         .length;
 
     return Scaffold(
-      backgroundColor: AppColors.bgAlt,
+      backgroundColor: context.palette.bgAlt,
       appBar: LnTopBar(
         large: true,
         leading: const Padding(

@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed (Session 55 — Track C: dark-mode screen palette migration)
+
+- **11 화면/위젯 `AppColors.<token>` → `context.palette.<token>` 마이그레이션** — Session 50 도입된 `AppPalette` ThemeExtension 이 토큰/Theme 레벨에서만 적용되고 screen-level 마이그레이션이 누락된 회귀 해소. Home/Search/LinkDetail/Collection (List+Detail)/Login/Splash/Edit/Form fields/Shell scaffold/Skeleton 등 46 use site 치환.
+- **다크 모드 Home 콘텐츠 영역 회귀 해소** — 라이트 베이지 배경(`#F5F2EA`) → 다크 forest(`#0E1311`). 카드 텍스트(`코하루` 제목, URL, 컬렉션 라벨, 즐겨찾기 star outline) 가독성 정상화. 갤럭시 A34 실기기 시각 검증 완료.
+- **F-Sprint2-5 (dark-mode ReadingStatsBadge 가독성) RESOLVED** — LinkDetail palette 마이그레이션으로 자동 해소.
+- **의도된 잔여 5 site 보존**: `defaultTagColorHex` (데이터 hex), `app_snack_bar.success/error` (시맨틱), `highlight_text.forestSoft/forestInk` (top-level function brand 마커).
+- **라이트 회귀 zero** — `AppPalette.light()` 가 `AppColors` 와 byte-identical.
+- flutter analyze 0, 562 tests GREEN 유지.
+
+### Added (Session 54 — Harness Sprint-2: ReadingStats LinkDetail UI integration)
+
+- **신규 `ReadingStatsBadge` 위젯 + `LinkReadingStatsProvider`** — Sprint-1 도메인/데이터 위에 LinkDetail 진입 시 `totalReads`/`lastReadAt` 표시 + `recordReadEvent` 호출. Mode B verdict PASS 69/80 (86.25%), confidence 0.91.
+- **F1 (Planner Contract codegen exception 미감지) RESOLVED** — 글로벌 `~/.claude/agents/harness-planner.md` Self-Validation에 jq 검증 3건 추가. Dart 파일 포함 시 `forbidden_files_codegen_exception` 자동 강제.
+- **`docs/harness-followups.md` Sprint-2 섹션 (F-Sprint2-1~5)** — silent-fallback path migration (KL-1), family-arg over-specification 메타-패턴, transitive test scan 권고.
+- **`docs/daily_task_log/2026-05-13_session54.md`** — Session 54 daily log.
+- 전체 테스트 556 → 562 GREEN (+6), analyze 0.
+
 ### Added (Session 53 — Sprint-1 closure: F2 repository test gap)
 
 - **신규 `test/features/reading_stats/data/repository/reading_stats_repository_impl_test.dart`** — `_MockDatasource` (mocktail) 사용해 6 케이스 커버: recordReadEvent/getReadingStats 각각 (a) 정상 → `success`, (b) HiveError 던짐 → `Failure.cache`, (c) generic Exception 던짐 → `Failure.cache`. AC-12 명세("when datasource throws HiveError, repository returns CacheFailure")의 test side 충족.

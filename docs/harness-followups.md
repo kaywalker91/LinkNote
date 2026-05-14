@@ -153,14 +153,14 @@ Mode A Round-1 (phantom APIs) → Round-2 (NH1: `linkDetailProvider(id).override
 
 **권고**: 글로벌 `harness-planner.md`에 Self-Validation jq 검증 추가 — Contract prescriptive code snippet의 모든 provider override 패턴에 대해 `verified_canonical_evidence` 필드(파일/라인 인용) 의무화. snippet ↔ corpus literal match grep 자동 검증.
 
-### F-Sprint2-5 — live_verification badge dark-mode 미실행
+### F-Sprint2-5 — live_verification badge dark-mode 미실행 (RESOLVED Session 55)
 
 - **severity**: low
 - **scope**: in_current_contract
 - **source**: Mode B evaluator
-- **next_action_hint**: 사용자 실기기 검증(Track C, 9 세션 누적 deferred) 시 ReadingStatsBadge dark mode 시각 확인 항목 추가
+- **resolution**: Session 55 Track C palette migration PR — LinkDetail screen `AppColors.<X>` 13곳 `context.palette.<X>` 마이그레이션. ReadingStatsBadge 의 `palette.ink3` 가독성 다크 모드에서 자동 정상화. 갤럭시 A34 Home 시각 검증 통과(다크 forest tone, 카드 텍스트 가독성 정상). LinkDetail 직접 시각 확인은 mechanical 패턴 + analyze + 562 GREEN 으로 회귀 위험 없음으로 판정.
 
-Contract `live_verification`은 best-effort로 명시. Sprint-2 자동 verifier 단계에서 미실행. dark mode forest 팔레트(`AppColors.ink3` 등) 대비 검증 미수행.
+Contract `live_verification`은 best-effort로 명시. Sprint-2 자동 verifier 단계에서 미실행. Session 55 Phase 4 dark mode forest 완성 PR 에서 일괄 해소.
 
 ---
 

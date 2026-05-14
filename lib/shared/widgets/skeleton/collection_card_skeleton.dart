@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:linknote/app/theme/app_colors.dart';
 import 'package:linknote/app/theme/app_radius.dart';
 import 'package:linknote/app/theme/app_spacing.dart';
+import 'package:linknote/shared/extensions/context_extensions.dart';
 import 'package:linknote/shared/widgets/skeleton/shimmer_box.dart';
 
 class CollectionCardSkeleton extends StatelessWidget {
@@ -9,11 +9,12 @@ class CollectionCardSkeleton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.palette;
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: AppColors.bg,
+        color: palette.bg,
         borderRadius: BorderRadius.circular(AppRadius.lg),
-        border: Border.all(color: AppColors.line),
+        border: Border.all(color: palette.line),
       ),
       child: const Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,

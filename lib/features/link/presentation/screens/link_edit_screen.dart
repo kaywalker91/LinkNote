@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:linknote/app/theme/app_colors.dart';
 import 'package:linknote/app/theme/app_radius.dart';
 import 'package:linknote/app/theme/app_spacing.dart';
 import 'package:linknote/features/link/presentation/provider/link_form_provider.dart';
@@ -18,10 +17,11 @@ class LinkEditScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final palette = context.palette;
     final formAsync = ref.watch(linkFormProvider(linkId));
 
     return Scaffold(
-      backgroundColor: AppColors.bg,
+      backgroundColor: palette.bg,
       appBar: AppBar(title: const Text('링크 편집')),
       body: formAsync.when(
         loading: () => const _LinkEditSkeleton(),
@@ -38,7 +38,7 @@ class LinkEditScreen extends ConsumerWidget {
                   style: GoogleFonts.jetBrainsMono(
                     fontSize: 14,
                     height: 1.4,
-                    color: AppColors.forest,
+                    color: palette.forest,
                   ),
                 ),
                 const SizedBox(height: AppSpacing.md),

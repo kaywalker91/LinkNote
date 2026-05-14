@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:linknote/app/theme/app_colors.dart';
+import 'package:linknote/shared/extensions/context_extensions.dart';
 
 class SplashScreen extends ConsumerWidget {
   const SplashScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return const Scaffold(
-      backgroundColor: AppColors.primary,
-      body: Center(
+    return Scaffold(
+      backgroundColor: context.palette.forest,
+      body: const Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [

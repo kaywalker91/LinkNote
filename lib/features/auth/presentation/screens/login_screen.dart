@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:linknote/app/router/routes.dart';
-import 'package:linknote/app/theme/app_colors.dart';
 import 'package:linknote/app/theme/app_spacing.dart';
 import 'package:linknote/app/theme/app_text_styles.dart';
 import 'package:linknote/core/error/failure_ui.dart';
@@ -49,6 +48,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.palette;
     final isLoading = ref.watch(authProvider).isLoading;
 
     ref.listen<bool>(sessionExpiredProvider, (_, isExpired) {
@@ -59,7 +59,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     });
 
     return Scaffold(
-      backgroundColor: AppColors.bg,
+      backgroundColor: palette.bg,
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(AppSpacing.screenPadding),
@@ -75,7 +75,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 const SizedBox(height: AppSpacing.xxl),
                 Text(
                   'Welcome back',
-                  style: AppTextStyles.heading2.copyWith(color: AppColors.ink),
+                  style: AppTextStyles.heading2.copyWith(color: palette.ink),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: AppSpacing.xxl),

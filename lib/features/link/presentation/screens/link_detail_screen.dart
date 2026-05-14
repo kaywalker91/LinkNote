@@ -5,7 +5,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:linknote/app/router/routes.dart';
-import 'package:linknote/app/theme/app_colors.dart';
 import 'package:linknote/app/theme/app_radius.dart';
 import 'package:linknote/app/theme/app_spacing.dart';
 import 'package:linknote/app/theme/app_text_styles.dart';
@@ -15,6 +14,7 @@ import 'package:linknote/features/reading_stats/domain/entity/reading_event_enti
 import 'package:linknote/features/reading_stats/presentation/provider/link_reading_stats_provider.dart';
 import 'package:linknote/features/reading_stats/presentation/provider/reading_stats_di_providers.dart';
 import 'package:linknote/features/reading_stats/presentation/widget/reading_stats_badge.dart';
+import 'package:linknote/shared/extensions/context_extensions.dart';
 import 'package:linknote/shared/extensions/date_time_extensions.dart';
 import 'package:linknote/shared/utils/url_launcher_helper.dart';
 import 'package:linknote/shared/widgets/confirmation_dialog_widget.dart';
@@ -57,6 +57,7 @@ class _LinkDetailScreenState extends ConsumerState<LinkDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.palette;
     final linkId = widget.linkId;
     final linkAsync = ref.watch(linkDetailProvider(linkId));
 
@@ -71,7 +72,7 @@ class _LinkDetailScreenState extends ConsumerState<LinkDetailScreen> {
                   icon: link.isFavorite
                       ? Icons.star_rounded
                       : Icons.star_outline_rounded,
-                  color: link.isFavorite ? AppColors.amber : AppColors.ink3,
+                  color: link.isFavorite ? palette.amber : palette.ink3,
                   onPressed: () => ref
                       .read(linkListProvider.notifier)
                       .toggleFavorite(linkId),
@@ -82,7 +83,7 @@ class _LinkDetailScreenState extends ConsumerState<LinkDetailScreen> {
                 ),
                 LnIconBtn(
                   icon: Icons.delete_outline,
-                  color: AppColors.rose,
+                  color: palette.rose,
                   onPressed: () async {
                     final confirm = await ConfirmationDialogWidget.show(
                       context,
@@ -143,9 +144,9 @@ class _LinkDetailScreenState extends ConsumerState<LinkDetailScreen> {
                     style: GoogleFonts.jetBrainsMono(
                       fontSize: 14,
                       height: 1.4,
-                      color: AppColors.forest,
+                      color: palette.forest,
                       decoration: TextDecoration.underline,
-                      decorationColor: AppColors.forest,
+                      decorationColor: palette.forest,
                     ),
                   ),
                 ),
@@ -154,38 +155,38 @@ class _LinkDetailScreenState extends ConsumerState<LinkDetailScreen> {
                   '${link.createdAt.timeAgo()} 저장 · '
                   '${link.createdAt.formattedDate()}',
                   style: AppTextStyles.bodySmall.copyWith(
-                    color: AppColors.ink3,
+                    color: palette.ink3,
                   ),
                 ),
                 const SizedBox(height: AppSpacing.sm),
                 ReadingStatsBadge(linkId: linkId),
                 if (link.description?.isNotEmpty ?? false) ...[
-                  const Divider(
+                  Divider(
                     height: AppSpacing.xxl,
                     thickness: 1,
-                    color: AppColors.line,
+                    color: palette.line,
                   ),
                   Text(
                     link.description!,
                     style: AppTextStyles.bodyMedium.copyWith(
-                      color: AppColors.ink2,
+                      color: palette.ink2,
                     ),
                   ),
                 ],
                 if (link.memo?.isNotEmpty ?? false) ...[
-                  const Divider(
+                  Divider(
                     height: AppSpacing.xxl,
                     thickness: 1,
-                    color: AppColors.line,
+                    color: palette.line,
                   ),
                   const _MemoHeaderPill(),
                   const SizedBox(height: AppSpacing.md),
                   Container(
                     padding: const EdgeInsets.only(left: AppSpacing.lg),
-                    decoration: const BoxDecoration(
+                    decoration: BoxDecoration(
                       border: Border(
                         left: BorderSide(
-                          color: AppColors.amber,
+                          color: palette.amber,
                           width: 3,
                         ),
                       ),
@@ -193,22 +194,22 @@ class _LinkDetailScreenState extends ConsumerState<LinkDetailScreen> {
                     child: Text(
                       link.memo!,
                       style: AppTextStyles.bodyMedium.copyWith(
-                        color: AppColors.ink,
+                        color: palette.ink,
                         height: 1.5,
                       ),
                     ),
                   ),
                 ],
                 if (link.tags.isNotEmpty) ...[
-                  const Divider(
+                  Divider(
                     height: AppSpacing.xxl,
                     thickness: 1,
-                    color: AppColors.line,
+                    color: palette.line,
                   ),
                   Text(
                     '태그',
                     style: AppTextStyles.titleM.copyWith(
-                      color: AppColors.ink,
+                      color: palette.ink,
                     ),
                   ),
                   const SizedBox(height: AppSpacing.sm),
@@ -241,10 +242,11 @@ class _MemoHeaderPill extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.palette;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
-        color: AppColors.amberSoft,
+        color: palette.amberSoft,
         borderRadius: BorderRadius.circular(AppRadius.full),
       ),
       child: Row(
@@ -255,7 +257,7 @@ class _MemoHeaderPill extends StatelessWidget {
           Text(
             '메모',
             style: AppTextStyles.label.copyWith(
-              color: AppColors.amberInk,
+              color: palette.amberInk,
               fontWeight: FontWeight.w600,
             ),
           ),

@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:linknote/app/router/routes.dart';
-import 'package:linknote/app/theme/app_colors.dart';
 import 'package:linknote/app/theme/app_spacing.dart';
 import 'package:linknote/features/collection/domain/entity/collection_entity.dart';
 import 'package:linknote/features/collection/presentation/provider/collection_list_provider.dart';
+import 'package:linknote/shared/extensions/context_extensions.dart';
 import 'package:linknote/shared/models/paginated_state.dart';
 import 'package:linknote/shared/widgets/empty_state_illustration.dart';
 import 'package:linknote/shared/widgets/empty_state_widget.dart';
@@ -25,7 +25,7 @@ class CollectionListScreen extends ConsumerWidget {
     final total = items.length;
 
     return Scaffold(
-      backgroundColor: AppColors.bgAlt,
+      backgroundColor: context.palette.bgAlt,
       appBar: LnTopBar(
         large: true,
         displayTitle: '컬렉션',
@@ -43,7 +43,7 @@ class CollectionListScreen extends ConsumerWidget {
         padding: const EdgeInsets.only(bottom: AppSpacing.sm),
         child: FloatingActionButton(
           heroTag: 'collections_fab',
-          backgroundColor: AppColors.forest,
+          backgroundColor: context.palette.forest,
           foregroundColor: Colors.white,
           elevation: 6,
           onPressed: () => context.push(Routes.collectionNew),
