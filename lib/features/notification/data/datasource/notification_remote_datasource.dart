@@ -1,5 +1,6 @@
 import 'package:linknote/core/error/failure.dart';
 import 'package:linknote/core/error/result.dart';
+import 'package:linknote/core/utils/parse_rows.dart';
 import 'package:linknote/features/notification/data/dto/notification_dto.dart';
 import 'package:linknote/features/notification/data/mapper/notification_mapper.dart';
 import 'package:linknote/features/notification/domain/entity/notification_entity.dart';
@@ -28,12 +29,11 @@ class NotificationRemoteDataSource {
 
       final hasMore = response.length > pageSize;
       final rawItems = hasMore ? response.sublist(0, pageSize) : response;
-      final items = rawItems
-          .map(
-            (json) =>
-                NotificationMapper.toEntity(NotificationDto.fromJson(json)),
-          )
-          .toList();
+      final items = parseRowsTolerant<NotificationEntity>(
+        rawItems.cast<Map<String, dynamic>>(),
+        (row) => NotificationMapper.toEntity(NotificationDto.fromJson(row)),
+        label: 'NotificationRemoteDataSource.getNotifications',
+      );
 
       return success(
         PaginatedState<NotificationEntity>(

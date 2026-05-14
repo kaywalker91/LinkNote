@@ -1,5 +1,6 @@
 import 'package:linknote/core/error/failure.dart';
 import 'package:linknote/core/error/result.dart';
+import 'package:linknote/core/utils/parse_rows.dart';
 import 'package:linknote/features/collection/data/dto/collection_dto.dart';
 import 'package:linknote/features/collection/data/mapper/collection_mapper.dart';
 import 'package:linknote/features/collection/domain/entity/collection_entity.dart';
@@ -29,11 +30,11 @@ class CollectionRemoteDataSource {
 
       final hasMore = response.length > pageSize;
       final rawItems = hasMore ? response.sublist(0, pageSize) : response;
-      final items = rawItems
-          .map(
-            (json) => CollectionMapper.toEntity(CollectionDto.fromJson(json)),
-          )
-          .toList();
+      final items = parseRowsTolerant<CollectionEntity>(
+        rawItems.cast<Map<String, dynamic>>(),
+        (row) => CollectionMapper.toEntity(CollectionDto.fromJson(row)),
+        label: 'CollectionRemoteDataSource.getCollections',
+      );
 
       return success(
         PaginatedState<CollectionEntity>(

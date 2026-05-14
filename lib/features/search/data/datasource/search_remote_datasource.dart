@@ -1,5 +1,6 @@
 import 'package:linknote/core/error/failure.dart';
 import 'package:linknote/core/error/result.dart';
+import 'package:linknote/core/utils/parse_rows.dart';
 import 'package:linknote/features/link/data/datasource/link_remote_datasource.dart';
 import 'package:linknote/features/link/domain/entity/link_entity.dart';
 import 'package:linknote/features/link/domain/entity/tag_entity.dart';
@@ -79,15 +80,15 @@ class SearchRemoteDataSource {
     try {
       final response = await _client.from('tags').select().order('name');
 
-      final tags = response
-          .map(
-            (json) => TagEntity(
-              id: json['id'] as String,
-              name: json['name'] as String,
-              color: json['color'] as String? ?? '#808080',
-            ),
-          )
-          .toList();
+      final tags = parseRowsTolerant<TagEntity>(
+        response.cast<Map<String, dynamic>>(),
+        (row) => TagEntity(
+          id: row['id'] as String,
+          name: row['name'] as String,
+          color: row['color'] as String? ?? '#808080',
+        ),
+        label: 'SearchRemoteDataSource.fetchUserTags',
+      );
       return success(tags);
     } on PostgrestException catch (e) {
       return error(Failure.server(message: e.message));
