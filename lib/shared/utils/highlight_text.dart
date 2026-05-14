@@ -1,12 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:linknote/app/theme/app_colors.dart';
 
 /// Splits [text] into spans, highlighting every case-insensitive occurrence
-/// of [query] with forest tokens. Returns null when [query] is empty or no
-/// match is found, so callers can fall back to plain Text.
+/// of [query] with the provided colors. Returns null when [query] is empty or
+/// no match is found, so callers can fall back to plain Text.
+///
+/// Callers pass brightness-aware tokens (typically `context.palette.forestSoft`
+/// and `context.palette.forestInk`) so the highlight follows dark mode.
 List<TextSpan>? buildHighlightedSpans({
   required String text,
   required String query,
+  required Color highlightBg,
+  required Color highlightFg,
 }) {
   if (query.isEmpty) return null;
   final lowerText = text.toLowerCase();
@@ -26,9 +30,9 @@ List<TextSpan>? buildHighlightedSpans({
     spans.add(
       TextSpan(
         text: text.substring(hit, hit + query.length),
-        style: const TextStyle(
-          backgroundColor: AppColors.forestSoft,
-          color: AppColors.forestInk,
+        style: TextStyle(
+          backgroundColor: highlightBg,
+          color: highlightFg,
           fontWeight: FontWeight.w600,
         ),
       ),

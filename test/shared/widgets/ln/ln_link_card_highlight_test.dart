@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:linknote/app/theme/app_colors.dart';
+import 'package:linknote/app/theme/app_palette.dart';
 import 'package:linknote/features/link/domain/entity/link_entity.dart';
 import 'package:linknote/shared/widgets/ln/ln_link_card.dart';
 
@@ -90,11 +90,14 @@ void main() {
 }
 
 bool _containsHighlight(InlineSpan span, String expected) {
+  // `context.palette` falls back to `AppPalette.light()` when no extension is
+  // registered (bare MaterialApp in this test), so the rendered backgroundColor
+  // should match `AppPalette.light().forestSoft`.
+  final expectedBg = AppPalette.light().forestSoft;
   var found = false;
   span.visitChildren((child) {
     if (child is TextSpan && child.text == expected) {
-      final bg = child.style?.backgroundColor;
-      if (bg == AppColors.forestSoft) {
+      if (child.style?.backgroundColor == expectedBg) {
         found = true;
         return false;
       }

@@ -114,7 +114,8 @@ class LnLinkCard extends StatelessWidget {
   }
 
   Widget _title(BuildContext context) {
-    final style = AppTextStyles.titleM.copyWith(color: context.palette.ink);
+    final palette = context.palette;
+    final style = AppTextStyles.titleM.copyWith(color: palette.ink);
     final query = highlightText;
     if (query == null || query.isEmpty) {
       return Text(
@@ -124,7 +125,12 @@ class LnLinkCard extends StatelessWidget {
         overflow: TextOverflow.ellipsis,
       );
     }
-    final spans = buildHighlightedSpans(text: link.title, query: query);
+    final spans = buildHighlightedSpans(
+      text: link.title,
+      query: query,
+      highlightBg: palette.forestSoft,
+      highlightFg: palette.forestInk,
+    );
     if (spans == null) {
       return Text(
         link.title,
