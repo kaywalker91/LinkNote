@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:linknote/app/router/routes.dart';
-import 'package:linknote/app/theme/app_colors.dart';
 import 'package:linknote/app/theme/app_radius.dart';
 import 'package:linknote/app/theme/app_spacing.dart';
 import 'package:linknote/app/theme/app_text_styles.dart';
 import 'package:linknote/features/search/presentation/provider/search_provider.dart';
 import 'package:linknote/features/search/presentation/widgets/search_filter_bar.dart';
 import 'package:linknote/features/search/presentation/widgets/search_suggestions_list.dart';
+import 'package:linknote/shared/extensions/context_extensions.dart';
 import 'package:linknote/shared/utils/url_launcher_helper.dart';
 import 'package:linknote/shared/widgets/empty_state_illustration.dart';
 import 'package:linknote/shared/widgets/empty_state_widget.dart';
@@ -49,18 +49,19 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.palette;
     final hasQuery = ref.watch(
       searchProvider.select((s) => s.query.isNotEmpty),
     );
 
     return Scaffold(
-      backgroundColor: AppColors.bg,
+      backgroundColor: palette.bg,
       appBar: AppBar(
-        backgroundColor: AppColors.bg,
-        surfaceTintColor: AppColors.bg,
+        backgroundColor: palette.bg,
+        surfaceTintColor: palette.bg,
         elevation: 0,
         scrolledUnderElevation: 0,
-        shape: const Border(bottom: BorderSide(color: AppColors.line)),
+        shape: Border(bottom: BorderSide(color: palette.line)),
         titleSpacing: 0,
         title: Padding(
           padding: const EdgeInsets.symmetric(
@@ -69,31 +70,31 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
           ),
           child: Container(
             decoration: BoxDecoration(
-              color: AppColors.bgSunk,
+              color: palette.bgSunk,
               borderRadius: BorderRadius.circular(AppRadius.lg),
-              border: Border.all(color: AppColors.line),
+              border: Border.all(color: palette.line),
             ),
             padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
             child: Row(
               children: [
-                const Icon(
+                Icon(
                   Icons.search,
                   size: 20,
-                  color: AppColors.ink3,
+                  color: palette.ink3,
                 ),
                 const SizedBox(width: AppSpacing.sm),
                 Expanded(
                   child: TextField(
                     controller: _controller,
                     focusNode: _focusNode,
-                    cursorColor: AppColors.forest,
+                    cursorColor: palette.forest,
                     style: AppTextStyles.bodyMedium.copyWith(
-                      color: AppColors.ink,
+                      color: palette.ink,
                     ),
                     decoration: InputDecoration(
                       hintText: '링크, 메모, 태그 검색',
                       hintStyle: AppTextStyles.bodyMedium.copyWith(
-                        color: AppColors.ink3,
+                        color: palette.ink3,
                       ),
                       border: InputBorder.none,
                       isDense: true,
@@ -108,7 +109,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                 if (hasQuery)
                   LnIconBtn(
                     icon: Icons.close_rounded,
-                    color: AppColors.ink3,
+                    color: palette.ink3,
                     onPressed: _onClearPressed,
                   ),
               ],
@@ -133,6 +134,7 @@ class _SearchBody extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final palette = context.palette;
     final state = ref.watch(searchProvider);
     final hasActiveFilter = state.filter.hasActiveFilters;
 
@@ -154,7 +156,7 @@ class _SearchBody extends ConsumerWidget {
               children: [
                 Text(
                   '최근 검색',
-                  style: AppTextStyles.label.copyWith(color: AppColors.ink2),
+                  style: AppTextStyles.label.copyWith(color: palette.ink2),
                 ),
                 TextButton(
                   onPressed: () =>
@@ -162,7 +164,7 @@ class _SearchBody extends ConsumerWidget {
                   child: Text(
                     '전체 삭제',
                     style: AppTextStyles.label.copyWith(
-                      color: AppColors.forest,
+                      color: palette.forest,
                     ),
                   ),
                 ),

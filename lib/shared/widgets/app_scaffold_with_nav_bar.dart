@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:linknote/app/router/routes.dart';
-import 'package:linknote/app/theme/app_colors.dart';
+import 'package:linknote/shared/extensions/context_extensions.dart';
 import 'package:linknote/shared/widgets/offline_banner_widget.dart';
 
 class AppScaffoldWithNavBar extends StatelessWidget {
@@ -30,7 +30,7 @@ class AppScaffoldWithNavBar extends StatelessWidget {
       ),
       floatingActionButton: FloatingActionButton(
         heroTag: 'shell_fab',
-        backgroundColor: AppColors.forest,
+        backgroundColor: context.palette.forest,
         foregroundColor: Colors.white,
         elevation: 6,
         tooltip: '링크 추가',

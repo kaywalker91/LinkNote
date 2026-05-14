@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:linknote/app/router/routes.dart';
-import 'package:linknote/app/theme/app_colors.dart';
 import 'package:linknote/app/theme/app_spacing.dart';
 import 'package:linknote/app/theme/app_text_styles.dart';
 import 'package:linknote/features/collection/presentation/provider/collection_detail_provider.dart';
@@ -27,11 +26,12 @@ class CollectionDetailScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final palette = context.palette;
     final detailAsync = ref.watch(collectionDetailProvider(collectionId));
     final linksAsync = ref.watch(collectionLinksProvider(collectionId));
 
     return Scaffold(
-      backgroundColor: AppColors.bgAlt,
+      backgroundColor: palette.bgAlt,
       appBar: LnTopBar(
         leading: LnIconBtn(
           icon: Icons.arrow_back_rounded,
@@ -53,7 +53,7 @@ class CollectionDetailScreen extends ConsumerWidget {
             LnIconBtn(
               icon: Icons.delete_outline,
               tooltip: '삭제',
-              color: AppColors.rose,
+              color: palette.rose,
               onPressed: () => _confirmDelete(context, ref),
             ),
             const SizedBox(width: 4),
@@ -93,7 +93,7 @@ class CollectionDetailScreen extends ConsumerWidget {
                       Text(
                         collection.name,
                         style: AppTextStyles.heading2.copyWith(
-                          color: AppColors.ink,
+                          color: palette.ink,
                         ),
                       ),
                       if (collection.description != null) ...[
@@ -101,7 +101,7 @@ class CollectionDetailScreen extends ConsumerWidget {
                         Text(
                           collection.description!,
                           style: AppTextStyles.bodyMedium.copyWith(
-                            color: AppColors.ink2,
+                            color: palette.ink2,
                           ),
                         ),
                       ],
@@ -109,14 +109,14 @@ class CollectionDetailScreen extends ConsumerWidget {
                       Text(
                         '링크 ${collection.linkCount}개',
                         style: AppTextStyles.caption.copyWith(
-                          color: AppColors.ink3,
+                          color: palette.ink3,
                         ),
                       ),
                       const SizedBox(height: AppSpacing.lg),
-                      const Divider(
+                      Divider(
                         height: 1,
                         thickness: 1,
-                        color: AppColors.line,
+                        color: palette.line,
                       ),
                     ],
                   ),
