@@ -25,7 +25,7 @@ class CollectionLocalDataSource implements IClearableCache {
           _box.values.map(_mapToEntity).whereType<CollectionEntity>().toList()
             ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
       return success(PaginatedState<CollectionEntity>(items: entities));
-    } on Exception catch (e) {
+    } on Object catch (e) {
       return error(Failure.cache(message: e.toString()));
     }
   }
@@ -45,7 +45,7 @@ class CollectionLocalDataSource implements IClearableCache {
         );
       }
       return success(entity);
-    } on Exception catch (e) {
+    } on Object catch (e) {
       return error(Failure.cache(message: e.toString()));
     }
   }
@@ -63,7 +63,7 @@ class CollectionLocalDataSource implements IClearableCache {
       };
       await _box.putAll(entries);
       await _trimCache();
-    } on Exception catch (_) {
+    } on Object catch (_) {
       // Silent failure — cache write should not break the app
     }
   }
@@ -72,20 +72,20 @@ class CollectionLocalDataSource implements IClearableCache {
     try {
       await _box.put(collection.id, _entityToMap(collection));
       await _trimCache();
-    } on Exception catch (_) {}
+    } on Object catch (_) {}
   }
 
   Future<void> removeCachedCollection(String id) async {
     try {
       await _box.delete(id);
-    } on Exception catch (_) {}
+    } on Object catch (_) {}
   }
 
   @override
   Future<void> clearAll() async {
     try {
       await _box.clear();
-    } on Exception catch (_) {}
+    } on Object catch (_) {}
   }
 
   // ---------------------------------------------------------------------------
@@ -117,7 +117,7 @@ class CollectionLocalDataSource implements IClearableCache {
         final json = Map<String, dynamic>.from(entry.value);
         final createdAt = DateTime.parse(json['createdAt'] as String);
         parsed.add(MapEntry(entry.key as String, createdAt));
-      } on Exception catch (_) {
+      } on Object catch (_) {
         await _box.delete(entry.key);
       }
     }

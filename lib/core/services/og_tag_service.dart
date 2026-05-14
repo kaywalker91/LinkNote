@@ -87,7 +87,7 @@ class OgTagService {
       return success(result);
     } on DioException catch (e) {
       return error(_mapDioError(e));
-    } on Exception catch (e) {
+    } on Object catch (e) {
       return error(Failure.unknown(message: 'Failed to parse page: $e'));
     }
   }

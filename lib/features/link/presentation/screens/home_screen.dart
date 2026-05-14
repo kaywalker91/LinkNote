@@ -250,7 +250,7 @@ class _LinkListBody extends ConsumerWidget {
               : 'Moved to collection',
         );
       }
-    } on Exception catch (_) {
+    } on Object catch (_) {
       if (context.mounted) {
         context.showErrorSnackBar('Move failed');
       }

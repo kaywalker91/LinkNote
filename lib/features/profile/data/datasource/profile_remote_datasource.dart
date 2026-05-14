@@ -24,7 +24,7 @@ class ProfileRemoteDataSource {
       return success(ProfileMapper.toEntity(UserProfileDto.fromJson(response)));
     } on PostgrestException catch (e) {
       return error(Failure.server(message: e.message));
-    } on Exception catch (e) {
+    } on Object catch (e) {
       return error(Failure.unknown(message: e.toString()));
     }
   }
@@ -48,7 +48,7 @@ class ProfileRemoteDataSource {
       return getProfile();
     } on PostgrestException catch (e) {
       return error(Failure.server(message: e.message));
-    } on Exception catch (e) {
+    } on Object catch (e) {
       return error(Failure.unknown(message: e.toString()));
     }
   }

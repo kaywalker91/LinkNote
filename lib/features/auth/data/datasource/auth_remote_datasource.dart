@@ -38,7 +38,7 @@ class AuthRemoteDatasource {
       );
     } on AuthException catch (e) {
       return error(Failure.auth(message: e.message));
-    } on Exception catch (e) {
+    } on Object catch (e) {
       return error(Failure.server(message: e.toString()));
     }
   }
@@ -78,7 +78,7 @@ class AuthRemoteDatasource {
       );
     } on AuthException catch (e) {
       return error(Failure.auth(message: e.message));
-    } on Exception catch (e) {
+    } on Object catch (e) {
       return error(Failure.server(message: e.toString()));
     }
   }
@@ -87,7 +87,7 @@ class AuthRemoteDatasource {
     try {
       await _client.auth.signOut();
       return success(null);
-    } on Exception catch (e) {
+    } on Object catch (e) {
       return error(Failure.server(message: e.toString()));
     }
   }

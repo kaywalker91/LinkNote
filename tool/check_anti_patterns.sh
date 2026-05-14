@@ -55,18 +55,18 @@ check_appcolors_whitelist() {
 }
 
 # ────────────────────────────────────────────────────────────────────────────
-# Category B — `on Exception catch` regression tracker (WARN only for now)
+# Category B — `on Exception catch` regression guard (FAIL)
 #
 # Reason: `on Exception catch` does not catch Dart `Error` subtypes, so
 # Hive/DTO/cast boundaries silently propagate Errors past the data layer.
-# Lesson sources: feedback_dart_error_vs_exception.md (Session 28 + 41).
+# Lesson sources: feedback_dart_error_vs_exception.md (Session 28 + 41 + PR 2).
 #
-# Current baseline: ~34 sites. PR 2 will bring it to 0, after which this
-# check is promoted to FAIL by flipping ENFORCE=1 below.
+# PR 2 swept the remaining 34 sites to `on Object catch`. Any reintroduction
+# is now a regression.
 # ────────────────────────────────────────────────────────────────────────────
 check_on_exception_catch() {
   local label="B.on Exception catch"
-  local enforce=0  # PR 2 머지 후 1 로 승격
+  local enforce=1
 
   local hits
   hits=$(grep -rn 'on Exception catch' lib --include='*.dart' \

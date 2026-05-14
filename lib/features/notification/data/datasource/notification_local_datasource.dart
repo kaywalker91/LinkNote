@@ -31,7 +31,7 @@ class NotificationLocalDataSource implements IClearableCache {
       return success(
         PaginatedState<NotificationEntity>(items: entities),
       );
-    } on Exception catch (e) {
+    } on Object catch (e) {
       return error(Failure.cache(message: e.toString()));
     }
   }
@@ -49,7 +49,7 @@ class NotificationLocalDataSource implements IClearableCache {
       };
       await _box.putAll(entries);
       await _trimCache();
-    } on Exception catch (_) {
+    } on Object catch (_) {
       // Silent failure — cache write should not break the app
     }
   }
@@ -64,7 +64,7 @@ class NotificationLocalDataSource implements IClearableCache {
       final updated = Map<String, dynamic>.from(raw);
       updated['isRead'] = isRead;
       await _box.put(id, updated);
-    } on Exception catch (_) {}
+    } on Object catch (_) {}
   }
 
   Future<void> markAllCachedAsRead() async {
@@ -77,14 +77,14 @@ class NotificationLocalDataSource implements IClearableCache {
         updated['isRead'] = true;
         await _box.put(key, updated);
       }
-    } on Exception catch (_) {}
+    } on Object catch (_) {}
   }
 
   @override
   Future<void> clearAll() async {
     try {
       await _box.clear();
-    } on Exception catch (_) {}
+    } on Object catch (_) {}
   }
 
   // ---------------------------------------------------------------------------
@@ -94,7 +94,7 @@ class NotificationLocalDataSource implements IClearableCache {
   NotificationEntity? _mapToEntity(Map<dynamic, dynamic> raw) {
     try {
       return NotificationEntity.fromJson(Map<String, dynamic>.from(raw));
-    } on Exception catch (_) {
+    } on Object catch (_) {
       return null;
     }
   }
@@ -113,7 +113,7 @@ class NotificationLocalDataSource implements IClearableCache {
         final json = Map<String, dynamic>.from(entry.value);
         final createdAt = DateTime.parse(json['createdAt'] as String);
         parsed.add(MapEntry(entry.key as String, createdAt));
-      } on Exception catch (_) {
+      } on Object catch (_) {
         await _box.delete(entry.key);
       }
     }
