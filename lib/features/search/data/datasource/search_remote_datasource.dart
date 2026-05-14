@@ -91,7 +91,7 @@ class SearchRemoteDataSource {
       return success(tags);
     } on PostgrestException catch (e) {
       return error(Failure.server(message: e.message));
-    } on Exception catch (e) {
+    } on Object catch (e) {
       return error(Failure.unknown(message: e.toString()));
     }
   }

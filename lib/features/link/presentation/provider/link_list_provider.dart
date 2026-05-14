@@ -70,7 +70,7 @@ class LinkList extends _$LinkList {
           isLoadingMore: false,
         ),
       );
-    } on Exception catch (e) {
+    } on Object catch (e) {
       state = AsyncData(
         current.copyWith(
           isLoadingMore: false,

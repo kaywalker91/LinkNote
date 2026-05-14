@@ -220,7 +220,7 @@ class LinkForm extends _$LinkForm {
   String _extractTitle(String url) {
     try {
       return Uri.parse(url).host;
-    } on Exception catch (_) {
+    } on Object catch (_) {
       return url;
     }
   }

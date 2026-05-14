@@ -44,7 +44,7 @@ class NotificationList extends _$NotificationList {
           isLoadingMore: false,
         ),
       );
-    } on Exception catch (e) {
+    } on Object catch (e) {
       state = AsyncData(
         current.copyWith(
           isLoadingMore: false,
