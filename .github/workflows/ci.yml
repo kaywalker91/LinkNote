@@ -32,6 +32,9 @@ jobs:
       - name: Run dart format check
         run: dart format --set-exit-if-changed lib/ test/ || (echo "Run 'dart format lib/ test/' to fix formatting" && exit 1)
 
+      - name: Run anti-pattern checks
+        run: bash tool/check_anti_patterns.sh
+
       - name: Run flutter analyze
         run: flutter analyze --fatal-warnings
 
