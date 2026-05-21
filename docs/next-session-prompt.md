@@ -5,86 +5,76 @@
 ---
 
 ```
-Session 56 — Track B+ (Sprint-3 진입, harness 강화 후 Home 카드 미니 배지) / Track D (Linux golden) / 후속 다크 모드 검증
+Session 58 — Sprint-3 머지 직후 Track D (Linux golden) / Track H (다크 모드 검증) / Track I (anti-pattern Cat C) / Phase 5 (Lock·Globe pill) 중 단일 트랙
 
 ## 미션 한 줄
 
-Session 55 머지로 Phase 4 dark mode forest 완성(11 화면 palette 마이그레이션, 갤럭시 A34 Home 회귀 해소, F-Sprint2-5 RESOLVED). Session 56 은 Track B+ (Sprint-3 정식 사이클 — Home 카드 미니 배지 + harness 강화) 또는 Track D (Linux golden 재생성) 또는 추가 다크 모드 화면 실기기 시각 검증 중 사용자 합의 후 단일 트랙.
+Session 57 Track B+ (Sprint-3 LnLinkCard mini ReadingStats badge) Mode B PASS 75/80, 706→714 GREEN, AC 12/12, observed_followups 3건 동일 PR 흡수 머지 완료. F-Sprint2-1/-2/-3/-4 RESOLVED (Planner Self-Validation 강화 + Sprint-3 검증으로 closure). Session 58 은 사용자 합의 후 단일 트랙.
 
 ## 배경
 
-**Session 55 (2026-05-14) 결과**:
-- PR 머지 (`fix/dark-mode-screen-palette-migration`). 11 코드 파일, 46 use site `AppColors.<X>` → `context.palette.<X>` 치환.
-- 갤럭시 A34 다크 모드 Home 회귀 해소 검증 완료. `palette.bgAlt` = `#0E1311` 다크 forest tone 정상.
-- 562 tests GREEN 유지, analyze 0, format clean.
-- 의도된 잔여 5 site 보존 (semantic / data hex / top-level brand 마커).
-- `AppPalette.light()` byte-identical 보장 → 라이트 회귀 zero.
-- F-Sprint2-5 (live_verification badge dark-mode 실기기 검증) RESOLVED.
+**Session 57 (2026-05-14 → 2026-05-21) 결과** — Harness Sprint-3 풀 사이클:
+- Phase 1 (사전 강화): `~/.claude/agents/harness-planner.md` 에 F-Sprint2-4 (ERROR `verified_canonical_evidence`) + F-Sprint2-3 (WARN silent-fallback async-throw widget test) jq 게이트 신설. 8 sanity 검증 통과.
+- Phase 2 (Sprint-3 정식 사이클):
+  - Planner: Confidence 92%, AC 10개, uncertainty 5.05, tier 2 final
+  - Mode A R1: 8 concerns (3 HIGH wording-only) + 1 Impact Map gap
+  - Mode A R2: confirm (8/8 verbatim 반영, AC 12개, 4 LOW Mode B 위임)
+  - Generator: option_chosen=`extend_existing_compact_param`, 2 prod + 11 test, 706→713 GREEN
+  - Mode B simplified: PASS 75/80 (94%), 5 dimension floor 모두 met, observed_followups 3건
+- Phase 3 (PR 묶음): observed_followup 3건 흡수 (Padding(top:6) compact 분기 / Sprint-2 baseline regression test / Impact Map metadata 9→10). 706→714 GREEN.
 
-**남은 follow-up (`docs/harness-followups.md`)**:
-- **F-Sprint2-1**(low) — AC-2 wording에 zero-stats data-branch fallback 공식화.
-- **F-Sprint2-2**(low) — Impact Map downstream_test_files transitive scan 강화.
-- **F-Sprint2-3**(med) — silent-fallback FutureProvider + async-throw widget test 금지 가이드를 Contract 템플릿에 명시.
-- **F-Sprint2-4**(med, harness_tune) — Planner `verified_canonical_evidence` 의무화 (Sprint-3 진입 전 글로벌 agent 강화 권고).
+**RESOLVED follow-ups** (이 PR 머지로):
+- F-Sprint2-1 → AC-10 (silent-fallback semantics spec.md 명시)
+- F-Sprint2-2 → Impact Map 10 transitive files (link_detail_screen_test.dart reuse-site 포함)
+- F-Sprint2-3 → Planner WARN gate + Sprint-3 0 forbidden async-throw 검증
+- F-Sprint2-4 → Planner ERROR gate + Sprint-3 R1 verified_canonical_evidence 100% 검증
 
-**Sprint-1 잔여**: F3 (`_writeQueue identical()` dead code, low) / F4~F9 backlog.
-
-**Session 55 잔여 시각 검증** (옵션):
-- Search / Collection Detail / Login / Edit 등 11 화면 일부는 갤럭시 A34 직접 검증 미수행 (mechanical 패턴이라 회귀 위험 매우 낮으나 보수적 확인 가능).
+**남은 follow-up** (`docs/harness-followups.md`):
+- F3 (`_writeQueue identical()` dead code, low)
+- F4 ~ F9 backlog
+- Sprint-3 Hand-off Next Sprint Context Seed: (a) Linux golden / (b) Phase 5 Lock/Globe / (c) F7 perf gate
 
 ## 작업 범위 — 후보 트랙
 
-### Track B+ — Sprint-3 진입 (Home 카드 미니 배지 + harness 강화) ⭐추천1
-
-- **규모**: 중~대
-- **의존성**: F-Sprint2-3/F-Sprint2-4 Contract 템플릿 반영 권고 (Sprint-3 Planner 호출 전)
-- **범위 후보**:
-  - LnLinkCard 에 mini ReadingStatsBadge (totalReads 만 압축 표시, lastReadAt 생략)
-  - N+1 Hive read 방지 — batch API `GetReadingStatsForMany(List<String> linkIds)` 도입 검토 (F7 연동)
-  - Riverpod provider 그래프 확장
-- **harness 강화 사전 작업 (F-Sprint2-4)**:
-  - 글로벌 `~/.claude/agents/harness-planner.md` Self-Validation에 prescriptive code snippet ↔ corpus literal match grep 검증 추가
-  - 모든 `overrideWith` snippet 에 `verified_canonical_evidence` (파일:line 인용) 필드 의무화
-- **harness 사용**: Sprint-3 정식 사이클 (Planner → Mode A → Generator → Mode B simplified)
-
-### Track D — Linux golden 재생성
+### Track D — Linux golden 재생성 (Phase 4.5 alchemist 잔여)
 
 - **규모**: 소
 - **의존성**: 없음 (GitHub Actions workflow_dispatch)
-- **가치**: Phase 4.5 머지(`61e5c5b`) 시 CI 가 `--exclude-tags golden` 임시 상태. Linux baseline 생성하면 CI 가 다시 golden 검증 가능.
-- **PR**: golden PNG diff 커밋
+- **가치**: Phase 4.5 머지(`61e5c5b`) 시 CI 가 `--exclude-tags golden` 임시 상태. Linux baseline 생성하면 CI 가 다시 golden 검증 가능. Sprint-3 의 mini badge 도 자동 보호 (zero-stats 미렌더 정책으로 회귀 위험 0).
 
 ### Track H — 다크 모드 추가 화면 실기기 검증 (Session 55 후속)
 
 - **규모**: 소
-- **의존성**: 실기기 또는 에뮬레이터 연결
-- **범위**: Search / Collection Detail / Login / Edit / Form / Skeleton 다크 모드 시각 회귀 zero 확인
-- **PR**: 발견된 회귀 fix 가 있으면 단일 PR, 없으면 검증 리포트만 daily_log 에 기록
+- **의존성**: 실기기 또는 에뮬레이터
+- **범위**: Search / Collection Detail / Login / Edit / Form / Skeleton 다크 모드 시각 회귀 zero 확인. Sprint-3 mini badge 의 ink3 톤 다크 가독성도 함께 확인.
 
-### Track E — iOS Share Extension (Phase 2)
+### Track I — anti-pattern script Category C 추가
 
-- **규모**: 대
-- **의존성**: iOS 인증서 / Apple Developer 계정. 미해결
-- **현실성**: 인프라 차단 가능성 높음
+- **규모**: 소~중
+- **의존성**: 없음
+- **범위 후보**:
+  - freezed nested toJson `explicitToJson: true` 누락 검출 (mechanical 검증 가능 시)
+  - 누적 lesson 중 grep 검출 가능 패턴 추가
+- **현실성**: Docs-only PR 금지 규칙에 따라 다음 실코드 PR 에 묶거나 단독 Track 으로 진행
 
-### Track F — ARB 정식 i18n
+### Track L — Phase 5 Lock·Globe pill (LnLinkCard._trailing)
 
-- **규모**: 대
-- **의존성**: Option B 임시 가이드 → ARB 마이그레이션. 기존 한글 카피 전수 추출
+- **규모**: 중~대
+- **의존성**: `CollectionEntity` 에 `visibility` / `lockedAt` 필드 확장 (`lib/features/collection/domain/` 변경)
+- **범위**: 공개/비공개 표시 + 잠금 상태 표시. LinkDetail 진입 차단 정책 결정 필요.
+- **harness 사용**: 정식 Planner-Mode A-Generator-Mode B 사이클 권고 (Sprint-3 정합)
 
-### Track G — 메모리 갱신 (Session 55 closure 항목)
+### Track F7 — O(n) read-aggregation perf gate
 
 - **규모**: 소
-- **의존성**: 없음
-- **현실성**: Docs-only PR 금지 규칙. **Track B+/D/H 의 실코드 PR 에 묶기**. 갱신 항목:
-  - `feedback_theme_extension_pattern.md` — Session 55 closure (screen-level 마이그레이션 완료, Phase 4 dark mode forest 100% 적용)
-  - `project_design_overhaul.md` — Phase 4 closure entry
-  - `docs/harness-followups.md` F-Sprint2-5 — RESOLVED 마크
+- **의존성**: Sprint-1 datasource 변경 가능 (`forbidden_files` 정책 재확인 필요)
+- **범위**: 500+ events/link 환경 시뮬레이션 + Hive read 시간 측정 + `lastReadAt` 별도 필드 저장 (events 리스트 walk 회피). F7 deferred 해소.
+- **현실성**: 사용자 데이터 1000+ events/link 도달 전까진 benign. 보류 가능.
 
 **기본 추천**:
-- 우선순위 1: **B+ (Sprint-3 진입)** — F-Sprint2-4 harness 강화 후 본 사이클. KL-1/F-Sprint2-3 학습 반영
-- 우선순위 2: **D (Linux golden 재생성)** — CI golden 복원, 소규모
-- 우선순위 3: **H (다크 모드 잔여 화면 검증)** — Session 55 보수적 follow-up
+- 우선순위 1: **D (Linux golden 재생성)** — CI golden 복원, 소규모
+- 우선순위 2: **H (다크 모드 잔여 화면 검증)** — Session 55 + 57 보수적 follow-up
+- 우선순위 3: **L (Phase 5 Lock·Globe pill)** — 다음 정식 sprint 진입 시
 
 ## 검증 절차
 
@@ -92,75 +82,24 @@ Session 55 머지로 Phase 4 dark mode forest 완성(11 화면 palette 마이그
 cd ~/AndroidStudioProjects/LinkNote
 git checkout main && git pull --ff-only
 
-# Track B+/D/H 선택 후 새 브랜치
-git checkout -b <sprint-3/...|harness/...|verify/...>
+# Track 선택 후 새 브랜치
+git checkout -b <verify/...|sprint-N/...|harness/...>
 
-# 푸시 전 강제 시퀀스 (Session 52~55 학습)
+# 푸시 전 강제 시퀀스 (Session 52~57 학습)
 dart format lib/ test/
+bash tool/check_anti_patterns.sh              # PASS (Session 56 게이트)
 flutter analyze --fatal-warnings              # 0 issues
-flutter test --reporter=failures-only         # 562+ GREEN
-# 셋 다 통과 후에만 push
+flutter test --reporter=failures-only         # 714+ GREEN
+# 넷 다 통과 후에만 push
 
 git push -u origin <branch>
 gh pr create --base main --title "..." --body "..."
 ```
 
-## 알려진 인접 이슈 (Session 56 무관, 별도 세션)
+## 알려진 인접 이슈 (Session 58 무관, 별도 세션)
 
-- **dev/staging Supabase URL DNS 실패** — Session 55 실기기 빌드 시 반복 (`jzcduhgatmbobevxjdhy.supabase.co` 호스트 lookup 실패). 로컬 Hive 무관이지만 인증/동기화 필요 검증 시 prod flavor 또는 dev Supabase 재설정 필요.
-- **Phase 4 dark mode 토큰 미세 튜닝** — Session 55 추가 화면 실기기 검증 시 발견될 수 있음
+- **dev/staging Supabase URL DNS 실패** — Session 55 실기기 빌드 시 반복 (`jzcduhgatmbobevxjdhy.supabase.co` 호스트 lookup 실패).
 - **Supabase RLS / FK 점검** — dashboard 액세스 별도 트랙
 - **`StatefulShellRoute.indexedStack` 탭 전환 `logScreenView`** — `app_router.dart` NOTE 주석, 별도 세션
-- **`CollectionEntity` 모델 확장** (visibility / color / emoji) — Phase 5+ Lock·Globe pill
-- **`shimmer_box.dart` `Theme.of(c).brightness` 직접 검사** — palette 통합 가능
-- **harness deterministic_verifier 에 `dart format --set-exit-if-changed` 추가** — Sprint-3 진입 시 반영
-
-## 불변 원칙
-
-- **git push / merge 사용자 명시 승인 필수**
-- **Branch Protection** — PR + CI 4 job green 필수
-- **TDD RED → GREEN** — 데이터/도메인/프로바이더 변경은 테스트 선행
-- **i18n Option B** — UI 사용자 대면 카피는 한글, snackbar/Exception/Failure.message 는 영문
-- **CI dart format atomic 시퀀스** — `dart format && flutter analyze && flutter test` 하나라도 빠지면 푸시 금지
-- **omit_local_variable_types** — 로컬 변수는 `var`
-- **`on Exception catch` 만 사용 금지** — 데이터 경계는 `on Object`
-- **Freezed nested toJson 주의** — Hive/JSON 직렬화 경계에서 nested 필드 명시 처리
-- **per-row 파싱 fault tolerance** — remote list fetch 는 `parseRows` 패턴 답습
-- **수치 기준 창작 금지** — 사용자가 정성 표현 쓰면 `AskUserQuestion` 으로 확인
-- **`gh pr checks` 모니터링은 `--json` 사용** — awk whitespace split 함정 회피
-- **Docs-only PR 금지** — 문서만 변경한 브랜치는 단독 PR 생성하지 말고 다음 실코드 PR 에 묶기
-- **Light 회귀 zero 원칙** — design token 변경 시 `AppPalette.light()` 는 기존 `AppColors` 와 byte-identical 유지
-- **ThemeExtension 패턴** — 디자인 토큰 brightness-aware 분기는 `ThemeExtension<T>` + `context.palette` fallback. **Screen-level 마이그레이션도 동시 진행** (Session 55 교훈 — 토큰만 도입하고 screen `AppColors.X` 직접 사용 유지 시 다크 모드 부분 적용 회귀)
-- **Harness Path B isolation** — codegen 부수효과 + KL substitution 은 zero behavioral delta 검증 후 의무 follow-up 등록과 함께 PASS. `docs/harness-followups.md` 에 영속
-- **Family-arg over-specification 회피 (F-Sprint2-4)** — Planner Contract prescriptive code snippet 의 `overrideWith` 패턴은 반드시 `target shape + lambda signature` 전체를 corpus literal match grep 으로 검증. `verified_canonical_evidence` 필드 의무화 권고
-- **Silent-fallback ↔ error branch 모순 회피 (F-Sprint2-3)** — provider 가 Failure 를 swallow하면 widget error branch 는 production-unreachable. async-throw widget test prescriptive snippet 금지
-- **Impact Map transitive test scan (F-Sprint2-2)** — Planner Impact Map 단계에서 changed screen widget 의 모든 mount caller test 파일 scan 필수
-
-## 완료 기준
-
-- [ ] 트랙 결정 + 작업 진입
-- [ ] flutter analyze 0
-- [ ] flutter test all GREEN (562+)
-- [ ] CI 4 job green + 사용자 머지
-- [ ] 메모리 갱신:
-  - [ ] Track 별 관련 메모리 (`feedback_theme_extension_pattern.md` closure, `project_design_overhaul.md`, `project_harness_pipeline.md` follow-up 등)
-  - [ ] `MEMORY.md` 인덱스 갱신 (선택)
-
-## 참조 문서/메모리
-
-- **Session 55 daily log**: `docs/daily_task_log/2026-05-14_session55.md`
-- **Session 54 daily log**: `docs/daily_task_log/2026-05-13_session54.md`
-- **Harness follow-up registry**: `docs/harness-followups.md` (영속, F1+F2 RESOLVED, F-Sprint2-1~5 + F-Sprint2-5 RESOLVED)
-- **Harness 파이프라인 메모리**: `project_harness_pipeline.md`
-- **공유 토큰/Ln 위젯**: `lib/app/theme/app_palette.dart`, `lib/shared/widgets/ln/`, `lib/shared/extensions/context_extensions.dart`
-
-## 세션 경계
-
-트랙 합의 후 단일 흐름. Track B+(Sprint-3)는 harness 강화 + Planner→Generator→Evaluator 1 사이클. Track D 는 workflow_dispatch + golden PNG 커밋. Track H 는 발견 사항에 따라 후속 결정.
-
-## 시작 시 사용자 확인 항목
-
-1. Track 선택 (B+/D/H/E/F 또는 사용자 정의)
-2. Track B+ 선택 시: F-Sprint2-4 글로벌 Planner `verified_canonical_evidence` 의무화 시점 (Sprint-3 진입 전 vs 진입 후 patch)
-3. Track G(메모리 갱신) 묶음 처리 — Track B+/D/H 중 어디에 합칠지
+- **`CollectionEntity` 모델 확장** (visibility / color / emoji) — Track L 진입 시 함께 처리
 ```

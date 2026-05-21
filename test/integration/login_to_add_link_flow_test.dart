@@ -11,6 +11,8 @@ import 'package:linknote/features/link/domain/entity/link_entity.dart';
 import 'package:linknote/features/link/presentation/provider/link_list_provider.dart';
 import 'package:linknote/features/link/presentation/screens/home_screen.dart';
 import 'package:linknote/features/link/presentation/screens/link_add_screen.dart';
+import 'package:linknote/features/reading_stats/domain/entity/reading_stats_entity.dart';
+import 'package:linknote/features/reading_stats/presentation/provider/link_reading_stats_provider.dart';
 import 'package:linknote/shared/models/paginated_state.dart';
 import 'package:linknote/shared/widgets/ln/ln_brand.dart';
 
@@ -97,6 +99,12 @@ class _PopulatedLinkList extends LinkList {
   Future<void> toggleFavorite(String id) async {}
 }
 
+/// Zero-stats override so LnLinkCard mini badge stays un-rendered (AC-9).
+// ignore: specify_nonobvious_property_types
+final _zeroStatsOverride = linkReadingStatsProvider.overrideWith(
+  (ref, linkId) async => const ReadingStatsEntity(linkId: ''),
+);
+
 void main() {
   group('Login → Link Add → List flow', () {
     testWidgets('should show validation on empty login then sign in', (
@@ -145,6 +153,7 @@ void main() {
           overrides: [
             authProvider.overrideWith(_AuthenticatedAuth.new),
             linkListProvider.overrideWith(_PopulatedLinkList.new),
+            _zeroStatsOverride,
           ],
           child: const MaterialApp(home: HomeScreen()),
         ),
@@ -215,6 +224,7 @@ void main() {
           overrides: [
             authProvider.overrideWith(_UnauthAuth.new),
             linkListProvider.overrideWith(_EmptyLinkList.new),
+            _zeroStatsOverride,
           ],
           child: MaterialApp.router(routerConfig: router),
         ),

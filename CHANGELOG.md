@@ -7,6 +7,38 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added (Session 57 — Harness Sprint-3: LnLinkCard mini ReadingStats badge)
+
+- **`ReadingStatsBadge.compact: bool = false` 파라미터 + compact 분기** (`lib/features/reading_stats/presentation/widget/reading_stats_badge.dart`, additive +33 -0) — totalReads > 0 시 `'{N}회'` 또는 `'{N}회 · {timeAgo}'` 컴팩트 텍스트(`AppTextStyles.caption + context.palette.ink3`)를 `EdgeInsets.only(top: 6)` Padding 으로 감싸 렌더. 0회 / loading / error 모두 `SizedBox.shrink()` (zero pixel, no key). `ValueKey('reading_stats_badge_skeleton')` 은 `compact: true` 분기에서 emit 금지. 기존 `compact: false` 분기는 Sprint-2 baseline ('5회 읽음 · 최근 X일 전' / '아직 읽지 않음' / keyed skeleton) 완전 보존.
+- **`LnLinkCard` `StatelessWidget → ConsumerWidget` 전환** (`lib/shared/widgets/ln/ln_link_card.dart`, +7 -2) — `_body` Column 의 마지막 child 로 `ReadingStatsBadge(linkId: link.id, compact: true)` 추가. 카드 리스트에서 LinkDetail 진입 전 읽음 회수 인지 가능.
+- **신규 widget test `reading_stats_mini_badge_test.dart` (78L)** — compact 분기 3 케이스 (data > 0 → `'3회'` + negative `'읽음'`/`'최근'` / zero → SizedBox.shrink + negative skeleton key / loading → SizedBox.shrink + negative skeleton key).
+- **신규 integration test `ln_link_card_reading_stats_test.dart` (64L)** — LnLinkCard mount 시 totalReads=2 → `'2회'` findable + negative `'읽음'`, totalReads=0 → 회수 텍스트 미렌더 + 카드 host/title/tag 보존.
+- **새 regression test `reading_stats_badge_test.dart` 4th group** (`compact: false Sprint-2 baseline regression`) — 명시 `compact: false` 로 호출해 Sprint-2 의 `'7회 읽음'` + `'최근'` 출력 + `'아직 읽지 않음'` findsNothing 핀. observed_followup #2 closure (mode B N3 observability gap).
+- **9 transitive downstream test 파일에 `linkReadingStatsProvider` zero-stats override 주입** — `ln_link_card_test`, `ln_link_card_highlight_test`, `ln_widgets_dark_test`, `golden/ln_cards_golden_test`, `home_screen_test`, `search_screen_test`, `collection_detail_screen_test`, `login_to_add_link_flow_test`, `search_to_detail_flow_test`. AC-2 정책으로 mini badge 미렌더 → 기존 finder/golden PNG 변경 없음.
+- **`.claude/harness/runs/20260514-162816/` Sprint-3 run artifacts** — spec.md / sprints/1/{contracts, impact-map, eval, handoff}/. Mode A 2 라운드 (R1 8 concerns → R2 confirm) + Mode B simplified 75/80 (94%) PASS. AC 12/12, 5 dimension floor met.
+- **글로벌 `~/.claude/agents/harness-planner.md` Self-Validation 강화** (Session 57 사전 작업, F-Sprint2-3/4 RESOLVED) — Contract prescriptive snippet 에 Riverpod provider override 패턴 포함 시 `verified_canonical_evidence: [{file, line, exact_match}]` 의무 jq 게이트 (F-Sprint2-4 ERROR), silent-fallback provider 의 widget error-branch async-throw test 처방 WARN 게이트 (F-Sprint2-3). 8 sanity 케이스로 jq 동작 검증. Sprint-3 Round-1 에서 4 prescriptive_test_snippets 의 verified_canonical_evidence 13 override refs / 4 evidence objects 모두 schema validate 성공.
+
+### Changed (Session 57)
+
+- 전체 테스트 706 → 714 GREEN (+8 — mini badge widget 3 + LnLinkCard integration 2 + Sprint-2 baseline regression 1 + Generator 추가 2). flutter analyze 0 issues. `tool/check_anti_patterns.sh` PASS. `dart format` clean.
+- `LnLinkCard` ConsumerWidget 전환에 따라 9 downstream test + 1 golden test 파일이 `ProviderScope` + `linkReadingStatsProvider.overrideWith((ref, linkId) async => const ReadingStatsEntity(linkId: ''))` 주입 필수. 기존 finder/assertion 변경 0건.
+- `test/features/link/presentation/screens/link_detail_screen_test.dart` **zero source diff** (AC-12 reuse-site 회귀 안전망) — 8 기존 test group 그대로 GREEN, LinkDetailScreen 의 풀사이즈 `ReadingStatsBadge` 렌더링은 Sprint-2 baseline 과 완전 동일.
+
+### Added (Session 56 — Stabilization Sprint: PR #39 / #40 / #41)
+
+- **`tool/check_anti_patterns.sh` + CI 연동** (PR #39 `a0a1227`) — `.github/workflows/ci.yml` analyze job 의 dart format step 옆에 grep 기반 anti-pattern 게이트. Category A (FAIL): `AppColors.<X>` 화이트리스트 — 의도된 3 site(데이터 hex / Material semantic / theme self-ref) 외 회귀 시 CI FAIL. Category B (FAIL after PR #40): `on Exception catch` 카운트 0 강제.
+- **`lib/core/utils/parse_rows.dart` — `parseRowsTolerant<T>` generic helper** (PR #41 `5fe4fd2`) — `LinkRemoteDataSource.parseRows` 의 per-row tolerance 패턴을 core/utils 로 승격. 한 row 만 malformed 되어도 전체 fetch 가 폭파되지 않고 skip+log. `link_remote_datasource.parseRows` 는 thin wrapper 로 호환 유지. `collection_remote_datasource.getCollections`, `notification_remote_datasource.getNotifications`, `search_remote_datasource.fetchUserTags` 에 적용 — Session 44 PR #26 시점에는 Link 만 보호받던 함정이 다른 feature 로 확산되지 않음을 보장. 4 단위 테스트 (`test/core/utils/parse_rows_test.dart`) 포함, Dart `Error` subtype (StateError) catch 경로 명시 검증.
+
+### Fixed (Session 56 — Stabilization Sprint)
+
+- **`on Exception catch` 잔존 34곳을 `on Object catch` 로 sweep** (PR #40 `1351849`) — Session 28 + 41 (PR #22) 의 두 sweep 이후에도 누적된 잔존 위반. `og_tag_service` ×1 / `auth_remote` ×3 / `collection_{remote,local}` 12 / `notification_{remote,local}` 10 / `profile_remote` ×2 / `search_remote` ×1 / presentation 5(`link_list_provider`, `link_form_provider`, `home_screen`, `collection_list_provider`, `notification_list_provider`). Dart `Error` 계열 (TypeError, HiveError, StateError 등) 이 데이터 경계에서 catch 안 잡혀 `Failure` 매핑을 우회하던 잠재 회귀 차단. `loadMoreError` 필드 이미 `Object?` 타입이라 다운스트림 시그니처 영향 없음.
+- **`lib/shared/utils/highlight_text.dart` 마지막 `AppColors` 잔존 2 site 마이그레이션** (PR #39) — `buildHighlightedSpans` 시그니처에 `highlightBg` / `highlightFg` 인자 추가. 호출처 `ln_link_card.dart:127` 가 `context.palette.forestSoft` / `forestInk` 전달. dark mode 에서 검색 하이라이트가 brightness-aware 토큰을 따라감.
+
+### Changed (Session 56)
+
+- 전체 테스트 562 → 566 GREEN (+4 `parseRowsTolerant` 단위 테스트).
+- `tool/check_anti_patterns.sh` Category B `ENFORCE=1` 로 승격 (PR #40 머지 시점). 회귀 시 PR 자체가 막힘.
+
 ### Fixed (Session 55 — Track C: dark-mode screen palette migration)
 
 - **11 화면/위젯 `AppColors.<token>` → `context.palette.<token>` 마이그레이션** — Session 50 도입된 `AppPalette` ThemeExtension 이 토큰/Theme 레벨에서만 적용되고 screen-level 마이그레이션이 누락된 회귀 해소. Home/Search/LinkDetail/Collection (List+Detail)/Login/Splash/Edit/Form fields/Shell scaffold/Skeleton 등 46 use site 치환.

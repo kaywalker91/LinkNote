@@ -6,6 +6,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:linknote/features/link/domain/entity/link_entity.dart';
 import 'package:linknote/features/link/presentation/provider/link_list_provider.dart';
 import 'package:linknote/features/link/presentation/screens/home_screen.dart';
+import 'package:linknote/features/reading_stats/domain/entity/reading_stats_entity.dart';
+import 'package:linknote/features/reading_stats/presentation/provider/link_reading_stats_provider.dart';
 import 'package:linknote/shared/models/paginated_state.dart';
 import 'package:linknote/shared/widgets/ln/ln_brand.dart';
 
@@ -47,6 +49,13 @@ class _DataLinkList extends LinkList {
   Future<void> toggleFavorite(String id) async {}
 }
 
+/// Provides zero-stats for linkReadingStatsProvider so mini badge
+/// stays un-rendered in LnLinkCard mounts (AC-9).
+// ignore: specify_nonobvious_property_types
+final _zeroStatsOverride = linkReadingStatsProvider.overrideWith(
+  (ref, linkId) async => const ReadingStatsEntity(linkId: ''),
+);
+
 void main() {
   group('HomeScreen', () {
     testWidgets('should show loading skeletons when state is loading', (
@@ -57,6 +66,7 @@ void main() {
         ProviderScope(
           overrides: [
             linkListProvider.overrideWith(_LoadingLinkList.new),
+            _zeroStatsOverride,
           ],
           child: const MaterialApp(home: HomeScreen()),
         ),
@@ -77,6 +87,7 @@ void main() {
         ProviderScope(
           overrides: [
             linkListProvider.overrideWith(_ErrorLinkList.new),
+            _zeroStatsOverride,
           ],
           child: const MaterialApp(home: HomeScreen()),
         ),
@@ -98,6 +109,7 @@ void main() {
             linkListProvider.overrideWith(
               () => _DataLinkList(const PaginatedState<LinkEntity>(items: [])),
             ),
+            _zeroStatsOverride,
           ],
           child: const MaterialApp(home: HomeScreen()),
         ),
@@ -135,6 +147,7 @@ void main() {
             linkListProvider.overrideWith(
               () => _DataLinkList(PaginatedState<LinkEntity>(items: tLinks)),
             ),
+            _zeroStatsOverride,
           ],
           child: const MaterialApp(home: HomeScreen()),
         ),
@@ -154,6 +167,7 @@ void main() {
             linkListProvider.overrideWith(
               () => _DataLinkList(const PaginatedState<LinkEntity>(items: [])),
             ),
+            _zeroStatsOverride,
           ],
           child: const MaterialApp(home: HomeScreen()),
         ),
@@ -175,6 +189,7 @@ void main() {
             linkListProvider.overrideWith(
               () => _DataLinkList(const PaginatedState<LinkEntity>(items: [])),
             ),
+            _zeroStatsOverride,
           ],
           child: const MaterialApp(home: HomeScreen()),
         ),

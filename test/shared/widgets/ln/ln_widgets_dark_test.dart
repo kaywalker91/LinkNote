@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:linknote/app/theme/app_palette.dart';
 import 'package:linknote/app/theme/app_theme.dart';
 import 'package:linknote/features/collection/domain/entity/collection_entity.dart';
 import 'package:linknote/features/link/domain/entity/link_entity.dart';
 import 'package:linknote/features/link/domain/entity/tag_entity.dart';
+import 'package:linknote/features/reading_stats/domain/entity/reading_stats_entity.dart';
+import 'package:linknote/features/reading_stats/presentation/provider/link_reading_stats_provider.dart';
 import 'package:linknote/shared/widgets/ln/ln_brand.dart';
 import 'package:linknote/shared/widgets/ln/ln_collection_card.dart';
 import 'package:linknote/shared/widgets/ln/ln_icon_btn.dart';
@@ -22,9 +25,16 @@ import 'package:linknote/shared/widgets/ln/ln_top_bar.dart';
 void main() {
   Future<void> pumpDark(WidgetTester tester, Widget child) {
     return tester.pumpWidget(
-      MaterialApp(
-        theme: AppTheme.dark,
-        home: Scaffold(body: Center(child: child)),
+      ProviderScope(
+        overrides: [
+          linkReadingStatsProvider.overrideWith(
+            (ref, linkId) async => const ReadingStatsEntity(linkId: ''),
+          ),
+        ],
+        child: MaterialApp(
+          theme: AppTheme.dark,
+          home: Scaffold(body: Center(child: child)),
+        ),
       ),
     );
   }

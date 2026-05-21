@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:linknote/features/link/domain/entity/link_entity.dart';
 import 'package:linknote/features/link/domain/entity/tag_entity.dart';
+import 'package:linknote/features/reading_stats/domain/entity/reading_stats_entity.dart';
+import 'package:linknote/features/reading_stats/presentation/provider/link_reading_stats_provider.dart';
 import 'package:linknote/features/search/domain/entity/search_state_entity.dart';
 import 'package:linknote/features/search/presentation/provider/search_provider.dart';
 import 'package:linknote/features/search/presentation/provider/search_suggestions_provider.dart';
@@ -87,6 +89,10 @@ Widget _wrapWithProviders(Widget child, Search Function() searchFactory) {
         (ref) => Future.value(<TagEntity>[]),
       ),
       searchSuggestionsProvider.overrideWith((ref) => <SearchSuggestion>[]),
+      // Zero-stats so LnLinkCard mini badge stays un-rendered (AC-9).
+      linkReadingStatsProvider.overrideWith(
+        (ref, linkId) async => const ReadingStatsEntity(linkId: ''),
+      ),
     ],
     child: MaterialApp(home: child),
   );
