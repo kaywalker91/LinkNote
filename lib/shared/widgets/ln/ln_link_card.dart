@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:linknote/app/theme/app_text_styles.dart';
 import 'package:linknote/features/link/domain/entity/link_entity.dart';
+import 'package:linknote/features/reading_stats/presentation/widget/reading_stats_badge.dart';
 import 'package:linknote/shared/extensions/context_extensions.dart';
 import 'package:linknote/shared/utils/highlight_text.dart';
 import 'package:linknote/shared/widgets/ln/ln_tag.dart';
@@ -11,7 +13,7 @@ enum LnLinkCardVariant { list, magazine, compact }
 
 /// Link card with 3 variants. Currently fully implemented: `list`.
 /// `magazine` and `compact` render as styled list fallbacks for now.
-class LnLinkCard extends StatelessWidget {
+class LnLinkCard extends ConsumerWidget {
   const LnLinkCard({
     required this.link,
     super.key,
@@ -34,7 +36,7 @@ class LnLinkCard extends StatelessWidget {
   final String? highlightText;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return InkWell(
       onTap: onTap,
       onLongPress: onLongPress,
@@ -109,6 +111,7 @@ class LnLinkCard extends StatelessWidget {
             ],
           ),
         ],
+        ReadingStatsBadge(linkId: link.id, compact: true),
       ],
     );
   }

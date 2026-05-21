@@ -12,6 +12,7 @@ import 'package:linknote/features/reading_stats/domain/entity/reading_event_enti
 import 'package:linknote/features/reading_stats/domain/entity/reading_stats_entity.dart';
 import 'package:linknote/features/reading_stats/domain/usecase/get_reading_stats_usecase.dart';
 import 'package:linknote/features/reading_stats/domain/usecase/record_read_event_usecase.dart';
+import 'package:linknote/features/reading_stats/presentation/provider/link_reading_stats_provider.dart';
 import 'package:linknote/features/reading_stats/presentation/provider/reading_stats_di_providers.dart';
 import 'package:linknote/features/search/domain/entity/search_state_entity.dart';
 import 'package:linknote/features/search/presentation/provider/search_provider.dart';
@@ -104,6 +105,10 @@ final _extraOverrides = [
   searchSuggestionsProvider.overrideWith((ref) => <SearchSuggestion>[]),
   recordReadEventUsecaseProvider.overrideWithValue(_stubRecord),
   getReadingStatsUsecaseProvider.overrideWithValue(_stubGet),
+  // Zero-stats so LnLinkCard mini badge stays un-rendered (AC-9).
+  linkReadingStatsProvider.overrideWith(
+    (ref, linkId) async => const ReadingStatsEntity(linkId: ''),
+  ),
 ];
 
 /// LinkDetail notifier that returns a fixed link entity.

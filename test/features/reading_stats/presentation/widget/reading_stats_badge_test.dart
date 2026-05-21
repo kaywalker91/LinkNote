@@ -92,4 +92,39 @@ void main() {
       },
     );
   });
+
+  group('ReadingStatsBadge — compact: false Sprint-2 baseline regression', () {
+    testWidgets(
+      'explicit compact: false produces Sprint-2-identical strings (읽음 + 최근)',
+      (tester) async {
+        await tester.pumpWidget(
+          ProviderScope(
+            overrides: [
+              linkReadingStatsProvider.overrideWith(
+                (ref, linkId) async => ReadingStatsEntity(
+                  linkId: 'x',
+                  totalReads: 7,
+                  lastReadAt: DateTime(2026, 5, 10),
+                ),
+              ),
+            ],
+            child: const MaterialApp(
+              home: Scaffold(
+                // Default (compact omitted) pins Sprint-2 baseline behavior.
+                // If the default ever flips to compact: true, this test fails
+                // because '7회 읽음' substring would disappear.
+                body: ReadingStatsBadge(linkId: 'x'),
+              ),
+            ),
+          ),
+        );
+        await tester.pump();
+        await tester.pump(Duration.zero);
+
+        expect(find.textContaining('7회 읽음'), findsOneWidget);
+        expect(find.textContaining('최근'), findsOneWidget);
+        expect(find.text('아직 읽지 않음'), findsNothing);
+      },
+    );
+  });
 }

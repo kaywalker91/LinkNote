@@ -9,6 +9,8 @@ import 'package:linknote/features/collection/presentation/provider/collection_li
 import 'package:linknote/features/collection/presentation/provider/collection_list_provider.dart';
 import 'package:linknote/features/collection/presentation/screens/collection_detail_screen.dart';
 import 'package:linknote/features/link/domain/entity/link_entity.dart';
+import 'package:linknote/features/reading_stats/domain/entity/reading_stats_entity.dart';
+import 'package:linknote/features/reading_stats/presentation/provider/link_reading_stats_provider.dart';
 import 'package:linknote/shared/models/paginated_state.dart';
 
 class _LoadingCollectionDetail extends CollectionDetail {
@@ -97,6 +99,12 @@ class _StubCollectionList extends CollectionList {
   Future<void> deleteCollection(String id) async {}
 }
 
+/// Zero-stats override so LnLinkCard mini badge stays un-rendered (AC-9).
+// ignore: specify_nonobvious_property_types
+final _zeroStatsOverride = linkReadingStatsProvider.overrideWith(
+  (ref, linkId) async => const ReadingStatsEntity(linkId: ''),
+);
+
 void main() {
   final tCollection = CollectionEntity(
     id: 'c1',
@@ -129,6 +137,7 @@ void main() {
             collectionLinksProvider.overrideWith(
               (ref, id) => Completer<List<LinkEntity>>().future,
             ),
+            _zeroStatsOverride,
           ],
           child: const MaterialApp(
             home: CollectionDetailScreen(collectionId: 'c1'),
@@ -149,6 +158,7 @@ void main() {
             collectionLinksProvider.overrideWith(
               (ref, id) => Completer<List<LinkEntity>>().future,
             ),
+            _zeroStatsOverride,
           ],
           child: const MaterialApp(
             home: CollectionDetailScreen(collectionId: 'c1'),
@@ -172,6 +182,7 @@ void main() {
             ),
             collectionListProvider.overrideWith(_StubCollectionList.new),
             collectionLinksProvider.overrideWith((ref, id) async => tLinks),
+            _zeroStatsOverride,
           ],
           child: const MaterialApp(
             home: CollectionDetailScreen(collectionId: 'c1'),
@@ -194,6 +205,7 @@ void main() {
             ),
             collectionListProvider.overrideWith(_StubCollectionList.new),
             collectionLinksProvider.overrideWith((ref, id) async => tLinks),
+            _zeroStatsOverride,
           ],
           child: const MaterialApp(
             home: CollectionDetailScreen(collectionId: 'c1'),
@@ -216,6 +228,7 @@ void main() {
             ),
             collectionListProvider.overrideWith(_StubCollectionList.new),
             collectionLinksProvider.overrideWith((ref, id) async => tLinks),
+            _zeroStatsOverride,
           ],
           child: const MaterialApp(
             home: CollectionDetailScreen(collectionId: 'c1'),
@@ -297,6 +310,7 @@ void main() {
             ),
             collectionListProvider.overrideWith(_StubCollectionList.new),
             collectionLinksProvider.overrideWith((ref, id) async => []),
+            _zeroStatsOverride,
           ],
           child: const MaterialApp(
             home: CollectionDetailScreen(collectionId: 'c1'),

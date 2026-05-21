@@ -4,6 +4,76 @@
 
 ---
 
+## 2026-05-21 — Harness Planner Self-Validation 강화는 Round-1 에서 즉시 ROI 회수된다
+
+**무엇을 배웠나**: Session 57 의 Track B+ 사전 작업으로 글로벌 `~/.claude/agents/harness-planner.md` Self-Validation 에 F-Sprint2-4 (verified_canonical_evidence ERROR) + F-Sprint2-3 (silent-fallback widget test WARN) 두 jq 게이트를 신설. Sprint-3 Planner Round-1 에서 게이트가 4 prescriptive_test_snippets 의 evidence schema 를 실제 검증 (13 override refs / 4 evidence objects / {file, line, exact_match} 3 필드 의무) 했고, Sprint-2 의 3 라운드 family-arg over-specification 회귀가 0 라운드로 차단됐다. Mode A 도 2 라운드만에 confirm (Sprint-2 의 3 라운드보다 짧음 — wording-only revisions). Generator 가 canonical 2-arg `(ref, linkId) async => ...` 형식을 첫 시도에 정확히 채택.
+
+**근본 원인**: 메타-패턴 회귀 (family-arg / silent-fallback) 는 사람 리뷰어가 매 sprint 마다 같은 실수를 재확인해야 하는 비용이 컸다. Self-Validation jq 게이트로 변환 가능한 패턴은 Planner 가 contract 확정 전에 자동 reject 되어 사이클 비용이 사라진다.
+
+**예방 규칙**:
+- 메타-패턴 (3+ sprint 누적된 동일 카테고리 결함) 발견 시 글로벌 agent Self-Validation 강화로 영구화. ERROR/WARN 2 단계 적용 (mechanical 회귀는 ERROR, 컨텍스트 판단 필요한 회귀는 WARN).
+- 글로벌 agent 변경은 Phase 1 사전 작업으로 분리. Sprint 실행 sprint Contract 작성 시점부터 게이트 효과 발휘.
+- jq 게이트는 8 sanity 케이스 (positive 4 + negative 4) 로 검증 후 적용. negative 가 실제로 reject 되는지 확인 필수.
+
+---
+
+## 2026-05-21 — Harness 사이클의 stream idle timeout 은 부분 진행을 디스크로 보존한다
+
+**무엇을 배웠나**: Sprint-3 Planner 2회 stream idle timeout 발생 (Round-1: 22min/69 tool uses, Round-2: 10min/600s watchdog). 둘 다 핵심 산출물 (spec.md, contracts, impact-map, response.md) 은 timeout 직전에 이미 디스크에 저장됨. SendMessage 재개 또는 Orchestrator 직접 검증 (jq Self-Validation 재실행) 으로 다음 phase 진입 가능.
+
+**근본 원인**: Sub-agent 가 파일 기반 도구 (Write/Edit) 를 사용하면 핵심 산출물은 자동 영속화됨. timeout 은 stream 차원의 idle 감지로, 작업 자체 손실은 아님. 다만 final report (transcript-only) 는 timeout 시 잃을 수 있음.
+
+**예방 규칙**:
+- Sub-agent 호출 후 timeout 발생 시 (a) 디스크 상태 확인 → (b) 핵심 산출물 존재하면 Orchestrator 가 mechanical 검증 (jq, grep, test 실행) 으로 직접 보완 → (c) 부족한 부분만 SendMessage 로 finalize. 전체 재실행은 비용 큼.
+- Final report 가 transcript-only 인 정보는 별도 영속화 (예: handoff/sprint-N-handoff.md 파일) 로 보존. Sprint-3 hand-off 는 12KB 로 전체 산출 보존됨.
+- 글로벌 agent 시간이 30 분 넘는 작업은 분할 가능성 검토. Tier 2-3 작업은 시퀀스 길이 늘리지 말고 sprint 분할.
+
+---
+
+## 2026-05-14 — 누적 lesson 의 회귀는 grep script + CI step 으로 영구 차단
+
+**무엇을 배웠나**: Session 56 stocktake 에서 메모리 lessons (15건) 중 일부가 코드베이스에 잔존 위반으로 누적되고 있음을 발견. `on Exception catch` 가 Session 28 + 41 의 두 sweep 이후에도 34곳까지 다시 자라 있었다. 추가로 `parseRows` per-row tolerance 패턴(PR #26)이 Link 한 feature 에만 적용되어 Collection/Notification 은 같은 함정이 그대로 남아 있었다. 메모리 만으론 회귀 방지 부족.
+
+**근본 원인**: 메모리는 "원리" 를 기록하지만 코드베이스의 "현재 잔존 위반" 을 추적하지 않는다. 새 코드가 들어올 때 패턴 위반 여부를 검토하는 책임이 인간 리뷰어에게 100% 의존하면 누적되는 것이 자연스럽다.
+
+**해결책**: `tool/check_anti_patterns.sh` 를 만들어 grep 기반 카테고리별 게이트 추가. PR #39 에서 `.github/workflows/ci.yml` 의 analyze job 에 step 으로 연동.
+- Category A (FAIL): `AppColors` whitelist — 의도된 5 site 외에는 차단
+- Category B: `on Exception catch` — PR #39 시점 WARN(34건 카운트) → PR #40 의 sweep 후 ENFORCE=1 FAIL
+- 향후 카테고리 추가 시 `check_xxx()` 함수 + main 호출 추가만으로 확장 가능
+
+**예방 규칙**:
+- 메모리 lesson 이 누적되면 grep 으로 잔존 위반을 정량 측정 가능한지 먼저 확인. 가능하면 script + CI step 으로 영구화.
+- 신규 lesson 도입 시점에 같은 PR 안에서 script category 추가 가능한지 평가 (해당 lesson 이 mechanical 패턴이면 가능, semantic judgment 필요하면 불가능).
+- WARN → ENFORCE 2단계 승격 패턴: 잔존 위반 sweep 직후 같은 PR 에서 ENFORCE=1 로 flip. WARN 단계 길게 두지 말 것 (몇 PR 못 가서 카운트 증가).
+
+---
+
+## 2026-05-14 — 메모리 stale 판정은 grep 결과만 보면 오판한다
+
+**무엇을 배웠나**: Session 56 stocktake 중 두 메모리가 "stale" 처럼 보였으나 검증 결과 둘 다 유효했다.
+- `feedback_ci_dart_format` 의 "강화 권고: pre-push hook 자동화" — 실제로는 `.github/workflows/ci.yml:32-33` 에 dart format step 이 이미 적용된 상태. CI 강화는 이미 일부 달성됨.
+- `feedback_riverpod_async_notifier_inflight` — `grep AsyncNotifier lib --include='*.dart' | grep -v '.g.dart'` 가 0건 반환. 코드베이스에 패턴이 없는 것으로 잘못 결론. 실제로는 riverpod_generator 가 `.g.dart` 안에 출력하고, source code 는 `class X extends _$X` 패턴으로 작성됨. 사용처 8 generated provider 존재.
+
+**근본 원인**: 메모리 검증을 grep 한 번으로 끝내면 (a) 다른 곳에서 이미 해결된 것을 못 알아채거나 (b) generator/codegen 출력 형태로 존재하는 패턴을 놓친다.
+
+**예방 규칙**:
+- 메모리 stale 판정 전 최소 2가지 그렙 변형 시도: `.g.dart` 포함 + `.g.dart` 제외, source 패턴(`extends _\$`) + 키워드.
+- 메모리에 "강화 권고", "TODO", "후속" 같은 동작성 문구가 있으면 그 동작이 다른 PR 에서 이미 수행됐는지 git log 또는 파일 mtime 으로 확인.
+- 메모리 갱신 시 stale 한 권고는 "RESOLVED in PR #X (date)" 로 명시. 갱신 시점의 사실로 덮어쓰면 다음 검증자가 같은 시간 낭비를 한다.
+
+---
+
+## 2026-05-14 — 안정화 sprint 는 risk profile 분리해 3+ PR 분할
+
+**무엇을 배웠나**: Session 56 의 Stabilization Sprint 를 단일 PR 로 묶지 않고 risk profile 기준 3 PR 로 분할 (#39 인프라 + #40 semantic + #41 behavior). 각 PR 머지 후 다음 PR 의 baseline 이 명확했고, 회귀 추적·롤백 용이성이 확보됐다. PR 1 의 anti-pattern script 가 PR 2 의 sweep 결과를 ENFORCE 하는 layered 구조까지 가능.
+
+**예방 규칙**:
+- 안정화 / 리팩터링 sprint 는 변경의 risk profile 로 PR 을 나눈다: 인프라(CI/script) / semantic(catch type, error mapping) / behavior(데이터 흐름).
+- 같은 PR 안에 risk profile 이 다른 변경을 묶지 말 것 — 회귀 발생 시 어느 변경이 원인인지 추적 비용 큼.
+- PR 간 의존성 (`addBlockedBy`) 을 TaskCreate 단계에서 명시. 사용자가 수동 머지하는 환경에서도 머지 순서 보장.
+
+---
+
 ## 2026-04-12 — Stage 1 사전 검증이 플랜 방향을 바꾼다
 
 **무엇을 배웠나**: Wave 1 보안 리뷰가 도출한 6개 이슈에 대해 Stage 1(Research) 진입 전, 보고서의 "Unverified assumptions" 5건을 코드/SDK 소스/`gh api`로 직접 검증했더니 **3개 이슈의 픽스 방향이 달라졌다.**

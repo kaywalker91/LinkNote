@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:linknote/app/theme/app_palette.dart';
 import 'package:linknote/features/link/domain/entity/link_entity.dart';
+import 'package:linknote/features/reading_stats/domain/entity/reading_stats_entity.dart';
+import 'package:linknote/features/reading_stats/presentation/provider/link_reading_stats_provider.dart';
 import 'package:linknote/shared/widgets/ln/ln_link_card.dart';
 
 LinkEntity _link({
@@ -18,7 +21,14 @@ LinkEntity _link({
 }
 
 Widget _wrap(Widget child) {
-  return MaterialApp(home: Scaffold(body: child));
+  return ProviderScope(
+    overrides: [
+      linkReadingStatsProvider.overrideWith(
+        (ref, linkId) async => const ReadingStatsEntity(linkId: ''),
+      ),
+    ],
+    child: MaterialApp(home: Scaffold(body: child)),
+  );
 }
 
 void main() {

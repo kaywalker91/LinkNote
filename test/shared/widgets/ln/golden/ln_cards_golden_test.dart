@@ -3,10 +3,13 @@
 // ignore_for_file: discarded_futures
 
 import 'package:alchemist/alchemist.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:linknote/features/collection/domain/entity/collection_entity.dart';
 import 'package:linknote/features/link/domain/entity/link_entity.dart';
 import 'package:linknote/features/link/domain/entity/tag_entity.dart';
+import 'package:linknote/features/reading_stats/domain/entity/reading_stats_entity.dart';
+import 'package:linknote/features/reading_stats/presentation/provider/link_reading_stats_provider.dart';
 import 'package:linknote/shared/widgets/ln/ln_collection_card.dart';
 import 'package:linknote/shared/widgets/ln/ln_link_card.dart';
 
@@ -73,7 +76,14 @@ void main() {
             child: themedScenario(
               dark: false,
               width: 380,
-              child: LnLinkCard(link: link),
+              child: ProviderScope(
+                overrides: [
+                  linkReadingStatsProvider.overrideWith(
+                    (ref, linkId) async => const ReadingStatsEntity(linkId: ''),
+                  ),
+                ],
+                child: LnLinkCard(link: link),
+              ),
             ),
           ),
           GoldenTestScenario(
@@ -81,7 +91,14 @@ void main() {
             child: themedScenario(
               dark: true,
               width: 380,
-              child: LnLinkCard(link: link),
+              child: ProviderScope(
+                overrides: [
+                  linkReadingStatsProvider.overrideWith(
+                    (ref, linkId) async => const ReadingStatsEntity(linkId: ''),
+                  ),
+                ],
+                child: LnLinkCard(link: link),
+              ),
             ),
           ),
         ],
