@@ -14,6 +14,8 @@ class CollectionMapper {
       linkCount: linkCount,
       createdAt: DateTime.parse(dto.createdAt),
       updatedAt: DateTime.parse(dto.updatedAt),
+      visibility: dto.visibility,
+      lockedAt: dto.lockedAt,
     );
   }
 

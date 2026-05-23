@@ -291,4 +291,68 @@ void main() {
       verify(() => mockBox.clear()).called(1);
     });
   });
+
+  // ---------------------------------------------------------------------------
+  // AC-6: backward-compat — old cached map missing visibility/lockedAt keys
+  // ---------------------------------------------------------------------------
+  group('backward-compat: visibility/lockedAt missing from old cache', () {
+    test(
+      'should deserialize to visibility==private and lockedAt==null '
+      'when old cached map is missing both keys',
+      () {
+        // Arrange — map without visibility or lockedAt (legacy cache entry)
+        final oldMap = <dynamic, dynamic>{
+          'id': 'col-old',
+          'name': 'Old Collection',
+          'createdAt': '2026-01-01T00:00:00.000',
+          'updatedAt': '2026-01-01T00:00:00.000',
+          'linkCount': 2,
+        };
+        when(() => mockBox.get('col-old')).thenReturn(oldMap);
+
+        // Act — goes through CollectionEntity.fromJson directly (line 97)
+        final result = sut.getCachedCollectionById('col-old');
+
+        // Assert
+        expect(result.isSuccess, isTrue);
+        expect(
+          result.data!.visibility,
+          CollectionVisibility.private,
+        );
+        expect(result.data!.lockedAt, isNull);
+      },
+    );
+  });
+
+  // ---------------------------------------------------------------------------
+  // AC-9: forward-compat — unknown enum value graceful fallback
+  // ---------------------------------------------------------------------------
+  group('forward-compat: unknown visibility value in cache', () {
+    test(
+      'should deserialize visibility to private when cached map has '
+      "unknown value 'unlisted'",
+      () {
+        // Arrange — future entry with a value this client doesn't know
+        final futureMap = <dynamic, dynamic>{
+          'id': 'col-future',
+          'name': 'Future Collection',
+          'createdAt': '2026-01-01T00:00:00.000',
+          'updatedAt': '2026-01-01T00:00:00.000',
+          'linkCount': 0,
+          'visibility': 'unlisted',
+        };
+        when(() => mockBox.get('col-future')).thenReturn(futureMap);
+
+        // Act
+        final result = sut.getCachedCollectionById('col-future');
+
+        // Assert — must NOT throw; must fall back to private
+        expect(result.isSuccess, isTrue);
+        expect(
+          result.data!.visibility,
+          CollectionVisibility.private,
+        );
+      },
+    );
+  });
 }
