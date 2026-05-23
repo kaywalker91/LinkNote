@@ -16,6 +16,16 @@ _LinkEntity _$LinkEntityFromJson(Map<String, dynamic> json) => _LinkEntity(
   thumbnailUrl: json['thumbnailUrl'] as String?,
   collectionId: json['collectionId'] as String?,
   collectionName: json['collectionName'] as String?,
+  collectionVisibility:
+      $enumDecodeNullable(
+        _$CollectionVisibilityEnumMap,
+        json['collectionVisibility'],
+        unknownValue: CollectionVisibility.private,
+      ) ??
+      CollectionVisibility.private,
+  collectionLockedAt: json['collectionLockedAt'] == null
+      ? null
+      : DateTime.parse(json['collectionLockedAt'] as String),
   memo: json['memo'] as String?,
   tags:
       (json['tags'] as List<dynamic>?)
@@ -36,7 +46,15 @@ Map<String, dynamic> _$LinkEntityToJson(_LinkEntity instance) =>
       'thumbnailUrl': instance.thumbnailUrl,
       'collectionId': instance.collectionId,
       'collectionName': instance.collectionName,
+      'collectionVisibility':
+          _$CollectionVisibilityEnumMap[instance.collectionVisibility]!,
+      'collectionLockedAt': instance.collectionLockedAt?.toIso8601String(),
       'memo': instance.memo,
       'tags': instance.tags,
       'isFavorite': instance.isFavorite,
     };
+
+const _$CollectionVisibilityEnumMap = {
+  CollectionVisibility.public: 'public',
+  CollectionVisibility.private: 'private',
+};

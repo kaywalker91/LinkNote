@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:linknote/app/theme/app_text_styles.dart';
+import 'package:linknote/features/collection/domain/entity/collection_entity.dart';
 import 'package:linknote/features/link/domain/entity/link_entity.dart';
 import 'package:linknote/features/reading_stats/presentation/widget/reading_stats_badge.dart';
 import 'package:linknote/shared/extensions/context_extensions.dart';
@@ -108,6 +109,7 @@ class LnLinkCard extends ConsumerWidget {
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
+              ..._visibilityPills(context),
             ],
           ),
         ],
@@ -184,6 +186,54 @@ class LnLinkCard extends ConsumerWidget {
             onPressed: onMoreTap,
           ),
       ],
+    );
+  }
+
+  // Visual indicator only — NOT access control. A Lock pill does not gate
+  // entry; real enforcement (backend RLS / biometric / PIN) is a separate
+  // track. These pills only surface the parent collection's state.
+  List<Widget> _visibilityPills(BuildContext context) {
+    final palette = context.palette;
+    return [
+      if (link.collectionVisibility == CollectionVisibility.public)
+        _pill(
+          icon: Icons.public,
+          bg: palette.forestSoft,
+          fg: palette.forestInk,
+          label: 'Public collection',
+        ),
+      if (link.collectionLockedAt != null)
+        _pill(
+          icon: Icons.lock_outline,
+          bg: palette.slateSoft,
+          fg: palette.slate,
+          label: 'Locked collection',
+        ),
+    ];
+  }
+
+  Widget _pill({
+    required IconData icon,
+    required Color bg,
+    required Color fg,
+    required String label,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 6),
+      child: Tooltip(
+        message: label,
+        child: Semantics(
+          label: label,
+          child: Container(
+            padding: const EdgeInsets.all(3),
+            decoration: BoxDecoration(
+              color: bg,
+              borderRadius: BorderRadius.circular(6),
+            ),
+            child: Icon(icon, size: 12, color: fg),
+          ),
+        ),
+      ),
     );
   }
 

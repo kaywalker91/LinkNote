@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:linknote/features/collection/domain/entity/collection_entity.dart';
 import 'package:linknote/features/link/data/dto/link_dto.dart';
 import 'package:linknote/features/link/data/mapper/link_mapper.dart';
 import 'package:linknote/features/link/domain/entity/link_entity.dart';
@@ -31,7 +32,7 @@ void main() {
             tags: TagDto(id: 'tag-2', name: 'dart', color: '#66BB6A'),
           ),
         ],
-        collections: CollectionNameDto(name: 'Dev Resources'),
+        collections: CollectionRefDto(name: 'Dev Resources'),
       );
 
       // Act
@@ -123,6 +124,78 @@ void main() {
       expect(entity.memo, isNull);
       expect(entity.isFavorite, isFalse);
       expect(entity.tags, isEmpty);
+    });
+
+    test('should default visibility to private when collection is null', () {
+      const dto = LinkDto(
+        id: 'dto-id',
+        userId: 'user-1',
+        url: 'https://example.com',
+        title: 'No collection',
+        createdAt: '2026-01-01T00:00:00.000Z',
+        updatedAt: '2026-01-01T00:00:00.000Z',
+      );
+
+      final entity = LinkMapper.toEntity(dto);
+
+      expect(entity.collectionVisibility, CollectionVisibility.private);
+      expect(entity.collectionLockedAt, isNull);
+    });
+
+    test('should map collection visibility and lockedAt when present', () {
+      final dto = LinkDto(
+        id: 'dto-id',
+        userId: 'user-1',
+        url: 'https://example.com',
+        title: 'Public locked',
+        createdAt: '2026-01-01T00:00:00.000Z',
+        updatedAt: '2026-01-01T00:00:00.000Z',
+        collections: CollectionRefDto(
+          name: 'Shared',
+          visibility: CollectionVisibility.public,
+          lockedAt: DateTime.utc(2026, 5),
+        ),
+      );
+
+      final entity = LinkMapper.toEntity(dto);
+
+      expect(entity.collectionVisibility, CollectionVisibility.public);
+      expect(entity.collectionLockedAt, DateTime.utc(2026, 5));
+    });
+  });
+
+  // ---------------------------------------------------------------------------
+  // CollectionRefDto.fromJson — backward compatibility (select not yet widened)
+  // ---------------------------------------------------------------------------
+  group('CollectionRefDto.fromJson', () {
+    test('defaults visibility/lockedAt when keys are absent', () {
+      // Mirrors the current `collections(name)` join before the SELECT is
+      // widened: only `name` is present.
+      final dto = CollectionRefDto.fromJson(<String, dynamic>{'name': 'Dev'});
+
+      expect(dto.name, 'Dev');
+      expect(dto.visibility, CollectionVisibility.private);
+      expect(dto.lockedAt, isNull);
+    });
+
+    test('parses visibility/locked_at when present', () {
+      final dto = CollectionRefDto.fromJson(<String, dynamic>{
+        'name': 'Dev',
+        'visibility': 'public',
+        'locked_at': '2026-05-01T00:00:00.000Z',
+      });
+
+      expect(dto.visibility, CollectionVisibility.public);
+      expect(dto.lockedAt, DateTime.utc(2026, 5));
+    });
+
+    test('falls back to private on an unknown visibility value', () {
+      final dto = CollectionRefDto.fromJson(<String, dynamic>{
+        'name': 'Dev',
+        'visibility': 'unlisted',
+      });
+
+      expect(dto.visibility, CollectionVisibility.private);
     });
   });
 

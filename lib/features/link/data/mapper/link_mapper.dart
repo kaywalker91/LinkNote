@@ -1,3 +1,4 @@
+import 'package:linknote/features/collection/domain/entity/collection_entity.dart';
 import 'package:linknote/features/link/data/dto/link_dto.dart';
 import 'package:linknote/features/link/domain/entity/link_entity.dart';
 import 'package:linknote/features/link/domain/entity/tag_entity.dart';
@@ -19,6 +20,9 @@ class LinkMapper {
       thumbnailUrl: dto.thumbnailUrl,
       collectionId: dto.collectionId,
       collectionName: dto.collections?.name,
+      collectionVisibility:
+          dto.collections?.visibility ?? CollectionVisibility.private,
+      collectionLockedAt: dto.collections?.lockedAt,
       memo: dto.memo,
       isFavorite: dto.isFavorite,
       tags: dto.linkTags

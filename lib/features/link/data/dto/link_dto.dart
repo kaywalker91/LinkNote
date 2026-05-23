@@ -1,4 +1,5 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:linknote/features/collection/domain/entity/collection_entity.dart';
 
 part 'link_dto.freezed.dart';
 part 'link_dto.g.dart';
@@ -18,7 +19,7 @@ abstract class LinkDto with _$LinkDto {
     String? memo,
     @JsonKey(name: 'is_favorite') @Default(false) bool isFavorite,
     @JsonKey(name: 'link_tags') @Default([]) List<LinkTagDto> linkTags,
-    CollectionNameDto? collections,
+    CollectionRefDto? collections,
   }) = _LinkDto;
 
   factory LinkDto.fromJson(Map<String, dynamic> json) =>
@@ -50,12 +51,21 @@ abstract class TagDto with _$TagDto {
   factory TagDto.fromJson(Map<String, dynamic> json) => _$TagDtoFromJson(json);
 }
 
+/// Nested collection reference embedded in a link's `collections(...)` join.
+///
+/// `visibility`/`lockedAt` are only populated once the SELECT join is widened
+/// to `collections(name, visibility, locked_at)`. Until then (or for old
+/// cached rows) the keys are absent and resolve to the safe defaults below.
 @freezed
-abstract class CollectionNameDto with _$CollectionNameDto {
-  const factory CollectionNameDto({
+abstract class CollectionRefDto with _$CollectionRefDto {
+  const factory CollectionRefDto({
     required String name,
-  }) = _CollectionNameDto;
+    @JsonKey(unknownEnumValue: CollectionVisibility.private)
+    @Default(CollectionVisibility.private)
+    CollectionVisibility visibility,
+    @JsonKey(name: 'locked_at') DateTime? lockedAt,
+  }) = _CollectionRefDto;
 
-  factory CollectionNameDto.fromJson(Map<String, dynamic> json) =>
-      _$CollectionNameDtoFromJson(json);
+  factory CollectionRefDto.fromJson(Map<String, dynamic> json) =>
+      _$CollectionRefDtoFromJson(json);
 }

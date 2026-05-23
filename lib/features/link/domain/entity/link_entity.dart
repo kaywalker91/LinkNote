@@ -1,4 +1,5 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:linknote/features/collection/domain/entity/collection_entity.dart';
 import 'package:linknote/features/link/domain/entity/tag_entity.dart';
 
 part 'link_entity.freezed.dart';
@@ -16,6 +17,12 @@ abstract class LinkEntity with _$LinkEntity {
     String? thumbnailUrl,
     String? collectionId,
     String? collectionName,
+    // Denormalized from the parent collection. Defaults keep old cached rows
+    // (missing keys) and links without a collection on the safe `private` path.
+    @JsonKey(unknownEnumValue: CollectionVisibility.private)
+    @Default(CollectionVisibility.private)
+    CollectionVisibility collectionVisibility,
+    DateTime? collectionLockedAt,
     String? memo,
     @Default([]) List<TagEntity> tags,
     @Default(false) bool isFavorite,

@@ -15,7 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$LinkDto {
 
- String get id;@JsonKey(name: 'user_id') String get userId; String get url; String get title;@JsonKey(name: 'created_at') String get createdAt;@JsonKey(name: 'updated_at') String get updatedAt; String? get description;@JsonKey(name: 'thumbnail_url') String? get thumbnailUrl;@JsonKey(name: 'collection_id') String? get collectionId; String? get memo;@JsonKey(name: 'is_favorite') bool get isFavorite;@JsonKey(name: 'link_tags') List<LinkTagDto> get linkTags; CollectionNameDto? get collections;
+ String get id;@JsonKey(name: 'user_id') String get userId; String get url; String get title;@JsonKey(name: 'created_at') String get createdAt;@JsonKey(name: 'updated_at') String get updatedAt; String? get description;@JsonKey(name: 'thumbnail_url') String? get thumbnailUrl;@JsonKey(name: 'collection_id') String? get collectionId; String? get memo;@JsonKey(name: 'is_favorite') bool get isFavorite;@JsonKey(name: 'link_tags') List<LinkTagDto> get linkTags; CollectionRefDto? get collections;
 /// Create a copy of LinkDto
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -48,11 +48,11 @@ abstract mixin class $LinkDtoCopyWith<$Res>  {
   factory $LinkDtoCopyWith(LinkDto value, $Res Function(LinkDto) _then) = _$LinkDtoCopyWithImpl;
 @useResult
 $Res call({
- String id,@JsonKey(name: 'user_id') String userId, String url, String title,@JsonKey(name: 'created_at') String createdAt,@JsonKey(name: 'updated_at') String updatedAt, String? description,@JsonKey(name: 'thumbnail_url') String? thumbnailUrl,@JsonKey(name: 'collection_id') String? collectionId, String? memo,@JsonKey(name: 'is_favorite') bool isFavorite,@JsonKey(name: 'link_tags') List<LinkTagDto> linkTags, CollectionNameDto? collections
+ String id,@JsonKey(name: 'user_id') String userId, String url, String title,@JsonKey(name: 'created_at') String createdAt,@JsonKey(name: 'updated_at') String updatedAt, String? description,@JsonKey(name: 'thumbnail_url') String? thumbnailUrl,@JsonKey(name: 'collection_id') String? collectionId, String? memo,@JsonKey(name: 'is_favorite') bool isFavorite,@JsonKey(name: 'link_tags') List<LinkTagDto> linkTags, CollectionRefDto? collections
 });
 
 
-$CollectionNameDtoCopyWith<$Res>? get collections;
+$CollectionRefDtoCopyWith<$Res>? get collections;
 
 }
 /// @nodoc
@@ -80,19 +80,19 @@ as String?,memo: freezed == memo ? _self.memo : memo // ignore: cast_nullable_to
 as String?,isFavorite: null == isFavorite ? _self.isFavorite : isFavorite // ignore: cast_nullable_to_non_nullable
 as bool,linkTags: null == linkTags ? _self.linkTags : linkTags // ignore: cast_nullable_to_non_nullable
 as List<LinkTagDto>,collections: freezed == collections ? _self.collections : collections // ignore: cast_nullable_to_non_nullable
-as CollectionNameDto?,
+as CollectionRefDto?,
   ));
 }
 /// Create a copy of LinkDto
 /// with the given fields replaced by the non-null parameter values.
 @override
 @pragma('vm:prefer-inline')
-$CollectionNameDtoCopyWith<$Res>? get collections {
+$CollectionRefDtoCopyWith<$Res>? get collections {
     if (_self.collections == null) {
     return null;
   }
 
-  return $CollectionNameDtoCopyWith<$Res>(_self.collections!, (value) {
+  return $CollectionRefDtoCopyWith<$Res>(_self.collections!, (value) {
     return _then(_self.copyWith(collections: value));
   });
 }
@@ -177,7 +177,7 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id, @JsonKey(name: 'user_id')  String userId,  String url,  String title, @JsonKey(name: 'created_at')  String createdAt, @JsonKey(name: 'updated_at')  String updatedAt,  String? description, @JsonKey(name: 'thumbnail_url')  String? thumbnailUrl, @JsonKey(name: 'collection_id')  String? collectionId,  String? memo, @JsonKey(name: 'is_favorite')  bool isFavorite, @JsonKey(name: 'link_tags')  List<LinkTagDto> linkTags,  CollectionNameDto? collections)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id, @JsonKey(name: 'user_id')  String userId,  String url,  String title, @JsonKey(name: 'created_at')  String createdAt, @JsonKey(name: 'updated_at')  String updatedAt,  String? description, @JsonKey(name: 'thumbnail_url')  String? thumbnailUrl, @JsonKey(name: 'collection_id')  String? collectionId,  String? memo, @JsonKey(name: 'is_favorite')  bool isFavorite, @JsonKey(name: 'link_tags')  List<LinkTagDto> linkTags,  CollectionRefDto? collections)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _LinkDto() when $default != null:
 return $default(_that.id,_that.userId,_that.url,_that.title,_that.createdAt,_that.updatedAt,_that.description,_that.thumbnailUrl,_that.collectionId,_that.memo,_that.isFavorite,_that.linkTags,_that.collections);case _:
@@ -198,7 +198,7 @@ return $default(_that.id,_that.userId,_that.url,_that.title,_that.createdAt,_tha
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id, @JsonKey(name: 'user_id')  String userId,  String url,  String title, @JsonKey(name: 'created_at')  String createdAt, @JsonKey(name: 'updated_at')  String updatedAt,  String? description, @JsonKey(name: 'thumbnail_url')  String? thumbnailUrl, @JsonKey(name: 'collection_id')  String? collectionId,  String? memo, @JsonKey(name: 'is_favorite')  bool isFavorite, @JsonKey(name: 'link_tags')  List<LinkTagDto> linkTags,  CollectionNameDto? collections)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id, @JsonKey(name: 'user_id')  String userId,  String url,  String title, @JsonKey(name: 'created_at')  String createdAt, @JsonKey(name: 'updated_at')  String updatedAt,  String? description, @JsonKey(name: 'thumbnail_url')  String? thumbnailUrl, @JsonKey(name: 'collection_id')  String? collectionId,  String? memo, @JsonKey(name: 'is_favorite')  bool isFavorite, @JsonKey(name: 'link_tags')  List<LinkTagDto> linkTags,  CollectionRefDto? collections)  $default,) {final _that = this;
 switch (_that) {
 case _LinkDto():
 return $default(_that.id,_that.userId,_that.url,_that.title,_that.createdAt,_that.updatedAt,_that.description,_that.thumbnailUrl,_that.collectionId,_that.memo,_that.isFavorite,_that.linkTags,_that.collections);case _:
@@ -218,7 +218,7 @@ return $default(_that.id,_that.userId,_that.url,_that.title,_that.createdAt,_tha
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id, @JsonKey(name: 'user_id')  String userId,  String url,  String title, @JsonKey(name: 'created_at')  String createdAt, @JsonKey(name: 'updated_at')  String updatedAt,  String? description, @JsonKey(name: 'thumbnail_url')  String? thumbnailUrl, @JsonKey(name: 'collection_id')  String? collectionId,  String? memo, @JsonKey(name: 'is_favorite')  bool isFavorite, @JsonKey(name: 'link_tags')  List<LinkTagDto> linkTags,  CollectionNameDto? collections)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id, @JsonKey(name: 'user_id')  String userId,  String url,  String title, @JsonKey(name: 'created_at')  String createdAt, @JsonKey(name: 'updated_at')  String updatedAt,  String? description, @JsonKey(name: 'thumbnail_url')  String? thumbnailUrl, @JsonKey(name: 'collection_id')  String? collectionId,  String? memo, @JsonKey(name: 'is_favorite')  bool isFavorite, @JsonKey(name: 'link_tags')  List<LinkTagDto> linkTags,  CollectionRefDto? collections)?  $default,) {final _that = this;
 switch (_that) {
 case _LinkDto() when $default != null:
 return $default(_that.id,_that.userId,_that.url,_that.title,_that.createdAt,_that.updatedAt,_that.description,_that.thumbnailUrl,_that.collectionId,_that.memo,_that.isFavorite,_that.linkTags,_that.collections);case _:
@@ -254,7 +254,7 @@ class _LinkDto implements LinkDto {
   return EqualUnmodifiableListView(_linkTags);
 }
 
-@override final  CollectionNameDto? collections;
+@override final  CollectionRefDto? collections;
 
 /// Create a copy of LinkDto
 /// with the given fields replaced by the non-null parameter values.
@@ -289,11 +289,11 @@ abstract mixin class _$LinkDtoCopyWith<$Res> implements $LinkDtoCopyWith<$Res> {
   factory _$LinkDtoCopyWith(_LinkDto value, $Res Function(_LinkDto) _then) = __$LinkDtoCopyWithImpl;
 @override @useResult
 $Res call({
- String id,@JsonKey(name: 'user_id') String userId, String url, String title,@JsonKey(name: 'created_at') String createdAt,@JsonKey(name: 'updated_at') String updatedAt, String? description,@JsonKey(name: 'thumbnail_url') String? thumbnailUrl,@JsonKey(name: 'collection_id') String? collectionId, String? memo,@JsonKey(name: 'is_favorite') bool isFavorite,@JsonKey(name: 'link_tags') List<LinkTagDto> linkTags, CollectionNameDto? collections
+ String id,@JsonKey(name: 'user_id') String userId, String url, String title,@JsonKey(name: 'created_at') String createdAt,@JsonKey(name: 'updated_at') String updatedAt, String? description,@JsonKey(name: 'thumbnail_url') String? thumbnailUrl,@JsonKey(name: 'collection_id') String? collectionId, String? memo,@JsonKey(name: 'is_favorite') bool isFavorite,@JsonKey(name: 'link_tags') List<LinkTagDto> linkTags, CollectionRefDto? collections
 });
 
 
-@override $CollectionNameDtoCopyWith<$Res>? get collections;
+@override $CollectionRefDtoCopyWith<$Res>? get collections;
 
 }
 /// @nodoc
@@ -321,7 +321,7 @@ as String?,memo: freezed == memo ? _self.memo : memo // ignore: cast_nullable_to
 as String?,isFavorite: null == isFavorite ? _self.isFavorite : isFavorite // ignore: cast_nullable_to_non_nullable
 as bool,linkTags: null == linkTags ? _self._linkTags : linkTags // ignore: cast_nullable_to_non_nullable
 as List<LinkTagDto>,collections: freezed == collections ? _self.collections : collections // ignore: cast_nullable_to_non_nullable
-as CollectionNameDto?,
+as CollectionRefDto?,
   ));
 }
 
@@ -329,12 +329,12 @@ as CollectionNameDto?,
 /// with the given fields replaced by the non-null parameter values.
 @override
 @pragma('vm:prefer-inline')
-$CollectionNameDtoCopyWith<$Res>? get collections {
+$CollectionRefDtoCopyWith<$Res>? get collections {
     if (_self.collections == null) {
     return null;
   }
 
-  return $CollectionNameDtoCopyWith<$Res>(_self.collections!, (value) {
+  return $CollectionRefDtoCopyWith<$Res>(_self.collections!, (value) {
     return _then(_self.copyWith(collections: value));
   });
 }
@@ -906,42 +906,42 @@ as String,
 
 
 /// @nodoc
-mixin _$CollectionNameDto {
+mixin _$CollectionRefDto {
 
- String get name;
-/// Create a copy of CollectionNameDto
+ String get name;@JsonKey(unknownEnumValue: CollectionVisibility.private) CollectionVisibility get visibility;@JsonKey(name: 'locked_at') DateTime? get lockedAt;
+/// Create a copy of CollectionRefDto
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
 @pragma('vm:prefer-inline')
-$CollectionNameDtoCopyWith<CollectionNameDto> get copyWith => _$CollectionNameDtoCopyWithImpl<CollectionNameDto>(this as CollectionNameDto, _$identity);
+$CollectionRefDtoCopyWith<CollectionRefDto> get copyWith => _$CollectionRefDtoCopyWithImpl<CollectionRefDto>(this as CollectionRefDto, _$identity);
 
-  /// Serializes this CollectionNameDto to a JSON map.
+  /// Serializes this CollectionRefDto to a JSON map.
   Map<String, dynamic> toJson();
 
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is CollectionNameDto&&(identical(other.name, name) || other.name == name));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is CollectionRefDto&&(identical(other.name, name) || other.name == name)&&(identical(other.visibility, visibility) || other.visibility == visibility)&&(identical(other.lockedAt, lockedAt) || other.lockedAt == lockedAt));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,name);
+int get hashCode => Object.hash(runtimeType,name,visibility,lockedAt);
 
 @override
 String toString() {
-  return 'CollectionNameDto(name: $name)';
+  return 'CollectionRefDto(name: $name, visibility: $visibility, lockedAt: $lockedAt)';
 }
 
 
 }
 
 /// @nodoc
-abstract mixin class $CollectionNameDtoCopyWith<$Res>  {
-  factory $CollectionNameDtoCopyWith(CollectionNameDto value, $Res Function(CollectionNameDto) _then) = _$CollectionNameDtoCopyWithImpl;
+abstract mixin class $CollectionRefDtoCopyWith<$Res>  {
+  factory $CollectionRefDtoCopyWith(CollectionRefDto value, $Res Function(CollectionRefDto) _then) = _$CollectionRefDtoCopyWithImpl;
 @useResult
 $Res call({
- String name
+ String name,@JsonKey(unknownEnumValue: CollectionVisibility.private) CollectionVisibility visibility,@JsonKey(name: 'locked_at') DateTime? lockedAt
 });
 
 
@@ -949,27 +949,29 @@ $Res call({
 
 }
 /// @nodoc
-class _$CollectionNameDtoCopyWithImpl<$Res>
-    implements $CollectionNameDtoCopyWith<$Res> {
-  _$CollectionNameDtoCopyWithImpl(this._self, this._then);
+class _$CollectionRefDtoCopyWithImpl<$Res>
+    implements $CollectionRefDtoCopyWith<$Res> {
+  _$CollectionRefDtoCopyWithImpl(this._self, this._then);
 
-  final CollectionNameDto _self;
-  final $Res Function(CollectionNameDto) _then;
+  final CollectionRefDto _self;
+  final $Res Function(CollectionRefDto) _then;
 
-/// Create a copy of CollectionNameDto
+/// Create a copy of CollectionRefDto
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? name = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? name = null,Object? visibility = null,Object? lockedAt = freezed,}) {
   return _then(_self.copyWith(
 name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
-as String,
+as String,visibility: null == visibility ? _self.visibility : visibility // ignore: cast_nullable_to_non_nullable
+as CollectionVisibility,lockedAt: freezed == lockedAt ? _self.lockedAt : lockedAt // ignore: cast_nullable_to_non_nullable
+as DateTime?,
   ));
 }
 
 }
 
 
-/// Adds pattern-matching-related methods to [CollectionNameDto].
-extension CollectionNameDtoPatterns on CollectionNameDto {
+/// Adds pattern-matching-related methods to [CollectionRefDto].
+extension CollectionRefDtoPatterns on CollectionRefDto {
 /// A variant of `map` that fallback to returning `orElse`.
 ///
 /// It is equivalent to doing:
@@ -982,10 +984,10 @@ extension CollectionNameDtoPatterns on CollectionNameDto {
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _CollectionNameDto value)?  $default,{required TResult orElse(),}){
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _CollectionRefDto value)?  $default,{required TResult orElse(),}){
 final _that = this;
 switch (_that) {
-case _CollectionNameDto() when $default != null:
+case _CollectionRefDto() when $default != null:
 return $default(_that);case _:
   return orElse();
 
@@ -1004,10 +1006,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _CollectionNameDto value)  $default,){
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _CollectionRefDto value)  $default,){
 final _that = this;
 switch (_that) {
-case _CollectionNameDto():
+case _CollectionRefDto():
 return $default(_that);case _:
   throw StateError('Unexpected subclass');
 
@@ -1025,10 +1027,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _CollectionNameDto value)?  $default,){
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _CollectionRefDto value)?  $default,){
 final _that = this;
 switch (_that) {
-case _CollectionNameDto() when $default != null:
+case _CollectionRefDto() when $default != null:
 return $default(_that);case _:
   return null;
 
@@ -1046,10 +1048,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String name)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String name, @JsonKey(unknownEnumValue: CollectionVisibility.private)  CollectionVisibility visibility, @JsonKey(name: 'locked_at')  DateTime? lockedAt)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
-case _CollectionNameDto() when $default != null:
-return $default(_that.name);case _:
+case _CollectionRefDto() when $default != null:
+return $default(_that.name,_that.visibility,_that.lockedAt);case _:
   return orElse();
 
 }
@@ -1067,10 +1069,10 @@ return $default(_that.name);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String name)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String name, @JsonKey(unknownEnumValue: CollectionVisibility.private)  CollectionVisibility visibility, @JsonKey(name: 'locked_at')  DateTime? lockedAt)  $default,) {final _that = this;
 switch (_that) {
-case _CollectionNameDto():
-return $default(_that.name);case _:
+case _CollectionRefDto():
+return $default(_that.name,_that.visibility,_that.lockedAt);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -1087,10 +1089,10 @@ return $default(_that.name);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String name)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String name, @JsonKey(unknownEnumValue: CollectionVisibility.private)  CollectionVisibility visibility, @JsonKey(name: 'locked_at')  DateTime? lockedAt)?  $default,) {final _that = this;
 switch (_that) {
-case _CollectionNameDto() when $default != null:
-return $default(_that.name);case _:
+case _CollectionRefDto() when $default != null:
+return $default(_that.name,_that.visibility,_that.lockedAt);case _:
   return null;
 
 }
@@ -1101,46 +1103,48 @@ return $default(_that.name);case _:
 /// @nodoc
 @JsonSerializable()
 
-class _CollectionNameDto implements CollectionNameDto {
-  const _CollectionNameDto({required this.name});
-  factory _CollectionNameDto.fromJson(Map<String, dynamic> json) => _$CollectionNameDtoFromJson(json);
+class _CollectionRefDto implements CollectionRefDto {
+  const _CollectionRefDto({required this.name, @JsonKey(unknownEnumValue: CollectionVisibility.private) this.visibility = CollectionVisibility.private, @JsonKey(name: 'locked_at') this.lockedAt});
+  factory _CollectionRefDto.fromJson(Map<String, dynamic> json) => _$CollectionRefDtoFromJson(json);
 
 @override final  String name;
+@override@JsonKey(unknownEnumValue: CollectionVisibility.private) final  CollectionVisibility visibility;
+@override@JsonKey(name: 'locked_at') final  DateTime? lockedAt;
 
-/// Create a copy of CollectionNameDto
+/// Create a copy of CollectionRefDto
 /// with the given fields replaced by the non-null parameter values.
 @override @JsonKey(includeFromJson: false, includeToJson: false)
 @pragma('vm:prefer-inline')
-_$CollectionNameDtoCopyWith<_CollectionNameDto> get copyWith => __$CollectionNameDtoCopyWithImpl<_CollectionNameDto>(this, _$identity);
+_$CollectionRefDtoCopyWith<_CollectionRefDto> get copyWith => __$CollectionRefDtoCopyWithImpl<_CollectionRefDto>(this, _$identity);
 
 @override
 Map<String, dynamic> toJson() {
-  return _$CollectionNameDtoToJson(this, );
+  return _$CollectionRefDtoToJson(this, );
 }
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _CollectionNameDto&&(identical(other.name, name) || other.name == name));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _CollectionRefDto&&(identical(other.name, name) || other.name == name)&&(identical(other.visibility, visibility) || other.visibility == visibility)&&(identical(other.lockedAt, lockedAt) || other.lockedAt == lockedAt));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,name);
+int get hashCode => Object.hash(runtimeType,name,visibility,lockedAt);
 
 @override
 String toString() {
-  return 'CollectionNameDto(name: $name)';
+  return 'CollectionRefDto(name: $name, visibility: $visibility, lockedAt: $lockedAt)';
 }
 
 
 }
 
 /// @nodoc
-abstract mixin class _$CollectionNameDtoCopyWith<$Res> implements $CollectionNameDtoCopyWith<$Res> {
-  factory _$CollectionNameDtoCopyWith(_CollectionNameDto value, $Res Function(_CollectionNameDto) _then) = __$CollectionNameDtoCopyWithImpl;
+abstract mixin class _$CollectionRefDtoCopyWith<$Res> implements $CollectionRefDtoCopyWith<$Res> {
+  factory _$CollectionRefDtoCopyWith(_CollectionRefDto value, $Res Function(_CollectionRefDto) _then) = __$CollectionRefDtoCopyWithImpl;
 @override @useResult
 $Res call({
- String name
+ String name,@JsonKey(unknownEnumValue: CollectionVisibility.private) CollectionVisibility visibility,@JsonKey(name: 'locked_at') DateTime? lockedAt
 });
 
 
@@ -1148,19 +1152,21 @@ $Res call({
 
 }
 /// @nodoc
-class __$CollectionNameDtoCopyWithImpl<$Res>
-    implements _$CollectionNameDtoCopyWith<$Res> {
-  __$CollectionNameDtoCopyWithImpl(this._self, this._then);
+class __$CollectionRefDtoCopyWithImpl<$Res>
+    implements _$CollectionRefDtoCopyWith<$Res> {
+  __$CollectionRefDtoCopyWithImpl(this._self, this._then);
 
-  final _CollectionNameDto _self;
-  final $Res Function(_CollectionNameDto) _then;
+  final _CollectionRefDto _self;
+  final $Res Function(_CollectionRefDto) _then;
 
-/// Create a copy of CollectionNameDto
+/// Create a copy of CollectionRefDto
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? name = null,}) {
-  return _then(_CollectionNameDto(
+@override @pragma('vm:prefer-inline') $Res call({Object? name = null,Object? visibility = null,Object? lockedAt = freezed,}) {
+  return _then(_CollectionRefDto(
 name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
-as String,
+as String,visibility: null == visibility ? _self.visibility : visibility // ignore: cast_nullable_to_non_nullable
+as CollectionVisibility,lockedAt: freezed == lockedAt ? _self.lockedAt : lockedAt // ignore: cast_nullable_to_non_nullable
+as DateTime?,
   ));
 }
 
