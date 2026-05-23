@@ -1,0 +1,45 @@
+name: Regenerate Goldens (Linux baseline)
+
+on:
+  workflow_dispatch:
+
+env:
+  FLUTTER_VERSION: '3.41.4'
+
+jobs:
+  regenerate:
+    name: Regenerate ci/ goldens on ubuntu-latest
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Create env files for code generation
+        run: |
+          echo "SUPABASE_URL=https://placeholder.supabase.co" > .env.dev
+          echo "SUPABASE_ANON_KEY=placeholder-key" >> .env.dev
+          cp .env.dev .env.staging
+          cp .env.dev .env.prod
+
+      - name: Run code generation
+        run: dart run build_runner build --delete-conflicting-outputs
+
+      - name: Regenerate golden baselines (ci/)
+        env:
+          CI: 'true'
+        run: flutter test --tags golden --update-goldens
+
+      - name: Upload regenerated goldens
+        uses: actions/upload-artifact@v4
+        with:
+          name: goldens-ci-linux
+          path: test/shared/widgets/ln/golden/goldens/ci/*.png
+          if-no-files-found: error
+          retention-days: 7
