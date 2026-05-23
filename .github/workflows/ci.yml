@@ -54,12 +54,7 @@ jobs:
         run: flutter pub get
 
       - name: Run tests with coverage
-        # Goldens are excluded until a Linux baseline is generated. The current
-        # `goldens/ci/*.png` files were rendered on macOS and produce ~0.5-0.7%
-        # pixel diff against Linux Skia even with alchemist's Ahem-font CI
-        # config. Local `flutter test` still enforces them. Tracked in
-        # docs/daily_task_log/2026-05-02_session51.md (Out of scope).
-        run: flutter test --coverage --exclude-tags golden
+        run: flutter test --coverage
 
       - name: Check coverage thresholds
         run: |
