@@ -25,7 +25,7 @@ _LinkDto _$LinkDtoFromJson(Map<String, dynamic> json) => _LinkDto(
       const [],
   collections: json['collections'] == null
       ? null
-      : CollectionNameDto.fromJson(json['collections'] as Map<String, dynamic>),
+      : CollectionRefDto.fromJson(json['collections'] as Map<String, dynamic>),
 );
 
 Map<String, dynamic> _$LinkDtoToJson(_LinkDto instance) => <String, dynamic>{
@@ -65,8 +65,29 @@ Map<String, dynamic> _$TagDtoToJson(_TagDto instance) => <String, dynamic>{
   'color': instance.color,
 };
 
-_CollectionNameDto _$CollectionNameDtoFromJson(Map<String, dynamic> json) =>
-    _CollectionNameDto(name: json['name'] as String);
+_CollectionRefDto _$CollectionRefDtoFromJson(Map<String, dynamic> json) =>
+    _CollectionRefDto(
+      name: json['name'] as String,
+      visibility:
+          $enumDecodeNullable(
+            _$CollectionVisibilityEnumMap,
+            json['visibility'],
+            unknownValue: CollectionVisibility.private,
+          ) ??
+          CollectionVisibility.private,
+      lockedAt: json['locked_at'] == null
+          ? null
+          : DateTime.parse(json['locked_at'] as String),
+    );
 
-Map<String, dynamic> _$CollectionNameDtoToJson(_CollectionNameDto instance) =>
-    <String, dynamic>{'name': instance.name};
+Map<String, dynamic> _$CollectionRefDtoToJson(_CollectionRefDto instance) =>
+    <String, dynamic>{
+      'name': instance.name,
+      'visibility': _$CollectionVisibilityEnumMap[instance.visibility]!,
+      'locked_at': instance.lockedAt?.toIso8601String(),
+    };
+
+const _$CollectionVisibilityEnumMap = {
+  CollectionVisibility.public: 'public',
+  CollectionVisibility.private: 'private',
+};

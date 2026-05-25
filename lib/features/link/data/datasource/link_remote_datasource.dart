@@ -15,7 +15,7 @@ class LinkRemoteDataSource {
   static const _selectQuery = '''
     *,
     link_tags(tags(*)),
-    collections(name)
+    collections(name, visibility, locked_at)
   ''';
 
   /// Maps Supabase row maps into [LinkEntity] instances per-item, so a single

@@ -36,7 +36,7 @@ class SearchRemoteDataSource {
       var queryBuilder = _client.from('links').select('''
             *,
             link_tags(tags(*)),
-            collections(name)
+            collections(name, visibility, locked_at)
           ''');
 
       if (tsQuery.isNotEmpty) {

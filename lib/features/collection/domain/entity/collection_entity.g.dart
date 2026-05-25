@@ -15,6 +15,16 @@ _CollectionEntity _$CollectionEntityFromJson(Map<String, dynamic> json) =>
       description: json['description'] as String?,
       coverImageUrl: json['coverImageUrl'] as String?,
       linkCount: (json['linkCount'] as num?)?.toInt() ?? 0,
+      visibility:
+          $enumDecodeNullable(
+            _$CollectionVisibilityEnumMap,
+            json['visibility'],
+            unknownValue: CollectionVisibility.private,
+          ) ??
+          CollectionVisibility.private,
+      lockedAt: json['lockedAt'] == null
+          ? null
+          : DateTime.parse(json['lockedAt'] as String),
     );
 
 Map<String, dynamic> _$CollectionEntityToJson(_CollectionEntity instance) =>
@@ -26,4 +36,11 @@ Map<String, dynamic> _$CollectionEntityToJson(_CollectionEntity instance) =>
       'description': instance.description,
       'coverImageUrl': instance.coverImageUrl,
       'linkCount': instance.linkCount,
+      'visibility': _$CollectionVisibilityEnumMap[instance.visibility]!,
+      'lockedAt': instance.lockedAt?.toIso8601String(),
     };
+
+const _$CollectionVisibilityEnumMap = {
+  CollectionVisibility.public: 'public',
+  CollectionVisibility.private: 'private',
+};

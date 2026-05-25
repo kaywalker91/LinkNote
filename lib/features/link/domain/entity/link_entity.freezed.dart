@@ -15,7 +15,9 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$LinkEntity {
 
- String get id; String get url; String get title; DateTime get createdAt; DateTime get updatedAt; String? get description; String? get thumbnailUrl; String? get collectionId; String? get collectionName; String? get memo; List<TagEntity> get tags; bool get isFavorite;
+ String get id; String get url; String get title; DateTime get createdAt; DateTime get updatedAt; String? get description; String? get thumbnailUrl; String? get collectionId; String? get collectionName;// Denormalized from the parent collection. Defaults keep old cached rows
+// (missing keys) and links without a collection on the safe `private` path.
+@JsonKey(unknownEnumValue: CollectionVisibility.private) CollectionVisibility get collectionVisibility; DateTime? get collectionLockedAt; String? get memo; List<TagEntity> get tags; bool get isFavorite;
 /// Create a copy of LinkEntity
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -28,16 +30,16 @@ $LinkEntityCopyWith<LinkEntity> get copyWith => _$LinkEntityCopyWithImpl<LinkEnt
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is LinkEntity&&(identical(other.id, id) || other.id == id)&&(identical(other.url, url) || other.url == url)&&(identical(other.title, title) || other.title == title)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt)&&(identical(other.description, description) || other.description == description)&&(identical(other.thumbnailUrl, thumbnailUrl) || other.thumbnailUrl == thumbnailUrl)&&(identical(other.collectionId, collectionId) || other.collectionId == collectionId)&&(identical(other.collectionName, collectionName) || other.collectionName == collectionName)&&(identical(other.memo, memo) || other.memo == memo)&&const DeepCollectionEquality().equals(other.tags, tags)&&(identical(other.isFavorite, isFavorite) || other.isFavorite == isFavorite));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is LinkEntity&&(identical(other.id, id) || other.id == id)&&(identical(other.url, url) || other.url == url)&&(identical(other.title, title) || other.title == title)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt)&&(identical(other.description, description) || other.description == description)&&(identical(other.thumbnailUrl, thumbnailUrl) || other.thumbnailUrl == thumbnailUrl)&&(identical(other.collectionId, collectionId) || other.collectionId == collectionId)&&(identical(other.collectionName, collectionName) || other.collectionName == collectionName)&&(identical(other.collectionVisibility, collectionVisibility) || other.collectionVisibility == collectionVisibility)&&(identical(other.collectionLockedAt, collectionLockedAt) || other.collectionLockedAt == collectionLockedAt)&&(identical(other.memo, memo) || other.memo == memo)&&const DeepCollectionEquality().equals(other.tags, tags)&&(identical(other.isFavorite, isFavorite) || other.isFavorite == isFavorite));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,url,title,createdAt,updatedAt,description,thumbnailUrl,collectionId,collectionName,memo,const DeepCollectionEquality().hash(tags),isFavorite);
+int get hashCode => Object.hash(runtimeType,id,url,title,createdAt,updatedAt,description,thumbnailUrl,collectionId,collectionName,collectionVisibility,collectionLockedAt,memo,const DeepCollectionEquality().hash(tags),isFavorite);
 
 @override
 String toString() {
-  return 'LinkEntity(id: $id, url: $url, title: $title, createdAt: $createdAt, updatedAt: $updatedAt, description: $description, thumbnailUrl: $thumbnailUrl, collectionId: $collectionId, collectionName: $collectionName, memo: $memo, tags: $tags, isFavorite: $isFavorite)';
+  return 'LinkEntity(id: $id, url: $url, title: $title, createdAt: $createdAt, updatedAt: $updatedAt, description: $description, thumbnailUrl: $thumbnailUrl, collectionId: $collectionId, collectionName: $collectionName, collectionVisibility: $collectionVisibility, collectionLockedAt: $collectionLockedAt, memo: $memo, tags: $tags, isFavorite: $isFavorite)';
 }
 
 
@@ -48,7 +50,7 @@ abstract mixin class $LinkEntityCopyWith<$Res>  {
   factory $LinkEntityCopyWith(LinkEntity value, $Res Function(LinkEntity) _then) = _$LinkEntityCopyWithImpl;
 @useResult
 $Res call({
- String id, String url, String title, DateTime createdAt, DateTime updatedAt, String? description, String? thumbnailUrl, String? collectionId, String? collectionName, String? memo, List<TagEntity> tags, bool isFavorite
+ String id, String url, String title, DateTime createdAt, DateTime updatedAt, String? description, String? thumbnailUrl, String? collectionId, String? collectionName,@JsonKey(unknownEnumValue: CollectionVisibility.private) CollectionVisibility collectionVisibility, DateTime? collectionLockedAt, String? memo, List<TagEntity> tags, bool isFavorite
 });
 
 
@@ -65,7 +67,7 @@ class _$LinkEntityCopyWithImpl<$Res>
 
 /// Create a copy of LinkEntity
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? url = null,Object? title = null,Object? createdAt = null,Object? updatedAt = null,Object? description = freezed,Object? thumbnailUrl = freezed,Object? collectionId = freezed,Object? collectionName = freezed,Object? memo = freezed,Object? tags = null,Object? isFavorite = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? url = null,Object? title = null,Object? createdAt = null,Object? updatedAt = null,Object? description = freezed,Object? thumbnailUrl = freezed,Object? collectionId = freezed,Object? collectionName = freezed,Object? collectionVisibility = null,Object? collectionLockedAt = freezed,Object? memo = freezed,Object? tags = null,Object? isFavorite = null,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,url: null == url ? _self.url : url // ignore: cast_nullable_to_non_nullable
@@ -76,7 +78,9 @@ as DateTime,description: freezed == description ? _self.description : descriptio
 as String?,thumbnailUrl: freezed == thumbnailUrl ? _self.thumbnailUrl : thumbnailUrl // ignore: cast_nullable_to_non_nullable
 as String?,collectionId: freezed == collectionId ? _self.collectionId : collectionId // ignore: cast_nullable_to_non_nullable
 as String?,collectionName: freezed == collectionName ? _self.collectionName : collectionName // ignore: cast_nullable_to_non_nullable
-as String?,memo: freezed == memo ? _self.memo : memo // ignore: cast_nullable_to_non_nullable
+as String?,collectionVisibility: null == collectionVisibility ? _self.collectionVisibility : collectionVisibility // ignore: cast_nullable_to_non_nullable
+as CollectionVisibility,collectionLockedAt: freezed == collectionLockedAt ? _self.collectionLockedAt : collectionLockedAt // ignore: cast_nullable_to_non_nullable
+as DateTime?,memo: freezed == memo ? _self.memo : memo // ignore: cast_nullable_to_non_nullable
 as String?,tags: null == tags ? _self.tags : tags // ignore: cast_nullable_to_non_nullable
 as List<TagEntity>,isFavorite: null == isFavorite ? _self.isFavorite : isFavorite // ignore: cast_nullable_to_non_nullable
 as bool,
@@ -164,10 +168,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String url,  String title,  DateTime createdAt,  DateTime updatedAt,  String? description,  String? thumbnailUrl,  String? collectionId,  String? collectionName,  String? memo,  List<TagEntity> tags,  bool isFavorite)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String url,  String title,  DateTime createdAt,  DateTime updatedAt,  String? description,  String? thumbnailUrl,  String? collectionId,  String? collectionName, @JsonKey(unknownEnumValue: CollectionVisibility.private)  CollectionVisibility collectionVisibility,  DateTime? collectionLockedAt,  String? memo,  List<TagEntity> tags,  bool isFavorite)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _LinkEntity() when $default != null:
-return $default(_that.id,_that.url,_that.title,_that.createdAt,_that.updatedAt,_that.description,_that.thumbnailUrl,_that.collectionId,_that.collectionName,_that.memo,_that.tags,_that.isFavorite);case _:
+return $default(_that.id,_that.url,_that.title,_that.createdAt,_that.updatedAt,_that.description,_that.thumbnailUrl,_that.collectionId,_that.collectionName,_that.collectionVisibility,_that.collectionLockedAt,_that.memo,_that.tags,_that.isFavorite);case _:
   return orElse();
 
 }
@@ -185,10 +189,10 @@ return $default(_that.id,_that.url,_that.title,_that.createdAt,_that.updatedAt,_
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String url,  String title,  DateTime createdAt,  DateTime updatedAt,  String? description,  String? thumbnailUrl,  String? collectionId,  String? collectionName,  String? memo,  List<TagEntity> tags,  bool isFavorite)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String url,  String title,  DateTime createdAt,  DateTime updatedAt,  String? description,  String? thumbnailUrl,  String? collectionId,  String? collectionName, @JsonKey(unknownEnumValue: CollectionVisibility.private)  CollectionVisibility collectionVisibility,  DateTime? collectionLockedAt,  String? memo,  List<TagEntity> tags,  bool isFavorite)  $default,) {final _that = this;
 switch (_that) {
 case _LinkEntity():
-return $default(_that.id,_that.url,_that.title,_that.createdAt,_that.updatedAt,_that.description,_that.thumbnailUrl,_that.collectionId,_that.collectionName,_that.memo,_that.tags,_that.isFavorite);case _:
+return $default(_that.id,_that.url,_that.title,_that.createdAt,_that.updatedAt,_that.description,_that.thumbnailUrl,_that.collectionId,_that.collectionName,_that.collectionVisibility,_that.collectionLockedAt,_that.memo,_that.tags,_that.isFavorite);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -205,10 +209,10 @@ return $default(_that.id,_that.url,_that.title,_that.createdAt,_that.updatedAt,_
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String url,  String title,  DateTime createdAt,  DateTime updatedAt,  String? description,  String? thumbnailUrl,  String? collectionId,  String? collectionName,  String? memo,  List<TagEntity> tags,  bool isFavorite)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String url,  String title,  DateTime createdAt,  DateTime updatedAt,  String? description,  String? thumbnailUrl,  String? collectionId,  String? collectionName, @JsonKey(unknownEnumValue: CollectionVisibility.private)  CollectionVisibility collectionVisibility,  DateTime? collectionLockedAt,  String? memo,  List<TagEntity> tags,  bool isFavorite)?  $default,) {final _that = this;
 switch (_that) {
 case _LinkEntity() when $default != null:
-return $default(_that.id,_that.url,_that.title,_that.createdAt,_that.updatedAt,_that.description,_that.thumbnailUrl,_that.collectionId,_that.collectionName,_that.memo,_that.tags,_that.isFavorite);case _:
+return $default(_that.id,_that.url,_that.title,_that.createdAt,_that.updatedAt,_that.description,_that.thumbnailUrl,_that.collectionId,_that.collectionName,_that.collectionVisibility,_that.collectionLockedAt,_that.memo,_that.tags,_that.isFavorite);case _:
   return null;
 
 }
@@ -220,7 +224,7 @@ return $default(_that.id,_that.url,_that.title,_that.createdAt,_that.updatedAt,_
 @JsonSerializable()
 
 class _LinkEntity implements LinkEntity {
-  const _LinkEntity({required this.id, required this.url, required this.title, required this.createdAt, required this.updatedAt, this.description, this.thumbnailUrl, this.collectionId, this.collectionName, this.memo, final  List<TagEntity> tags = const [], this.isFavorite = false}): _tags = tags;
+  const _LinkEntity({required this.id, required this.url, required this.title, required this.createdAt, required this.updatedAt, this.description, this.thumbnailUrl, this.collectionId, this.collectionName, @JsonKey(unknownEnumValue: CollectionVisibility.private) this.collectionVisibility = CollectionVisibility.private, this.collectionLockedAt, this.memo, final  List<TagEntity> tags = const [], this.isFavorite = false}): _tags = tags;
   factory _LinkEntity.fromJson(Map<String, dynamic> json) => _$LinkEntityFromJson(json);
 
 @override final  String id;
@@ -232,6 +236,10 @@ class _LinkEntity implements LinkEntity {
 @override final  String? thumbnailUrl;
 @override final  String? collectionId;
 @override final  String? collectionName;
+// Denormalized from the parent collection. Defaults keep old cached rows
+// (missing keys) and links without a collection on the safe `private` path.
+@override@JsonKey(unknownEnumValue: CollectionVisibility.private) final  CollectionVisibility collectionVisibility;
+@override final  DateTime? collectionLockedAt;
 @override final  String? memo;
  final  List<TagEntity> _tags;
 @override@JsonKey() List<TagEntity> get tags {
@@ -255,16 +263,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _LinkEntity&&(identical(other.id, id) || other.id == id)&&(identical(other.url, url) || other.url == url)&&(identical(other.title, title) || other.title == title)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt)&&(identical(other.description, description) || other.description == description)&&(identical(other.thumbnailUrl, thumbnailUrl) || other.thumbnailUrl == thumbnailUrl)&&(identical(other.collectionId, collectionId) || other.collectionId == collectionId)&&(identical(other.collectionName, collectionName) || other.collectionName == collectionName)&&(identical(other.memo, memo) || other.memo == memo)&&const DeepCollectionEquality().equals(other._tags, _tags)&&(identical(other.isFavorite, isFavorite) || other.isFavorite == isFavorite));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _LinkEntity&&(identical(other.id, id) || other.id == id)&&(identical(other.url, url) || other.url == url)&&(identical(other.title, title) || other.title == title)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt)&&(identical(other.description, description) || other.description == description)&&(identical(other.thumbnailUrl, thumbnailUrl) || other.thumbnailUrl == thumbnailUrl)&&(identical(other.collectionId, collectionId) || other.collectionId == collectionId)&&(identical(other.collectionName, collectionName) || other.collectionName == collectionName)&&(identical(other.collectionVisibility, collectionVisibility) || other.collectionVisibility == collectionVisibility)&&(identical(other.collectionLockedAt, collectionLockedAt) || other.collectionLockedAt == collectionLockedAt)&&(identical(other.memo, memo) || other.memo == memo)&&const DeepCollectionEquality().equals(other._tags, _tags)&&(identical(other.isFavorite, isFavorite) || other.isFavorite == isFavorite));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,url,title,createdAt,updatedAt,description,thumbnailUrl,collectionId,collectionName,memo,const DeepCollectionEquality().hash(_tags),isFavorite);
+int get hashCode => Object.hash(runtimeType,id,url,title,createdAt,updatedAt,description,thumbnailUrl,collectionId,collectionName,collectionVisibility,collectionLockedAt,memo,const DeepCollectionEquality().hash(_tags),isFavorite);
 
 @override
 String toString() {
-  return 'LinkEntity(id: $id, url: $url, title: $title, createdAt: $createdAt, updatedAt: $updatedAt, description: $description, thumbnailUrl: $thumbnailUrl, collectionId: $collectionId, collectionName: $collectionName, memo: $memo, tags: $tags, isFavorite: $isFavorite)';
+  return 'LinkEntity(id: $id, url: $url, title: $title, createdAt: $createdAt, updatedAt: $updatedAt, description: $description, thumbnailUrl: $thumbnailUrl, collectionId: $collectionId, collectionName: $collectionName, collectionVisibility: $collectionVisibility, collectionLockedAt: $collectionLockedAt, memo: $memo, tags: $tags, isFavorite: $isFavorite)';
 }
 
 
@@ -275,7 +283,7 @@ abstract mixin class _$LinkEntityCopyWith<$Res> implements $LinkEntityCopyWith<$
   factory _$LinkEntityCopyWith(_LinkEntity value, $Res Function(_LinkEntity) _then) = __$LinkEntityCopyWithImpl;
 @override @useResult
 $Res call({
- String id, String url, String title, DateTime createdAt, DateTime updatedAt, String? description, String? thumbnailUrl, String? collectionId, String? collectionName, String? memo, List<TagEntity> tags, bool isFavorite
+ String id, String url, String title, DateTime createdAt, DateTime updatedAt, String? description, String? thumbnailUrl, String? collectionId, String? collectionName,@JsonKey(unknownEnumValue: CollectionVisibility.private) CollectionVisibility collectionVisibility, DateTime? collectionLockedAt, String? memo, List<TagEntity> tags, bool isFavorite
 });
 
 
@@ -292,7 +300,7 @@ class __$LinkEntityCopyWithImpl<$Res>
 
 /// Create a copy of LinkEntity
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? url = null,Object? title = null,Object? createdAt = null,Object? updatedAt = null,Object? description = freezed,Object? thumbnailUrl = freezed,Object? collectionId = freezed,Object? collectionName = freezed,Object? memo = freezed,Object? tags = null,Object? isFavorite = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? url = null,Object? title = null,Object? createdAt = null,Object? updatedAt = null,Object? description = freezed,Object? thumbnailUrl = freezed,Object? collectionId = freezed,Object? collectionName = freezed,Object? collectionVisibility = null,Object? collectionLockedAt = freezed,Object? memo = freezed,Object? tags = null,Object? isFavorite = null,}) {
   return _then(_LinkEntity(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,url: null == url ? _self.url : url // ignore: cast_nullable_to_non_nullable
@@ -303,7 +311,9 @@ as DateTime,description: freezed == description ? _self.description : descriptio
 as String?,thumbnailUrl: freezed == thumbnailUrl ? _self.thumbnailUrl : thumbnailUrl // ignore: cast_nullable_to_non_nullable
 as String?,collectionId: freezed == collectionId ? _self.collectionId : collectionId // ignore: cast_nullable_to_non_nullable
 as String?,collectionName: freezed == collectionName ? _self.collectionName : collectionName // ignore: cast_nullable_to_non_nullable
-as String?,memo: freezed == memo ? _self.memo : memo // ignore: cast_nullable_to_non_nullable
+as String?,collectionVisibility: null == collectionVisibility ? _self.collectionVisibility : collectionVisibility // ignore: cast_nullable_to_non_nullable
+as CollectionVisibility,collectionLockedAt: freezed == collectionLockedAt ? _self.collectionLockedAt : collectionLockedAt // ignore: cast_nullable_to_non_nullable
+as DateTime?,memo: freezed == memo ? _self.memo : memo // ignore: cast_nullable_to_non_nullable
 as String?,tags: null == tags ? _self._tags : tags // ignore: cast_nullable_to_non_nullable
 as List<TagEntity>,isFavorite: null == isFavorite ? _self.isFavorite : isFavorite // ignore: cast_nullable_to_non_nullable
 as bool,

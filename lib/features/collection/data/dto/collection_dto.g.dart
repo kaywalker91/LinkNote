@@ -20,6 +20,16 @@ _CollectionDto _$CollectionDtoFromJson(Map<String, dynamic> json) =>
               ?.map((e) => LinkCountDto.fromJson(e as Map<String, dynamic>))
               .toList() ??
           const [],
+      visibility:
+          $enumDecodeNullable(
+            _$CollectionVisibilityEnumMap,
+            json['visibility'],
+            unknownValue: CollectionVisibility.private,
+          ) ??
+          CollectionVisibility.private,
+      lockedAt: json['locked_at'] == null
+          ? null
+          : DateTime.parse(json['locked_at'] as String),
     );
 
 Map<String, dynamic> _$CollectionDtoToJson(_CollectionDto instance) =>
@@ -32,7 +42,14 @@ Map<String, dynamic> _$CollectionDtoToJson(_CollectionDto instance) =>
       'description': instance.description,
       'cover_image_url': instance.coverImageUrl,
       'links': instance.links,
+      'visibility': _$CollectionVisibilityEnumMap[instance.visibility]!,
+      'locked_at': instance.lockedAt?.toIso8601String(),
     };
+
+const _$CollectionVisibilityEnumMap = {
+  CollectionVisibility.public: 'public',
+  CollectionVisibility.private: 'private',
+};
 
 _LinkCountDto _$LinkCountDtoFromJson(Map<String, dynamic> json) =>
     _LinkCountDto(count: (json['count'] as num).toInt());

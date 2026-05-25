@@ -1,4 +1,5 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:linknote/features/collection/domain/entity/collection_entity.dart';
 
 part 'collection_dto.freezed.dart';
 part 'collection_dto.g.dart';
@@ -14,6 +15,10 @@ abstract class CollectionDto with _$CollectionDto {
     String? description,
     @JsonKey(name: 'cover_image_url') String? coverImageUrl,
     @Default([]) List<LinkCountDto> links,
+    @JsonKey(unknownEnumValue: CollectionVisibility.private)
+    @Default(CollectionVisibility.private)
+    CollectionVisibility visibility,
+    @JsonKey(name: 'locked_at') DateTime? lockedAt,
   }) = _CollectionDto;
 
   factory CollectionDto.fromJson(Map<String, dynamic> json) =>

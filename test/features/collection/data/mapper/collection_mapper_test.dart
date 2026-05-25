@@ -64,6 +64,34 @@ void main() {
     },
   );
 
+  // AC-4: toEntity maps visibility and lockedAt
+  test(
+    'toEntity: maps visibility and lockedAt from dto to entity',
+    () {
+      final tLockedAt = DateTime.utc(2026, 3, 15);
+      final dtoWithVisibility = tDto.copyWith(
+        visibility: CollectionVisibility.public,
+        lockedAt: tLockedAt,
+      );
+
+      final result = CollectionMapper.toEntity(dtoWithVisibility);
+
+      expect(result.visibility, CollectionVisibility.public);
+      expect(result.lockedAt, tLockedAt);
+    },
+  );
+
+  test(
+    'toEntity: defaults visibility to private and lockedAt to null '
+    'when dto has default values',
+    () {
+      final result = CollectionMapper.toEntity(tDto);
+
+      expect(result.visibility, CollectionVisibility.private);
+      expect(result.lockedAt, isNull);
+    },
+  );
+
   test(
     'toInsertJson: includes userId and name, excludes id',
     () {
@@ -72,6 +100,17 @@ void main() {
       expect(json['user_id'], 'user-123');
       expect(json['name'], tEntity.name);
       expect(json.containsKey('id'), isFalse);
+    },
+  );
+
+  // AC-5: toInsertJson must NOT contain visibility or locked_at
+  test(
+    'toInsertJson: does not contain visibility or locked_at keys',
+    () {
+      final json = CollectionMapper.toInsertJson(tEntity, 'user-123');
+
+      expect(json.containsKey('visibility'), isFalse);
+      expect(json.containsKey('locked_at'), isFalse);
     },
   );
 
@@ -84,6 +123,17 @@ void main() {
       expect(json.containsKey('updated_at'), isTrue);
       expect(json.containsKey('id'), isFalse);
       expect(json.containsKey('user_id'), isFalse);
+    },
+  );
+
+  // AC-5: toUpdateJson must NOT contain visibility or locked_at
+  test(
+    'toUpdateJson: does not contain visibility or locked_at keys',
+    () {
+      final json = CollectionMapper.toUpdateJson(tEntity);
+
+      expect(json.containsKey('visibility'), isFalse);
+      expect(json.containsKey('locked_at'), isFalse);
     },
   );
 }
