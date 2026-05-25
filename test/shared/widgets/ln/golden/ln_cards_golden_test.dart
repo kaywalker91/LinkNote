@@ -3,6 +3,7 @@
 // ignore_for_file: discarded_futures
 
 import 'package:alchemist/alchemist.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:linknote/features/collection/domain/entity/collection_entity.dart';
@@ -28,6 +29,15 @@ void main() {
       TagEntity(id: 't2', name: 'docs', color: '#A78BFA'),
     ],
     isFavorite: true,
+  );
+
+  // Pill variants: the base `link` is private + unlocked, so neither pill
+  // renders. These cover the Globe (public) and Lock (lockedAt) render paths.
+  final publicLink = link.copyWith(
+    collectionVisibility: CollectionVisibility.public,
+  );
+  final lockedLink = link.copyWith(
+    collectionLockedAt: DateTime.utc(2026),
   );
 
   // Pin id strings so toneForId hash maps to each tone deterministically.
@@ -100,6 +110,46 @@ void main() {
                 child: LnLinkCard(link: link),
               ),
             ),
+          ),
+        ],
+      ),
+    );
+
+    Widget pillScenario({required bool dark, required LinkEntity card}) =>
+        themedScenario(
+          dark: dark,
+          width: 380,
+          child: ProviderScope(
+            overrides: [
+              linkReadingStatsProvider.overrideWith(
+                (ref, linkId) async => const ReadingStatsEntity(linkId: ''),
+              ),
+            ],
+            child: LnLinkCard(link: card),
+          ),
+        );
+
+    goldenTest(
+      'LnLinkCard pills — public/locked × light/dark',
+      fileName: 'ln_link_card_pills',
+      builder: () => GoldenTestGroup(
+        columns: 1,
+        children: [
+          GoldenTestScenario(
+            name: 'public (Globe) / light',
+            child: pillScenario(dark: false, card: publicLink),
+          ),
+          GoldenTestScenario(
+            name: 'public (Globe) / dark',
+            child: pillScenario(dark: true, card: publicLink),
+          ),
+          GoldenTestScenario(
+            name: 'locked (Lock) / light',
+            child: pillScenario(dark: false, card: lockedLink),
+          ),
+          GoldenTestScenario(
+            name: 'locked (Lock) / dark',
+            child: pillScenario(dark: true, card: lockedLink),
           ),
         ],
       ),

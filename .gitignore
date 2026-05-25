@@ -70,5 +70,8 @@ docs/work_performance/
 **/goldens/linux
 **/goldens/windows
 
+# Alchemist failure diffs (regenerated on every failing run)
+test/**/failures/**/*.*
+
 # Harness v2.1 runs (validation artifacts)
 .claude/harness/runs/
