@@ -74,8 +74,7 @@ class LinkLocalDataSource implements IClearableCache {
     try {
       final now = DateTime.now().toIso8601String();
       final entries = <String, Map<String, dynamic>>{
-        for (final link in links)
-          link.id: {..._entityToMap(link), '_cachedAt': now},
+        for (final link in links) link.id: {...link.toJson(), '_cachedAt': now},
       };
       await _box.putAll(entries);
       await _trimCache();
@@ -87,7 +86,7 @@ class LinkLocalDataSource implements IClearableCache {
 
   Future<void> cacheSingleLink(LinkEntity link) async {
     try {
-      final map = _entityToMap(link);
+      final map = link.toJson();
       map['_cachedAt'] = DateTime.now().toIso8601String();
       await _box.put(link.id, map);
       await _trimCache();
@@ -141,15 +140,6 @@ class LinkLocalDataSource implements IClearableCache {
     } on Object {
       return null;
     }
-  }
-
-  Map<String, dynamic> _entityToMap(LinkEntity entity) {
-    // Boundary fix: LinkEntity.toJson() leaves nested TagEntity instances
-    // as-is (no `explicitToJson: true`), which Hive cannot serialize
-    // (`HiveError: Cannot write, unknown type: _TagEntity`).
-    final map = entity.toJson();
-    map['tags'] = entity.tags.map((t) => t.toJson()).toList();
-    return map;
   }
 
   /// Keeps only the most recent [_maxCacheSize] links by cache-write time.

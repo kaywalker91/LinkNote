@@ -1,0 +1,12 @@
+# build_runner configuration.
+#
+# explicit_to_json: emit `.toJson()` for nested objects in generated `toJson`
+# (e.g. LinkEntity.tags -> List<Map>) instead of leaving raw instances that
+# Hive/jsonEncode cannot serialise. This makes correct nested serialisation
+# the structural default and removes the need for per-call boundary fixes.
+targets:
+  $default:
+    builders:
+      json_serializable:
+        options:
+          explicit_to_json: true
