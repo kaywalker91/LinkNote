@@ -72,10 +72,7 @@ class Auth extends _$Auth with ChangeNotifier {
       state = AsyncData(result.data!);
       notifyListeners();
     } else {
-      state = AsyncError(
-        result.failure?.message ?? 'Sign in failed',
-        StackTrace.current,
-      );
+      state = AsyncError(result.failure!, StackTrace.current);
     }
   }
 
@@ -94,10 +91,7 @@ class Auth extends _$Auth with ChangeNotifier {
       state = AsyncData(result.data!);
       notifyListeners();
     } else {
-      state = AsyncError(
-        result.failure?.message ?? 'Sign up failed',
-        StackTrace.current,
-      );
+      state = AsyncError(result.failure!, StackTrace.current);
     }
   }
 
@@ -107,10 +101,7 @@ class Auth extends _$Auth with ChangeNotifier {
       state = const AsyncData(AuthStateEntity.unauthenticated());
       notifyListeners();
     } else {
-      state = AsyncError(
-        result.failure?.message ?? 'Sign out failed',
-        StackTrace.current,
-      );
+      state = AsyncError(result.failure!, StackTrace.current);
     }
   }
 
