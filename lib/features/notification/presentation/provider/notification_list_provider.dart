@@ -20,9 +20,7 @@ class NotificationList extends _$NotificationList {
         .read(fetchNotificationsUsecaseProvider)
         .call(cursor: cursor);
     if (result.isSuccess) return result.data!;
-    throw Exception(
-      result.failure?.message ?? 'Failed to fetch notifications',
-    );
+    Error.throwWithStackTrace(result.failure!, StackTrace.current);
   }
 
   Future<void> refresh() async {
