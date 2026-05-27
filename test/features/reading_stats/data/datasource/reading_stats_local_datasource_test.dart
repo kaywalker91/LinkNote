@@ -214,6 +214,44 @@ void main() {
   });
 
   // ---------------------------------------------------------------------------
+  // F3: the per-linkId write queue must drain back to empty once writes settle,
+  // otherwise completed Futures + linkId keys leak indefinitely.
+  // ---------------------------------------------------------------------------
+  group('recordEvent — F3 write-queue eviction', () {
+    test('should evict the queue entry after a single write settles', () async {
+      // Act
+      await sut.recordEvent('link-1', tEvent1);
+      await pumpEventQueue();
+
+      // Assert — no residual entry for the settled write
+      expect(sut.pendingWriteCount, 0);
+    });
+
+    test(
+      'should drain the queue to empty after concurrent writes settle',
+      () async {
+        // Arrange — 10 concurrent writes for the same linkId
+        final events = List.generate(
+          10,
+          (i) => ReadingEventEntity(
+            linkId: 'link-drain',
+            timestamp: DateTime(2026, 2, 1, i).toUtc(),
+          ),
+        );
+
+        // Act
+        await Future.wait(
+          events.map((e) => sut.recordEvent('link-drain', e)),
+        );
+        await pumpEventQueue();
+
+        // Assert — every chain evicted; no unbounded growth
+        expect(sut.pendingWriteCount, 0);
+      },
+    );
+  });
+
+  // ---------------------------------------------------------------------------
   // AC-12: getStats returns correct entity for linkId with durationSeconds=null
   // ---------------------------------------------------------------------------
   group('recordEvent — null durationSeconds', () {

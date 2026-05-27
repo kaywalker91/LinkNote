@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:hive_ce/hive_ce.dart';
 import 'package:linknote/features/reading_stats/data/dto/reading_event_dto.dart';
 import 'package:linknote/features/reading_stats/domain/entity/reading_event_entity.dart';
@@ -24,22 +25,35 @@ class ReadingStatsLocalDatasource {
   // AC-11: per-linkId Future queue to serialise concurrent writes.
   final Map<String, Future<void>> _writeQueue = {};
 
+  /// Number of per-linkId write chains still tracked in the queue.
+  ///
+  /// Exposed for tests asserting the queue drains back to empty once writes
+  /// settle, guarding against the eviction-never-fires leak (F3).
+  @visibleForTesting
+  int get pendingWriteCount => _writeQueue.length;
+
   // Public entry point — enqueues the write behind any in-flight write for the
   // same linkId and returns the Future that resolves when this write is done.
   Future<void> recordEvent(String linkId, ReadingEventEntity event) {
     final prev = _writeQueue[linkId] ?? Future<void>.value();
     final next = prev.then((_) => _doRecord(linkId, event));
-    // Store the whenComplete variant so subsequent enqueues chain after cleanup.
-    // The whenComplete callback is intentionally a side-effect (queue eviction);
-    // callers await `next` which resolves when the actual write is done.
-    _writeQueue[linkId] = next.whenComplete(() {
-      // Remove from queue only if no newer write has been registered since.
-      if (identical(_writeQueue[linkId], next)) {
-        // unawaited: Map.remove returns the removed Future<void> value;
-        // we intentionally discard it — cleanup does not need to be awaited.
+
+    // Track the wrapper future itself (not `next`) so the eviction check can
+    // identity-match the exact value stored in the queue. The old code stored
+    // `next.whenComplete(...)`'s return value but compared against `next`, so
+    // `identical` was always false and entries were never evicted (F3 leak).
+    late final Future<void> tracked;
+    tracked = next.whenComplete(() {
+      // Evict only if no newer write for this linkId has been enqueued since.
+      if (identical(_writeQueue[linkId], tracked)) {
+        // Map.remove returns the removed Future<void>; discard it explicitly
+        // (cleanup need not be awaited) to satisfy discarded_futures.
         unawaited(Future<void>.value(_writeQueue.remove(linkId)));
       }
     });
+    _writeQueue[linkId] = tracked;
+
+    // Callers await `next` (the actual write); eviction bookkeeping trails it.
     return next;
   }
 
