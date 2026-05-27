@@ -50,7 +50,7 @@ Map<String, dynamic> _$LinkEntityToJson(_LinkEntity instance) =>
           _$CollectionVisibilityEnumMap[instance.collectionVisibility]!,
       'collectionLockedAt': instance.collectionLockedAt?.toIso8601String(),
       'memo': instance.memo,
-      'tags': instance.tags,
+      'tags': instance.tags.map((e) => e.toJson()).toList(),
       'isFavorite': instance.isFavorite,
     };
 

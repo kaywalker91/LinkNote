@@ -41,7 +41,7 @@ Map<String, dynamic> _$CollectionDtoToJson(_CollectionDto instance) =>
       'updated_at': instance.updatedAt,
       'description': instance.description,
       'cover_image_url': instance.coverImageUrl,
-      'links': instance.links,
+      'links': instance.links.map((e) => e.toJson()).toList(),
       'visibility': _$CollectionVisibilityEnumMap[instance.visibility]!,
       'locked_at': instance.lockedAt?.toIso8601String(),
     };
