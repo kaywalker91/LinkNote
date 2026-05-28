@@ -43,8 +43,9 @@ class LinkLocalDataSource implements IClearableCache {
       return success(
         PaginatedState<LinkEntity>(items: entities),
       );
-    } on Object catch (e) {
-      return error(Failure.cache(message: e.toString()));
+    } on Object catch (e, st) {
+      appLogger.w('link cache failure', error: e, stackTrace: st);
+      return error(const Failure.cache());
     }
   }
 
@@ -61,8 +62,9 @@ class LinkLocalDataSource implements IClearableCache {
         );
       }
       return success(entity);
-    } on Object catch (e) {
-      return error(Failure.cache(message: e.toString()));
+    } on Object catch (e, st) {
+      appLogger.w('link cache failure', error: e, stackTrace: st);
+      return error(const Failure.cache());
     }
   }
 

@@ -63,6 +63,11 @@ void main() {
           (result.failure! as CacheFailure).message,
           contains('recordReadEvent'),
         );
+        expect(
+          (result.failure! as CacheFailure).message,
+          isNot(contains('box closed')),
+          reason: 'raw exception text must not leak into Failure.message (F5)',
+        );
       },
     );
 
@@ -112,6 +117,11 @@ void main() {
         expect(
           (result.failure! as CacheFailure).message,
           contains('getReadingStats'),
+        );
+        expect(
+          (result.failure! as CacheFailure).message,
+          isNot(contains('box corrupted')),
+          reason: 'raw exception text must not leak into Failure.message (F5)',
         );
       },
     );

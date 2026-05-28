@@ -1,5 +1,6 @@
 import 'package:linknote/core/error/failure.dart';
 import 'package:linknote/core/error/result.dart';
+import 'package:linknote/core/logger/app_logger.dart';
 import 'package:linknote/features/auth/domain/entity/auth_state_entity.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -38,8 +39,9 @@ class AuthRemoteDatasource {
       );
     } on AuthException catch (e) {
       return error(Failure.auth(message: e.message));
-    } on Object catch (e) {
-      return error(Failure.server(message: e.toString()));
+    } on Object catch (e, st) {
+      appLogger.w('auth remote failure', error: e, stackTrace: st);
+      return error(const Failure.server(message: 'Authentication failed'));
     }
   }
 
@@ -78,8 +80,9 @@ class AuthRemoteDatasource {
       );
     } on AuthException catch (e) {
       return error(Failure.auth(message: e.message));
-    } on Object catch (e) {
-      return error(Failure.server(message: e.toString()));
+    } on Object catch (e, st) {
+      appLogger.w('auth remote failure', error: e, stackTrace: st);
+      return error(const Failure.server(message: 'Authentication failed'));
     }
   }
 
@@ -87,8 +90,9 @@ class AuthRemoteDatasource {
     try {
       await _client.auth.signOut();
       return success(null);
-    } on Object catch (e) {
-      return error(Failure.server(message: e.toString()));
+    } on Object catch (e, st) {
+      appLogger.w('auth remote failure', error: e, stackTrace: st);
+      return error(const Failure.server(message: 'Authentication failed'));
     }
   }
 }

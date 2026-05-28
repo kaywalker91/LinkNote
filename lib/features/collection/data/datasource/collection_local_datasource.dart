@@ -1,6 +1,7 @@
 import 'package:hive_ce/hive_ce.dart';
 import 'package:linknote/core/error/failure.dart';
 import 'package:linknote/core/error/result.dart';
+import 'package:linknote/core/logger/app_logger.dart';
 import 'package:linknote/core/storage/i_clearable_cache.dart';
 import 'package:linknote/features/collection/domain/entity/collection_entity.dart';
 import 'package:linknote/shared/models/paginated_state.dart';
@@ -25,8 +26,9 @@ class CollectionLocalDataSource implements IClearableCache {
           _box.values.map(_mapToEntity).whereType<CollectionEntity>().toList()
             ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
       return success(PaginatedState<CollectionEntity>(items: entities));
-    } on Object catch (e) {
-      return error(Failure.cache(message: e.toString()));
+    } on Object catch (e, st) {
+      appLogger.w('collection cache failure', error: e, stackTrace: st);
+      return error(const Failure.cache());
     }
   }
 
@@ -45,8 +47,9 @@ class CollectionLocalDataSource implements IClearableCache {
         );
       }
       return success(entity);
-    } on Object catch (e) {
-      return error(Failure.cache(message: e.toString()));
+    } on Object catch (e, st) {
+      appLogger.w('collection cache failure', error: e, stackTrace: st);
+      return error(const Failure.cache());
     }
   }
 

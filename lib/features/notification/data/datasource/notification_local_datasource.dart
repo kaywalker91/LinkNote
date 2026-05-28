@@ -1,6 +1,7 @@
 import 'package:hive_ce/hive_ce.dart';
 import 'package:linknote/core/error/failure.dart';
 import 'package:linknote/core/error/result.dart';
+import 'package:linknote/core/logger/app_logger.dart';
 import 'package:linknote/core/storage/i_clearable_cache.dart';
 import 'package:linknote/features/notification/domain/entity/notification_entity.dart';
 import 'package:linknote/shared/models/paginated_state.dart';
@@ -31,8 +32,9 @@ class NotificationLocalDataSource implements IClearableCache {
       return success(
         PaginatedState<NotificationEntity>(items: entities),
       );
-    } on Object catch (e) {
-      return error(Failure.cache(message: e.toString()));
+    } on Object catch (e, st) {
+      appLogger.w('notification cache failure', error: e, stackTrace: st);
+      return error(const Failure.cache());
     }
   }
 

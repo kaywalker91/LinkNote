@@ -46,6 +46,11 @@ void main() {
 
       expect(result.isFailure, isTrue);
       expect(result.failure, isA<UnknownFailure>());
+      expect(
+        result.failure?.message ?? '',
+        isNot(contains('Network error')),
+        reason: 'raw exception text must not leak into Failure.message (F5)',
+      );
     });
   });
 

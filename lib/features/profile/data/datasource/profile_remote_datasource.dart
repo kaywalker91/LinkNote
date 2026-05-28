@@ -1,5 +1,6 @@
 import 'package:linknote/core/error/failure.dart';
 import 'package:linknote/core/error/result.dart';
+import 'package:linknote/core/logger/app_logger.dart';
 import 'package:linknote/features/profile/data/dto/user_profile_dto.dart';
 import 'package:linknote/features/profile/data/mapper/profile_mapper.dart';
 import 'package:linknote/features/profile/domain/entity/user_profile_entity.dart';
@@ -24,8 +25,9 @@ class ProfileRemoteDataSource {
       return success(ProfileMapper.toEntity(UserProfileDto.fromJson(response)));
     } on PostgrestException catch (e) {
       return error(Failure.server(message: e.message));
-    } on Object catch (e) {
-      return error(Failure.unknown(message: e.toString()));
+    } on Object catch (e, st) {
+      appLogger.w('profile remote failure', error: e, stackTrace: st);
+      return error(const Failure.unknown());
     }
   }
 
@@ -48,8 +50,9 @@ class ProfileRemoteDataSource {
       return getProfile();
     } on PostgrestException catch (e) {
       return error(Failure.server(message: e.message));
-    } on Object catch (e) {
-      return error(Failure.unknown(message: e.toString()));
+    } on Object catch (e, st) {
+      appLogger.w('profile remote failure', error: e, stackTrace: st);
+      return error(const Failure.unknown());
     }
   }
 }

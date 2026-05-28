@@ -1,5 +1,6 @@
 import 'package:linknote/core/error/failure.dart';
 import 'package:linknote/core/error/result.dart';
+import 'package:linknote/core/logger/app_logger.dart';
 import 'package:linknote/core/utils/parse_rows.dart';
 import 'package:linknote/features/link/data/dto/link_dto.dart';
 import 'package:linknote/features/link/data/mapper/link_mapper.dart';
@@ -70,12 +71,14 @@ class LinkRemoteDataSource {
       );
     } on PostgrestException catch (e) {
       return error(Failure.server(message: e.message));
-    } on Object catch (e) {
+    } on Object catch (e, st) {
       // Catches Dart `Error` subtypes (e.g. `_TypeError` from JSON cast
       // failures) in addition to Exceptions, so they surface as Failure
       // instead of escaping to AsyncValue.error as raw Errors. The same
-      // policy applies to every catch block below.
-      return error(Failure.unknown(message: e.toString()));
+      // policy applies to every catch block below. The raw error is logged
+      // (not embedded in Failure.message) to avoid leaking it to the UI (F5).
+      appLogger.w('link remote failure', error: e, stackTrace: st);
+      return error(const Failure.unknown());
     }
   }
 
@@ -90,8 +93,9 @@ class LinkRemoteDataSource {
       return success(LinkMapper.toEntity(LinkDto.fromJson(response)));
     } on PostgrestException catch (e) {
       return error(Failure.server(message: e.message));
-    } on Object catch (e) {
-      return error(Failure.unknown(message: e.toString()));
+    } on Object catch (e, st) {
+      appLogger.w('link remote failure', error: e, stackTrace: st);
+      return error(const Failure.unknown());
     }
   }
 
@@ -119,8 +123,9 @@ class LinkRemoteDataSource {
       return success(createdLink);
     } on PostgrestException catch (e) {
       return error(Failure.server(message: e.message));
-    } on Object catch (e) {
-      return error(Failure.unknown(message: e.toString()));
+    } on Object catch (e, st) {
+      appLogger.w('link remote failure', error: e, stackTrace: st);
+      return error(const Failure.unknown());
     }
   }
 
@@ -140,8 +145,9 @@ class LinkRemoteDataSource {
       return getLinkById(link.id);
     } on PostgrestException catch (e) {
       return error(Failure.server(message: e.message));
-    } on Object catch (e) {
-      return error(Failure.unknown(message: e.toString()));
+    } on Object catch (e, st) {
+      appLogger.w('link remote failure', error: e, stackTrace: st);
+      return error(const Failure.unknown());
     }
   }
 
@@ -151,8 +157,9 @@ class LinkRemoteDataSource {
       return success(null);
     } on PostgrestException catch (e) {
       return error(Failure.server(message: e.message));
-    } on Object catch (e) {
-      return error(Failure.unknown(message: e.toString()));
+    } on Object catch (e, st) {
+      appLogger.w('link remote failure', error: e, stackTrace: st);
+      return error(const Failure.unknown());
     }
   }
 
@@ -168,8 +175,9 @@ class LinkRemoteDataSource {
       return getLinkById(id);
     } on PostgrestException catch (e) {
       return error(Failure.server(message: e.message));
-    } on Object catch (e) {
-      return error(Failure.unknown(message: e.toString()));
+    } on Object catch (e, st) {
+      appLogger.w('link remote failure', error: e, stackTrace: st);
+      return error(const Failure.unknown());
     }
   }
 
