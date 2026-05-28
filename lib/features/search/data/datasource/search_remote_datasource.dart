@@ -1,5 +1,6 @@
 import 'package:linknote/core/error/failure.dart';
 import 'package:linknote/core/error/result.dart';
+import 'package:linknote/core/logger/app_logger.dart';
 import 'package:linknote/core/utils/parse_rows.dart';
 import 'package:linknote/features/link/data/datasource/link_remote_datasource.dart';
 import 'package:linknote/features/link/domain/entity/link_entity.dart';
@@ -71,8 +72,9 @@ class SearchRemoteDataSource {
       return success(items);
     } on PostgrestException catch (e) {
       return error(Failure.server(message: e.message));
-    } on Object catch (e) {
-      return error(Failure.unknown(message: e.toString()));
+    } on Object catch (e, st) {
+      appLogger.w('search remote failure', error: e, stackTrace: st);
+      return error(const Failure.unknown());
     }
   }
 
@@ -92,8 +94,9 @@ class SearchRemoteDataSource {
       return success(tags);
     } on PostgrestException catch (e) {
       return error(Failure.server(message: e.message));
-    } on Object catch (e) {
-      return error(Failure.unknown(message: e.toString()));
+    } on Object catch (e, st) {
+      appLogger.w('search remote failure', error: e, stackTrace: st);
+      return error(const Failure.unknown());
     }
   }
 }

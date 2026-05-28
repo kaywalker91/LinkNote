@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:html/parser.dart' as html_parser;
 import 'package:linknote/core/error/failure.dart';
 import 'package:linknote/core/error/result.dart';
+import 'package:linknote/core/logger/app_logger.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'og_tag_service.g.dart';
@@ -87,8 +88,9 @@ class OgTagService {
       return success(result);
     } on DioException catch (e) {
       return error(_mapDioError(e));
-    } on Object catch (e) {
-      return error(Failure.unknown(message: 'Failed to parse page: $e'));
+    } on Object catch (e, st) {
+      appLogger.w('og tag parse failure', error: e, stackTrace: st);
+      return error(const Failure.unknown(message: 'Failed to parse page'));
     }
   }
 

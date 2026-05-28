@@ -1,5 +1,6 @@
 import 'package:linknote/core/error/failure.dart';
 import 'package:linknote/core/error/result.dart';
+import 'package:linknote/core/logger/app_logger.dart';
 import 'package:linknote/core/utils/parse_rows.dart';
 import 'package:linknote/features/collection/data/dto/collection_dto.dart';
 import 'package:linknote/features/collection/data/mapper/collection_mapper.dart';
@@ -47,8 +48,9 @@ class CollectionRemoteDataSource {
       );
     } on PostgrestException catch (e) {
       return error(Failure.server(message: e.message));
-    } on Object catch (e) {
-      return error(Failure.unknown(message: e.toString()));
+    } on Object catch (e, st) {
+      appLogger.w('collection remote failure', error: e, stackTrace: st);
+      return error(const Failure.unknown());
     }
   }
 
@@ -69,8 +71,9 @@ class CollectionRemoteDataSource {
       );
     } on PostgrestException catch (e) {
       return error(Failure.server(message: e.message));
-    } on Object catch (e) {
-      return error(Failure.unknown(message: e.toString()));
+    } on Object catch (e, st) {
+      appLogger.w('collection remote failure', error: e, stackTrace: st);
+      return error(const Failure.unknown());
     }
   }
 
@@ -91,8 +94,9 @@ class CollectionRemoteDataSource {
       );
     } on PostgrestException catch (e) {
       return error(Failure.server(message: e.message));
-    } on Object catch (e) {
-      return error(Failure.unknown(message: e.toString()));
+    } on Object catch (e, st) {
+      appLogger.w('collection remote failure', error: e, stackTrace: st);
+      return error(const Failure.unknown());
     }
   }
 
@@ -115,8 +119,9 @@ class CollectionRemoteDataSource {
       );
     } on PostgrestException catch (e) {
       return error(Failure.server(message: e.message));
-    } on Object catch (e) {
-      return error(Failure.unknown(message: e.toString()));
+    } on Object catch (e, st) {
+      appLogger.w('collection remote failure', error: e, stackTrace: st);
+      return error(const Failure.unknown());
     }
   }
 
@@ -130,8 +135,9 @@ class CollectionRemoteDataSource {
       return success(null);
     } on PostgrestException catch (e) {
       return error(Failure.server(message: e.message));
-    } on Object catch (e) {
-      return error(Failure.unknown(message: e.toString()));
+    } on Object catch (e, st) {
+      appLogger.w('collection remote failure', error: e, stackTrace: st);
+      return error(const Failure.unknown());
     }
   }
 }

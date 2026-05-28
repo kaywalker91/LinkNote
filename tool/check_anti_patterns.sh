@@ -90,12 +90,53 @@ check_on_exception_catch() {
 }
 
 # ────────────────────────────────────────────────────────────────────────────
+# Category C — raw exception embedded in Failure.message (FAIL)
+#
+# Reason: `on Object catch` fallbacks that build `Failure.X(message: e.toString())`
+# or `message: '<ctx>: $e'` leak raw exception text (HiveError box names, key
+# paths, stack fragments) into Failure.message. failure_ui surfaces message via
+# the AuthFailure passthrough / kDebugMode branches, so raw exceptions can reach
+# the UI. Lesson source: F5 (Session 61) — the sweep routed raw `e` to appLogger
+# and replaced the message with null / a fixed context label.
+#
+# Typed-exception passthrough (`message: e.message`) and fixed string literals are
+# fine; only raw `e.toString()` / bare `$e` interpolation inside a `Failure.X(...)`
+# constructor is a regression.
+# ────────────────────────────────────────────────────────────────────────────
+check_failure_raw_exception_message() {
+  local label='C.Failure(message: raw $e)'
+  local enforce=1
+
+  local hits
+  hits=$(grep -rnE 'Failure\.[a-z]+\(.*message:.*(e\.toString\(\)|\$e[^[:alnum:]_])' lib --include='*.dart' \
+           | grep -v '\.g\.dart\|\.freezed\.dart' || true)
+  local count
+  count=$(printf '%s' "$hits" | grep -c '^' || true)
+
+  if [ "$count" -eq 0 ]; then
+    green "✓ ${label}: 0 site(s)"
+    return 0
+  fi
+
+  if [ "$enforce" -eq 1 ]; then
+    red "✗ ${label}: ${count} site(s) — route raw e to appLogger; use null/fixed message"
+    printf '%s\n' "$hits"
+    red "  → see feedback: log raw exception, keep Failure.message sanitized."
+    EXIT_CODE=1
+  else
+    yellow "! ${label}: ${count} site(s) — tracked, will fail after sweep"
+    WARN_COUNT=$((WARN_COUNT + 1))
+  fi
+}
+
+# ────────────────────────────────────────────────────────────────────────────
 # Main
 # ────────────────────────────────────────────────────────────────────────────
 main() {
   echo "── anti-pattern checks ──"
   check_appcolors_whitelist
   check_on_exception_catch
+  check_failure_raw_exception_message
   echo "────────────────────────"
 
   if [ "$EXIT_CODE" -ne 0 ]; then
