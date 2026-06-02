@@ -10,8 +10,12 @@ import 'package:linknote/features/reading_stats/domain/repository/i_reading_stat
 // AC-13: future timestamp → Validation: timestamp_in_future
 // AC-13: negative durationSeconds → Validation: negative_duration
 class RecordReadEventUsecase {
-  const RecordReadEventUsecase(this._repository);
+  // F6a: `now` is injectable (defaults to DateTime.now) so the future-timestamp
+  // boundary can be tested deterministically without depending on the wall clock.
+  RecordReadEventUsecase(this._repository, {DateTime Function()? now})
+    : _now = now ?? DateTime.now;
   final IReadingStatsRepository _repository;
+  final DateTime Function() _now;
 
   Future<Result<void>> call(ReadingEventEntity event) async {
     // AC-4: empty linkId returns failure without writing. Checked first because
@@ -23,7 +27,7 @@ class RecordReadEventUsecase {
     }
 
     // AC-13: timestamp must not be in the future
-    if (event.timestamp.isAfter(DateTime.now().toUtc())) {
+    if (event.timestamp.isAfter(_now().toUtc())) {
       return error<void>(
         const Failure.cache(message: 'Validation: timestamp_in_future'),
       );
