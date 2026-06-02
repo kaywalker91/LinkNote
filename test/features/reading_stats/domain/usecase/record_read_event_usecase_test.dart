@@ -170,4 +170,32 @@ void main() {
       },
     );
   });
+
+  // ---------------------------------------------------------------------------
+  // AC-4/AC-13: validation precedence — empty linkId is the most fundamental
+  // violation, so it must be reported first even when other validations also
+  // fail (an unidentified entity cannot be meaningfully recorded anywhere).
+  // ---------------------------------------------------------------------------
+  group('RecordReadEventUsecase — validation precedence', () {
+    test(
+      'should return empty linkId failure first when all validations fail',
+      () async {
+        // Arrange: empty linkId + future timestamp + negative duration
+        final allInvalid = ReadingEventEntity(
+          linkId: '',
+          timestamp: DateTime.now().toUtc().add(const Duration(hours: 1)),
+          durationSeconds: -1,
+        );
+
+        // Act
+        final result = await sut.call(allInvalid);
+
+        // Assert: empty linkId takes precedence over timestamp/duration checks
+        expect(result.isFailure, isTrue);
+        expect(result.failure, isA<CacheFailure>());
+        expect(result.failure!.message, equals('Validation: empty linkId'));
+        verifyNever(() => mockRepository.recordReadEvent(any()));
+      },
+    );
+  });
 }
