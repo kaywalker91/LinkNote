@@ -170,4 +170,94 @@ void main() {
       },
     );
   });
+
+  // ---------------------------------------------------------------------------
+  // AC-4/AC-13: validation precedence — empty linkId is the most fundamental
+  // violation, so it must be reported first even when other validations also
+  // fail (an unidentified entity cannot be meaningfully recorded anywhere).
+  // ---------------------------------------------------------------------------
+  group('RecordReadEventUsecase — validation precedence', () {
+    test(
+      'should return empty linkId failure first when all validations fail',
+      () async {
+        // Arrange: empty linkId + future timestamp + negative duration
+        final allInvalid = ReadingEventEntity(
+          linkId: '',
+          timestamp: DateTime.now().toUtc().add(const Duration(hours: 1)),
+          durationSeconds: -1,
+        );
+
+        // Act
+        final result = await sut.call(allInvalid);
+
+        // Assert: empty linkId takes precedence over timestamp/duration checks
+        expect(result.isFailure, isTrue);
+        expect(result.failure, isA<CacheFailure>());
+        expect(result.failure!.message, equals('Validation: empty linkId'));
+        verifyNever(() => mockRepository.recordReadEvent(any()));
+      },
+    );
+  });
+
+  // ---------------------------------------------------------------------------
+  // F6a: injectable clock — the future-timestamp check reads "now" from an
+  // injected callback (defaulting to DateTime.now) so the boundary is
+  // deterministically testable instead of depending on the wall clock.
+  // ---------------------------------------------------------------------------
+  group('RecordReadEventUsecase — injected clock (F6a)', () {
+    final fixedNow = DateTime(2026, 6, 1, 12).toUtc();
+    late RecordReadEventUsecase sutWithClock;
+
+    setUp(() {
+      sutWithClock = RecordReadEventUsecase(
+        mockRepository,
+        now: () => fixedNow,
+      );
+    });
+
+    test(
+      'should reject a timestamp strictly after the injected now',
+      () async {
+        // Arrange
+        final entity = ReadingEventEntity(
+          linkId: 'link-1',
+          timestamp: fixedNow.add(const Duration(seconds: 1)),
+          durationSeconds: 10,
+        );
+
+        // Act
+        final result = await sutWithClock.call(entity);
+
+        // Assert
+        expect(result.isFailure, isTrue);
+        expect(
+          result.failure!.message,
+          equals('Validation: timestamp_in_future'),
+        );
+        verifyNever(() => mockRepository.recordReadEvent(any()));
+      },
+    );
+
+    test(
+      'should accept a timestamp equal to the injected now (boundary)',
+      () async {
+        // Arrange
+        when(
+          () => mockRepository.recordReadEvent(any()),
+        ).thenAnswer((_) async => success(null));
+        final entity = ReadingEventEntity(
+          linkId: 'link-1',
+          timestamp: fixedNow,
+          durationSeconds: 10,
+        );
+
+        // Act
+        final result = await sutWithClock.call(entity);
+
+        // Assert
+        expect(result.isSuccess, isTrue);
+        verify(() => mockRepository.recordReadEvent(entity)).called(1);
+      },
+    );
+  });
 }
