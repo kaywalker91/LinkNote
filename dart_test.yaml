@@ -1,6 +1,9 @@
 # Test runner configuration. See https://pub.dev/packages/test#configuring-tests
 tags:
   # Tag added automatically by `goldenTest()` from package:alchemist.
+  # Goldens now tolerate cross-platform Skia noise locally (see
+  # test/flutter_test_config.dart), so the full suite passes without excluding
+  # them. Excluding is optional, no longer required.
   # Run only goldens: `flutter test --tags golden`
   # Skip goldens:    `flutter test --exclude-tags golden`
   golden:
