@@ -136,4 +136,40 @@ void main() {
       expect(json.containsKey('locked_at'), isFalse);
     },
   );
+
+  // Session 63: focused visibility/lock mutation path. Keeps the name/desc
+  // edit path (toUpdateJson) clean while persisting only visibility + lock.
+  group('toVisibilityUpdateJson', () {
+    test(
+      'serializes visibility, locked_at, updated_at and nothing else',
+      () {
+        final tLockedAt = DateTime.utc(2026, 3, 15);
+
+        final json = CollectionMapper.toVisibilityUpdateJson(
+          CollectionVisibility.public,
+          tLockedAt,
+        );
+
+        expect(json['visibility'], 'public');
+        expect(json['locked_at'], tLockedAt.toUtc().toIso8601String());
+        expect(json.containsKey('updated_at'), isTrue);
+        expect(json.containsKey('name'), isFalse);
+        expect(json.containsKey('description'), isFalse);
+        expect(json.containsKey('cover_image_url'), isFalse);
+      },
+    );
+
+    test(
+      'serializes private visibility and null locked_at when unlocked',
+      () {
+        final json = CollectionMapper.toVisibilityUpdateJson(
+          CollectionVisibility.private,
+          null,
+        );
+
+        expect(json['visibility'], 'private');
+        expect(json['locked_at'], isNull);
+      },
+    );
+  });
 }

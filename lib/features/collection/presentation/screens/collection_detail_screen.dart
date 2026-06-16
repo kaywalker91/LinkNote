@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:linknote/app/router/routes.dart';
 import 'package:linknote/app/theme/app_spacing.dart';
 import 'package:linknote/app/theme/app_text_styles.dart';
+import 'package:linknote/features/collection/domain/entity/collection_entity.dart';
 import 'package:linknote/features/collection/presentation/provider/collection_detail_provider.dart';
 import 'package:linknote/features/collection/presentation/provider/collection_links_provider.dart';
 import 'package:linknote/features/collection/presentation/provider/collection_list_provider.dart';
@@ -112,6 +113,11 @@ class CollectionDetailScreen extends ConsumerWidget {
                           color: palette.ink3,
                         ),
                       ),
+                      const SizedBox(height: AppSpacing.md),
+                      _VisibilityControls(
+                        collectionId: collectionId,
+                        collection: collection,
+                      ),
                       const SizedBox(height: AppSpacing.lg),
                       Divider(
                         height: 1,
@@ -211,5 +217,90 @@ class CollectionDetailScreen extends ConsumerWidget {
         ];
       },
     );
+  }
+}
+
+/// In-app visibility/lock toggles. Lock is a visual marker only — access
+/// control is enforced backend-side (RLS), out of scope here.
+class _VisibilityControls extends ConsumerWidget {
+  const _VisibilityControls({
+    required this.collectionId,
+    required this.collection,
+  });
+
+  final String collectionId;
+  final CollectionEntity collection;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final palette = context.palette;
+    final isPublic = collection.visibility == CollectionVisibility.public;
+    final isLocked = collection.lockedAt != null;
+
+    return Column(
+      children: [
+        SwitchListTile(
+          key: const ValueKey('collection-visibility-toggle'),
+          contentPadding: EdgeInsets.zero,
+          dense: true,
+          secondary: Icon(
+            isPublic ? Icons.public : Icons.lock_outline,
+            color: palette.ink2,
+          ),
+          title: Text(
+            '공개',
+            style: AppTextStyles.bodyMedium.copyWith(color: palette.ink),
+          ),
+          subtitle: Text(
+            isPublic ? '누구나 볼 수 있어요' : '나만 볼 수 있어요',
+            style: AppTextStyles.caption.copyWith(color: palette.ink3),
+          ),
+          value: isPublic,
+          onChanged: (value) => _apply(
+            context,
+            () => ref
+                .read(collectionDetailProvider(collectionId).notifier)
+                .setVisibility(
+                  value
+                      ? CollectionVisibility.public
+                      : CollectionVisibility.private,
+                ),
+          ),
+        ),
+        SwitchListTile(
+          key: const ValueKey('collection-lock-toggle'),
+          contentPadding: EdgeInsets.zero,
+          dense: true,
+          secondary: Icon(
+            isLocked ? Icons.lock : Icons.lock_open_outlined,
+            color: palette.ink2,
+          ),
+          title: Text(
+            '잠금',
+            style: AppTextStyles.bodyMedium.copyWith(color: palette.ink),
+          ),
+          value: isLocked,
+          onChanged: (value) => _apply(
+            context,
+            () => ref
+                .read(collectionDetailProvider(collectionId).notifier)
+                .setLocked(locked: value),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Future<void> _apply(
+    BuildContext context,
+    Future<void> Function() action,
+  ) async {
+    try {
+      await action();
+    } on Object catch (_) {
+      if (context.mounted) {
+        context.showErrorSnackBar('Failed to update collection');
+      }
+    }
   }
 }

@@ -41,6 +41,30 @@ class _DataCollectionDetail extends CollectionDetail {
   Future<void> refresh() async {}
 }
 
+class _SpyCollectionDetail extends CollectionDetail {
+  _SpyCollectionDetail(this._collection);
+  final CollectionEntity _collection;
+
+  CollectionVisibility? lastVisibility;
+  bool? lastLocked;
+
+  @override
+  Future<CollectionEntity> build(String collectionId) async => _collection;
+
+  @override
+  Future<void> refresh() async {}
+
+  @override
+  Future<void> setVisibility(CollectionVisibility visibility) async {
+    lastVisibility = visibility;
+  }
+
+  @override
+  Future<void> setLocked({required bool locked}) async {
+    lastLocked = locked;
+  }
+}
+
 class _ThrowingCollectionList extends CollectionList {
   @override
   Future<PaginatedState<CollectionEntity>> build() async =>
@@ -298,6 +322,86 @@ void main() {
         expect(find.text('Failed to delete collection'), findsOneWidget);
       },
     );
+
+    testWidgets('should render visibility and lock toggles when loaded', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            collectionDetailProvider.overrideWith(
+              () => _DataCollectionDetail(tCollection),
+            ),
+            collectionListProvider.overrideWith(_StubCollectionList.new),
+            collectionLinksProvider.overrideWith((ref, id) async => tLinks),
+            _zeroStatsOverride,
+          ],
+          child: const MaterialApp(
+            home: CollectionDetailScreen(collectionId: 'c1'),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(
+        find.byKey(const ValueKey('collection-visibility-toggle')),
+        findsOneWidget,
+      );
+      expect(
+        find.byKey(const ValueKey('collection-lock-toggle')),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('toggling visibility switch calls setVisibility(public)', (
+      tester,
+    ) async {
+      final spy = _SpyCollectionDetail(tCollection); // defaults to private
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            collectionDetailProvider.overrideWith(() => spy),
+            collectionListProvider.overrideWith(_StubCollectionList.new),
+            collectionLinksProvider.overrideWith((ref, id) async => tLinks),
+            _zeroStatsOverride,
+          ],
+          child: const MaterialApp(
+            home: CollectionDetailScreen(collectionId: 'c1'),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      await tester.tap(
+        find.byKey(const ValueKey('collection-visibility-toggle')),
+      );
+      await tester.pumpAndSettle();
+
+      expect(spy.lastVisibility, CollectionVisibility.public);
+    });
+
+    testWidgets('toggling lock switch calls setLocked(true)', (tester) async {
+      final spy = _SpyCollectionDetail(tCollection); // unlocked
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            collectionDetailProvider.overrideWith(() => spy),
+            collectionListProvider.overrideWith(_StubCollectionList.new),
+            collectionLinksProvider.overrideWith((ref, id) async => tLinks),
+            _zeroStatsOverride,
+          ],
+          child: const MaterialApp(
+            home: CollectionDetailScreen(collectionId: 'c1'),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byKey(const ValueKey('collection-lock-toggle')));
+      await tester.pumpAndSettle();
+
+      expect(spy.lastLocked, isTrue);
+    });
 
     testWidgets('should show empty state when no links in collection', (
       tester,

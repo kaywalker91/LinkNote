@@ -347,6 +347,58 @@ final class UpdateCollectionUsecaseProvider
 String _$updateCollectionUsecaseHash() =>
     r'30ffc350e4e6347dd16e034d7762944085e64fa3';
 
+@ProviderFor(updateCollectionVisibilityUsecase)
+final updateCollectionVisibilityUsecaseProvider =
+    UpdateCollectionVisibilityUsecaseProvider._();
+
+final class UpdateCollectionVisibilityUsecaseProvider
+    extends
+        $FunctionalProvider<
+          UpdateCollectionVisibilityUsecase,
+          UpdateCollectionVisibilityUsecase,
+          UpdateCollectionVisibilityUsecase
+        >
+    with $Provider<UpdateCollectionVisibilityUsecase> {
+  UpdateCollectionVisibilityUsecaseProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'updateCollectionVisibilityUsecaseProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() =>
+      _$updateCollectionVisibilityUsecaseHash();
+
+  @$internal
+  @override
+  $ProviderElement<UpdateCollectionVisibilityUsecase> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  UpdateCollectionVisibilityUsecase create(Ref ref) {
+    return updateCollectionVisibilityUsecase(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(UpdateCollectionVisibilityUsecase value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<UpdateCollectionVisibilityUsecase>(
+        value,
+      ),
+    );
+  }
+}
+
+String _$updateCollectionVisibilityUsecaseHash() =>
+    r'ebc9c8a17df1faebc2a3da6d5178d1ac0469dd24';
+
 @ProviderFor(deleteCollectionUsecase)
 final deleteCollectionUsecaseProvider = DeleteCollectionUsecaseProvider._();
 

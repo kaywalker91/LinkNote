@@ -21,6 +21,7 @@ void main() {
 
   setUpAll(() {
     registerFallbackValue(FakeCollectionEntity());
+    registerFallbackValue(CollectionVisibility.private);
   });
 
   setUp(() {
@@ -282,6 +283,72 @@ void main() {
 
       // Act
       final result = await sut.updateCollection(tCollection);
+
+      // Assert
+      expect(result.isFailure, isTrue);
+      verifyNever(() => mockLocal.cacheSingleCollection(any()));
+    });
+  });
+
+  // ---------------------------------------------------------------------------
+  // updateCollectionVisibility
+  // ---------------------------------------------------------------------------
+  group('updateCollectionVisibility', () {
+    test('should cache on remote success and pass userId', () async {
+      // Arrange
+      final tUpdated = tCollection.copyWith(
+        visibility: CollectionVisibility.public,
+      );
+      when(
+        () => mockRemote.updateCollectionVisibility(
+          id: any(named: 'id'),
+          userId: any(named: 'userId'),
+          visibility: any(named: 'visibility'),
+          lockedAt: any(named: 'lockedAt'),
+        ),
+      ).thenAnswer((_) async => success(tUpdated));
+      when(
+        () => mockLocal.cacheSingleCollection(any()),
+      ).thenAnswer((_) async {});
+
+      // Act
+      final result = await sut.updateCollectionVisibility(
+        id: 'col-1',
+        visibility: CollectionVisibility.public,
+        lockedAt: null,
+      );
+
+      // Assert
+      expect(result.isSuccess, isTrue);
+      verify(
+        () => mockRemote.updateCollectionVisibility(
+          id: 'col-1',
+          userId: 'test-user-id',
+          visibility: CollectionVisibility.public,
+          lockedAt: null,
+        ),
+      ).called(1);
+      verify(() => mockLocal.cacheSingleCollection(tUpdated)).called(1);
+    });
+
+    test('should NOT cache on remote failure', () async {
+      // Arrange
+      const tFailure = Failure.server(message: 'Visibility failed');
+      when(
+        () => mockRemote.updateCollectionVisibility(
+          id: any(named: 'id'),
+          userId: any(named: 'userId'),
+          visibility: any(named: 'visibility'),
+          lockedAt: any(named: 'lockedAt'),
+        ),
+      ).thenAnswer((_) async => error(tFailure));
+
+      // Act
+      final result = await sut.updateCollectionVisibility(
+        id: 'col-1',
+        visibility: CollectionVisibility.private,
+        lockedAt: null,
+      );
 
       // Assert
       expect(result.isFailure, isTrue);

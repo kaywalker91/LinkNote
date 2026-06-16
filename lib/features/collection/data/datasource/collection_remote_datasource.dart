@@ -125,6 +125,36 @@ class CollectionRemoteDataSource {
     }
   }
 
+  Future<Result<CollectionEntity>> updateCollectionVisibility({
+    required String id,
+    required String userId,
+    required CollectionVisibility visibility,
+    required DateTime? lockedAt,
+  }) async {
+    try {
+      final json = CollectionMapper.toVisibilityUpdateJson(
+        visibility,
+        lockedAt,
+      );
+      final response = await _client
+          .from('collections')
+          .update(json)
+          .eq('id', id)
+          .eq('user_id', userId)
+          .select(_selectQuery)
+          .single();
+
+      return success(
+        CollectionMapper.toEntity(CollectionDto.fromJson(response)),
+      );
+    } on PostgrestException catch (e) {
+      return error(Failure.server(message: e.message));
+    } on Object catch (e, st) {
+      appLogger.w('collection remote failure', error: e, stackTrace: st);
+      return error(const Failure.unknown());
+    }
+  }
+
   Future<Result<void>> deleteCollection(String id, String userId) async {
     try {
       await _client
