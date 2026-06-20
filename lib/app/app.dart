@@ -4,7 +4,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:linknote/app/router/app_router.dart';
 import 'package:linknote/app/theme/app_theme.dart';
 import 'package:linknote/core/constants/app_constants.dart';
+import 'package:linknote/features/share_intent/presentation/widget/share_intent_listener.dart';
 import 'package:linknote/shared/providers/theme_mode_provider.dart';
+
+/// Stable key so the share-intent listener can surface snackbars from above
+/// the messenger in [MaterialApp.router]'s `builder`.
+final _scaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
 
 class LinkNoteApp extends ConsumerWidget {
   const LinkNoteApp({super.key});
@@ -36,6 +41,14 @@ class LinkNoteApp extends ConsumerWidget {
       themeAnimationDuration: const Duration(milliseconds: 300),
       themeAnimationCurve: Curves.easeInOut,
       routerConfig: router,
+      scaffoldMessengerKey: _scaffoldMessengerKey,
+      // Warm/foreground share intents arrive on a stream (cold-start is handled
+      // in bootstrap). The listener sits above the Navigator so its
+      // subscription and snackbar context survive route changes.
+      builder: (context, child) => ShareIntentListener(
+        messengerKey: _scaffoldMessengerKey,
+        child: child!,
+      ),
       localizationsDelegates: localizationsDelegates,
       supportedLocales: supportedLocales,
       locale: defaultLocale,
