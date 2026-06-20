@@ -1,10 +1,14 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:linknote/app/router/routes.dart';
+import 'package:linknote/core/services/analytics_service.dart';
 import 'package:linknote/shared/extensions/context_extensions.dart';
 import 'package:linknote/shared/widgets/offline_banner_widget.dart';
 
-class AppScaffoldWithNavBar extends StatelessWidget {
+class AppScaffoldWithNavBar extends ConsumerWidget {
   const AppScaffoldWithNavBar({
     required this.navigationShell,
     super.key,
@@ -17,10 +21,19 @@ class AppScaffoldWithNavBar extends StatelessWidget {
     'Profile',
   ];
 
+  /// Branch root paths, parallel to [destinationLabels]. Used as `screen_view`
+  /// names on tab switch — the root observer cannot see indexed-stack swaps.
+  static const List<String> _branchRoutes = <String>[
+    Routes.home,
+    Routes.search,
+    Routes.collections,
+    Routes.profile,
+  ];
+
   final StatefulNavigationShell navigationShell;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
       body: Column(
         children: [
@@ -52,6 +65,14 @@ class AppScaffoldWithNavBar extends StatelessWidget {
             navigationShell.goBranch(
               index,
               initialLocation: index == navigationShell.currentIndex,
+            );
+            // Tab switches swap the indexed stack instead of pushing onto the
+            // root navigator, so the FirebaseAnalyticsObserver never sees them.
+            // Emit the screen_view manually here.
+            unawaited(
+              ref
+                  .read(analyticsServiceProvider)
+                  .logScreenView(_branchRoutes[index]),
             );
           },
           destinations: const [

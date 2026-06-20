@@ -42,7 +42,9 @@ GoRouter appRouter(Ref ref) {
     initialLocation: Routes.splash,
     refreshListenable: authNotifier,
     // NOTE: StatefulShellRoute.indexedStack의 탭 전환은 root observer에서
-    // 잡히지 않음. 탭별 수동 logScreenView는 별도 세션에서 보완 예정.
+    // 잡히지 않으므로(스택 스왑) AppScaffoldWithNavBar.onDestinationSelected에서
+    // AnalyticsService.logScreenView로 수동 기록한다. 이 observer는 풀스크린
+    // 라우트(splash/login/link/collection 등)의 push/pop만 담당.
     observers: [
       FirebaseAnalyticsObserver(analytics: FirebaseAnalytics.instance),
     ],
