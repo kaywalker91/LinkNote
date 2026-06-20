@@ -75,6 +75,19 @@ android {
             signingConfig = if (keystorePropertiesFile.exists()) {
                 signingConfigs.getByName("release")
             } else {
+                // No key.properties: fall back to the debug key so local
+                // release-mode runs still work. Warn loudly on an actual release
+                // task — a debug-signed AAB is rejected by the Play Store.
+                val isReleaseTask = gradle.startParameter.taskNames.any {
+                    it.contains("Release", ignoreCase = true)
+                }
+                if (isReleaseTask) {
+                    logger.warn(
+                        "⚠️ key.properties not found — this release build is signed " +
+                            "with the DEBUG key and CANNOT be uploaded to the Play " +
+                            "Store. See android/key.properties.example.",
+                    )
+                }
                 signingConfigs.getByName("debug")
             }
             isMinifyEnabled = true
