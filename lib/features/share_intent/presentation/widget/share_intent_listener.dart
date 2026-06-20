@@ -75,8 +75,27 @@ class _ShareIntentListenerState extends ConsumerState<ShareIntentListener> {
     final media = next.value;
     if (media == null || media.isEmpty) return;
 
-    final url = SharedIntentService.extractUrl(media.first.path);
+    final payload = media.first.path;
     final router = ref.read(appRouterProvider);
+
+    // Internal deep link (`linknote://collections/public/<id>`) arrives on the
+    // same stream as shared web URLs. Route it to the read-only public view
+    // instead of treating it as a URL to save. Pushing stacks above any
+    // in-progress form, so no degrade is needed here.
+    final publicCollectionId = SharedIntentService.extractPublicCollectionId(
+      payload,
+    );
+    if (publicCollectionId != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        unawaited(
+          router.push(Routes.publicCollectionDetailPath(publicCollectionId)),
+        );
+      });
+      return;
+    }
+
+    final url = SharedIntentService.extractUrl(payload);
     final location = router.routerDelegate.currentConfiguration.uri.path;
     final action = resolveWarmShareAction(
       extractedUrl: url,

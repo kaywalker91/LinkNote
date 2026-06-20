@@ -52,6 +52,13 @@ class CollectionRepositoryImpl implements ICollectionRepository {
   }
 
   @override
+  Future<Result<CollectionEntity>> getPublicCollectionById(String id) async {
+    // No local caching: a non-owner's public collection must not pollute the
+    // owner's id-keyed Hive box. Return the remote result directly.
+    return _remote.getPublicCollectionById(id);
+  }
+
+  @override
   Future<Result<CollectionEntity>> createCollection(
     CollectionEntity collection,
   ) async {

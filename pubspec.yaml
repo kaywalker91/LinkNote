@@ -34,6 +34,7 @@ dependencies:
   receive_sharing_intent: ^1.8.1
   retrofit:
   riverpod_annotation:
+  share_plus:
   supabase_flutter:
   url_launcher:
   uuid: ^4.5.3

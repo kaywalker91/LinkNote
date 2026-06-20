@@ -8,6 +8,7 @@ import 'package:linknote/features/link/domain/repository/i_link_repository.dart'
 import 'package:linknote/features/link/domain/usecase/create_link_usecase.dart';
 import 'package:linknote/features/link/domain/usecase/delete_link_usecase.dart';
 import 'package:linknote/features/link/domain/usecase/fetch_links_usecase.dart';
+import 'package:linknote/features/link/domain/usecase/fetch_public_links_usecase.dart';
 import 'package:linknote/features/link/domain/usecase/get_link_detail_usecase.dart';
 import 'package:linknote/features/link/domain/usecase/toggle_favorite_usecase.dart';
 import 'package:linknote/features/link/domain/usecase/update_link_usecase.dart';
@@ -43,6 +44,11 @@ ILinkRepository linkRepository(Ref ref) {
 @riverpod
 FetchLinksUsecase fetchLinksUsecase(Ref ref) {
   return FetchLinksUsecase(ref.watch(linkRepositoryProvider));
+}
+
+@riverpod
+FetchPublicLinksUsecase fetchPublicLinksUsecase(Ref ref) {
+  return FetchPublicLinksUsecase(ref.watch(linkRepositoryProvider));
 }
 
 @riverpod

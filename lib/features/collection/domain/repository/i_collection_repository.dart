@@ -8,6 +8,10 @@ abstract interface class ICollectionRepository {
     int pageSize = 20,
   });
   Future<Result<CollectionEntity>> getCollectionById(String id);
+
+  /// Reads a `public` collection regardless of owner (read-only share view).
+  /// Fails when the id is absent or the collection is not public.
+  Future<Result<CollectionEntity>> getPublicCollectionById(String id);
   Future<Result<CollectionEntity>> createCollection(
     CollectionEntity collection,
   );

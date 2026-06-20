@@ -194,6 +194,54 @@ final class FetchLinksUsecaseProvider
 
 String _$fetchLinksUsecaseHash() => r'c46a7b264a9d1eba6a51aa4ea7a3e4e59ab204c4';
 
+@ProviderFor(fetchPublicLinksUsecase)
+final fetchPublicLinksUsecaseProvider = FetchPublicLinksUsecaseProvider._();
+
+final class FetchPublicLinksUsecaseProvider
+    extends
+        $FunctionalProvider<
+          FetchPublicLinksUsecase,
+          FetchPublicLinksUsecase,
+          FetchPublicLinksUsecase
+        >
+    with $Provider<FetchPublicLinksUsecase> {
+  FetchPublicLinksUsecaseProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'fetchPublicLinksUsecaseProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$fetchPublicLinksUsecaseHash();
+
+  @$internal
+  @override
+  $ProviderElement<FetchPublicLinksUsecase> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  FetchPublicLinksUsecase create(Ref ref) {
+    return fetchPublicLinksUsecase(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(FetchPublicLinksUsecase value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<FetchPublicLinksUsecase>(value),
+    );
+  }
+}
+
+String _$fetchPublicLinksUsecaseHash() =>
+    r'46c9a4f6b7b47f9c1d1b4265ffe6184d039b87a5';
+
 @ProviderFor(createLinkUsecase)
 final createLinkUsecaseProvider = CreateLinkUsecaseProvider._();
 

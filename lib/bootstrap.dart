@@ -6,9 +6,11 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:linknote/app/app.dart';
+import 'package:linknote/app/router/routes.dart';
 import 'package:linknote/core/config/app_config.dart';
 import 'package:linknote/core/logger/app_logger.dart';
 import 'package:linknote/core/storage/storage_service.dart';
+import 'package:linknote/features/collection/presentation/provider/pending_public_collection_provider.dart';
 import 'package:linknote/features/share_intent/domain/service/shared_intent_service.dart';
 import 'package:linknote/features/share_intent/presentation/provider/pending_shared_url_provider.dart';
 import 'package:receive_sharing_intent/receive_sharing_intent.dart';
@@ -33,13 +35,26 @@ Future<void> boot(
     anonKey: env.supabaseAnonKey,
   );
 
-  final initialSharedUrl = await _readInitialSharedUrl();
+  final initialPayload = await _readInitialSharedPayload();
 
   final container = ProviderContainer();
-  if (initialSharedUrl != null) {
-    container
-        .read(pendingSharedUrlProvider.notifier)
-        .setInitial(initialSharedUrl);
+  if (initialPayload != null) {
+    // A `linknote://collections/public/<id>` deep link and a shared web URL
+    // both arrive here via receive_sharing_intent. Classify: the former opens
+    // the read-only public view, the latter seeds the link-add prefill.
+    final publicCollectionId = SharedIntentService.extractPublicCollectionId(
+      initialPayload,
+    );
+    if (publicCollectionId != null) {
+      container
+          .read(pendingPublicCollectionProvider.notifier)
+          .setInitial(Routes.publicCollectionDetailPath(publicCollectionId));
+    } else {
+      final url = SharedIntentService.extractUrl(initialPayload);
+      if (url != null) {
+        container.read(pendingSharedUrlProvider.notifier).setInitial(url);
+      }
+    }
   }
 
   runApp(
@@ -50,17 +65,18 @@ Future<void> boot(
   );
 }
 
-/// Read a cold-start share-intent payload once, extract a URL if present,
-/// and reset the native buffer so warm-resume streams are not replayed.
-Future<String?> _readInitialSharedUrl() async {
+/// Read the cold-start share-intent payload once and reset the native buffer
+/// so warm-resume streams are not replayed. Returns the raw `path` payload
+/// (a shared URL or a `linknote://` deep link); classification happens in
+/// [boot].
+Future<String?> _readInitialSharedPayload() async {
   try {
     final media = await ReceiveSharingIntent.instance.getInitialMedia();
     if (media.isEmpty) return null;
-    // Phase 1: URL-only. `path` carries the shared text/URL payload.
+    // `path` carries the shared text/URL or deep-link payload.
     final payload = media.first.path;
-    final url = SharedIntentService.extractUrl(payload);
     await ReceiveSharingIntent.instance.reset();
-    return url;
+    return payload;
   } on Object catch (error, stack) {
     appLogger.w(
       'ReceiveSharingIntent initial read failed',

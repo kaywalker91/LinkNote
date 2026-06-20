@@ -210,6 +210,45 @@ void main() {
   });
 
   // ---------------------------------------------------------------------------
+  // getPublicCollectionById
+  // ---------------------------------------------------------------------------
+  group('getPublicCollectionById', () {
+    test('should return remote data without caching it', () async {
+      // Arrange
+      when(
+        () => mockRemote.getPublicCollectionById(any()),
+      ).thenAnswer((_) async => success(tCollection));
+
+      // Act
+      final result = await sut.getPublicCollectionById('col-1');
+
+      // Assert
+      expect(result.isSuccess, isTrue);
+      expect(result.data, equals(tCollection));
+      verify(() => mockRemote.getPublicCollectionById('col-1')).called(1);
+      // A non-owner's public collection must not pollute the owner cache.
+      verifyNever(() => mockLocal.cacheSingleCollection(any()));
+      verifyNever(() => mockLocal.getCachedCollectionById(any()));
+    });
+
+    test('should propagate remote failure without cache fallback', () async {
+      // Arrange
+      const tFailure = Failure.unknown();
+      when(
+        () => mockRemote.getPublicCollectionById(any()),
+      ).thenAnswer((_) async => error(tFailure));
+
+      // Act
+      final result = await sut.getPublicCollectionById('col-1');
+
+      // Assert
+      expect(result.isFailure, isTrue);
+      expect(result.failure, equals(tFailure));
+      verifyNever(() => mockLocal.getCachedCollectionById(any()));
+    });
+  });
+
+  // ---------------------------------------------------------------------------
   // createCollection
   // ---------------------------------------------------------------------------
   group('createCollection', () {

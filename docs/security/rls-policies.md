@@ -59,11 +59,31 @@ CREATE POLICY "collections_delete_own"
 - `public` 은 현재 **백엔드 무효과** — 비소유자/익명 read 경로가 클라이언트
   코드에도, RLS 에도 존재하지 않는다. pill·토글 UI 표시용 마커일 뿐이다.
 
-owner-only 를 유지하는 것이 의도된 설계다(Session 64 결정). `public` 컬렉션을
-비소유자에게 노출하려면 SELECT 정책에 `OR visibility = 'public'` 을 추가해야
-하는데, 이는 **데이터 노출 경로를 신설**하므로 공유/공개 뷰 기능을 실제로
-구현하는 별도의 의도적 결정에서만 수행한다. migration_63 은 이 owner-only
-정책을 멱등하게 재선언해 private 보장을 버전 관리에 명문화한다.
+owner-only 는 Session 64 까지 유지됐다. **Session 65 (migration_64)** 에서
+공개/공유 뷰 기능을 실제로 구현하며 이 데이터 노출 경로를 의도적으로 신설했다:
+
+- **collections SELECT**: `USING (user_id = auth.uid() OR visibility = 'public')`
+  — 소유자 또는 (public 일 때) 모든 authenticated 사용자가 read 가능.
+- **links SELECT (additive)**: 부모 컬렉션이 public 이면 read 허용하는 정책을
+  추가. 기존 `links_select_own` 은 그대로 두고 permissive OR 로 결합되므로
+  소유자 격리는 유지되고 read 만 넓어진다.
+- **쓰기는 불변**: INSERT/UPDATE/DELETE 는 양 테이블 모두 owner-only 유지 →
+  비소유자의 public 컬렉션 접근은 **strictly read-only**.
+
+### Blast radius (보안 AC)
+
+- 적용 후 **모든 authenticated 사용자**가 (a) 모든 `public` 컬렉션 행, (b) 그
+  안의 모든 링크(`url`/title/tags 등)를 read 할 수 있다. **per-share 토큰이
+  없다** — visibility 는 global binary 이고, 딥링크는 접근 권한이 아니라 단순
+  포인터다(public 컬렉션 UUID 를 알/추측하는 누구나 read 가능).
+- `anon` 역할에는 어떤 정책도 부여하지 않는다 → 미인증/웹 호출자에게는
+  노출되지 않는다(대상: 로그인 사용자 한정).
+- `private` 컬렉션·링크는 비소유자에게 불가시. `public → private` 전환 시 RLS
+  가 매 쿼리 재평가되어 비소유자 read 가 **즉시 차단**된다.
+
+> ⚠️ migration_64 의 **라이브 적용·검증은 대시보드 액세스 필요(blocked)**.
+> 적용 전까지 비소유자 read 는 0 행을 반환해 클라이언트 기능이 inert 하므로,
+> 마이그레이션 적용은 **하드 릴리스 게이트**다.
 
 > ⚠️ `getCollections`(목록 조회)는 명시적 `.eq('user_id', ...)` 필터 없이 RLS
 > 에만 의존한다. 따라서 위 정책이 라이브 DB 에 **실제 enable** 되어 있어야

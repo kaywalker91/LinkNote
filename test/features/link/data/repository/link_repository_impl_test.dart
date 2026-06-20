@@ -298,4 +298,61 @@ void main() {
       ).called(1);
     });
   });
+
+  // ---------------------------------------------------------------------------
+  // getPublicLinksByCollectionId
+  // ---------------------------------------------------------------------------
+  group('getPublicLinksByCollectionId', () {
+    test('returns remote data without caching it', () async {
+      // Arrange
+      when(
+        () => mockRemote.getPublicLinksByCollectionId(
+          any(),
+          cursor: any(named: 'cursor'),
+          pageSize: any(named: 'pageSize'),
+        ),
+      ).thenAnswer((_) async => success(tPaginatedState));
+
+      // Act
+      final result = await sut.getPublicLinksByCollectionId('col-1');
+
+      // Assert
+      expect(result.isSuccess, isTrue);
+      expect(result.data, equals(tPaginatedState));
+      verify(
+        () => mockRemote.getPublicLinksByCollectionId(
+          'col-1',
+          cursor: any(named: 'cursor'),
+          pageSize: any(named: 'pageSize'),
+        ),
+      ).called(1);
+      // Another owner's public links must not pollute this user's cache.
+      verifyNever(() => mockLocal.cacheLinks(any()));
+    });
+
+    test('propagates remote failure without cache fallback', () async {
+      // Arrange
+      const tFailure = Failure.unknown();
+      when(
+        () => mockRemote.getPublicLinksByCollectionId(
+          any(),
+          cursor: any(named: 'cursor'),
+          pageSize: any(named: 'pageSize'),
+        ),
+      ).thenAnswer((_) async => error(tFailure));
+
+      // Act
+      final result = await sut.getPublicLinksByCollectionId('col-1');
+
+      // Assert
+      expect(result.isFailure, isTrue);
+      expect(result.failure, equals(tFailure));
+      verifyNever(
+        () => mockLocal.getCachedLinks(
+          favoritesOnly: any(named: 'favoritesOnly'),
+          collectionId: any(named: 'collectionId'),
+        ),
+      );
+    });
+  });
 }

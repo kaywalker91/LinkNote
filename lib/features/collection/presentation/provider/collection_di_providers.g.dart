@@ -251,6 +251,57 @@ final class GetCollectionDetailUsecaseProvider
 String _$getCollectionDetailUsecaseHash() =>
     r'17a09b106e3ce86a63cb1e83fbcbddb63226f0fc';
 
+@ProviderFor(getPublicCollectionDetailUsecase)
+final getPublicCollectionDetailUsecaseProvider =
+    GetPublicCollectionDetailUsecaseProvider._();
+
+final class GetPublicCollectionDetailUsecaseProvider
+    extends
+        $FunctionalProvider<
+          GetPublicCollectionDetailUsecase,
+          GetPublicCollectionDetailUsecase,
+          GetPublicCollectionDetailUsecase
+        >
+    with $Provider<GetPublicCollectionDetailUsecase> {
+  GetPublicCollectionDetailUsecaseProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'getPublicCollectionDetailUsecaseProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$getPublicCollectionDetailUsecaseHash();
+
+  @$internal
+  @override
+  $ProviderElement<GetPublicCollectionDetailUsecase> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  GetPublicCollectionDetailUsecase create(Ref ref) {
+    return getPublicCollectionDetailUsecase(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(GetPublicCollectionDetailUsecase value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<GetPublicCollectionDetailUsecase>(
+        value,
+      ),
+    );
+  }
+}
+
+String _$getPublicCollectionDetailUsecaseHash() =>
+    r'e2743b5d848d145e6362c06b7dc06806dac95cda';
+
 @ProviderFor(createCollectionUsecase)
 final createCollectionUsecaseProvider = CreateCollectionUsecaseProvider._();
 
