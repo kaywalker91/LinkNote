@@ -23,5 +23,9 @@
 -keepattributes SourceFile,LineNumberTable
 -keep public class * extends java.lang.Exception
 
+## Play Core (Flutter deferred components — referenced by the engine but
+## unused here; suppress R8 missing-class errors instead of bundling Play Core)
+-dontwarn com.google.android.play.core.**
+
 ## R8 full mode
 -dontwarn java.lang.invoke.StringConcatFactory
