@@ -8,6 +8,8 @@ CollectionEntity _make({
   String name = 'Flutter Resources',
   int linkCount = 12,
   String? description,
+  CollectionVisibility visibility = CollectionVisibility.private,
+  DateTime? lockedAt,
 }) {
   return CollectionEntity(
     id: id,
@@ -16,6 +18,8 @@ CollectionEntity _make({
     description: description,
     createdAt: DateTime(2026),
     updatedAt: DateTime(2026),
+    visibility: visibility,
+    lockedAt: lockedAt,
   );
 }
 
@@ -66,6 +70,52 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.byIcon(Icons.folder_rounded), findsOneWidget);
+    });
+
+    testWidgets('public collection renders a Globe pill', (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: LnCollectionCard(
+              collection: _make(visibility: CollectionVisibility.public),
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.byIcon(Icons.public), findsOneWidget);
+      expect(find.byIcon(Icons.lock_outline), findsNothing);
+    });
+
+    testWidgets('locked collection renders a Lock pill', (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: LnCollectionCard(
+              collection: _make(lockedAt: DateTime(2026, 5)),
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.byIcon(Icons.lock_outline), findsOneWidget);
+      expect(find.byIcon(Icons.public), findsNothing);
+    });
+
+    testWidgets('private unlocked collection renders no pill', (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: LnCollectionCard(collection: _make()),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.byIcon(Icons.public), findsNothing);
+      expect(find.byIcon(Icons.lock_outline), findsNothing);
     });
 
     testWidgets('renders deterministic tone for same id', (tester) async {

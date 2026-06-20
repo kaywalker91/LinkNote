@@ -48,6 +48,27 @@ CREATE POLICY "collections_delete_own"
   USING (user_id = auth.uid());
 ```
 
+## visibility 컬럼과 RLS
+
+`collections.visibility`(`'public'` | `'private'`, migration_59)와 in-app 토글
+(#54)은 **읽기 접근 제어를 변경하지 않는다**. 위 `collections_select_own`
+정책은 `user_id = auth.uid()` owner-only 이므로:
+
+- `private` 는 **이미 강제됨** — 비소유자는 visibility 값과 무관하게 어떤 행도
+  읽을 수 없다. 별도 정책이 필요 없다.
+- `public` 은 현재 **백엔드 무효과** — 비소유자/익명 read 경로가 클라이언트
+  코드에도, RLS 에도 존재하지 않는다. pill·토글 UI 표시용 마커일 뿐이다.
+
+owner-only 를 유지하는 것이 의도된 설계다(Session 64 결정). `public` 컬렉션을
+비소유자에게 노출하려면 SELECT 정책에 `OR visibility = 'public'` 을 추가해야
+하는데, 이는 **데이터 노출 경로를 신설**하므로 공유/공개 뷰 기능을 실제로
+구현하는 별도의 의도적 결정에서만 수행한다. migration_63 은 이 owner-only
+정책을 멱등하게 재선언해 private 보장을 버전 관리에 명문화한다.
+
+> ⚠️ `getCollections`(목록 조회)는 명시적 `.eq('user_id', ...)` 필터 없이 RLS
+> 에만 의존한다. 따라서 위 정책이 라이브 DB 에 **실제 enable** 되어 있어야
+> 격리가 성립한다. 적용·검증은 Supabase 대시보드 액세스가 필요하다.
+
 ## links 테이블
 
 ```sql
