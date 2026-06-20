@@ -47,6 +47,21 @@ class LinkRepositoryImpl implements ILinkRepository {
   }
 
   @override
+  Future<Result<PaginatedState<LinkEntity>>> getPublicLinksByCollectionId(
+    String collectionId, {
+    String? cursor,
+    int pageSize = 20,
+  }) async {
+    // No local caching: another owner's public links must not pollute this
+    // user's id-keyed cache. Return the remote result directly.
+    return _remoteDataSource.getPublicLinksByCollectionId(
+      collectionId,
+      cursor: cursor,
+      pageSize: pageSize,
+    );
+  }
+
+  @override
   Future<Result<LinkEntity>> getLinkById(String id) async {
     final remote = await _remoteDataSource.getLinkById(id);
 

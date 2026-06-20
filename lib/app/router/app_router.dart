@@ -7,9 +7,11 @@ import 'package:linknote/features/auth/presentation/provider/auth_provider.dart'
 import 'package:linknote/features/auth/presentation/screens/login_screen.dart';
 import 'package:linknote/features/auth/presentation/screens/signup_screen.dart';
 import 'package:linknote/features/auth/presentation/screens/splash_screen.dart';
+import 'package:linknote/features/collection/presentation/provider/pending_public_collection_provider.dart';
 import 'package:linknote/features/collection/presentation/screens/collection_detail_screen.dart';
 import 'package:linknote/features/collection/presentation/screens/collection_form_screen.dart';
 import 'package:linknote/features/collection/presentation/screens/collection_list_screen.dart';
+import 'package:linknote/features/collection/presentation/screens/public_collection_detail_screen.dart';
 import 'package:linknote/features/link/presentation/screens/home_screen.dart';
 import 'package:linknote/features/link/presentation/screens/link_add_screen.dart';
 import 'package:linknote/features/link/presentation/screens/link_detail_screen.dart';
@@ -67,6 +69,15 @@ GoRouter appRouter(Ref ref) {
 
       if (!isAuthenticated && !isLoginOrSignup) return Routes.login;
       if (isAuthenticated && (isLoginOrSignup || location == Routes.splash)) {
+        // Cold-start public-collection deep link: bootstrap classified a
+        // `linknote://collections/public/<id>` payload and seeded this
+        // provider. Consume it once and land on the read-only view. Checked
+        // before the share prefill — a single cold start yields at most one.
+        final pendingPublic = ref.read(pendingPublicCollectionProvider);
+        if (pendingPublic != null) {
+          ref.read(pendingPublicCollectionProvider.notifier).consume();
+          return pendingPublic;
+        }
         // Cold-start share intent: when a URL payload was captured at boot,
         // consume it once and land on the prefill form instead of home.
         final pending = ref.read(pendingSharedUrlProvider);
@@ -127,6 +138,15 @@ GoRouter appRouter(Ref ref) {
         parentNavigatorKey: _rootNavigatorKey,
         builder: (context, state) => LinkEditScreen(
           linkId: state.pathParameters['id']!,
+        ),
+      ),
+
+      // Read-only public collection share view — full-screen, deep-linkable.
+      GoRoute(
+        path: Routes.publicCollectionDetail,
+        parentNavigatorKey: _rootNavigatorKey,
+        builder: (context, state) => PublicCollectionDetailScreen(
+          collectionId: state.pathParameters['id']!,
         ),
       ),
 

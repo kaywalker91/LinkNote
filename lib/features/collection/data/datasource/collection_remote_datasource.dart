@@ -77,6 +77,38 @@ class CollectionRemoteDataSource {
     }
   }
 
+  /// Reads a `public` collection without scoping to the caller's `user_id`.
+  ///
+  /// Backs the read-only public-share view: any authenticated user may open a
+  /// public collection. The `.eq('visibility', 'public')` filter is app-level
+  /// defense-in-depth — a `private` row is never surfaced even if RLS regresses,
+  /// and the value lets the presentation layer gate the public links fetch.
+  /// `maybeSingle()` returns a clean not-found ([Failure.unknown]) instead of a
+  /// server error when the id is absent, not public, or RLS-blocked.
+  Future<Result<CollectionEntity>> getPublicCollectionById(String id) async {
+    try {
+      final response = await _client
+          .from('collections')
+          .select(_selectQuery)
+          .eq('id', id)
+          .eq('visibility', 'public')
+          .maybeSingle();
+
+      if (response == null) {
+        return error(const Failure.unknown());
+      }
+
+      return success(
+        CollectionMapper.toEntity(CollectionDto.fromJson(response)),
+      );
+    } on PostgrestException catch (e) {
+      return error(Failure.server(message: e.message));
+    } on Object catch (e, st) {
+      appLogger.w('collection remote failure', error: e, stackTrace: st);
+      return error(const Failure.unknown());
+    }
+  }
+
   Future<Result<CollectionEntity>> createCollection(
     CollectionEntity collection,
     String userId,

@@ -20,6 +20,7 @@ import 'package:linknote/shared/widgets/ln/ln_link_card.dart';
 import 'package:linknote/shared/widgets/ln/ln_top_bar.dart';
 import 'package:linknote/shared/widgets/skeleton/link_card_skeleton.dart';
 import 'package:linknote/shared/widgets/skeleton/profile_header_skeleton.dart';
+import 'package:share_plus/share_plus.dart';
 
 class CollectionDetailScreen extends ConsumerWidget {
   const CollectionDetailScreen({required this.collectionId, super.key});
@@ -44,7 +45,15 @@ class CollectionDetailScreen extends ConsumerWidget {
           orElse: () => '컬렉션',
         ),
         actions: detailAsync.maybeWhen(
-          data: (_) => [
+          data: (collection) => [
+            // Share is only meaningful once the collection is public (the
+            // deep link resolves to nothing for a private collection).
+            if (collection.visibility == CollectionVisibility.public)
+              LnIconBtn(
+                icon: Icons.ios_share_rounded,
+                tooltip: '공유',
+                onPressed: () => _shareCollection(collectionId),
+              ),
             LnIconBtn(
               icon: Icons.edit_outlined,
               tooltip: '편집',
@@ -137,6 +146,15 @@ class CollectionDetailScreen extends ConsumerWidget {
         ),
       ),
     );
+  }
+
+  /// Shares a deep link to the read-only public view. The custom `linknote://`
+  /// scheme (triple-slash = empty authority) makes go_router match the path
+  /// `/collections/public/<id>` on the receiving device.
+  Future<void> _shareCollection(String collectionId) async {
+    final link =
+        'linknote://${Routes.publicCollectionDetailPath(collectionId)}';
+    await SharePlus.instance.share(ShareParams(text: link));
   }
 
   Future<void> _confirmDelete(BuildContext context, WidgetRef ref) async {

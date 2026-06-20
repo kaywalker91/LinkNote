@@ -82,6 +82,54 @@ class LinkRemoteDataSource {
     }
   }
 
+  /// Reads the links of a `public` collection without scoping to the caller's
+  /// `user_id`. Backs the read-only public-share view.
+  ///
+  /// The query is identical to [getLinks] filtered by `collection_id`; what
+  /// makes non-owner rows visible is the additive `links_select_public_collection`
+  /// RLS policy (a link is readable when its parent collection is public). The
+  /// caller is expected to confirm the parent collection resolved as public
+  /// before invoking this (presentation-layer gate).
+  Future<Result<PaginatedState<LinkEntity>>> getPublicLinksByCollectionId(
+    String collectionId, {
+    String? cursor,
+    int pageSize = 20,
+  }) async {
+    try {
+      var query = _client
+          .from('links')
+          .select(_selectQuery)
+          .eq('collection_id', collectionId);
+
+      if (cursor != null) {
+        query = query.lt('created_at', cursor);
+      }
+
+      final response = await query
+          .order('created_at', ascending: false)
+          .limit(pageSize + 1);
+
+      final hasMore = response.length > pageSize;
+      final rawItems = hasMore ? response.sublist(0, pageSize) : response;
+      final items = parseRows(rawItems.cast<Map<String, dynamic>>());
+
+      return success(
+        PaginatedState<LinkEntity>(
+          items: items,
+          hasMore: hasMore,
+          nextCursor: items.isNotEmpty
+              ? items.last.createdAt.toUtc().toIso8601String()
+              : null,
+        ),
+      );
+    } on PostgrestException catch (e) {
+      return error(Failure.server(message: e.message));
+    } on Object catch (e, st) {
+      appLogger.w('link remote failure', error: e, stackTrace: st);
+      return error(const Failure.unknown());
+    }
+  }
+
   Future<Result<LinkEntity>> getLinkById(String id) async {
     try {
       final response = await _client

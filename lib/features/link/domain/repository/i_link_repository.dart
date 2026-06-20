@@ -10,6 +10,14 @@ abstract interface class ILinkRepository {
     String? collectionId,
   });
   Future<Result<LinkEntity>> getLinkById(String id);
+
+  /// Reads the links of a `public` collection regardless of owner (read-only
+  /// share view). Relies on the public-collection RLS policy for access.
+  Future<Result<PaginatedState<LinkEntity>>> getPublicLinksByCollectionId(
+    String collectionId, {
+    String? cursor,
+    int pageSize = 20,
+  });
   Future<Result<LinkEntity>> createLink(LinkEntity link);
   Future<Result<LinkEntity>> updateLink(LinkEntity link);
   Future<Result<void>> deleteLink(String id);

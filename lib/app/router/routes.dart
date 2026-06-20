@@ -22,8 +22,15 @@ abstract final class Routes {
   static const String collectionEdit = '/collections/:id/edit';
   static const String settings = '/profile/settings';
 
+  // Read-only public collection share view (root navigator, deep-linkable via
+  // `linknote:///collections/public/<id>`). The static `public` segment
+  // disambiguates it from `collectionDetail`'s `:id` (ids are UUIDs).
+  static const String publicCollectionDetail = '/collections/public/:id';
+
   static String linkDetailPath(String id) => '/links/$id';
   static String linkEditPath(String id) => '/links/$id/edit';
   static String collectionDetailPath(String id) => '/collections/$id';
   static String collectionEditPath(String id) => '/collections/$id/edit';
+  static String publicCollectionDetailPath(String id) =>
+      '/collections/public/$id';
 }

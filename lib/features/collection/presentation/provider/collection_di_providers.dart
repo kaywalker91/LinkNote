@@ -9,6 +9,7 @@ import 'package:linknote/features/collection/domain/usecase/create_collection_us
 import 'package:linknote/features/collection/domain/usecase/delete_collection_usecase.dart';
 import 'package:linknote/features/collection/domain/usecase/get_collection_detail_usecase.dart';
 import 'package:linknote/features/collection/domain/usecase/get_collections_usecase.dart';
+import 'package:linknote/features/collection/domain/usecase/get_public_collection_detail_usecase.dart';
 import 'package:linknote/features/collection/domain/usecase/update_collection_usecase.dart';
 import 'package:linknote/features/collection/domain/usecase/update_collection_visibility_usecase.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -50,6 +51,13 @@ GetCollectionsUsecase getCollectionsUsecase(Ref ref) {
 @riverpod
 GetCollectionDetailUsecase getCollectionDetailUsecase(Ref ref) {
   return GetCollectionDetailUsecase(ref.watch(collectionRepositoryProvider));
+}
+
+@riverpod
+GetPublicCollectionDetailUsecase getPublicCollectionDetailUsecase(Ref ref) {
+  return GetPublicCollectionDetailUsecase(
+    ref.watch(collectionRepositoryProvider),
+  );
 }
 
 @riverpod
