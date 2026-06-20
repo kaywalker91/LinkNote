@@ -182,5 +182,51 @@ void main() {
         ],
       ),
     );
+
+    // Pill variants: base `collections` are private + unlocked (no pill).
+    // These cover the Globe (public) and Lock (lockedAt) render paths.
+    final publicCollection = collections.first.copyWith(
+      name: 'Public picks',
+      visibility: CollectionVisibility.public,
+    );
+    final lockedCollection = collections.first.copyWith(
+      name: 'Locked vault',
+      lockedAt: DateTime.utc(2026),
+    );
+
+    Widget collectionPillScenario({
+      required bool dark,
+      required CollectionEntity card,
+    }) => themedScenario(
+      dark: dark,
+      width: 180,
+      child: LnCollectionCard(collection: card),
+    );
+
+    goldenTest(
+      'LnCollectionCard pills — public/locked × light/dark',
+      fileName: 'ln_collection_card_pills',
+      builder: () => GoldenTestGroup(
+        columns: 2,
+        children: [
+          GoldenTestScenario(
+            name: 'public (Globe) / light',
+            child: collectionPillScenario(dark: false, card: publicCollection),
+          ),
+          GoldenTestScenario(
+            name: 'public (Globe) / dark',
+            child: collectionPillScenario(dark: true, card: publicCollection),
+          ),
+          GoldenTestScenario(
+            name: 'locked (Lock) / light',
+            child: collectionPillScenario(dark: false, card: lockedCollection),
+          ),
+          GoldenTestScenario(
+            name: 'locked (Lock) / dark',
+            child: collectionPillScenario(dark: true, card: lockedCollection),
+          ),
+        ],
+      ),
+    );
   });
 }

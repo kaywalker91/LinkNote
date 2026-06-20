@@ -43,6 +43,55 @@ class LnCollectionCard extends StatelessWidget {
     return values[hash % values.length];
   }
 
+  // Visual indicator only — NOT access control. A Lock pill does not gate
+  // entry; real enforcement (backend RLS) is a separate track. These pills
+  // surface the collection's own visibility/lock state, mirroring the parent
+  // pills on LnLinkCard.
+  List<Widget> _visibilityPills(BuildContext context) {
+    final palette = context.palette;
+    return [
+      if (collection.visibility == CollectionVisibility.public)
+        _pill(
+          icon: Icons.public,
+          bg: palette.forestSoft,
+          fg: palette.forestInk,
+          label: 'Public',
+        ),
+      if (collection.lockedAt != null)
+        _pill(
+          icon: Icons.lock_outline,
+          bg: palette.slateSoft,
+          fg: palette.slate,
+          label: 'Locked',
+        ),
+    ];
+  }
+
+  Widget _pill({
+    required IconData icon,
+    required Color bg,
+    required Color fg,
+    required String label,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 6),
+      child: Tooltip(
+        message: label,
+        child: Semantics(
+          label: label,
+          child: Container(
+            padding: const EdgeInsets.all(3),
+            decoration: BoxDecoration(
+              color: bg,
+              borderRadius: BorderRadius.circular(6),
+            ),
+            child: Icon(icon, size: 12, color: fg),
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final palette = context.palette;
@@ -82,11 +131,9 @@ class LnCollectionCard extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                     ),
                     const SizedBox(height: 4),
-                    Text(
-                      '링크 ${collection.linkCount}개',
-                      style: AppTextStyles.caption.copyWith(
-                        color: palette.ink3,
-                      ),
+                    _CountRow(
+                      label: '링크 ${collection.linkCount}개',
+                      pills: _visibilityPills(context),
                     ),
                   ],
                 ),
@@ -95,6 +142,33 @@ class LnCollectionCard extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+/// Link-count caption with optional trailing visibility/lock pills. When there
+/// are no pills the bare [Text] is rendered (identical to the pre-pill layout),
+/// keeping the no-pill golden byte-stable.
+class _CountRow extends StatelessWidget {
+  const _CountRow({required this.label, required this.pills});
+
+  final String label;
+  final List<Widget> pills;
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = context.palette;
+    final text = Text(
+      label,
+      style: AppTextStyles.caption.copyWith(color: palette.ink3),
+    );
+    if (pills.isEmpty) return text;
+    return Row(
+      children: [
+        text,
+        const Spacer(),
+        ...pills,
+      ],
     );
   }
 }
