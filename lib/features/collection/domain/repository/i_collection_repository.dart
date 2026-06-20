@@ -14,5 +14,13 @@ abstract interface class ICollectionRepository {
   Future<Result<CollectionEntity>> updateCollection(
     CollectionEntity collection,
   );
+
+  /// Persists only the visibility/lock state, leaving name/description intact.
+  Future<Result<CollectionEntity>> updateCollectionVisibility({
+    required String id,
+    required CollectionVisibility visibility,
+    required DateTime? lockedAt,
+  });
+
   Future<Result<void>> deleteCollection(String id);
 }

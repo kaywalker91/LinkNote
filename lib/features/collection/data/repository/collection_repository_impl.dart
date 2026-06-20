@@ -74,6 +74,24 @@ class CollectionRepositoryImpl implements ICollectionRepository {
   }
 
   @override
+  Future<Result<CollectionEntity>> updateCollectionVisibility({
+    required String id,
+    required CollectionVisibility visibility,
+    required DateTime? lockedAt,
+  }) async {
+    final result = await _remote.updateCollectionVisibility(
+      id: id,
+      userId: userId,
+      visibility: visibility,
+      lockedAt: lockedAt,
+    );
+    if (result.isSuccess) {
+      await _local.cacheSingleCollection(result.data!);
+    }
+    return result;
+  }
+
+  @override
   Future<Result<void>> deleteCollection(String id) async {
     final result = await _remote.deleteCollection(id, userId);
     if (result.isSuccess) {

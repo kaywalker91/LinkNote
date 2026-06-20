@@ -39,4 +39,18 @@ class CollectionMapper {
       'updated_at': DateTime.now().toUtc().toIso8601String(),
     };
   }
+
+  /// Focused PATCH payload for the in-app visibility/lock toggle. Deliberately
+  /// excludes name/description so a toggle never clobbers user-edited text
+  /// (and the name/desc edit path never clobbers visibility — see [toUpdateJson]).
+  static Map<String, dynamic> toVisibilityUpdateJson(
+    CollectionVisibility visibility,
+    DateTime? lockedAt,
+  ) {
+    return {
+      'visibility': visibility.name,
+      'locked_at': lockedAt?.toUtc().toIso8601String(),
+      'updated_at': DateTime.now().toUtc().toIso8601String(),
+    };
+  }
 }

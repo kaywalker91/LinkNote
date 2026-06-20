@@ -10,6 +10,7 @@ import 'package:linknote/features/collection/domain/usecase/delete_collection_us
 import 'package:linknote/features/collection/domain/usecase/get_collection_detail_usecase.dart';
 import 'package:linknote/features/collection/domain/usecase/get_collections_usecase.dart';
 import 'package:linknote/features/collection/domain/usecase/update_collection_usecase.dart';
+import 'package:linknote/features/collection/domain/usecase/update_collection_visibility_usecase.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -59,6 +60,13 @@ CreateCollectionUsecase createCollectionUsecase(Ref ref) {
 @riverpod
 UpdateCollectionUsecase updateCollectionUsecase(Ref ref) {
   return UpdateCollectionUsecase(ref.watch(collectionRepositoryProvider));
+}
+
+@riverpod
+UpdateCollectionVisibilityUsecase updateCollectionVisibilityUsecase(Ref ref) {
+  return UpdateCollectionVisibilityUsecase(
+    ref.watch(collectionRepositoryProvider),
+  );
 }
 
 @riverpod

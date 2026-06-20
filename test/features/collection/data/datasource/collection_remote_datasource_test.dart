@@ -127,6 +127,46 @@ void main() {
     });
   });
 
+  group('updateCollectionVisibility', () {
+    test('should return Failure.server on PostgrestException', () async {
+      when(() => mockClient.from('collections')).thenThrow(
+        const PostgrestException(message: 'Visibility denied', code: '403'),
+      );
+
+      final result = await sut.updateCollectionVisibility(
+        id: 'col-1',
+        userId: 'user-1',
+        visibility: CollectionVisibility.public,
+        lockedAt: null,
+      );
+
+      expect(result.isFailure, isTrue);
+      expect(result.failure, isA<ServerFailure>());
+      expect(result.failure?.message, 'Visibility denied');
+    });
+
+    test('should return Failure.unknown on generic exception', () async {
+      when(
+        () => mockClient.from('collections'),
+      ).thenThrow(Exception('Timeout'));
+
+      final result = await sut.updateCollectionVisibility(
+        id: 'col-1',
+        userId: 'user-1',
+        visibility: CollectionVisibility.private,
+        lockedAt: null,
+      );
+
+      expect(result.isFailure, isTrue);
+      expect(result.failure, isA<UnknownFailure>());
+      expect(
+        result.failure?.message ?? '',
+        isNot(contains('Timeout')),
+        reason: 'raw exception text must not leak into Failure.message (F5)',
+      );
+    });
+  });
+
   group('deleteCollection', () {
     test('should return Failure.server on PostgrestException', () async {
       when(() => mockClient.from('collections')).thenThrow(
