@@ -21,10 +21,10 @@
 | 영역 | 상태 | 담당 |
 |---|---|---|
 | 기능 / 코드 / 테스트 (639 GREEN) | ✅ 성숙 | 코드 |
-| Supabase 백엔드 **라이브 적용** | ❌ blocked | 사용자(대시보드) |
-| Android 릴리스 **서명 인프라** | ❌ 미착수 | 사용자 |
+| Supabase 백엔드 **라이브 적용** (prod) | ✅ 적용+RLS검증 (2026-06-21) | — |
+| Android 릴리스 **서명 인프라** | ✅ keystore+AAB+SHA (2026-06-21) | — |
 | Play Store 등록 | ❌ 미착수 | 사용자 |
-| 실기기 QA | ❌ blocked(서명) | 사용자 |
+| 실기기 QA | 🟠 착수 가능 (서명 해소) | 사용자 |
 | iOS 전체 | ⏸ 대기(Phase 8) | 사용자 |
 
 범례: ✅ 완료 · 🔴 하드 블로커(없으면 업로드/동작 불가) · 🟠 출시 전 검증 · 🟡 출시 위생 · ⏸ 후순위(Android 배포 후)
@@ -49,16 +49,18 @@
 
 > 코드측 준비는 끝나 있음: `signingConfig` 골격 + `key.properties.example` 템플릿 존재. keystore만 만들면 자동 연결됨.
 
-### 1.2 Supabase 백엔드 라이브 적용 (사용자 액션 — 대시보드)
+### 1.2 Supabase 백엔드 라이브 적용 — ✅ prod 적용+검증 (2026-06-21, Session 67)
 
-마이그레이션 SQL은 작성돼 있으나(`scripts/migration_59.sql`, `migration_63_visibility_rls.sql`, `migration_64_public_share_rls.sql`) **실DB 미적용**(대시보드 액세스 blocked).
+prod Supabase 프로젝트에 SQL Editor로 적용 + impersonation RLS 검증 완료.
 
-- [ ] `collections`/`links` **RLS enabled** 확인 (private 강제의 전제)
-- [ ] migration_63 (owner-only SELECT) 적용 + 비소유자 세션 empty-result 검증
-- [ ] migration_64 (public 공유 read 경로) 적용 — **미적용 시 PR #57 public 공유가 동작 안 함**
-- [ ] dev/staging Supabase URL DNS 실패 이슈 해소 (`*.supabase.co` lookup 실패 — 환경/프로젝트 설정 추정, 앱코드 아님)
+- [x] `collections`/`links` **RLS enabled** 확인 (둘 다 `relrowsecurity=true`)
+- [x] migration_59 (`visibility`/`locked_at` 컬럼) — **이미 적용돼 있음**(컬럼 존재 확인). 멱등이라 재실행 불필요
+- [x] migration_64 (public 공유 read 경로) 적용 — `collections_select_own_or_public` + `links_select_public_collection` 정책 생성 확인. 기존 `Users can CRUD own *` (FOR ALL) 위에 SELECT만 OR로 추가
+- [x] 비소유자 RLS 검증 — 랜덤 UUID impersonation 결과 `private_visible=0`, `public_visible=1`, public 링크만 가시(private 누출 0)
+- [~] migration_63 (owner-only SELECT 재선언) — **의도적 스킵**: 기존 FOR ALL 정책이 이미 owner-only를 강제하고 64가 collections SELECT 정책을 대체하므로 net no-op. 파일은 버전관리 기록으로 유지
+- [ ] **dev/staging** Supabase URL DNS 실패 이슈 (`*.supabase.co` lookup 실패 — 환경/프로젝트 설정 추정, 앱코드 아님). **prod 배포엔 비차단** — dev/staging 검증 시 별도 해소
 
-> ⚠️ 클라이언트(#57)만 머지되고 migration_64 미적용 상태로 배포하면 비소유자 공유 기능이 깨진 채 나간다.
+> ✅ migration_64 라이브 적용 완료로 PR #57 public 공유 백엔드가 동작 가능. 앱 딥링크 실제 왕복은 §2 실기기 QA에서 최종 확인.
 
 ### 1.3 iOS 출시 자격 (⏸ Phase 8 — Android 배포 후)
 
@@ -95,9 +97,9 @@
 
 아래가 **모두** 충족돼야 Play Store Internal Test 업로드가 가능하다:
 
-1. 🔴 1.1 release 서명 AAB 생성 + `apksigner verify` 통과
-2. 🔴 1.2 migration_63/64 라이브 적용 + 비소유자 RLS 검증
-3. 🟠 2. 실기기 스모크 + Firebase 콘솔 수신 확인
+1. ✅ 1.1 release 서명 AAB 생성 + `jar verified`(CN=Kaywalker) 통과 + Firebase prod SHA 등록 (2026-06-21)
+2. ✅ 1.2 migration_59/64 prod 라이브 적용 + 비소유자 RLS 검증 (2026-06-21)
+3. 🟠 2. 실기기 스모크 + Firebase 콘솔 수신 확인 (+ Play App Signing 키 SHA 추가 등록)
 4. 🟡 3. 버전/CHANGELOG/리스팅 자산 확정
 
 → 이후 Play Console: Internal → Closed → Open → Production 단계 승격 + 단계 롤아웃 (상세: workflow Phase 7.5).
