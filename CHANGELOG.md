@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.1.6] - 2026-06-21
+
+첫 Play Store 공개 출시 (`pubspec 1.1.6+1`). CHANGELOG의 이전 `1.0.0`~`1.1.5`(2026-04-10/11)는
+공개 배포된 적 없는 **초기 개발 마일스톤**이며, 1.1.6이 실제 첫 배포 버전이다.
+아래 "주요 변경"은 사용자 관점 요약이고, 이어지는 세션별 항목(Session 30~57)이 전체 작업 기록이다.
+
+### 주요 변경 (사용자 관점)
+
+- **공개 컬렉션 읽기전용 공유** — 컬렉션을 `linknote://` 딥링크로 공유하면 로그인 사용자가 읽기전용으로 열람 (#57)
+- **읽기 통계** — 링크별 읽은 횟수·최근 읽음을 링크 상세와 홈 카드에 표시 (Harness Sprint 1~3)
+- **다크 모드 정식화** — forest 팔레트 + 전 화면 brightness-aware 토큰 마이그레이션 (실기기 검증 완료)
+- **디자인 개편** — 4탭 + 중앙 FAB 네비게이션, 2열 컬렉션 그리드, 카드 UI 통일
+- **공유 인텐트** — 외부 앱에서 URL 공유로 링크 저장 (Android, warm/foreground)
+- **검색 강화** — 태그/날짜/즐겨찾기 필터, 검색 히스토리 영속화, 자동완성
+- **안정성** — 데이터 경계 예외 처리 강화(`on Object`), per-row 파싱 내성, 탭 전환 화면 추적 분석
+
+### 상세 (세션별 작업 기록)
+
 ### Added (Session 57 — Harness Sprint-3: LnLinkCard mini ReadingStats badge)
 
 - **`ReadingStatsBadge.compact: bool = false` 파라미터 + compact 분기** (`lib/features/reading_stats/presentation/widget/reading_stats_badge.dart`, additive +33 -0) — totalReads > 0 시 `'{N}회'` 또는 `'{N}회 · {timeAgo}'` 컴팩트 텍스트(`AppTextStyles.caption + context.palette.ink3`)를 `EdgeInsets.only(top: 6)` Padding 으로 감싸 렌더. 0회 / loading / error 모두 `SizedBox.shrink()` (zero pixel, no key). `ValueKey('reading_stats_badge_skeleton')` 은 `compact: true` 분기에서 emit 금지. 기존 `compact: false` 분기는 Sprint-2 baseline ('5회 읽음 · 최근 X일 전' / '아직 읽지 않음' / keyed skeleton) 완전 보존.
