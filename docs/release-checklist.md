@@ -1,6 +1,6 @@
 # LinkNote 출시 체크리스트 (Release Checklist)
 
-**갱신 기준일:** 2026-06-21 (main `342c94e`, PR #58 머지 직후)
+**갱신 기준일:** 2026-07-04 (release build hygiene 확인 + GeneratedPluginRegistrant 정리)
 
 이 문서는 "지금 출시 가능한가?"를 한눈에 판단하는 **단일 게이트 뷰**다.
 단계별 상세 절차·배경은 다음 문서를 참조한다(중복 기술하지 않음):
@@ -15,14 +15,14 @@
 
 ## 0. 현재 상태 한 줄
 
-**기능·코드·테스트는 성숙(639 GREEN, analyze 0), 그러나 "출시 인프라"는 초입.**
-남은 일의 대부분은 코딩이 아니라 **사용자 액션**(keystore 생성, 결제·등록, 대시보드 작업, 실기기 QA)이다.
+**기능·코드·빌드·서명은 출시 준비 완료 수준 (2026-07-04 재검증).**
+남은 주요 작업은 **사용자 액션** (Play Console 등록, 자산 업로드, SHA 등록, 실기기 QA, 개인정보 URL 게시)이다.
 
 | 영역 | 상태 | 담당 |
 |---|---|---|
 | 기능 / 코드 / 테스트 (639 GREEN) | ✅ 성숙 | 코드 |
 | Supabase 백엔드 **라이브 적용** (prod) | ✅ 적용+RLS검증 (2026-06-21) | — |
-| Android 릴리스 **서명 인프라** | ✅ keystore+AAB+SHA (2026-06-21) | — |
+| Android 릴리스 **서명 인프라** | ✅ keystore+AAB+SHA (2026-07-04 재검증) | — |
 | Play Store 등록 | ❌ 미착수 | 사용자 |
 | 실기기 QA | 🟠 착수 가능 (서명 해소) | 사용자 |
 | iOS 전체 | ⏸ 대기(Phase 8) | 사용자 |
@@ -42,10 +42,29 @@
 
 → 지금 `--release` 빌드는 **debug 서명** AAB를 만들고, 이는 Play Store 업로드가 거부된다.
 
-- [ ] Upload keystore 생성 (`keytool`) + **백업 정책 문서화** (분실 시 Play 앱 서명 복구 불가 — 치명적)
-- [ ] `android/key.properties`(gitignored) 작성 → `signingConfigs.release` 실제 주입 확인
-- [ ] `flutter build appbundle --flavor prod --release` + `apksigner verify` 로 **release 서명** 확인
-- [ ] 생성된 release SHA-1/SHA-256 → GCP/Firebase에 등록 (현재 debug SHA-1만 등록됨, `project_firebase_security` 참조)
+- [x] Upload keystore 생성 + key.properties + release AAB 빌드 성공 (2026-07-04 재검증)
+- [x] `flutter build appbundle --flavor prod --release` 성공 (56.7MB), R8 + signingConfig 정상 (fallback 경고 없음)
+- [ ] **릴리스 키 SHA 등록** (Firebase): 
+  SHA1: BE:28:55:35:00:F2:D6:FE:3E:8C:28:4D:4B:4D:12:EF:51:B5:63:C1
+  SHA256: 3E:08:35:E4:C0:09:8A:EA:80:E8:25:10:06:7D:D4:12:86:9B:23:08:C2:88:F0:B9:88:9A:3F:DB:C4:D2:FB:92
+  (upload key, prodRelease variant)
+- [ ] Keystore 안전 백업 + 분실 대비 문서화 (치명적)
+
+#### 빌드 산출물 기록 (uploadable AAB)
+
+| 항목 | 값 |
+|---|---|
+| 빌드일 | 2026-07-04 |
+| 파일 | `build/app/outputs/bundle/prodRelease/app-prod-release.aab` |
+| 크기 | 56,699,086 B (56.7 MB) |
+| 버전 | `1.1.6+2` → versionName 1.1.6 / versionCode 2 (내부테스트 QA 버그 수정 후 재빌드, +1 대체) |
+| 서명 검증 | `jar verified` · `CN=Kaywalker, OU=Kaywalker, O=Kaywalker, L=Seoul, ST=Seoul, C=KR` (릴리스/업로드 키) |
+| 빌드 방식 | `flutter build appbundle --flavor prod --release` (env_prod.g.dart 클린 상태라 clean/build_runner 불요) |
+| **파일 SHA-256** | `1116d738acd219730e4a2c5f70633da5cec689bf570e8891142e9c8e415794e7` |
+
+> 내부테스트(+1) 실기 QA에서 2건 수정 → +2 재빌드: (1) 프로필 서버오류 = prod에 `profiles` 테이블/트리거 부재(`scripts/migration_65_profiles.sql` 적용으로 해소), (2) 로그아웃 멈춤 = `auth_provider` 의 `signedOut` 리스너가 `invalidateSelf()`로 GoRouter를 재생성하던 것을 in-place state 세팅으로 교체. 둘 다 에뮬 실기 검증 GREEN. 이전 +1 SHA(`767c896…`)는 폐기.
+
+> ⚠️ 위 SHA-256은 **AAB 파일 무결성 체크섬**(업로드본 대조용)이다. §1.1의 `SHA256: 3E:08:…` 지문은 **서명 인증서 지문**으로 서로 다른 값이며 혼동 금지. `build/`는 gitignore라 AAB 자체는 커밋되지 않으므로 이 체크섬이 그 산출물의 기록 스냅샷이다. 재빌드 시 값이 바뀔 수 있다(빌드 타임스탬프/환경 차이).
 
 > 코드측 준비는 끝나 있음: `signingConfig` 골격 + `key.properties.example` 템플릿 존재. keystore만 만들면 자동 연결됨.
 
@@ -111,8 +130,9 @@ prod Supabase 프로젝트에 SQL Editor로 적용 + impersonation RLS 검증 �
 - [x] **`CHANGELOG.md` 릴리스 노트 정리** — `[Unreleased]` → `## [1.1.6] - 2026-06-21` 승격, 상단에 "주요 변경(사용자 관점)" 7항목 요약 추가, 세션별 상세는 작업 기록으로 보존. 기존 버전 헤더 재작성 없음
 - [x] **스토어 리스팅 자산 초안** — `docs/store-listing.md` 신규(간단/자세한 설명, 출시 노트 ≤500자, Data safety 양식, 콘텐츠 등급 가이드, 스크린샷 5종 인벤토리). `docs/privacy-policy.md` 신규(실제 수집 항목 기준)
 - [x] **FCM(Android) 착수 여부 결정** — `firebase_messaging` 의존성 존재하나 `lib/` 사용 0건(미배선) 확인. **1.1.6 미포함**, 배선 시 차기 버전(1.2.0)으로 분리 + 개인정보 처리방침에 푸시 토큰 항목 추가
-- [ ] ⚠️ (사용자) `docs/privacy-policy.md` 공개 URL 게시 + Console 입력 + 문의처 이메일 기입
-- [ ] ⚠️ (사용자) 피처 그래픽 1024×500 제작 (Play Console 필수 자산)
+- [x] docs/play-release-execution-guide.md 신규 작성 (단계별 실행 가이드)
+- [ ] (사용자) `docs/privacy-policy.md` 공개 URL 게시 + Console 입력 + 문의처 이메일 (support@kaywalker.app placeholder)
+- [ ] (사용자) 피처 그래픽 1024×500 제작 (세션 이미지 1.jpg 후보 있음) + `docs/assets/feature-graphic.png`로 저장
 
 ---
 
@@ -120,10 +140,11 @@ prod Supabase 프로젝트에 SQL Editor로 적용 + impersonation RLS 검증 �
 
 아래가 **모두** 충족돼야 Play Store Internal Test 업로드가 가능하다:
 
-1. ✅ 1.1 release 서명 AAB 생성 + `jar verified`(CN=Kaywalker) 통과 + Firebase prod SHA 등록 (2026-06-21)
-2. ✅ 1.2 migration_59/64 prod 라이브 적용 + 비소유자 RLS 검증 (2026-06-21)
-3. 🟠 2. 실기기 스모크 + Firebase 콘솔 수신 확인 (+ Play App Signing 키 SHA 추가 등록)
-4. ✅ 3. 버전(1.1.6+1)/CHANGELOG/리스팅 자산 초안 확정 (2026-06-21) — 단, 개인정보 URL 게시·피처 그래픽은 Console 업로드 단계 사용자 액션
+1. ✅ 릴리스 서명 AAB 빌드 성공 + R8 + signingConfig (2026-07-04 재검증)
+2. ✅ Supabase prod RLS + migration 적용
+3. 🟠 Firebase SHA 등록 (릴리스 키) + 개인정보처리방침 URL 게시
+4. 🟠 피처 그래픽 제작 + Play Console 등록정보 입력 + 실기기 QA
+5. ✅ 버전/CHANGELOG/리스팅 초안 + 실행 가이드 (`docs/play-release-execution-guide.md`)
 
 → 이후 Play Console: Internal → Closed → Open → Production 단계 승격 + 단계 롤아웃 (상세: workflow Phase 7.5).
 
