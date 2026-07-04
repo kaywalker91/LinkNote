@@ -1,6 +1,6 @@
 # LinkNote — Play Store 리스팅 자산 (1.1.6)
 
-**작성 기준일:** 2026-06-21
+**작성 기준일:** 2026-07-04 (피처 그래픽 + 실행 가이드 추가)
 **대상 트랙:** Internal → Closed → Open → Production (단계 승격은 `linknote-workflow.md` Phase 7.5 참조)
 
 이 문서는 Play Console "스토어 등록정보(Main store listing)" + "앱 콘텐츠(App content)" 입력용

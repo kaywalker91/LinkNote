@@ -53,6 +53,9 @@ app.*.map.json
 *.keystore
 key.properties
 
+# Flutter generated (auto-regenerated at build; do not commit)
+android/app/src/main/java/io/flutter/plugins/GeneratedPluginRegistrant.java
+
 # Private docs
 docs/interview-talking-points.md
 docs/work_performance/
