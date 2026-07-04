@@ -35,7 +35,7 @@ SHA-256: 3E:08:35:E4:C0:09:8A:EA:80:E8:25:10:06:7D:D4:12:86:9B:23:08:C2:88:F0:B9
    - GitHub Pages (프로젝트 `docs` 폴더 또는 별도 repo)
    - Notion 공개 페이지
    - 전용 도메인 (예: privacy.linknote.app)
-2. 문의처 이메일 채우기 (예: `support@kaywalker.app` 또는 실제 이메일)
+2. 문의처 이메일 채우기 (현재 실제 문의처: `rikygak@gmail.com`)
 3. URL을 메모해 두기 (Console 입력용)
 
 ### 1.3 Firebase SHA 등록 (필수)
