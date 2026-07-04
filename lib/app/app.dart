@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:linknote/app/router/app_router.dart';
 import 'package:linknote/app/theme/app_theme.dart';
 import 'package:linknote/core/constants/app_constants.dart';
+import 'package:linknote/features/app_update/presentation/widget/update_gate.dart';
 import 'package:linknote/features/share_intent/presentation/widget/share_intent_listener.dart';
 import 'package:linknote/shared/providers/theme_mode_provider.dart';
 
@@ -47,7 +48,10 @@ class LinkNoteApp extends ConsumerWidget {
       // subscription and snackbar context survive route changes.
       builder: (context, child) => ShareIntentListener(
         messengerKey: _scaffoldMessengerKey,
-        child: child!,
+        child: UpdateGate(
+          messengerKey: _scaffoldMessengerKey,
+          child: child!,
+        ),
       ),
       localizationsDelegates: localizationsDelegates,
       supportedLocales: supportedLocales,

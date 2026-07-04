@@ -37,9 +37,24 @@ class Auth extends _$Auth with ChangeNotifier {
     // sign-out, token rotation, password change via userUpdated event).
     final subscription = Supabase.instance.client.auth.onAuthStateChange.listen(
       (data) {
-        if (reactiveAuthEvents.contains(data.event)) {
-          ref.invalidateSelf();
-        }
+        if (!reactiveAuthEvents.contains(data.event)) return;
+        // Reconcile auth state IN PLACE instead of ref.invalidateSelf().
+        // invalidateSelf() recreates this notifier instance, which changes
+        // authProvider.notifier's identity. appRouter watches that notifier
+        // (as GoRouter.refreshListenable), so recreating it mid sign-out
+        // rebuilds the entire GoRouter — swapping refreshListenable and
+        // resetting navigation — which freezes the app. Setting state keeps
+        // the notifier (and the router) stable while still reacting to remote
+        // sign-out, token rotation, and user-metadata updates.
+        final session = data.session;
+        state = AsyncData(
+          session == null
+              ? const AuthStateEntity.unauthenticated()
+              : AuthStateEntity.authenticated(
+                  userId: session.user.id,
+                  email: session.user.email ?? '',
+                ),
+        );
       },
     );
     ref.onDispose(subscription.cancel);

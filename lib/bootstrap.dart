@@ -10,6 +10,7 @@ import 'package:linknote/app/router/routes.dart';
 import 'package:linknote/core/config/app_config.dart';
 import 'package:linknote/core/logger/app_logger.dart';
 import 'package:linknote/core/storage/storage_service.dart';
+import 'package:linknote/features/app_update/data/datasource/remote_config_update_datasource.dart';
 import 'package:linknote/features/collection/presentation/provider/pending_public_collection_provider.dart';
 import 'package:linknote/features/share_intent/domain/service/shared_intent_service.dart';
 import 'package:linknote/features/share_intent/presentation/provider/pending_shared_url_provider.dart';
@@ -28,6 +29,9 @@ Future<void> boot(
   await FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(
     !kDebugMode,
   );
+  // Seed Remote Config defaults + fetch policy for the in-app update gate.
+  // Never throws — a failure leaves the gate on inert defaults (no forced UI).
+  await configureUpdateRemoteConfig(isDev: env.isDev);
   await initHive();
   _setup();
   await Supabase.initialize(

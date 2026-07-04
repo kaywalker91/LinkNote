@@ -70,7 +70,7 @@ lib/
   - 여기 포함된 Android `apiKey`는 **공개 클라이언트 식별자**이며 비밀이 아님 (APK에 빌드 타임 임베드되어 누구나 추출 가능)
   - 실질 방어는 Google Cloud Console에서 수행:
     - **Application restrictions**: Android 앱 3개(`app.kaywalker.linknote[.dev|.staging|""]`) + debug/release SHA-1
-    - **API restrictions**: 4개 API만 화이트리스트 — Firebase Installations, FCM, FCM Registration, Cloud Logging
-    - **프로젝트 레벨**: Maps/Translation/Vision/AI 등 과금성 API는 enable하지 않음 (SERVICE_DISABLED 상태 유지)
+    - **API restrictions**: 5개 API만 화이트리스트 — Firebase Installations, FCM, FCM Registration, Cloud Logging, Firebase Remote Config (인앱 업데이트 게이트용, 무료 API)
+    - **프로젝트 레벨**: Maps/Translation/Vision/AI 등 과금성 API는 enable하지 않음 (SERVICE_DISABLED 상태 유지). Firebase Remote Config API는 과금 없음이라 예외적으로 enable
   - GitHub secret scanning이 탐지 시 **False positive**로 닫을 것 (참고: https://firebase.google.com/docs/projects/api-keys)
   - **절대 커밋 금지**: `firebase-adminsdk-*.json`, `service_account*.json`, FCM legacy server key — 이건 진짜 비밀
