@@ -39,18 +39,6 @@ class CollectionListScreen extends ConsumerWidget {
           const SizedBox(width: 4),
         ],
       ),
-      floatingActionButton: Padding(
-        padding: const EdgeInsets.only(bottom: AppSpacing.sm),
-        child: FloatingActionButton(
-          heroTag: 'collections_fab',
-          backgroundColor: context.palette.forest,
-          foregroundColor: Colors.white,
-          elevation: 6,
-          onPressed: () => context.push(Routes.collectionNew),
-          child: const Icon(Icons.add_rounded, size: 24),
-        ),
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       body: collectionsAsync.when(
         loading: () => const _SkeletonGrid(),
         error: (error, _) => ErrorStateWidget.fromError(

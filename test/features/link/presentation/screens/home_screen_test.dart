@@ -179,7 +179,7 @@ void main() {
       expect(find.text('★ 즐겨찾기'), findsOneWidget);
     });
 
-    testWidgets('should NOT have its own FAB (shell provides central FAB)', (
+    testWidgets('should NOT have its own FAB (shell provides global FAB)', (
       tester,
     ) async {
       // Arrange & Act

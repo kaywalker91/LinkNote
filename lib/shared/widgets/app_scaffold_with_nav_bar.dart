@@ -50,7 +50,7 @@ class AppScaffoldWithNavBar extends ConsumerWidget {
         onPressed: () => context.push(Routes.linkAdd),
         child: const Icon(Icons.add_rounded, size: 24),
       ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       bottomNavigationBar: Theme(
         data: Theme.of(context).copyWith(
           navigationBarTheme: NavigationBarThemeData(

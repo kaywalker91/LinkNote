@@ -161,7 +161,9 @@ void main() {
       expect(find.text('링크 3개'), findsOneWidget);
     });
 
-    testWidgets('should show FAB for adding collections', (tester) async {
+    testWidgets('should show add-collection action in the top bar', (
+      tester,
+    ) async {
       await tester.pumpWidget(
         ProviderScope(
           overrides: [
@@ -176,9 +178,11 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      expect(find.byType(FloatingActionButton), findsOneWidget);
-      // FAB + LnTopBar action both render Icons.add_rounded.
-      expect(find.byIcon(Icons.add_rounded), findsNWidgets(2));
+      // The redundant per-screen FAB was removed: add-collection now lives only
+      // in the LnTopBar action, and the global add-link FAB lives in the app
+      // shell (not present in this isolated screen test).
+      expect(find.byType(FloatingActionButton), findsNothing);
+      expect(find.byIcon(Icons.add_rounded), findsOneWidget);
     });
   });
 }
