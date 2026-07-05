@@ -8,6 +8,7 @@ import 'package:linknote/features/collection/presentation/provider/collection_di
 import 'package:linknote/features/collection/presentation/provider/collection_list_provider.dart'
     as collection_list;
 import 'package:linknote/features/link/domain/entity/link_entity.dart';
+import 'package:linknote/features/link/domain/entity/tag_entity.dart';
 import 'package:linknote/features/link/domain/usecase/delete_link_usecase.dart';
 import 'package:linknote/features/link/domain/usecase/fetch_links_usecase.dart';
 import 'package:linknote/features/link/domain/usecase/get_link_detail_usecase.dart';
@@ -16,10 +17,16 @@ import 'package:linknote/features/link/domain/usecase/update_link_usecase.dart';
 import 'package:linknote/features/link/presentation/provider/link_detail_provider.dart';
 import 'package:linknote/features/link/presentation/provider/link_di_providers.dart';
 import 'package:linknote/features/link/presentation/provider/link_list_provider.dart';
+import 'package:linknote/features/search/data/datasource/search_remote_datasource.dart';
+import 'package:linknote/features/search/presentation/provider/search_di_providers.dart';
+import 'package:linknote/features/search/presentation/provider/user_tags_provider.dart';
 import 'package:linknote/shared/models/paginated_state.dart';
 import 'package:mocktail/mocktail.dart';
 
 class MockFetchLinksUsecase extends Mock implements FetchLinksUsecase {}
+
+class MockSearchRemoteDataSource extends Mock
+    implements SearchRemoteDataSource {}
 
 class MockDeleteLinkUsecase extends Mock implements DeleteLinkUsecase {}
 
@@ -223,6 +230,55 @@ void main() {
         expect(state.items.length, 1);
         expect(state.items[0].id, 'link-2');
       });
+
+      test(
+        'should invalidate userTagsProvider so search tag list refreshes',
+        () async {
+          final page = PaginatedState<LinkEntity>(items: [tLink1, tLink2]);
+          when(
+            () => mockFetch.call(
+              cursor: any(named: 'cursor'),
+              favoritesOnly: any(named: 'favoritesOnly'),
+              collectionId: any(named: 'collectionId'),
+            ),
+          ).thenAnswer((_) async => success(page));
+          when(
+            () => mockDelete.call('link-1'),
+          ).thenAnswer((_) async => success(null));
+
+          var tagFetchCount = 0;
+          final mockSearchDs = MockSearchRemoteDataSource();
+          when(mockSearchDs.fetchUserTags).thenAnswer((_) async {
+            tagFetchCount++;
+            return success(const <TagEntity>[]);
+          });
+
+          final container = ProviderContainer(
+            overrides: [
+              fetchLinksUsecaseProvider.overrideWithValue(mockFetch),
+              deleteLinkUsecaseProvider.overrideWithValue(mockDelete),
+              toggleFavoriteUsecaseProvider.overrideWithValue(mockToggle),
+              updateLinkUsecaseProvider.overrideWithValue(mockUpdate),
+              searchRemoteDataSourceProvider.overrideWithValue(mockSearchDs),
+            ],
+          );
+          addTearDown(container.dispose);
+          await container.read(linkListProvider.future);
+
+          // Keep userTagsProvider alive so invalidate triggers a rebuild.
+          final sub = container.listen(userTagsProvider, (_, __) {});
+          addTearDown(sub.close);
+          await container.read(userTagsProvider.future);
+          expect(tagFetchCount, 1);
+
+          // Act
+          await container.read(linkListProvider.notifier).deleteLink('link-1');
+
+          // Assert — userTagsProvider rebuilds after invalidate.
+          await container.read(userTagsProvider.future);
+          expect(tagFetchCount, 2);
+        },
+      );
 
       test('should rollback on delete failure', () async {
         // Arrange

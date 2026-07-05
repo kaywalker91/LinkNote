@@ -229,15 +229,26 @@ class LinkRemoteDataSource {
     }
   }
 
-  /// Syncs tags for a link: upserts tag records in batch, then replaces
-  /// link_tags. Operations are ordered so that a mid-failure does not orphan
-  /// existing tags — new link_tags are inserted before old ones are removed.
+  /// Syncs tags for a link: upserts tag records in batch, then reconciles
+  /// `link_tags` by adding the desired connections before removing stale ones.
+  ///
+  /// The add-before-remove ordering matters once the DB-side orphan-cleanup
+  /// trigger (see `scripts/migration_66_orphan_tags.sql`) is live: that trigger
+  /// deletes a tag the moment its last `link_tags` row disappears. If we deleted
+  /// every connection first (old behavior), a tag the user is keeping would
+  /// momentarily drop to zero links, get cleaned up, and the follow-up insert
+  /// would fail the FK check. Upserting the kept/new connections first means
+  /// retained tags never lose their last link, so the trigger only fires for
+  /// tags that are genuinely being removed. It also keeps the pre-trigger
+  /// invariant that a mid-failure cannot orphan a tag the user still wants.
   Future<void> _syncTags(
     String linkId,
     List<TagEntity> tags,
     String userId,
   ) async {
     if (tags.isEmpty) {
+      // No tags remain: drop every connection for this link. The cleanup
+      // trigger removes any tag left with zero links.
       await _client.from('link_tags').delete().eq('link_id', linkId);
       return;
     }
@@ -254,14 +265,26 @@ class LinkRemoteDataSource {
         .select('id');
     final tagIds = upsertedTags.map((row) => row['id'] as String).toList();
 
-    // Build new link_tag rows
+    // Build the desired link_tag rows.
     final linkTagRows = tagIds
         .map((tagId) => {'link_id': linkId, 'tag_id': tagId})
         .toList();
 
-    // Remove old link_tags, then insert new ones.
-    // Deletion is safe here because tag records are already persisted above.
-    await _client.from('link_tags').delete().eq('link_id', linkId);
-    await _client.from('link_tags').insert(linkTagRows);
+    // Add the desired connections first (idempotent on the composite PK
+    // `(link_id, tag_id)`), then remove only the connections that are no longer
+    // wanted. `ignoreDuplicates` makes the upsert a no-op for connections that
+    // already exist, so retained tags keep their `link_tags` row untouched.
+    await _client
+        .from('link_tags')
+        .upsert(
+          linkTagRows,
+          onConflict: 'link_id,tag_id',
+          ignoreDuplicates: true,
+        );
+    await _client
+        .from('link_tags')
+        .delete()
+        .eq('link_id', linkId)
+        .not('tag_id', 'in', '(${tagIds.join(',')})');
   }
 }

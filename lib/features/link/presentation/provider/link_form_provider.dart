@@ -10,6 +10,7 @@ import 'package:linknote/features/link/domain/entity/tag_entity.dart';
 import 'package:linknote/features/link/presentation/provider/link_detail_provider.dart';
 import 'package:linknote/features/link/presentation/provider/link_di_providers.dart';
 import 'package:linknote/features/link/presentation/provider/link_list_provider.dart';
+import 'package:linknote/features/search/presentation/provider/user_tags_provider.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'link_form_provider.freezed.dart';
@@ -204,7 +205,11 @@ class LinkForm extends _$LinkForm {
 
     if (result.isSuccess) {
       state = AsyncData(current.copyWith(isSubmitting: false));
-      ref.invalidate(linkListProvider);
+      // Refresh the link list, plus the search tag list since editing tags can
+      // create new tags or orphan removed ones.
+      ref
+        ..invalidate(linkListProvider)
+        ..invalidate(userTagsProvider);
       return true;
     } else {
       state = AsyncData(

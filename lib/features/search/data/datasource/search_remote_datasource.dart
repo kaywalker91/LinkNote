@@ -80,7 +80,14 @@ class SearchRemoteDataSource {
 
   Future<Result<List<TagEntity>>> fetchUserTags() async {
     try {
-      final response = await _client.from('tags').select().order('name');
+      // `link_tags!inner(...)` turns the embed into an inner join, so only tags
+      // that are still attached to at least one link come back. This hides any
+      // orphan tag rows (left behind when a link is deleted or its tags edited)
+      // from the search UI even before the DB-side cleanup migration is applied.
+      final response = await _client
+          .from('tags')
+          .select('id, name, color, link_tags!inner(tag_id)')
+          .order('name');
 
       final tags = parseRowsTolerant<TagEntity>(
         response.cast<Map<String, dynamic>>(),
