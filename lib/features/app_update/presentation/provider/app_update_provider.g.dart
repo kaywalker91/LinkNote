@@ -51,7 +51,7 @@ final class AppUpdateProvider
   AppUpdate create() => AppUpdate();
 }
 
-String _$appUpdateHash() => r'c0665b1e3f971b03accbf146efe9bc8480f6e050';
+String _$appUpdateHash() => r'09d2c6a5c85d79ca345407426064ad09509d5189';
 
 /// Single source of truth for the current [UpdatePolicy]. Evaluated once on
 /// first read (cold start) and re-evaluated on app resume via [recheck].

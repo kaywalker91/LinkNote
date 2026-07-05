@@ -10,22 +10,26 @@ part of 'public_collection_links_provider.dart';
 // ignore_for_file: type=lint, type=warning
 /// Read-only links of a `public` collection (owner-agnostic).
 ///
-/// App-level gate: it first awaits [publicCollectionDetailProvider] so the
-/// links are only fetched after the parent collection resolves as public. If
-/// the parent errors (absent / not public / RLS-blocked), that error
-/// propagates and the links fetch is never issued — links are never surfaced
-/// for a collection that did not resolve as public.
+/// App-level gate: it first resolves the parent collection via the public
+/// detail usecase and only fetches links once that succeeds. If the parent is
+/// absent / not public / RLS-blocked, the error propagates and the links fetch
+/// is never issued — links are never surfaced for a collection that did not
+/// resolve as public. (Gating on the usecase directly, rather than the detail
+/// provider's future, keeps this a single async step — the screen still shares
+/// the detail provider for the header.)
 
 @ProviderFor(publicCollectionLinks)
 final publicCollectionLinksProvider = PublicCollectionLinksFamily._();
 
 /// Read-only links of a `public` collection (owner-agnostic).
 ///
-/// App-level gate: it first awaits [publicCollectionDetailProvider] so the
-/// links are only fetched after the parent collection resolves as public. If
-/// the parent errors (absent / not public / RLS-blocked), that error
-/// propagates and the links fetch is never issued — links are never surfaced
-/// for a collection that did not resolve as public.
+/// App-level gate: it first resolves the parent collection via the public
+/// detail usecase and only fetches links once that succeeds. If the parent is
+/// absent / not public / RLS-blocked, the error propagates and the links fetch
+/// is never issued — links are never surfaced for a collection that did not
+/// resolve as public. (Gating on the usecase directly, rather than the detail
+/// provider's future, keeps this a single async step — the screen still shares
+/// the detail provider for the header.)
 
 final class PublicCollectionLinksProvider
     extends
@@ -37,11 +41,13 @@ final class PublicCollectionLinksProvider
     with $FutureModifier<List<LinkEntity>>, $FutureProvider<List<LinkEntity>> {
   /// Read-only links of a `public` collection (owner-agnostic).
   ///
-  /// App-level gate: it first awaits [publicCollectionDetailProvider] so the
-  /// links are only fetched after the parent collection resolves as public. If
-  /// the parent errors (absent / not public / RLS-blocked), that error
-  /// propagates and the links fetch is never issued — links are never surfaced
-  /// for a collection that did not resolve as public.
+  /// App-level gate: it first resolves the parent collection via the public
+  /// detail usecase and only fetches links once that succeeds. If the parent is
+  /// absent / not public / RLS-blocked, the error propagates and the links fetch
+  /// is never issued — links are never surfaced for a collection that did not
+  /// resolve as public. (Gating on the usecase directly, rather than the detail
+  /// provider's future, keeps this a single async step — the screen still shares
+  /// the detail provider for the header.)
   PublicCollectionLinksProvider._({
     required PublicCollectionLinksFamily super.from,
     required String super.argument,
@@ -87,15 +93,17 @@ final class PublicCollectionLinksProvider
 }
 
 String _$publicCollectionLinksHash() =>
-    r'863b6485cbc697338218d5443877fef7d73a2f2c';
+    r'f7adbe73b251bb3805f53991b8eeea0eecda0ec5';
 
 /// Read-only links of a `public` collection (owner-agnostic).
 ///
-/// App-level gate: it first awaits [publicCollectionDetailProvider] so the
-/// links are only fetched after the parent collection resolves as public. If
-/// the parent errors (absent / not public / RLS-blocked), that error
-/// propagates and the links fetch is never issued — links are never surfaced
-/// for a collection that did not resolve as public.
+/// App-level gate: it first resolves the parent collection via the public
+/// detail usecase and only fetches links once that succeeds. If the parent is
+/// absent / not public / RLS-blocked, the error propagates and the links fetch
+/// is never issued — links are never surfaced for a collection that did not
+/// resolve as public. (Gating on the usecase directly, rather than the detail
+/// provider's future, keeps this a single async step — the screen still shares
+/// the detail provider for the header.)
 
 final class PublicCollectionLinksFamily extends $Family
     with $FunctionalFamilyOverride<FutureOr<List<LinkEntity>>, String> {
@@ -110,11 +118,13 @@ final class PublicCollectionLinksFamily extends $Family
 
   /// Read-only links of a `public` collection (owner-agnostic).
   ///
-  /// App-level gate: it first awaits [publicCollectionDetailProvider] so the
-  /// links are only fetched after the parent collection resolves as public. If
-  /// the parent errors (absent / not public / RLS-blocked), that error
-  /// propagates and the links fetch is never issued — links are never surfaced
-  /// for a collection that did not resolve as public.
+  /// App-level gate: it first resolves the parent collection via the public
+  /// detail usecase and only fetches links once that succeeds. If the parent is
+  /// absent / not public / RLS-blocked, the error propagates and the links fetch
+  /// is never issued — links are never surfaced for a collection that did not
+  /// resolve as public. (Gating on the usecase directly, rather than the detail
+  /// provider's future, keeps this a single async step — the screen still shares
+  /// the detail provider for the header.)
 
   PublicCollectionLinksProvider call(String collectionId) =>
       PublicCollectionLinksProvider._(argument: collectionId, from: this);
