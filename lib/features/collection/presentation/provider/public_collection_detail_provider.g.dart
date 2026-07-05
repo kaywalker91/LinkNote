@@ -10,8 +10,8 @@ part of 'public_collection_detail_provider.dart';
 // ignore_for_file: type=lint, type=warning
 /// Read-only public collection detail (owner-agnostic).
 ///
-/// Resolves a `public` collection by id via [GetPublicCollectionDetailUsecase],
-/// which never scopes by the caller's `user_id`. Throws the [Failure] when the
+/// Resolves a `public` collection by id via `GetPublicCollectionDetailUsecase`,
+/// which never scopes by the caller's `user_id`. Throws the `Failure` when the
 /// collection is absent or not public, so the UI degrades to an error state.
 
 @ProviderFor(publicCollectionDetail)
@@ -19,8 +19,8 @@ final publicCollectionDetailProvider = PublicCollectionDetailFamily._();
 
 /// Read-only public collection detail (owner-agnostic).
 ///
-/// Resolves a `public` collection by id via [GetPublicCollectionDetailUsecase],
-/// which never scopes by the caller's `user_id`. Throws the [Failure] when the
+/// Resolves a `public` collection by id via `GetPublicCollectionDetailUsecase`,
+/// which never scopes by the caller's `user_id`. Throws the `Failure` when the
 /// collection is absent or not public, so the UI degrades to an error state.
 
 final class PublicCollectionDetailProvider
@@ -33,8 +33,8 @@ final class PublicCollectionDetailProvider
     with $FutureModifier<CollectionEntity>, $FutureProvider<CollectionEntity> {
   /// Read-only public collection detail (owner-agnostic).
   ///
-  /// Resolves a `public` collection by id via [GetPublicCollectionDetailUsecase],
-  /// which never scopes by the caller's `user_id`. Throws the [Failure] when the
+  /// Resolves a `public` collection by id via `GetPublicCollectionDetailUsecase`,
+  /// which never scopes by the caller's `user_id`. Throws the `Failure` when the
   /// collection is absent or not public, so the UI degrades to an error state.
   PublicCollectionDetailProvider._({
     required PublicCollectionDetailFamily super.from,
@@ -86,8 +86,8 @@ String _$publicCollectionDetailHash() =>
 
 /// Read-only public collection detail (owner-agnostic).
 ///
-/// Resolves a `public` collection by id via [GetPublicCollectionDetailUsecase],
-/// which never scopes by the caller's `user_id`. Throws the [Failure] when the
+/// Resolves a `public` collection by id via `GetPublicCollectionDetailUsecase`,
+/// which never scopes by the caller's `user_id`. Throws the `Failure` when the
 /// collection is absent or not public, so the UI degrades to an error state.
 
 final class PublicCollectionDetailFamily extends $Family
@@ -103,8 +103,8 @@ final class PublicCollectionDetailFamily extends $Family
 
   /// Read-only public collection detail (owner-agnostic).
   ///
-  /// Resolves a `public` collection by id via [GetPublicCollectionDetailUsecase],
-  /// which never scopes by the caller's `user_id`. Throws the [Failure] when the
+  /// Resolves a `public` collection by id via `GetPublicCollectionDetailUsecase`,
+  /// which never scopes by the caller's `user_id`. Throws the `Failure` when the
   /// collection is absent or not public, so the UI degrades to an error state.
 
   PublicCollectionDetailProvider call(String collectionId) =>

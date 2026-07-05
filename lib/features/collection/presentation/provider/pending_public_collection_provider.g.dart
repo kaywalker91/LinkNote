@@ -16,7 +16,7 @@ part of 'pending_public_collection_provider.dart';
 /// classifies a `linknote:///collections/public/<id>` payload from
 /// `getInitialMedia()` and seeds the target location here; the GoRouter
 /// redirect consumes it once — after auth resolves — to land on the read-only
-/// public view. Mirrors [PendingSharedUrl] (the URL-to-save sibling).
+/// public view. Mirrors `PendingSharedUrl` (the URL-to-save sibling).
 
 @ProviderFor(PendingPublicCollection)
 final pendingPublicCollectionProvider = PendingPublicCollectionProvider._();
@@ -29,7 +29,7 @@ final pendingPublicCollectionProvider = PendingPublicCollectionProvider._();
 /// classifies a `linknote:///collections/public/<id>` payload from
 /// `getInitialMedia()` and seeds the target location here; the GoRouter
 /// redirect consumes it once — after auth resolves — to land on the read-only
-/// public view. Mirrors [PendingSharedUrl] (the URL-to-save sibling).
+/// public view. Mirrors `PendingSharedUrl` (the URL-to-save sibling).
 final class PendingPublicCollectionProvider
     extends $NotifierProvider<PendingPublicCollection, String?> {
   /// One-shot holder for a cold-start public-collection deep link.
@@ -40,7 +40,7 @@ final class PendingPublicCollectionProvider
   /// classifies a `linknote:///collections/public/<id>` payload from
   /// `getInitialMedia()` and seeds the target location here; the GoRouter
   /// redirect consumes it once — after auth resolves — to land on the read-only
-  /// public view. Mirrors [PendingSharedUrl] (the URL-to-save sibling).
+  /// public view. Mirrors `PendingSharedUrl` (the URL-to-save sibling).
   PendingPublicCollectionProvider._()
     : super(
         from: null,
@@ -79,7 +79,7 @@ String _$pendingPublicCollectionHash() =>
 /// classifies a `linknote:///collections/public/<id>` payload from
 /// `getInitialMedia()` and seeds the target location here; the GoRouter
 /// redirect consumes it once — after auth resolves — to land on the read-only
-/// public view. Mirrors [PendingSharedUrl] (the URL-to-save sibling).
+/// public view. Mirrors `PendingSharedUrl` (the URL-to-save sibling).
 
 abstract class _$PendingPublicCollection extends $Notifier<String?> {
   String? build();

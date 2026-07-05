@@ -39,7 +39,7 @@ final class LinkListProvider
   LinkList create() => LinkList();
 }
 
-String _$linkListHash() => r'da6158e9eef9ad73a0f5f7512a95bd6fd6f665d1';
+String _$linkListHash() => r'014252e27e71d836185ddf6f3f6e4a672a0dea56';
 
 /// Keep the global link list alive across navigation so pagination state
 /// and cached items survive brief re-subscription (e.g., push/pop detail).

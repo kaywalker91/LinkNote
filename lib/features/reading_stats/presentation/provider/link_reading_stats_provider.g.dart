@@ -66,7 +66,7 @@ final class LinkReadingStatsProvider
   }
 }
 
-String _$linkReadingStatsHash() => r'17c5a8d1028176df05214a9d1a6bd60a085ebf14';
+String _$linkReadingStatsHash() => r'c55370b1dc33ff757be67c4807828814dedf16ee';
 
 final class LinkReadingStatsFamily extends $Family
     with $FunctionalFamilyOverride<FutureOr<ReadingStatsEntity>, String> {
