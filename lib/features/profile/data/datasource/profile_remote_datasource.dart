@@ -1,6 +1,6 @@
 import 'package:linknote/core/error/failure.dart';
 import 'package:linknote/core/error/result.dart';
-import 'package:linknote/core/logger/app_logger.dart';
+import 'package:linknote/core/network/supabase_guard.dart';
 import 'package:linknote/features/profile/data/dto/user_profile_dto.dart';
 import 'package:linknote/features/profile/data/mapper/profile_mapper.dart';
 import 'package:linknote/features/profile/domain/entity/user_profile_entity.dart';
@@ -10,8 +10,8 @@ class ProfileRemoteDataSource {
   const ProfileRemoteDataSource(this._client);
   final SupabaseClient _client;
 
-  Future<Result<UserProfileEntity>> getProfile() async {
-    try {
+  Future<Result<UserProfileEntity>> getProfile() {
+    return guardSupabase<UserProfileEntity>(() async {
       final userId = _client.auth.currentUser?.id;
       if (userId == null) {
         return error(const Failure.auth(message: 'Session expired'));
@@ -23,19 +23,14 @@ class ProfileRemoteDataSource {
           .single();
 
       return success(ProfileMapper.toEntity(UserProfileDto.fromJson(response)));
-    } on PostgrestException catch (e) {
-      return error(Failure.server(message: e.message));
-    } on Object catch (e, st) {
-      appLogger.w('profile remote failure', error: e, stackTrace: st);
-      return error(const Failure.unknown());
-    }
+    }, label: 'profile remote failure');
   }
 
   Future<Result<UserProfileEntity>> updateProfile({
     String? displayName,
     String? avatarUrl,
-  }) async {
-    try {
+  }) {
+    return guardSupabase<UserProfileEntity>(() async {
       final userId = _client.auth.currentUser?.id;
       if (userId == null) {
         return error(const Failure.auth(message: 'Session expired'));
@@ -48,11 +43,6 @@ class ProfileRemoteDataSource {
       await _client.from('profiles').update(json).eq('id', userId);
 
       return getProfile();
-    } on PostgrestException catch (e) {
-      return error(Failure.server(message: e.message));
-    } on Object catch (e, st) {
-      appLogger.w('profile remote failure', error: e, stackTrace: st);
-      return error(const Failure.unknown());
-    }
+    }, label: 'profile remote failure');
   }
 }

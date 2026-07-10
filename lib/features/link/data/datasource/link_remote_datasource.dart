@@ -1,6 +1,6 @@
 import 'package:linknote/core/error/failure.dart';
 import 'package:linknote/core/error/result.dart';
-import 'package:linknote/core/logger/app_logger.dart';
+import 'package:linknote/core/network/supabase_guard.dart';
 import 'package:linknote/core/utils/parse_rows.dart';
 import 'package:linknote/features/link/data/dto/link_dto.dart';
 import 'package:linknote/features/link/data/mapper/link_mapper.dart';
@@ -38,8 +38,8 @@ class LinkRemoteDataSource {
     int pageSize = 20,
     bool favoritesOnly = false,
     String? collectionId,
-  }) async {
-    try {
+  }) {
+    return guardSupabase<PaginatedState<LinkEntity>>(() async {
       var query = _client.from('links').select(_selectQuery);
 
       if (favoritesOnly) {
@@ -69,17 +69,7 @@ class LinkRemoteDataSource {
               : null,
         ),
       );
-    } on PostgrestException catch (e) {
-      return error(Failure.server(message: e.message));
-    } on Object catch (e, st) {
-      // Catches Dart `Error` subtypes (e.g. `_TypeError` from JSON cast
-      // failures) in addition to Exceptions, so they surface as Failure
-      // instead of escaping to AsyncValue.error as raw Errors. The same
-      // policy applies to every catch block below. The raw error is logged
-      // (not embedded in Failure.message) to avoid leaking it to the UI (F5).
-      appLogger.w('link remote failure', error: e, stackTrace: st);
-      return error(const Failure.unknown());
-    }
+    }, label: 'link remote failure');
   }
 
   /// Reads the links of a `public` collection without scoping to the caller's
@@ -94,8 +84,8 @@ class LinkRemoteDataSource {
     String collectionId, {
     String? cursor,
     int pageSize = 20,
-  }) async {
-    try {
+  }) {
+    return guardSupabase<PaginatedState<LinkEntity>>(() async {
       var query = _client
           .from('links')
           .select(_selectQuery)
@@ -122,16 +112,11 @@ class LinkRemoteDataSource {
               : null,
         ),
       );
-    } on PostgrestException catch (e) {
-      return error(Failure.server(message: e.message));
-    } on Object catch (e, st) {
-      appLogger.w('link remote failure', error: e, stackTrace: st);
-      return error(const Failure.unknown());
-    }
+    }, label: 'link remote failure');
   }
 
-  Future<Result<LinkEntity>> getLinkById(String id) async {
-    try {
+  Future<Result<LinkEntity>> getLinkById(String id) {
+    return guardSupabase<LinkEntity>(() async {
       final response = await _client
           .from('links')
           .select(_selectQuery)
@@ -139,19 +124,14 @@ class LinkRemoteDataSource {
           .single();
 
       return success(LinkMapper.toEntity(LinkDto.fromJson(response)));
-    } on PostgrestException catch (e) {
-      return error(Failure.server(message: e.message));
-    } on Object catch (e, st) {
-      appLogger.w('link remote failure', error: e, stackTrace: st);
-      return error(const Failure.unknown());
-    }
+    }, label: 'link remote failure');
   }
 
   Future<Result<LinkEntity>> createLink(
     LinkEntity link,
     String userId,
-  ) async {
-    try {
+  ) {
+    return guardSupabase<LinkEntity>(() async {
       final json = LinkMapper.toInsertJson(link, userId);
       final response = await _client
           .from('links')
@@ -169,16 +149,11 @@ class LinkRemoteDataSource {
       }
 
       return success(createdLink);
-    } on PostgrestException catch (e) {
-      return error(Failure.server(message: e.message));
-    } on Object catch (e, st) {
-      appLogger.w('link remote failure', error: e, stackTrace: st);
-      return error(const Failure.unknown());
-    }
+    }, label: 'link remote failure');
   }
 
-  Future<Result<LinkEntity>> updateLink(LinkEntity link) async {
-    try {
+  Future<Result<LinkEntity>> updateLink(LinkEntity link) {
+    return guardSupabase<LinkEntity>(() async {
       final userId = _client.auth.currentUser?.id;
       if (userId == null) {
         return error(const Failure.auth(message: 'Session expired'));
@@ -191,42 +166,27 @@ class LinkRemoteDataSource {
       await _syncTags(link.id, link.tags, userId);
 
       return getLinkById(link.id);
-    } on PostgrestException catch (e) {
-      return error(Failure.server(message: e.message));
-    } on Object catch (e, st) {
-      appLogger.w('link remote failure', error: e, stackTrace: st);
-      return error(const Failure.unknown());
-    }
+    }, label: 'link remote failure');
   }
 
-  Future<Result<void>> deleteLink(String id) async {
-    try {
+  Future<Result<void>> deleteLink(String id) {
+    return guardSupabase<void>(() async {
       await _client.from('links').delete().eq('id', id);
       return success(null);
-    } on PostgrestException catch (e) {
-      return error(Failure.server(message: e.message));
-    } on Object catch (e, st) {
-      appLogger.w('link remote failure', error: e, stackTrace: st);
-      return error(const Failure.unknown());
-    }
+    }, label: 'link remote failure');
   }
 
   Future<Result<LinkEntity>> toggleFavorite(
     String id, {
     required bool isFavorite,
-  }) async {
-    try {
+  }) {
+    return guardSupabase<LinkEntity>(() async {
       await _client
           .from('links')
           .update({'is_favorite': isFavorite})
           .eq('id', id);
       return getLinkById(id);
-    } on PostgrestException catch (e) {
-      return error(Failure.server(message: e.message));
-    } on Object catch (e, st) {
-      appLogger.w('link remote failure', error: e, stackTrace: st);
-      return error(const Failure.unknown());
-    }
+    }, label: 'link remote failure');
   }
 
   /// Syncs tags for a link: upserts tag records in batch, then reconciles
