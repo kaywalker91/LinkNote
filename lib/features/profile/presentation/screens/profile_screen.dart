@@ -5,6 +5,7 @@ import 'package:linknote/app/router/routes.dart';
 import 'package:linknote/app/theme/app_spacing.dart';
 import 'package:linknote/features/auth/presentation/provider/auth_provider.dart';
 import 'package:linknote/features/profile/presentation/provider/profile_provider.dart';
+import 'package:linknote/shared/extensions/context_extensions.dart';
 import 'package:linknote/shared/widgets/error_state_widget.dart';
 import 'package:linknote/shared/widgets/skeleton/profile_header_skeleton.dart';
 
@@ -91,10 +92,10 @@ class ProfileScreen extends ConsumerWidget {
                 onTap: () => context.push('${Routes.profile}/settings'),
               ),
               ListTile(
-                leading: const Icon(Icons.logout, color: Colors.red),
-                title: const Text(
+                leading: Icon(Icons.logout, color: context.palette.rose),
+                title: Text(
                   'Sign Out',
-                  style: TextStyle(color: Colors.red),
+                  style: TextStyle(color: context.palette.rose),
                 ),
                 onTap: () => ref.read(authProvider.notifier).signOut(),
               ),

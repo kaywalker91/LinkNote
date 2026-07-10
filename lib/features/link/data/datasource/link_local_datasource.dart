@@ -151,6 +151,10 @@ class LinkLocalDataSource implements IClearableCache {
     final entries = _box.toMap().entries.toList();
     final parsed = <MapEntry<String, DateTime>>[];
     for (final entry in entries) {
+      if (entry.key is! String) {
+        await _box.delete(entry.key);
+        continue;
+      }
       try {
         final json = Map<String, dynamic>.from(entry.value);
         final cachedAt = json['_cachedAt'] as String?;

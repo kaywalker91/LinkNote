@@ -176,8 +176,8 @@ class _LinkListBody extends ConsumerWidget {
               },
             ),
             ListTile(
-              leading: const Icon(Icons.delete_outline, color: Colors.red),
-              title: const Text('삭제', style: TextStyle(color: Colors.red)),
+              leading: Icon(Icons.delete_outline, color: context.palette.rose),
+              title: Text('삭제', style: TextStyle(color: context.palette.rose)),
               onTap: () async {
                 Navigator.of(sheetContext).pop();
                 final confirmed = await ConfirmationDialogWidget.show(
