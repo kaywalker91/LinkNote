@@ -13,7 +13,13 @@ class LinkRemoteDataSource {
   const LinkRemoteDataSource(this._client);
   final SupabaseClient _client;
 
-  static const _selectQuery = '''
+  /// Canonical Supabase projection for a link row plus its tag/collection
+  /// joins. This is the single source of truth: `SearchRemoteDataSource` reuses
+  /// it (via [selectQuery]) so both fetch paths feed the
+  /// same shape into [parseRows]. Widening this projection must not be done by
+  /// hand-copying the string elsewhere, or search would silently miss the new
+  /// join fields.
+  static const selectQuery = '''
     *,
     link_tags(tags(*)),
     collections(name, visibility, locked_at)
@@ -40,7 +46,7 @@ class LinkRemoteDataSource {
     String? collectionId,
   }) {
     return guardSupabase<PaginatedState<LinkEntity>>(() async {
-      var query = _client.from('links').select(_selectQuery);
+      var query = _client.from('links').select(selectQuery);
 
       if (favoritesOnly) {
         query = query.eq('is_favorite', true);
@@ -88,7 +94,7 @@ class LinkRemoteDataSource {
     return guardSupabase<PaginatedState<LinkEntity>>(() async {
       var query = _client
           .from('links')
-          .select(_selectQuery)
+          .select(selectQuery)
           .eq('collection_id', collectionId);
 
       if (cursor != null) {
@@ -119,7 +125,7 @@ class LinkRemoteDataSource {
     return guardSupabase<LinkEntity>(() async {
       final response = await _client
           .from('links')
-          .select(_selectQuery)
+          .select(selectQuery)
           .eq('id', id)
           .single();
 
@@ -136,7 +142,7 @@ class LinkRemoteDataSource {
       final response = await _client
           .from('links')
           .insert(json)
-          .select(_selectQuery)
+          .select(selectQuery)
           .single();
 
       final createdLink = LinkMapper.toEntity(LinkDto.fromJson(response));
