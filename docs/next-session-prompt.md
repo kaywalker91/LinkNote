@@ -1,5 +1,12 @@
 # 다음 세션 프롬프트
 
+> **⚠️ 최신 상태 (2026-07-10 갱신)** — 아래 본문은 Session 65 기준으로 **stale**. 이후 진행분:
+> - **PR #63 `fix/orphan-tags-cleanup` (open)** — 고아 태그 4계층 정리(inner join + `_syncTags` add-before-remove + `migration_66` AFTER DELETE 트리거 + `userTagsProvider` invalidate). 실기기+마이그레이션 실행 완료, 648 GREEN. 상세 → `docs/daily_task_log/2026-07-10_session.md`, memory `project_orphan_tags_cleanup`.
+> - **다음 세션 우선순위**: ① PR #63 머지 확인 → ② 아래 "작업 범위 — 후보"(A 신규 기능 / B 인프라)에서 사용자 합의로 단일 트랙. **임의 트랙 창작 금지.**
+> - PR #62(`b1cb04c` nav FAB + prod env/versionCode), #59~#61(릴리스 서명·1.1.6 hygiene·in-app update) 는 이미 머지됨.
+
+---
+
 아래 내용을 그대로 붙여넣기해서 다음 세션을 시작하세요. 작성 기준일 2026-06-20 (Session 64 RLS/문서 PR 직전, main `e0cc432` = #54 visibility 토글 squash 머지 직후).
 
 ---

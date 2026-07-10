@@ -6,6 +6,7 @@ import 'package:linknote/features/link/domain/entity/link_entity.dart';
 import 'package:linknote/features/link/presentation/provider/link_detail_provider.dart';
 import 'package:linknote/features/link/presentation/provider/link_di_providers.dart';
 import 'package:linknote/features/link/presentation/provider/link_filter_provider.dart';
+import 'package:linknote/features/search/presentation/provider/user_tags_provider.dart';
 import 'package:linknote/shared/models/paginated_state.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -95,7 +96,11 @@ class LinkList extends _$LinkList {
     final result = await ref.read(deleteLinkUsecaseProvider).call(id);
     if (result.isFailure) {
       state = AsyncData(previous);
+      return;
     }
+    // Deleting a link can leave its tags orphaned (link_tags cascade-deletes
+    // but the tag rows remain), so refresh the search tag list.
+    ref.invalidate(userTagsProvider);
   }
 
   /// Optimistic favorite toggle — immediately updates UI, rolls back on failure.

@@ -2,6 +2,7 @@ import 'package:linknote/core/error/result.dart';
 import 'package:linknote/features/link/domain/entity/link_entity.dart';
 import 'package:linknote/features/link/presentation/provider/link_di_providers.dart';
 import 'package:linknote/features/link/presentation/provider/link_list_provider.dart';
+import 'package:linknote/features/search/presentation/provider/user_tags_provider.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'link_detail_provider.g.dart';
@@ -26,6 +27,10 @@ class LinkDetail extends _$LinkDetail {
     if (result.isFailure) {
       Error.throwWithStackTrace(result.failure!, StackTrace.current);
     }
-    ref.invalidate(linkListProvider);
+    // Refresh the link list, plus the search tag list since deleting a link can
+    // orphan its tags (link_tags cascade-deletes but the tag rows remain).
+    ref
+      ..invalidate(linkListProvider)
+      ..invalidate(userTagsProvider);
   }
 }

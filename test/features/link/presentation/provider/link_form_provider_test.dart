@@ -4,14 +4,21 @@ import 'package:linknote/core/error/failure.dart';
 import 'package:linknote/core/error/result.dart';
 import 'package:linknote/core/services/og_tag_service.dart';
 import 'package:linknote/features/link/domain/entity/link_entity.dart';
+import 'package:linknote/features/link/domain/entity/tag_entity.dart';
 import 'package:linknote/features/link/domain/usecase/create_link_usecase.dart';
 import 'package:linknote/features/link/domain/usecase/get_link_detail_usecase.dart';
 import 'package:linknote/features/link/domain/usecase/update_link_usecase.dart';
 import 'package:linknote/features/link/presentation/provider/link_di_providers.dart';
 import 'package:linknote/features/link/presentation/provider/link_form_provider.dart';
+import 'package:linknote/features/search/data/datasource/search_remote_datasource.dart';
+import 'package:linknote/features/search/presentation/provider/search_di_providers.dart';
+import 'package:linknote/features/search/presentation/provider/user_tags_provider.dart';
 import 'package:mocktail/mocktail.dart';
 
 class MockCreateLinkUsecase extends Mock implements CreateLinkUsecase {}
+
+class MockSearchRemoteDataSource extends Mock
+    implements SearchRemoteDataSource {}
 
 class MockUpdateLinkUsecase extends Mock implements UpdateLinkUsecase {}
 
@@ -150,6 +157,54 @@ void main() {
         verify(() => mockUpdate.call(any())).called(1);
         verifyNever(() => mockCreate.call(any()));
       });
+
+      test(
+        'should invalidate userTagsProvider on successful submit',
+        () async {
+          when(() => mockCreate.call(any())).thenAnswer(
+            (_) async => success(tExistingLink),
+          );
+
+          var tagFetchCount = 0;
+          final mockSearchDs = MockSearchRemoteDataSource();
+          when(mockSearchDs.fetchUserTags).thenAnswer((_) async {
+            tagFetchCount++;
+            return success(const <TagEntity>[]);
+          });
+
+          final container = ProviderContainer(
+            overrides: [
+              createLinkUsecaseProvider.overrideWithValue(mockCreate),
+              updateLinkUsecaseProvider.overrideWithValue(mockUpdate),
+              getLinkDetailUsecaseProvider.overrideWithValue(mockGetDetail),
+              ogTagServiceProvider.overrideWithValue(mockOgService),
+              searchRemoteDataSourceProvider.overrideWithValue(mockSearchDs),
+            ],
+          );
+          addTearDown(container.dispose);
+          await container.read(linkFormProvider(null).future);
+
+          // Keep userTagsProvider alive so invalidate triggers a rebuild.
+          final sub = container.listen(userTagsProvider, (_, __) {});
+          addTearDown(sub.close);
+          await container.read(userTagsProvider.future);
+          expect(tagFetchCount, 1);
+
+          container.read(linkFormProvider(null).notifier)
+            ..updateUrl('https://new.com')
+            ..updateTitle('New Link');
+
+          // Act
+          final result = await container
+              .read(linkFormProvider(null).notifier)
+              .submit();
+
+          // Assert — userTagsProvider rebuilds after invalidate.
+          expect(result, isTrue);
+          await container.read(userTagsProvider.future);
+          expect(tagFetchCount, 2);
+        },
+      );
 
       test('should return false when url is empty', () async {
         final container = createContainer();

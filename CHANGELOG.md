@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed (고아 태그 정리 — 2026-07-10)
+
+- **고아 태그 정리** (PR #63) — 링크 삭제·태그 편집 시 `link_tags`(조인)는 cascade/명시 삭제되지만 `tags` 행이 남아 서치탭 태그 목록에 노출되던 문제를 4계층으로 해결:
+  - `SearchRemoteDataSource.fetchUserTags` — `link_tags!inner(tag_id)` 조인으로 연결된 태그만 반환(마이그레이션 전에도 UI에서 즉시 비노출)
+  - `LinkRemoteDataSource._syncTags` — "old 전체 delete → insert" → "연결 upsert(`onConflict: 'link_id,tag_id'`) → stale만 delete(`.not tag_id in`)" 순서로 재조정. 유지 태그의 link_tags 행을 건드리지 않아 아래 트리거의 FK 위반을 차단(add-before-remove)
+  - `scripts/migration_66_orphan_tags.sql` — `AFTER DELETE ON link_tags` row 트리거로 앞으로 생기는 고아를 DB 원천에서 즉시 정리(공유 태그는 `not exists`로 보존) + 기존 고아 1회성 청소. 멱등
+  - `deleteLink`/`detail.delete`/`form.submit` 성공 시 `userTagsProvider` invalidate → 서치탭 즉시 갱신
+  - 실기기(내부테스트) 고아 소멸 확인 + 마이그레이션 실행 완료. provider invalidate 테스트 3건 추가, 648 GREEN
+
 ## [1.1.6] - 2026-06-21
 
 첫 Play Store 공개 출시 (`pubspec 1.1.6+1`). CHANGELOG의 이전 `1.0.0`~`1.1.5`(2026-04-10/11)는
