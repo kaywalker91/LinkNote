@@ -33,11 +33,12 @@ class SearchRemoteDataSource {
 
       if (tsQuery.isEmpty && !hasFilter) return success([]);
 
-      var queryBuilder = _client.from('links').select('''
-            *,
-            link_tags(tags(*)),
-            collections(name, visibility, locked_at)
-          ''');
+      // Reuse the canonical projection so search and the link list always feed
+      // the same row shape into `LinkRemoteDataSource.parseRows`. Copying the
+      // string here would let a widened link projection silently skip search.
+      var queryBuilder = _client
+          .from('links')
+          .select(LinkRemoteDataSource.selectQuery);
 
       if (tsQuery.isNotEmpty) {
         queryBuilder = queryBuilder.textSearch('fts', tsQuery);

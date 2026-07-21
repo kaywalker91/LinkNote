@@ -114,6 +114,20 @@ void main() {
     });
   });
 
+  group('selectQuery (canonical projection SSOT)', () {
+    // Guards the single source of truth shared by the link list, the public
+    // collection view, and SearchRemoteDataSource (which references this same
+    // const). Narrowing the projection would silently break every consumer of
+    // parseRows, so pin the join fields the mapper depends on.
+    test('includes the tag and collection joins parseRows depends on', () {
+      const projection = LinkRemoteDataSource.selectQuery;
+
+      expect(projection, contains('*'));
+      expect(projection, contains('link_tags(tags(*))'));
+      expect(projection, contains('collections(name, visibility, locked_at)'));
+    });
+  });
+
   group('parseRows', () {
     Map<String, dynamic> validRow({
       required String id,
