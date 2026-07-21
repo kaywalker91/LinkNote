@@ -1,6 +1,5 @@
-import 'package:linknote/core/error/failure.dart';
 import 'package:linknote/core/error/result.dart';
-import 'package:linknote/core/logger/app_logger.dart';
+import 'package:linknote/core/network/supabase_guard.dart';
 import 'package:linknote/core/utils/parse_rows.dart';
 import 'package:linknote/features/link/data/datasource/link_remote_datasource.dart';
 import 'package:linknote/features/link/domain/entity/link_entity.dart';
@@ -27,8 +26,8 @@ class SearchRemoteDataSource {
   Future<Result<List<LinkEntity>>> searchLinks(
     String query, {
     SearchFilterEntity? filter,
-  }) async {
-    try {
+  }) {
+    return guardSupabase<List<LinkEntity>>(() async {
       final tsQuery = sanitizeTsQuery(query);
       final hasFilter = filter != null && filter.hasActiveFilters;
 
@@ -70,16 +69,11 @@ class SearchRemoteDataSource {
         response.cast<Map<String, dynamic>>(),
       );
       return success(items);
-    } on PostgrestException catch (e) {
-      return error(Failure.server(message: e.message));
-    } on Object catch (e, st) {
-      appLogger.w('search remote failure', error: e, stackTrace: st);
-      return error(const Failure.unknown());
-    }
+    }, label: 'search remote failure');
   }
 
-  Future<Result<List<TagEntity>>> fetchUserTags() async {
-    try {
+  Future<Result<List<TagEntity>>> fetchUserTags() {
+    return guardSupabase<List<TagEntity>>(() async {
       // `link_tags!inner(...)` turns the embed into an inner join, so only tags
       // that are still attached to at least one link come back. This hides any
       // orphan tag rows (left behind when a link is deleted or its tags edited)
@@ -99,11 +93,6 @@ class SearchRemoteDataSource {
         label: 'SearchRemoteDataSource.fetchUserTags',
       );
       return success(tags);
-    } on PostgrestException catch (e) {
-      return error(Failure.server(message: e.message));
-    } on Object catch (e, st) {
-      appLogger.w('search remote failure', error: e, stackTrace: st);
-      return error(const Failure.unknown());
-    }
+    }, label: 'search remote failure');
   }
 }

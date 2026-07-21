@@ -1,6 +1,5 @@
-import 'package:linknote/core/error/failure.dart';
 import 'package:linknote/core/error/result.dart';
-import 'package:linknote/core/logger/app_logger.dart';
+import 'package:linknote/core/network/supabase_guard.dart';
 import 'package:linknote/core/utils/parse_rows.dart';
 import 'package:linknote/features/notification/data/dto/notification_dto.dart';
 import 'package:linknote/features/notification/data/mapper/notification_mapper.dart';
@@ -16,8 +15,8 @@ class NotificationRemoteDataSource {
   Future<Result<PaginatedState<NotificationEntity>>> getNotifications({
     String? cursor,
     int pageSize = 20,
-  }) async {
-    try {
+  }) {
+    return guardSupabase<PaginatedState<NotificationEntity>>(() async {
       var query = _client.from('notifications').select().eq('user_id', userId);
 
       if (cursor != null) {
@@ -45,42 +44,27 @@ class NotificationRemoteDataSource {
               : null,
         ),
       );
-    } on PostgrestException catch (e) {
-      return error(Failure.server(message: e.message));
-    } on Object catch (e, st) {
-      appLogger.w('notification remote failure', error: e, stackTrace: st);
-      return error(const Failure.unknown());
-    }
+    }, label: 'notification remote failure');
   }
 
-  Future<Result<void>> markAsRead(String id) async {
-    try {
+  Future<Result<void>> markAsRead(String id) {
+    return guardSupabase<void>(() async {
       await _client
           .from('notifications')
           .update({'is_read': true})
           .eq('id', id);
       return success(null);
-    } on PostgrestException catch (e) {
-      return error(Failure.server(message: e.message));
-    } on Object catch (e, st) {
-      appLogger.w('notification remote failure', error: e, stackTrace: st);
-      return error(const Failure.unknown());
-    }
+    }, label: 'notification remote failure');
   }
 
-  Future<Result<void>> markAllAsRead() async {
-    try {
+  Future<Result<void>> markAllAsRead() {
+    return guardSupabase<void>(() async {
       await _client
           .from('notifications')
           .update({'is_read': true})
           .eq('user_id', userId)
           .eq('is_read', false);
       return success(null);
-    } on PostgrestException catch (e) {
-      return error(Failure.server(message: e.message));
-    } on Object catch (e, st) {
-      appLogger.w('notification remote failure', error: e, stackTrace: st);
-      return error(const Failure.unknown());
-    }
+    }, label: 'notification remote failure');
   }
 }

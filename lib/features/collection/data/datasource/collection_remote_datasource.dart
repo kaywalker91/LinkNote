@@ -1,6 +1,6 @@
 import 'package:linknote/core/error/failure.dart';
 import 'package:linknote/core/error/result.dart';
-import 'package:linknote/core/logger/app_logger.dart';
+import 'package:linknote/core/network/supabase_guard.dart';
 import 'package:linknote/core/utils/parse_rows.dart';
 import 'package:linknote/features/collection/data/dto/collection_dto.dart';
 import 'package:linknote/features/collection/data/mapper/collection_mapper.dart';
@@ -17,8 +17,8 @@ class CollectionRemoteDataSource {
   Future<Result<PaginatedState<CollectionEntity>>> getCollections({
     String? cursor,
     int pageSize = 20,
-  }) async {
-    try {
+  }) {
+    return guardSupabase<PaginatedState<CollectionEntity>>(() async {
       var query = _client.from('collections').select(_selectQuery);
 
       if (cursor != null) {
@@ -46,19 +46,14 @@ class CollectionRemoteDataSource {
               : null,
         ),
       );
-    } on PostgrestException catch (e) {
-      return error(Failure.server(message: e.message));
-    } on Object catch (e, st) {
-      appLogger.w('collection remote failure', error: e, stackTrace: st);
-      return error(const Failure.unknown());
-    }
+    }, label: 'collection remote failure');
   }
 
   Future<Result<CollectionEntity>> getCollectionById(
     String id,
     String userId,
-  ) async {
-    try {
+  ) {
+    return guardSupabase<CollectionEntity>(() async {
       final response = await _client
           .from('collections')
           .select(_selectQuery)
@@ -69,12 +64,7 @@ class CollectionRemoteDataSource {
       return success(
         CollectionMapper.toEntity(CollectionDto.fromJson(response)),
       );
-    } on PostgrestException catch (e) {
-      return error(Failure.server(message: e.message));
-    } on Object catch (e, st) {
-      appLogger.w('collection remote failure', error: e, stackTrace: st);
-      return error(const Failure.unknown());
-    }
+    }, label: 'collection remote failure');
   }
 
   /// Reads a `public` collection without scoping to the caller's `user_id`.
@@ -85,8 +75,8 @@ class CollectionRemoteDataSource {
   /// and the value lets the presentation layer gate the public links fetch.
   /// `maybeSingle()` returns a clean not-found ([Failure.unknown]) instead of a
   /// server error when the id is absent, not public, or RLS-blocked.
-  Future<Result<CollectionEntity>> getPublicCollectionById(String id) async {
-    try {
+  Future<Result<CollectionEntity>> getPublicCollectionById(String id) {
+    return guardSupabase<CollectionEntity>(() async {
       final response = await _client
           .from('collections')
           .select(_selectQuery)
@@ -101,19 +91,14 @@ class CollectionRemoteDataSource {
       return success(
         CollectionMapper.toEntity(CollectionDto.fromJson(response)),
       );
-    } on PostgrestException catch (e) {
-      return error(Failure.server(message: e.message));
-    } on Object catch (e, st) {
-      appLogger.w('collection remote failure', error: e, stackTrace: st);
-      return error(const Failure.unknown());
-    }
+    }, label: 'collection remote failure');
   }
 
   Future<Result<CollectionEntity>> createCollection(
     CollectionEntity collection,
     String userId,
-  ) async {
-    try {
+  ) {
+    return guardSupabase<CollectionEntity>(() async {
       final json = CollectionMapper.toInsertJson(collection, userId);
       final response = await _client
           .from('collections')
@@ -124,19 +109,14 @@ class CollectionRemoteDataSource {
       return success(
         CollectionMapper.toEntity(CollectionDto.fromJson(response)),
       );
-    } on PostgrestException catch (e) {
-      return error(Failure.server(message: e.message));
-    } on Object catch (e, st) {
-      appLogger.w('collection remote failure', error: e, stackTrace: st);
-      return error(const Failure.unknown());
-    }
+    }, label: 'collection remote failure');
   }
 
   Future<Result<CollectionEntity>> updateCollection(
     CollectionEntity collection,
     String userId,
-  ) async {
-    try {
+  ) {
+    return guardSupabase<CollectionEntity>(() async {
       final json = CollectionMapper.toUpdateJson(collection);
       final response = await _client
           .from('collections')
@@ -149,12 +129,7 @@ class CollectionRemoteDataSource {
       return success(
         CollectionMapper.toEntity(CollectionDto.fromJson(response)),
       );
-    } on PostgrestException catch (e) {
-      return error(Failure.server(message: e.message));
-    } on Object catch (e, st) {
-      appLogger.w('collection remote failure', error: e, stackTrace: st);
-      return error(const Failure.unknown());
-    }
+    }, label: 'collection remote failure');
   }
 
   Future<Result<CollectionEntity>> updateCollectionVisibility({
@@ -162,8 +137,8 @@ class CollectionRemoteDataSource {
     required String userId,
     required CollectionVisibility visibility,
     required DateTime? lockedAt,
-  }) async {
-    try {
+  }) {
+    return guardSupabase<CollectionEntity>(() async {
       final json = CollectionMapper.toVisibilityUpdateJson(
         visibility,
         lockedAt,
@@ -179,27 +154,17 @@ class CollectionRemoteDataSource {
       return success(
         CollectionMapper.toEntity(CollectionDto.fromJson(response)),
       );
-    } on PostgrestException catch (e) {
-      return error(Failure.server(message: e.message));
-    } on Object catch (e, st) {
-      appLogger.w('collection remote failure', error: e, stackTrace: st);
-      return error(const Failure.unknown());
-    }
+    }, label: 'collection remote failure');
   }
 
-  Future<Result<void>> deleteCollection(String id, String userId) async {
-    try {
+  Future<Result<void>> deleteCollection(String id, String userId) {
+    return guardSupabase<void>(() async {
       await _client
           .from('collections')
           .delete()
           .eq('id', id)
           .eq('user_id', userId);
       return success(null);
-    } on PostgrestException catch (e) {
-      return error(Failure.server(message: e.message));
-    } on Object catch (e, st) {
-      appLogger.w('collection remote failure', error: e, stackTrace: st);
-      return error(const Failure.unknown());
-    }
+    }, label: 'collection remote failure');
   }
 }
