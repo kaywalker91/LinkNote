@@ -1,9 +1,11 @@
 # 다음 세션 프롬프트
 
-> **⚠️ 최신 상태 (2026-07-10 갱신)** — 아래 본문은 Session 65 기준으로 **stale**. 이후 진행분:
-> - **PR #63 `fix/orphan-tags-cleanup` (open)** — 고아 태그 4계층 정리(inner join + `_syncTags` add-before-remove + `migration_66` AFTER DELETE 트리거 + `userTagsProvider` invalidate). 실기기+마이그레이션 실행 완료, 648 GREEN. 상세 → `docs/daily_task_log/2026-07-10_session.md`, memory `project_orphan_tags_cleanup`.
-> - **다음 세션 우선순위**: ① PR #63 머지 확인 → ② 아래 "작업 범위 — 후보"(A 신규 기능 / B 인프라)에서 사용자 합의로 단일 트랙. **임의 트랙 창작 금지.**
-> - PR #62(`b1cb04c` nav FAB + prod env/versionCode), #59~#61(릴리스 서명·1.1.6 hygiene·in-app update) 는 이미 머지됨.
+> **⚠️ 최신 상태 (2026-07-22 갱신)** — **활성 핸드오프**:
+> - 🔴 **YouTube Share Intent URL 미유입 (미해결)** → [`docs/handoffs/2026-07-22-share-intent-youtube.md`](./handoffs/2026-07-22-share-intent-youtube.md)  
+>   Phase A 코드(+5/+6 내부테스트) 후에도 YouTube 공유 시 앱만 열리고 prefill 실패. 다음 세션은 raw intent 계측 우선.
+> - PRD: `docs/prds/share-intent.md` v2.1 · 워킹트리 Phase A 변경 **미커밋** · version `1.1.6+6`
+>
+> 아래 본문(Session 65 프롬프트)은 **stale** 백업. 신규 작업 시작 시 위 핸드오프를 우선한다.
 
 ---
 

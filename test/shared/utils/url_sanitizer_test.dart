@@ -146,6 +146,21 @@ void main()
         'https://münchen.de/ferien',
       );
     });
+
+    test('rejects non-web schemes on the direct URL path (ftp)', ()
+    {
+      expect(UrlSanitizer.extract('ftp://files.example.com/a.zip'), isNull);
+    });
+
+    test('rejects non-web schemes on the direct URL path (file)', ()
+    {
+      expect(UrlSanitizer.extract('file:///tmp/local.html'), isNull);
+    });
+
+    test('rejects javascript: scheme', ()
+    {
+      expect(UrlSanitizer.extract('javascript:alert(1)'), isNull);
+    });
   });
 
   group('UrlSanitizer.wouldAlter', ()

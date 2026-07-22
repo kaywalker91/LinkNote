@@ -48,5 +48,28 @@ void main() {
 
       expect(container.read(pendingSharedUrlProvider), isNull);
     });
+
+    test('setInitial replaces a previous pending URL (last-write-wins)', () {
+      container
+          .read(pendingSharedUrlProvider.notifier)
+          .setInitial('https://first.com');
+      container
+          .read(pendingSharedUrlProvider.notifier)
+          .setInitial('https://second.com');
+
+      expect(
+        container.read(pendingSharedUrlProvider),
+        'https://second.com',
+      );
+    });
+
+    test('consume is one-shot — second consume is a no-op', () {
+      container.read(pendingSharedUrlProvider.notifier)
+        ..setInitial('https://example.com')
+        ..consume()
+        ..consume();
+
+      expect(container.read(pendingSharedUrlProvider), isNull);
+    });
   });
 }

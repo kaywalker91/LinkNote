@@ -187,7 +187,7 @@ void main() {
       await tester.pumpAndSettle();
 
       // Assert — validation
-      expect(find.text('URL and title are required'), findsOneWidget);
+      expect(find.text('URL과 제목을 입력해 주세요.'), findsOneWidget);
     });
 
     testWidgets('should navigate login → home → add via GoRouter', (

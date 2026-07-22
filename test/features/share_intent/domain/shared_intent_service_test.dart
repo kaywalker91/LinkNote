@@ -53,5 +53,46 @@ void main() {
       const raw = '\u200bhttps://example.com\ufeff\u00a0';
       expect(SharedIntentService.extractUrl(raw), 'https://example.com');
     });
+
+    test('rejects non-http schemes', () {
+      expect(
+        SharedIntentService.extractUrl('ftp://files.example.com/a'),
+        isNull,
+      );
+    });
+  });
+
+  group('SharedIntentService.extractUrlFromCandidates', () {
+    test('returns first salvaged URL among candidates', () {
+      expect(
+        SharedIntentService.extractUrlFromCandidates([
+          '/data/user/0/cache/thumb.jpg',
+          'Check this https://youtu.be/abc123',
+        ]),
+        'https://youtu.be/abc123',
+      );
+    });
+
+    test('skips null/empty and non-URL candidates', () {
+      expect(
+        SharedIntentService.extractUrlFromCandidates([
+          null,
+          '',
+          'no link here',
+          'https://example.com/ok',
+        ]),
+        'https://example.com/ok',
+      );
+    });
+
+    test('returns null when no candidate has a URL', () {
+      expect(
+        SharedIntentService.extractUrlFromCandidates([
+          '/tmp/file.png',
+          'just text',
+        ]),
+        isNull,
+      );
+    });
   });
 }

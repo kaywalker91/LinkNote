@@ -1,9 +1,14 @@
+import 'dart:async' show unawaited;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:linknote/app/router/routes.dart';
 import 'package:linknote/app/theme/app_spacing.dart';
+import 'package:linknote/core/services/analytics_service.dart';
 import 'package:linknote/features/link/presentation/provider/link_form_provider.dart';
 import 'package:linknote/features/link/presentation/widgets/link_form_fields.dart';
+import 'package:linknote/features/share_intent/presentation/provider/pending_shared_url_provider.dart';
 import 'package:linknote/shared/extensions/context_extensions.dart';
 import 'package:linknote/shared/utils/url_sanitizer.dart';
 import 'package:linknote/shared/widgets/primary_button_widget.dart';
@@ -22,6 +27,10 @@ class LinkAddScreen extends ConsumerStatefulWidget {
 class _LinkAddScreenState extends ConsumerState<LinkAddScreen> {
   final _urlController = TextEditingController();
 
+  /// True when this screen was opened with a share-intent prefill URL.
+  bool get _fromSharePrefill =>
+      widget.initialUrl != null && widget.initialUrl!.isNotEmpty;
+
   @override
   void initState() {
     super.initState();
@@ -30,9 +39,25 @@ class _LinkAddScreenState extends ConsumerState<LinkAddScreen> {
       _urlController.text = seed;
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (!mounted) return;
-        ref.read(linkFormProvider(null).notifier).updateUrl(seed);
+        // Arrived via the share-intent prefill: consume the one-shot pending
+        // URL here (deferred out of build — Riverpod forbids mutating a
+        // provider during initState). The router redirect stays side-effect
+        // free, so a later splash re-evaluation won't re-route here and a
+        // subsequent login won't replay a stale share.
+        ref.read(pendingSharedUrlProvider.notifier).consume();
+        unawaited(_seedPrefillAndFetchOg(seed));
       });
     }
+  }
+
+  /// Waits for the form provider to leave loading, then injects [url] and
+  /// kicks off a single OG fetch. Early `parseOgTags` while state is still
+  /// `AsyncLoading` is a no-op (`state.value == null`).
+  Future<void> _seedPrefillAndFetchOg(String url) async {
+    await ref.read(linkFormProvider(null).future);
+    if (!mounted) return;
+    final notifier = ref.read(linkFormProvider(null).notifier)..updateUrl(url);
+    await notifier.parseOgTags(url, fromShare: true);
   }
 
   @override
@@ -85,7 +110,7 @@ class _LinkAddScreenState extends ConsumerState<LinkAddScreen> {
       ..hideCurrentSnackBar()
       ..showSnackBar(
         const SnackBar(
-          content: Text('URL extracted from pasted text'),
+          content: Text('붙여넣은 텍스트에서 URL을 추출했어요.'),
           duration: Duration(seconds: 2),
         ),
       );
@@ -164,10 +189,26 @@ class _LinkAddScreenState extends ConsumerState<LinkAddScreen> {
                       final success = await ref
                           .read(linkFormProvider(null).notifier)
                           .submit();
+                      if (_fromSharePrefill) {
+                        unawaited(
+                          ref
+                              .read(analyticsServiceProvider)
+                              .logShareSaveResult(
+                                success: success,
+                              ),
+                        );
+                      }
                       if (success && context.mounted) {
-                        context
-                          ..showSuccessSnackBar('Link saved')
-                          ..pop();
+                        context.showSuccessSnackBar('링크를 저장했어요.');
+                        // A share cold-start reaches this screen via a redirect
+                        // (empty stack beneath it), so there is nothing to pop —
+                        // land on home. Manual/warm opens were pushed onto home
+                        // and pop back normally.
+                        if (context.canPop()) {
+                          context.pop();
+                        } else {
+                          context.go(Routes.home);
+                        }
                       }
                     },
             ),

@@ -7,6 +7,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed (Share Intent 라우팅 — 2026-07-22)
+
+- **YouTube 공유 시 링크 추가 화면이 안 열리던 P0 해결** — 원인은 URL 추출이 아니라 라우터였다. `GoRouter` redirect가 `pendingSharedUrlProvider.consume()`로 상태를 변이시켰는데, auth 확정 시 `refreshListenable`이 연속으로 여러 번 펄스(`listenSelf` + `scheduleMicrotask` + `onAuthStateChange`)되며 redirect가 splash에서 여러 번 평가 → 1차 패스가 pending을 소비하고 `/links/new`를 반환해도, 아직 splash에 있는 후속 패스가 `null`을 보고 `home`으로 떨어뜨림.
+  - redirect를 **부수효과 없는 순수 함수**로 변경(소비 제거) → 여러 번 평가돼도 항상 `/links/new` 결정
+  - pending one-shot 소비를 `LinkAddScreen` **도착 시점**(post-frame)으로 이관 — cold 및 warm-미인증→로그인 경로 모두 해결
+  - (public-collection 딥링크 redirect도 동일 latent race — 후속 처리 플래그)
+- **공유 저장 후 홈 미이동 수정** — cold 공유는 redirect로 `/links/new`에 도달해 하위 스택이 비어 `context.pop()`이 no-op이었음. `canPop() ? pop() : go(home)`으로 교체(수동/warm push 경로는 종전대로 pop).
+- **cold-start 폴백 도달성** — `boot`이 플러그인 media가 비어도 네이티브 extras를 항상 읽고 `ACTION_SEND`면 EXTRA_TEXT/ClipData 폴백을 태우도록 게이트. 기존엔 플러그인이 빈 결과를 주면 폴백 자체가 실행 불가였음.
+- **설정 화면 버전 하드코딩 제거** — `0.1.0+1` 리터럴 → `PackageInfo.fromPlatform()` 실제 `version+buildNumber` 표시.
+
+### Improved (Share Intent Phase A — 2026-07-22)
+
+- **Android 공유 P0 완성도 보강** (`docs/prds/share-intent.md` Phase A)
+  - `LinkAddScreen` prefill 진입 시 OG 메타데이터 자동 1회 조회 (키보드 done 불필요)
+  - `parseOgTags` 빈 필드 전용 merge — 사용자 수정 title/description/thumbnail 미덮어쓰기 + host fallback 제목
+  - warm + 미로그인 시 `PendingSharedUrl` seed (`WarmShareAction.deferUntilAuthenticated`) — cold와 동일 계약
+  - `UrlSanitizer` `http`/`https` scheme allowlist (`ftp`/`file`/`javascript` 거부)
+  - 공유·폼 UX 한국어 문구 통일 (스낵바/검증/저장 성공)
+  - share funnel Analytics (`share_intent_received` 등) — raw URL·query 비수집, `source_category` 범주만
+  - 관련 단위/위젯/integration 테스트 보강. 실기기 YouTube/X/브라우저 매트릭스는 수동 검증 대기
+
 ### Fixed (고아 태그 정리 — 2026-07-10)
 
 - **고아 태그 정리** (PR #63) — 링크 삭제·태그 편집 시 `link_tags`(조인)는 cascade/명시 삭제되지만 `tags` 행이 남아 서치탭 태그 목록에 노출되던 문제를 4계층으로 해결:

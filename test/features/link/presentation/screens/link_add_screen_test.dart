@@ -1,11 +1,49 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:linknote/core/error/result.dart';
+import 'package:linknote/core/services/analytics_service.dart';
+import 'package:linknote/core/services/og_tag_service.dart';
 import 'package:linknote/features/link/presentation/screens/link_add_screen.dart';
+import 'package:linknote/features/share_intent/presentation/provider/pending_shared_url_provider.dart';
+import 'package:mocktail/mocktail.dart';
+
+class MockOgTagService extends Mock implements OgTagService {}
+
+class MockAnalyticsService extends Mock implements AnalyticsService {}
 
 void main() {
+  late MockOgTagService mockOg;
+  late MockAnalyticsService mockAnalytics;
+
+  setUp(() {
+    mockOg = MockOgTagService();
+    mockAnalytics = MockAnalyticsService();
+    when(() => mockOg.fetchOgTags(any())).thenAnswer(
+      (_) async => success(
+        const OgTagResult(title: 'Fetched Title'),
+      ),
+    );
+    when(
+      () => mockAnalytics.logShareMetadataResult(
+        success: any(named: 'success'),
+        failureCode: any(named: 'failureCode'),
+      ),
+    ).thenAnswer((_) async {});
+    when(
+      () => mockAnalytics.logShareSaveResult(
+        success: any(named: 'success'),
+        failureCode: any(named: 'failureCode'),
+      ),
+    ).thenAnswer((_) async {});
+  });
+
   Widget buildSubject({String? initialUrl}) {
     return ProviderScope(
+      overrides: [
+        ogTagServiceProvider.overrideWithValue(mockOg),
+        analyticsServiceProvider.overrideWithValue(mockAnalytics),
+      ],
       child: MaterialApp(
         home: LinkAddScreen(initialUrl: initialUrl),
       ),
@@ -42,7 +80,7 @@ void main() {
       await tapSaveButton(tester);
 
       // Assert
-      expect(find.text('URL and title are required'), findsOneWidget);
+      expect(find.text('URL과 제목을 입력해 주세요.'), findsOneWidget);
     });
 
     testWidgets('should show error when URL is empty but title is filled', (
@@ -61,7 +99,7 @@ void main() {
       await tapSaveButton(tester);
 
       // Assert
-      expect(find.text('URL and title are required'), findsOneWidget);
+      expect(find.text('URL과 제목을 입력해 주세요.'), findsOneWidget);
     });
 
     testWidgets('should show error when title is empty but URL is filled', (
@@ -80,7 +118,7 @@ void main() {
       await tapSaveButton(tester);
 
       // Assert
-      expect(find.text('URL and title are required'), findsOneWidget);
+      expect(find.text('URL과 제목을 입력해 주세요.'), findsOneWidget);
     });
 
     testWidgets('should render form fields for description, notes, tags', (
@@ -121,6 +159,67 @@ void main() {
           find.widgetWithText(TextField, 'URL *'),
         );
         expect(urlField.controller?.text ?? '', isEmpty);
+      },
+    );
+
+    testWidgets(
+      'should auto-start OG fetch once when opened with prefill URL',
+      (tester) async {
+        await tester.pumpWidget(
+          buildSubject(initialUrl: 'https://example.com/shared'),
+        );
+        await tester.pumpAndSettle();
+
+        verify(
+          () => mockOg.fetchOgTags('https://example.com/shared'),
+        ).called(1);
+        // OG title should land in the form after the auto fetch.
+        expect(find.text('Fetched Title'), findsOneWidget);
+      },
+    );
+
+    testWidgets(
+      'should not auto-fetch OG when opened without prefill',
+      (tester) async {
+        await tester.pumpWidget(buildSubject());
+        await tester.pumpAndSettle();
+
+        verifyNever(() => mockOg.fetchOgTags(any()));
+      },
+    );
+
+    testWidgets(
+      'consumes the pending shared URL one-shot on prefill arrival',
+      (tester) async {
+        // The router redirect stays side-effect free (it fires repeatedly per
+        // auth transition); the screen owns consuming the one-shot on arrival.
+        final container = ProviderContainer(
+          overrides: [
+            ogTagServiceProvider.overrideWithValue(mockOg),
+            analyticsServiceProvider.overrideWithValue(mockAnalytics),
+          ],
+        );
+        addTearDown(container.dispose);
+        container
+            .read(pendingSharedUrlProvider.notifier)
+            .setInitial('https://example.com/shared');
+        expect(
+          container.read(pendingSharedUrlProvider),
+          'https://example.com/shared',
+        );
+
+        await tester.pumpWidget(
+          UncontrolledProviderScope(
+            container: container,
+            child: const MaterialApp(
+              home: LinkAddScreen(initialUrl: 'https://example.com/shared'),
+            ),
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        // One-shot cleared so a later splash re-eval won't re-route here.
+        expect(container.read(pendingSharedUrlProvider), isNull);
       },
     );
   });
