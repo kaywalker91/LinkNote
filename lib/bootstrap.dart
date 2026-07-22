@@ -9,9 +9,12 @@ import 'package:linknote/app/app.dart';
 import 'package:linknote/app/router/routes.dart';
 import 'package:linknote/core/config/app_config.dart';
 import 'package:linknote/core/logger/app_logger.dart';
+import 'package:linknote/core/services/analytics_service.dart';
 import 'package:linknote/core/storage/storage_service.dart';
 import 'package:linknote/features/app_update/data/datasource/remote_config_update_datasource.dart';
 import 'package:linknote/features/collection/presentation/provider/pending_public_collection_provider.dart';
+import 'package:linknote/features/share_intent/data/android_share_extras.dart';
+import 'package:linknote/features/share_intent/domain/service/share_payload_resolver.dart';
 import 'package:linknote/features/share_intent/domain/service/shared_intent_service.dart';
 import 'package:linknote/features/share_intent/presentation/provider/pending_shared_url_provider.dart';
 import 'package:receive_sharing_intent/receive_sharing_intent.dart';
@@ -40,23 +43,61 @@ Future<void> boot(
   );
 
   final initialPayload = await _readInitialSharedPayload();
+  // Always inspect native extras: this recovers the URL when the plugin
+  // delivered no media at all (getInitialMedia() empty), a case the
+  // EXTRA_TEXT/ClipData fallback could never repair when it was gated behind a
+  // non-null plugin path.
+  final extras = await AndroidShareExtrasReader().read();
 
   final container = ProviderContainer();
-  if (initialPayload != null) {
+  final isShareLaunch =
+      initialPayload != null || extras?.action == 'android.intent.action.SEND';
+  if (isShareLaunch) {
     // A `linknote://collections/public/<id>` deep link and a shared web URL
     // both arrive here via receive_sharing_intent. Classify: the former opens
     // the read-only public view, the latter seeds the link-add prefill.
+    final analytics = container.read(analyticsServiceProvider);
     final publicCollectionId = SharedIntentService.extractPublicCollectionId(
       initialPayload,
     );
     if (publicCollectionId != null) {
+      unawaited(
+        analytics.logShareIntentReceived(
+          appState: 'cold',
+          payloadType: 'deep_link',
+        ),
+      );
       container
           .read(pendingPublicCollectionProvider.notifier)
           .setInitial(Routes.publicCollectionDetailPath(publicCollectionId));
     } else {
-      final url = SharedIntentService.extractUrl(initialPayload);
+      unawaited(
+        analytics.logShareIntentReceived(
+          appState: 'cold',
+          payloadType: 'text',
+        ),
+      );
+      // Prefer plugin path; fall back to EXTRA_TEXT / ClipData when the path is
+      // a file or the plugin delivered nothing (YouTube stream case).
+      final url = SharePayloadResolver().resolveFromExtras(
+        initialPayload,
+        extras,
+      );
       if (url != null) {
+        unawaited(
+          analytics.logShareUrlExtracted(
+            appState: 'cold',
+            sourceCategory: AnalyticsService.sourceCategoryForUrl(url),
+          ),
+        );
         container.read(pendingSharedUrlProvider.notifier).setInitial(url);
+      } else {
+        appLogger.w(
+          'Share intent: no URL from plugin path or EXTRA_TEXT',
+        );
+        unawaited(
+          analytics.logShareUrlRejected(reasonCode: 'no_url'),
+        );
       }
     }
   }
@@ -71,8 +112,8 @@ Future<void> boot(
 
 /// Read the cold-start share-intent payload once and reset the native buffer
 /// so warm-resume streams are not replayed. Returns the raw `path` payload
-/// (a shared URL or a `linknote://` deep link); classification happens in
-/// [boot].
+/// (a shared URL or a `linknote://` deep link), or `null` when the plugin
+/// delivered nothing. Classification happens in [boot].
 Future<String?> _readInitialSharedPayload() async {
   try {
     final media = await ReceiveSharingIntent.instance.getInitialMedia();

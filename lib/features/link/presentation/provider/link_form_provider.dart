@@ -4,6 +4,7 @@ import 'package:async/async.dart' show CancelableOperation;
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:linknote/core/error/failure.dart';
 import 'package:linknote/core/error/result.dart';
+import 'package:linknote/core/services/analytics_service.dart';
 import 'package:linknote/core/services/og_tag_service.dart';
 import 'package:linknote/features/link/domain/entity/link_entity.dart';
 import 'package:linknote/features/link/domain/entity/tag_entity.dart';
@@ -62,7 +63,11 @@ class LinkForm extends _$LinkForm {
     );
   }
 
-  Future<void> parseOgTags(String url) async {
+  /// Fetches OG metadata for [url].
+  ///
+  /// When [fromShare] is true, emits a privacy-safe
+  /// `share_metadata_result` analytics event (no raw URL).
+  Future<void> parseOgTags(String url, {bool fromShare = false}) async {
     final current = state.value;
     if (current == null) return;
 
@@ -85,9 +90,20 @@ class LinkForm extends _$LinkForm {
     if (latest == null) return;
 
     if (result.isFailure) {
+      if (fromShare) {
+        unawaited(
+          ref
+              .read(analyticsServiceProvider)
+              .logShareMetadataResult(
+                success: false,
+                failureCode: 'og_fetch_failed',
+              ),
+        );
+      }
       state = AsyncData(
         latest.copyWith(
           isParsingOg: false,
+          // Empty title only — never clobber a user-entered title.
           title: latest.title.isEmpty ? _extractTitle(url) : latest.title,
           errorMessage: _ogFailureMessage(result.failure!),
         ),
@@ -95,27 +111,40 @@ class LinkForm extends _$LinkForm {
       return;
     }
 
+    if (fromShare) {
+      unawaited(
+        ref
+            .read(analyticsServiceProvider)
+            .logShareMetadataResult(success: true),
+      );
+    }
+
     final og = result.data!;
     state = AsyncData(
       latest.copyWith(
         isParsingOg: false,
-        title:
-            og.title ??
-            (latest.title.isEmpty ? _extractTitle(url) : latest.title),
-        description: og.description ?? latest.description,
-        thumbnailUrl: og.imageUrl ?? latest.thumbnailUrl,
+        // Empty-field-only merge: late OG results must not overwrite edits.
+        title: latest.title.isNotEmpty
+            ? latest.title
+            : ((og.title?.isNotEmpty ?? false)
+                  ? og.title!
+                  : _extractTitle(url)),
+        description: latest.description.isNotEmpty
+            ? latest.description
+            : (og.description ?? latest.description),
+        thumbnailUrl:
+            (latest.thumbnailUrl != null && latest.thumbnailUrl!.isNotEmpty)
+            ? latest.thumbnailUrl
+            : (og.imageUrl ?? latest.thumbnailUrl),
       ),
     );
   }
 
   String _ogFailureMessage(Failure failure) {
     return switch (failure) {
-      NetworkFailure() => 'Could not fetch link info (network error)',
-      ServerFailure(:final statusCode) =>
-        statusCode != null
-            ? 'Could not load page (HTTP $statusCode)'
-            : 'Could not load page',
-      _ => 'Could not fetch link info',
+      NetworkFailure() => '링크 정보를 불러오지 못했어요. URL은 저장할 수 있어요.',
+      ServerFailure() => '링크 정보를 불러오지 못했어요. URL은 저장할 수 있어요.',
+      _ => '링크 정보를 불러오지 못했어요. URL은 저장할 수 있어요.',
     };
   }
 
@@ -177,7 +206,7 @@ class LinkForm extends _$LinkForm {
     if (current == null || current.url.isEmpty || current.title.isEmpty) {
       state = AsyncData(
         (current ?? const LinkFormState()).copyWith(
-          errorMessage: 'URL and title are required',
+          errorMessage: 'URL과 제목을 입력해 주세요.',
         ),
       );
       return false;
@@ -215,7 +244,7 @@ class LinkForm extends _$LinkForm {
       state = AsyncData(
         current.copyWith(
           isSubmitting: false,
-          errorMessage: result.failure?.message ?? 'Failed to save link',
+          errorMessage: result.failure?.message ?? '링크 저장에 실패했어요.',
         ),
       );
       return false;

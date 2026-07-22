@@ -33,11 +33,22 @@ abstract final class UrlSanitizer
     if (cleaned.isEmpty) return null;
     if (cleaned.length > _maxLength) return null;
 
-    // Fast path — input is already a well-formed URL.
+    // Fast path — input is already a well-formed web URL.
     final direct = Uri.tryParse(cleaned);
-    if (direct != null && direct.hasScheme && direct.host.isNotEmpty)
+    if (direct != null &&
+        _isAllowedWebScheme(direct.scheme) &&
+        direct.host.isNotEmpty)
     {
       return cleaned;
+    }
+
+    // Non-web schemes (ftp, file, javascript, …) are never savable bookmarks.
+    if (direct != null &&
+        direct.hasScheme &&
+        !_isAllowedWebScheme(direct.scheme) &&
+        direct.host.isNotEmpty)
+    {
+      return null;
     }
 
     // Embedded URL — user pasted "title text https://real-url".
@@ -46,7 +57,9 @@ abstract final class UrlSanitizer
     {
       final extracted = _trimTrailingPunctuation(match.group(0)!);
       final parsed = Uri.tryParse(extracted);
-      if (parsed != null && parsed.host.isNotEmpty)
+      if (parsed != null &&
+          _isAllowedWebScheme(parsed.scheme) &&
+          parsed.host.isNotEmpty)
       {
         return extracted;
       }
@@ -97,4 +110,8 @@ abstract final class UrlSanitizer
     }
     return url.substring(0, end);
   }
+
+  /// LinkNote only stores web bookmarks — `http` / `https` only.
+  static bool _isAllowedWebScheme(String scheme) =>
+      scheme.toLowerCase() == 'http' || scheme.toLowerCase() == 'https';
 }

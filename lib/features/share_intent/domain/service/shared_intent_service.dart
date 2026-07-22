@@ -11,6 +11,18 @@ abstract final class SharedIntentService {
     return UrlSanitizer.extract(payload);
   }
 
+  /// Tries each candidate in order and returns the first salvaged URL.
+  ///
+  /// Used when a share payload may be a file path (plugin stream path) while
+  /// the real URL lives in a secondary field (Android EXTRA_TEXT / subject).
+  static String? extractUrlFromCandidates(Iterable<String?> candidates) {
+    for (final candidate in candidates) {
+      final url = extractUrl(candidate);
+      if (url != null) return url;
+    }
+    return null;
+  }
+
   /// Returns the collection id when [payload] is a public-collection deep link
   /// (`linknote:///collections/public/<id>`), else `null`.
   ///

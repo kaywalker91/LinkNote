@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:linknote/app/theme/app_spacing.dart';
 import 'package:linknote/shared/providers/theme_mode_provider.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
 class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
@@ -60,12 +61,32 @@ class SettingsScreen extends ConsumerWidget {
             ),
             child: Text('About', style: TextStyle(fontWeight: FontWeight.w600)),
           ),
-          const ListTile(
-            title: Text('Version'),
-            trailing: Text('0.1.0+1'),
-          ),
+          const _VersionTile(),
         ],
       ),
+    );
+  }
+}
+
+/// Shows the running app version + build number read from the platform, so the
+/// About tile never drifts from `pubspec` (previously a hardcoded literal).
+class _VersionTile extends StatelessWidget {
+  const _VersionTile();
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<PackageInfo>(
+      future: PackageInfo.fromPlatform(),
+      builder: (context, snapshot) {
+        final info = snapshot.data;
+        final label = info == null
+            ? '…'
+            : '${info.version}+${info.buildNumber}';
+        return ListTile(
+          title: const Text('Version'),
+          trailing: Text(label),
+        );
+      },
     );
   }
 }

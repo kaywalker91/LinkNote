@@ -80,11 +80,18 @@ GoRouter appRouter(Ref ref) {
           ref.read(pendingPublicCollectionProvider.notifier).consume();
           return pendingPublic;
         }
-        // Cold-start share intent: when a URL payload was captured at boot,
-        // consume it once and land on the prefill form instead of home.
+        // Cold-start share intent: a URL payload captured at boot lands on the
+        // prefill form. Do NOT consume here — this redirect is evaluated
+        // multiple times per auth transition (listenSelf + scheduleMicrotask +
+        // onAuthStateChange each pulse refreshListenable). A mutating read would
+        // make it non-idempotent: the first pass consumes and returns the form,
+        // but a later pass still at splash sees null and falls through to home,
+        // dropping the share. Read purely; LinkAddScreen consumes the one-shot
+        // on arrival. (pendingPublic above has the same latent race — a rarer
+        // cold deep-link path; fix it the same way when that screen gains an
+        // init hook.)
         final pending = ref.read(pendingSharedUrlProvider);
         if (pending != null) {
-          ref.read(pendingSharedUrlProvider.notifier).consume();
           final encoded = Uri.encodeComponent(pending);
           return '${Routes.linkAdd}?prefill=$encoded';
         }

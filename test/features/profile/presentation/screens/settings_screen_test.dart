@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:linknote/features/profile/presentation/screens/settings_screen.dart';
 import 'package:linknote/shared/providers/theme_mode_provider.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
 class _StubThemeModeNotifier extends ThemeModeNotifier {
   @override
@@ -16,6 +17,18 @@ class _StubThemeModeNotifier extends ThemeModeNotifier {
 
 void main() {
   group('SettingsScreen', () {
+    setUp(() {
+      // The About tile reads the version from the platform via
+      // PackageInfo.fromPlatform(); stub it so the label is deterministic.
+      PackageInfo.setMockInitialValues(
+        appName: 'LinkNote',
+        packageName: 'app.kaywalker.linknote',
+        version: '1.1.6',
+        buildNumber: '7',
+        buildSignature: '',
+      );
+    });
+
     testWidgets('should show app bar with Settings title', (tester) async {
       await tester.pumpWidget(
         ProviderScope(
@@ -73,7 +86,7 @@ void main() {
 
       expect(find.text('About'), findsOneWidget);
       expect(find.text('Version'), findsOneWidget);
-      expect(find.text('0.1.0+1'), findsOneWidget);
+      expect(find.text('1.1.6+7'), findsOneWidget);
     });
   });
 }

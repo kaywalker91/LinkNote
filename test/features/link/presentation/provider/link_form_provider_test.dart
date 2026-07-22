@@ -288,5 +288,105 @@ void main() {
         expect(entity.createdAt, tNow);
       });
     });
+
+    group('parseOgTags empty-field-only merge', () {
+      test('fills empty title from OG result', () async {
+        when(() => mockOgService.fetchOgTags(any())).thenAnswer(
+          (_) async => success(
+            const OgTagResult(
+              title: 'OG Title',
+              description: 'OG Desc',
+              imageUrl: 'https://img.example/a.png',
+            ),
+          ),
+        );
+
+        final container = createContainer();
+        addTearDown(container.dispose);
+        await container.read(linkFormProvider(null).future);
+
+        container
+            .read(linkFormProvider(null).notifier)
+            .updateUrl('https://example.com');
+
+        await container
+            .read(linkFormProvider(null).notifier)
+            .parseOgTags('https://example.com');
+
+        final state = container.read(linkFormProvider(null)).value!;
+        expect(state.title, 'OG Title');
+        expect(state.description, 'OG Desc');
+        expect(state.thumbnailUrl, 'https://img.example/a.png');
+      });
+
+      test('does not overwrite a user-edited title with OG result', () async {
+        when(() => mockOgService.fetchOgTags(any())).thenAnswer(
+          (_) async => success(
+            const OgTagResult(
+              title: 'OG Title',
+              description: 'OG Desc',
+            ),
+          ),
+        );
+
+        final container = createContainer();
+        addTearDown(container.dispose);
+        await container.read(linkFormProvider(null).future);
+
+        final notifier = container.read(linkFormProvider(null).notifier)
+          ..updateUrl('https://example.com')
+          ..updateTitle('My Custom Title');
+
+        await notifier.parseOgTags('https://example.com');
+
+        final state = container.read(linkFormProvider(null)).value!;
+        expect(state.title, 'My Custom Title');
+        expect(state.description, 'OG Desc');
+      });
+
+      test(
+        'uses host fallback title when OG fails and title is empty',
+        () async {
+          when(() => mockOgService.fetchOgTags(any())).thenAnswer(
+            (_) async => error(const Failure.network(message: 'offline')),
+          );
+
+          final container = createContainer();
+          addTearDown(container.dispose);
+          await container.read(linkFormProvider(null).future);
+
+          container
+              .read(linkFormProvider(null).notifier)
+              .updateUrl('https://example.com/path');
+
+          await container
+              .read(linkFormProvider(null).notifier)
+              .parseOgTags('https://example.com/path');
+
+          final state = container.read(linkFormProvider(null)).value!;
+          expect(state.title, 'example.com');
+          expect(state.errorMessage, isNotNull);
+        },
+      );
+
+      test('preserves user title when OG fails', () async {
+        when(() => mockOgService.fetchOgTags(any())).thenAnswer(
+          (_) async => error(const Failure.network(message: 'offline')),
+        );
+
+        final container = createContainer();
+        addTearDown(container.dispose);
+        await container.read(linkFormProvider(null).future);
+
+        final notifier = container.read(linkFormProvider(null).notifier)
+          ..updateUrl('https://example.com')
+          ..updateTitle('Kept');
+
+        await notifier.parseOgTags('https://example.com');
+
+        final state = container.read(linkFormProvider(null)).value!;
+        expect(state.title, 'Kept');
+      });
+    });
   });
 }
