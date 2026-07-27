@@ -11,7 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **컬렉션 탭 셸 FAB이 '컬렉션 추가'로 전환** (`lib/shared/widgets/app_scaffold_with_nav_bar.dart`) — 링크는 대부분 공유 인텐트로 자동 생성되므로 컬렉션 탭의 링크 추가 진입점은 불필요. `_branchRoutes[currentIndex] == Routes.collections` 분기로 아이콘(`create_new_folder_rounded`)·툴팁·목적지(`Routes.collectionNew`)만 교체하고, 나머지 탭은 종전대로 링크 추가(`add_rounded` / `Routes.linkAdd`). 위치는 `endFloat` 유지.
 - **컬렉션 목록 상단 우측 '컬렉션 추가' 아이콘 제거** (`collection_list_screen.dart`) — 기능이 FAB으로 이동해 중복. 탑바는 타이틀·서브타이틀만 남김.
-- 셸 FAB 동작 테스트 5건 추가(탭별 아이콘/툴팁, 탭별 실제 push 목적지, 컬렉션 탭 이탈 시 원복). 679 GREEN.
+- **`LnTopBar`가 비어 있는 standard 행을 접음** (`ln_top_bar.dart`) — `large: true`는 leading/title/actions가 전부 없어도 56px 행을 항상 그려서, 위 액션 제거 후 컬렉션 목록 상단에 빈 띠가 남았다. 채울 내용이 없으면 행 대신 16px 여백만 두고 `preferredSize`도 함께 축소. `large: false`와 홈·컬렉션 상세(항상 leading/actions 보유)는 렌더 경로 불변.
+- 셸 FAB 동작 테스트 5건(탭별 아이콘/툴팁, 탭별 실제 push 목적지, 컬렉션 탭 이탈 시 원복) + `LnTopBar` 레이아웃 테스트 4건 추가. 683 GREEN.
 
 ### Fixed (Share Intent 라우팅 — 2026-07-22)
 

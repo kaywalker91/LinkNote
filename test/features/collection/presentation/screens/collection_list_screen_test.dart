@@ -184,6 +184,11 @@ void main() {
       expect(find.byType(FloatingActionButton), findsNothing);
       expect(find.byIcon(Icons.add_rounded), findsNothing);
       expect(find.byIcon(Icons.create_new_folder_rounded), findsNothing);
+
+      // With the action gone the top bar has nothing to put in its standard
+      // row, so it collapses instead of leaving an empty 56px band above the
+      // display title.
+      expect(tester.getTopLeft(find.text('컬렉션')).dy, lessThan(56));
     });
   });
 }
