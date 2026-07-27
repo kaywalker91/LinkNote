@@ -34,6 +34,12 @@ class AppScaffoldWithNavBar extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    // Links are mostly created through the share intent, so the Collections
+    // tab trades the add-link FAB for the add-collection action that used to
+    // live in the collection list top bar.
+    final onCollections =
+        _branchRoutes[navigationShell.currentIndex] == Routes.collections;
+
     return Scaffold(
       body: Column(
         children: [
@@ -46,9 +52,14 @@ class AppScaffoldWithNavBar extends ConsumerWidget {
         backgroundColor: context.palette.forest,
         foregroundColor: Colors.white,
         elevation: 6,
-        tooltip: '링크 추가',
-        onPressed: () => context.push(Routes.linkAdd),
-        child: const Icon(Icons.add_rounded, size: 24),
+        tooltip: onCollections ? '컬렉션 추가' : '링크 추가',
+        onPressed: () => context.push(
+          onCollections ? Routes.collectionNew : Routes.linkAdd,
+        ),
+        child: Icon(
+          onCollections ? Icons.create_new_folder_rounded : Icons.add_rounded,
+          size: 24,
+        ),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       bottomNavigationBar: Theme(

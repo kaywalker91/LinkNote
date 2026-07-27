@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed (컬렉션 탭 액션 정리 — 2026-07-27)
+
+- **컬렉션 탭 셸 FAB이 '컬렉션 추가'로 전환** (`lib/shared/widgets/app_scaffold_with_nav_bar.dart`) — 링크는 대부분 공유 인텐트로 자동 생성되므로 컬렉션 탭의 링크 추가 진입점은 불필요. `_branchRoutes[currentIndex] == Routes.collections` 분기로 아이콘(`create_new_folder_rounded`)·툴팁·목적지(`Routes.collectionNew`)만 교체하고, 나머지 탭은 종전대로 링크 추가(`add_rounded` / `Routes.linkAdd`). 위치는 `endFloat` 유지.
+- **컬렉션 목록 상단 우측 '컬렉션 추가' 아이콘 제거** (`collection_list_screen.dart`) — 기능이 FAB으로 이동해 중복. 탑바는 타이틀·서브타이틀만 남김.
+- 셸 FAB 동작 테스트 5건 추가(탭별 아이콘/툴팁, 탭별 실제 push 목적지, 컬렉션 탭 이탈 시 원복). 679 GREEN.
+
 ### Fixed (Share Intent 라우팅 — 2026-07-22)
 
 - **YouTube 공유 시 링크 추가 화면이 안 열리던 P0 해결** — 원인은 URL 추출이 아니라 라우터였다. `GoRouter` redirect가 `pendingSharedUrlProvider.consume()`로 상태를 변이시켰는데, auth 확정 시 `refreshListenable`이 연속으로 여러 번 펄스(`listenSelf` + `scheduleMicrotask` + `onAuthStateChange`)되며 redirect가 splash에서 여러 번 평가 → 1차 패스가 pending을 소비하고 `/links/new`를 반환해도, 아직 splash에 있는 후속 패스가 `null`을 보고 `home`으로 떨어뜨림.

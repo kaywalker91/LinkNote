@@ -161,7 +161,7 @@ void main() {
       expect(find.text('링크 3개'), findsOneWidget);
     });
 
-    testWidgets('should show add-collection action in the top bar', (
+    testWidgets('should not show any add action inside the screen', (
       tester,
     ) async {
       await tester.pumpWidget(
@@ -178,11 +178,12 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      // The redundant per-screen FAB was removed: add-collection now lives only
-      // in the LnTopBar action, and the global add-link FAB lives in the app
-      // shell (not present in this isolated screen test).
+      // Add-collection moved to the app shell FAB, so neither the old top-bar
+      // action nor a per-screen FAB exists here (the shell is not part of this
+      // isolated screen test).
       expect(find.byType(FloatingActionButton), findsNothing);
-      expect(find.byIcon(Icons.add_rounded), findsOneWidget);
+      expect(find.byIcon(Icons.add_rounded), findsNothing);
+      expect(find.byIcon(Icons.create_new_folder_rounded), findsNothing);
     });
   });
 }

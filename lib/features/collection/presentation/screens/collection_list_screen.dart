@@ -11,7 +11,6 @@ import 'package:linknote/shared/widgets/empty_state_illustration.dart';
 import 'package:linknote/shared/widgets/empty_state_widget.dart';
 import 'package:linknote/shared/widgets/error_state_widget.dart';
 import 'package:linknote/shared/widgets/ln/ln_collection_card.dart';
-import 'package:linknote/shared/widgets/ln/ln_icon_btn.dart';
 import 'package:linknote/shared/widgets/ln/ln_top_bar.dart';
 import 'package:linknote/shared/widgets/skeleton/collection_card_skeleton.dart';
 
@@ -26,18 +25,11 @@ class CollectionListScreen extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: context.palette.bgAlt,
+      // Add-collection lives in the app shell FAB, not here.
       appBar: LnTopBar(
         large: true,
         displayTitle: '컬렉션',
         displaySubtitle: _buildMetaLine(total),
-        actions: [
-          LnIconBtn(
-            icon: Icons.add_rounded,
-            tooltip: '컬렉션 추가',
-            onPressed: () => context.push(Routes.collectionNew),
-          ),
-          const SizedBox(width: 4),
-        ],
       ),
       body: collectionsAsync.when(
         loading: () => const _SkeletonGrid(),
