@@ -2,19 +2,6 @@
 
 모바일 북마크 서비스 - 웹 링크/유튜브/아티클/메모를 저장, 태그/컬렉션/검색으로 관리, 공유.
 
-## Tech Stack
-
-- **Framework**: Flutter 3.41.4 / Dart 3.11.1
-- **State Management**: Riverpod 3.x + 코드 생성 (riverpod_annotation + riverpod_generator)
-- **Routing**: GoRouter
-- **Network**: Dio + Retrofit
-- **Local DB**: Hive CE
-- **Backend**: Supabase
-- **Firebase**: Core, Messaging, Crashlytics, Analytics
-- **Serialization**: Freezed + json_serializable
-- **Environment**: envied (코드 생성 기반, 시크릿 난독화)
-- **Linting**: very_good_analysis + custom_lint + riverpod_lint
-
 ## Key Commands
 
 ```bash
@@ -40,19 +27,7 @@ flutter run -d emulator-5554
 
 ## Architecture
 
-Feature-first + Clean Architecture Lite:
-
-```
-lib/
-├── app/          # App shell (router, theme, DI)
-├── core/         # Shared infra (network, error, storage, logger, constants)
-├── shared/       # Reusable widgets, extensions, models
-└── features/     # Feature modules
-    └── <feature>/
-        ├── data/          # datasource, dto, mapper, repository impl
-        ├── domain/        # entity, repository interface, usecase
-        └── presentation/  # provider, screen, widget
-```
+Feature-first + Clean Architecture Lite — each feature under `lib/features/<feature>/` splits into `data/` / `domain/` / `presentation/`.
 
 ## Conventions
 

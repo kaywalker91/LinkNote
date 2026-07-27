@@ -29,55 +29,56 @@ void main() {
     });
   });
 
-  group('tab-switch screen_view logging', () {
-    late MockAnalyticsService mockAnalytics;
+  late MockAnalyticsService mockAnalytics;
 
-    setUp(() {
-      mockAnalytics = MockAnalyticsService();
-      when(() => mockAnalytics.logScreenView(any())).thenAnswer((_) async {});
-    });
+  setUp(() {
+    mockAnalytics = MockAnalyticsService();
+    when(() => mockAnalytics.logScreenView(any())).thenAnswer((_) async {});
+  });
 
-    // Minimal shell router mirroring the production 4-branch layout so the real
-    // widget builds with a genuine StatefulNavigationShell.
-    GoRouter buildRouter() {
-      GoRoute branch(String path, String label) => GoRoute(
-        path: path,
-        pageBuilder: (context, state) => NoTransitionPage(
-          child: Scaffold(body: Center(child: Text(label))),
-        ),
-      );
+  // Minimal shell router mirroring the production 4-branch layout so the real
+  // widget builds with a genuine StatefulNavigationShell.
+  GoRouter buildRouter() {
+    GoRoute page(String path, String label) => GoRoute(
+      path: path,
+      pageBuilder: (context, state) => NoTransitionPage(
+        child: Scaffold(body: Center(child: Text(label))),
+      ),
+    );
 
-      return GoRouter(
-        initialLocation: '/home',
-        routes: [
-          StatefulShellRoute.indexedStack(
-            builder: (context, state, shell) =>
-                AppScaffoldWithNavBar(navigationShell: shell),
-            branches: [
-              StatefulShellBranch(routes: [branch('/home', 'HomeBody')]),
-              StatefulShellBranch(routes: [branch('/search', 'SearchBody')]),
-              StatefulShellBranch(
-                routes: [branch('/collections', 'CollectionsBody')],
-              ),
-              StatefulShellBranch(routes: [branch('/profile', 'ProfileBody')]),
-            ],
-          ),
-        ],
-      );
-    }
-
-    Future<void> pumpShell(WidgetTester tester) async {
-      await tester.pumpWidget(
-        ProviderScope(
-          overrides: [
-            analyticsServiceProvider.overrideWithValue(mockAnalytics),
+    return GoRouter(
+      initialLocation: '/home',
+      routes: [
+        StatefulShellRoute.indexedStack(
+          builder: (context, state, shell) =>
+              AppScaffoldWithNavBar(navigationShell: shell),
+          branches: [
+            StatefulShellBranch(routes: [page('/home', 'HomeBody')]),
+            StatefulShellBranch(routes: [page('/search', 'SearchBody')]),
+            StatefulShellBranch(
+              routes: [page('/collections', 'CollectionsBody')],
+            ),
+            StatefulShellBranch(routes: [page('/profile', 'ProfileBody')]),
           ],
-          child: MaterialApp.router(routerConfig: buildRouter()),
         ),
-      );
-      await tester.pumpAndSettle();
-    }
+        // Root-navigator push targets for the shell FAB, as in production.
+        page('/links/new', 'LinkAddBody'),
+        page('/collections/new', 'CollectionFormBody'),
+      ],
+    );
+  }
 
+  Future<void> pumpShell(WidgetTester tester) async {
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [analyticsServiceProvider.overrideWithValue(mockAnalytics)],
+        child: MaterialApp.router(routerConfig: buildRouter()),
+      ),
+    );
+    await tester.pumpAndSettle();
+  }
+
+  group('tab-switch screen_view logging', () {
     testWidgets('does not log on initial build (root observer owns it)', (
       tester,
     ) async {
@@ -109,6 +110,84 @@ void main() {
 
       verify(() => mockAnalytics.logScreenView('/profile')).called(1);
       verify(() => mockAnalytics.logScreenView('/home')).called(1);
+    });
+  });
+
+  group('shell FAB', () {
+    Future<void> goToCollections(WidgetTester tester) async {
+      await tester.tap(find.text('Collections'));
+      await tester.pumpAndSettle();
+    }
+
+    testWidgets('is add-link on non-collection tabs', (tester) async {
+      await pumpShell(tester);
+
+      expect(find.byIcon(Icons.add_rounded), findsOneWidget);
+      expect(find.byIcon(Icons.create_new_folder_rounded), findsNothing);
+      expect(
+        tester
+            .widget<FloatingActionButton>(
+              find.byType(FloatingActionButton),
+            )
+            .tooltip,
+        '링크 추가',
+      );
+
+      await tester.tap(find.text('Search'));
+      await tester.pumpAndSettle();
+      expect(find.byIcon(Icons.add_rounded), findsOneWidget);
+    });
+
+    testWidgets('becomes add-collection on the Collections tab', (
+      tester,
+    ) async {
+      await pumpShell(tester);
+      await goToCollections(tester);
+
+      expect(find.byIcon(Icons.create_new_folder_rounded), findsOneWidget);
+      expect(find.byIcon(Icons.add_rounded), findsNothing);
+      expect(
+        tester
+            .widget<FloatingActionButton>(
+              find.byType(FloatingActionButton),
+            )
+            .tooltip,
+        '컬렉션 추가',
+      );
+    });
+
+    testWidgets('pushes the add-link route from the Home tab', (tester) async {
+      await pumpShell(tester);
+
+      await tester.tap(find.byType(FloatingActionButton));
+      await tester.pumpAndSettle();
+
+      expect(find.text('LinkAddBody'), findsOneWidget);
+    });
+
+    testWidgets('pushes the collection form route from the Collections tab', (
+      tester,
+    ) async {
+      await pumpShell(tester);
+      await goToCollections(tester);
+
+      await tester.tap(find.byType(FloatingActionButton));
+      await tester.pumpAndSettle();
+
+      expect(find.text('CollectionFormBody'), findsOneWidget);
+    });
+
+    testWidgets('reverts to add-link when leaving the Collections tab', (
+      tester,
+    ) async {
+      await pumpShell(tester);
+      await goToCollections(tester);
+
+      await tester.tap(find.text('Profile'));
+      await tester.pumpAndSettle();
+
+      expect(find.byIcon(Icons.add_rounded), findsOneWidget);
+      expect(find.byIcon(Icons.create_new_folder_rounded), findsNothing);
     });
   });
 }

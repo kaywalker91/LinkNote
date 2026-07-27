@@ -28,41 +28,59 @@ class LnTopBar extends StatelessWidget implements PreferredSizeWidget {
   static const double _standardHeight = 56;
   static const double _largeExtra = 92;
 
+  /// Breathing room above the display title when the standard row collapses.
+  static const double _collapsedTopPad = 16;
+
+  /// The standard row is dropped on [large] bars that have nothing to put in
+  /// it — otherwise it renders as an empty 56px band above the display title.
+  bool get _hasStandardRow =>
+      !large ||
+      leading != null ||
+      title != null ||
+      titleWidget != null ||
+      actions.isNotEmpty;
+
   @override
-  Size get preferredSize => Size.fromHeight(
-    large ? _standardHeight + _largeExtra : _standardHeight,
-  );
+  Size get preferredSize {
+    if (!large) return const Size.fromHeight(_standardHeight);
+    return Size.fromHeight(
+      (_hasStandardRow ? _standardHeight : _collapsedTopPad) + _largeExtra,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     final palette = context.palette;
     final content = <Widget>[
-      SizedBox(
-        height: _standardHeight,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8),
-          child: Row(
-            children: [
-              ?leading,
-              if (leading != null) const SizedBox(width: 8),
-              Expanded(
-                child:
-                    titleWidget ??
-                    (title != null
-                        ? Text(
-                            title!,
-                            style: AppTextStyles.titleL.copyWith(
-                              color: palette.ink,
-                            ),
-                            overflow: TextOverflow.ellipsis,
-                          )
-                        : const SizedBox.shrink()),
-              ),
-              ...actions,
-            ],
+      if (_hasStandardRow)
+        SizedBox(
+          height: _standardHeight,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8),
+            child: Row(
+              children: [
+                ?leading,
+                if (leading != null) const SizedBox(width: 8),
+                Expanded(
+                  child:
+                      titleWidget ??
+                      (title != null
+                          ? Text(
+                              title!,
+                              style: AppTextStyles.titleL.copyWith(
+                                color: palette.ink,
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                            )
+                          : const SizedBox.shrink()),
+                ),
+                ...actions,
+              ],
+            ),
           ),
-        ),
-      ),
+        )
+      else
+        const SizedBox(height: _collapsedTopPad),
       if (large) _buildLargeBlock(context),
     ];
 
