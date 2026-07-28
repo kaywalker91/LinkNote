@@ -38,9 +38,9 @@ Phase 4  [✅ 완료]     로컬 캐시 & 성능 최적화
 Phase 5  [✅ 완료]     테스트 작성 (300+ → 437개 테스트 전체 통과, Wave 1~5 리뷰 반영 포함)
 Phase 6  [✅ 완료]     CI/CD & 코드 품질 (GitHub Actions + README bilingual + analyze 0)
 Phase 6.5[✅ 완료]     보안 감사 + 코드 리뷰 Wave 1~5 (Session 1~35 누적, 테스트 300+→437)
-Phase 7  [🔄 진행 중]  Android MVP 마무리 — Firebase ✅ / FCM / Keystore / Play Store Internal
+Phase 7  [🔄 진행 중]  Android MVP 마무리 — Firebase ✅ / Keystore ✅ / Play Store Internal (FCM 은 MVP 제외, ADR-004)
 Phase 7.5[⏳ 예정]     Android 배포 + 배포 후 개선 — Play Store 릴리스 → 실사용자 피드백/버그 반영까지 완료
-Phase 8  [⏸ 대기]      iOS 기능 추가 — Phase 7.5 완료 후 진입. Android 최종형을 iOS 로 포팅 (Firebase iOS / FCM APNs / TestFlight)
+Phase 8  [⏸ 대기]      iOS 기능 추가 — Phase 7.5 완료 후 진입. Android 최종형을 iOS 로 포팅 (Firebase iOS / TestFlight)
 Phase 9  [⏳ 예정]     iOS 배포 + 공통 스토어 자산 — App Store 심사·배포, 양 플랫폼 공통 스토어 리스팅/시연 영상/정책 문서 마무리
 ```
 
@@ -71,11 +71,11 @@ Phase 9  [⏳ 예정]     iOS 배포 + 공통 스토어 자산 — App Store 심
 
 #### 체크리스트
 
-- [x] 5탭 네비게이션 쉘 (`StatefulShellRoute.indexedStack`)
+- [x] 4탭 네비게이션 쉘 + 중앙 FAB (`StatefulShellRoute.indexedStack`)
 - [x] Home Screen — 링크 목록, 전체/즐겨찾기 필터, 무한 스크롤, FAB
 - [x] Search Screen — debounce 검색, 최근 검색어 표시
 - [x] Collections Screen — 컬렉션 목록 + Collection Detail Screen
-- [x] Notifications Screen — 알림 목록, 읽음/읽지않음 상태
+- [x] ~~Notifications Screen — 알림 목록, 읽음/읽지않음 상태~~ → 2026-07-28 MVP 제외, 라우트 미등록 (ADR-004)
 - [x] Profile Screen + Settings Screen (테마 전환)
 - [x] Link Detail Screen — OG 썸네일, 즐겨찾기 토글, 메모, 태그
 - [x] Link Add Screen — URL 입력, OG 파싱 시뮬레이션
@@ -318,13 +318,18 @@ Phase 6 완료 이후 Phase 7 진입 전에 수행한 품질 보강 단계. 별�
 - [x] Debug 빌드 Crashlytics 수집 비활성화 (`setCrashlyticsCollectionEnabled(!kDebugMode)`)
 - [x] 검증: `flutter build apk --flavor dev --debug` 성공, 437 tests GREEN, analyze 0
 
-**FCM (Android 우선)**
+**FCM (Android) — ❌ 취소, MVP 제외 (2026-07-28, [ADR-004](adr/004-defer-notifications-and-fcm.md))**
 
-- [ ] `firebase_messaging` 의존성 추가 + `bootstrap.dart` 초기화
-- [ ] `core/notification/fcm_service.dart` — 권한 요청, 토큰 관리, 토픽 구독
-- [ ] Android 13+ `POST_NOTIFICATIONS` 런타임 권한 처리
-- [ ] 백그라운드 핸들러 (top-level 함수) + 포그라운드 알림 표시
-- [ ] 기존 `NotificationScreen`과 연결 (알림 탭 시 딥링크)
+> 알림을 발생시킬 이벤트(팔로우/댓글/초대)가 코드에 존재하지 않아 `notifications` 테이블 insert 주체가 0건 —
+> FCM 을 배선해도 빈 인박스 + 권한 다이얼로그 + 토큰 수집만 남는다. Phase 7 진행 차단 요소에서 제거한다.
+> **재개 조건:** 실제 알림 발생 이벤트가 먼저 구현될 때.
+>
+> 취소된 항목 (재개 시 여기서 시작): `firebase_messaging` 의존성 + `bootstrap.dart` 초기화 /
+> `core/notification/fcm_service.dart` (권한·토큰·토픽) / Android 13+ `POST_NOTIFICATIONS` 런타임 권한 /
+> 백그라운드 top-level 핸들러 + 포그라운드 표시 / `NotificationScreen` 라우트 재등록 + 딥링크 /
+> (문서에 없었으나 필수) 토큰 테이블 + RLS, 서버 발송 경로, 개인정보 처리방침 · Play 데이터 안전 갱신.
+
+- [x] `firebase_messaging` 의존성 제거 (`lib/` 사용 0건이었음) + 홈 벨 아이콘 · `Routes.notifications` 제거
 
 **릴리스 서명 + 빌드**
 
@@ -415,12 +420,11 @@ Phase 6 완료 이후 Phase 7 진입 전에 수행한 품질 보강 단계. 별�
 - [ ] Xcode Run Script Phase 추가 (Crashlytics dSYM 업로드)
 - [ ] `pod install` + Podfile 의존성 해결
 
-**iOS FCM (APNs)**
+**iOS FCM (APNs) — ❌ 취소, MVP 제외 (Android 와 동일 사유, [ADR-004](adr/004-defer-notifications-and-fcm.md))**
 
-- [ ] Apple Developer에서 APNs 인증 키(.p8) 생성 + Firebase 콘솔 업로드
-- [ ] Xcode Capabilities: Push Notifications + Background Modes (Remote notifications)
-- [ ] iOS 권한 요청 플로우 (`UNUserNotificationCenter.requestAuthorization`)
-- [ ] 백그라운드/포그라운드 알림 동작 검증 (실기기 필수)
+> 취소된 항목 (재개 시 여기서 시작): APNs 인증 키(.p8) 생성 + Firebase 콘솔 업로드 /
+> Xcode Capabilities (Push Notifications, Background Modes) /
+> `UNUserNotificationCenter.requestAuthorization` 권한 플로우 / 실기기 백그라운드·포그라운드 동작 검증.
 
 **iOS 스모크 테스트 + 품질 검증**
 

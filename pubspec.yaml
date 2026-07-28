@@ -16,7 +16,6 @@ dependencies:
   firebase_analytics:
   firebase_core:
   firebase_crashlytics:
-  firebase_messaging:
   firebase_remote_config:
   flutter:
     sdk: flutter

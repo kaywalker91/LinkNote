@@ -130,6 +130,7 @@ prod Supabase 프로젝트에 SQL Editor로 적용 + impersonation RLS 검증 �
 - [x] **`CHANGELOG.md` 릴리스 노트 정리** — `[Unreleased]` → `## [1.1.6] - 2026-06-21` 승격, 상단에 "주요 변경(사용자 관점)" 7항목 요약 추가, 세션별 상세는 작업 기록으로 보존. 기존 버전 헤더 재작성 없음
 - [x] **스토어 리스팅 자산 초안** — `docs/store-listing.md` 신규(간단/자세한 설명, 출시 노트 ≤500자, Data safety 양식, 콘텐츠 등급 가이드, 스크린샷 5종 인벤토리). `docs/privacy-policy.md` 신규(실제 수집 항목 기준)
 - [x] **FCM(Android) 착수 여부 결정** — `firebase_messaging` 의존성 존재하나 `lib/` 사용 0건(미배선) 확인. **1.1.6 미포함**, 배선 시 차기 버전(1.2.0)으로 분리 + 개인정보 처리방침에 푸시 토큰 항목 추가
+- [x] **FCM · 알림 MVP 영구 제외 확정** (2026-07-28, [ADR-004](adr/004-defer-notifications-and-fcm.md)) — 위 "차기 버전 분리"를 **MVP 영구 제외**로 승격. `firebase_messaging` 의존성 제거, 홈 벨 아이콘 · `/notifications` 라우트 제거(화면 코드는 dormant 보관). **재개 조건: 알림 발생 이벤트(팔로우/댓글/초대) 구현 시.** 개인정보 처리방침의 "푸시 알림 미사용" 문구와 Play 데이터 안전의 "푸시 메시지·기기 ID 미수집" 선언은 **현행 유지**(푸시 토큰 항목 추가하지 말 것)
 - [x] docs/play-release-execution-guide.md 신규 작성 (단계별 실행 가이드)
 - [ ] (사용자) `docs/privacy-policy.md` 공개 URL 게시 + Console 입력 + 문의처 이메일 (support@kaywalker.app placeholder)
 - [ ] (사용자) 피처 그래픽 1024×500 제작 (세션 이미지 1.jpg 후보 있음) + `docs/assets/feature-graphic.png`로 저장
