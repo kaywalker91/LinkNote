@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Removed (알림·FCM MVP 제외 — 2026-07-28)
+
+- **알림 기능(F06)과 FCM 푸시를 MVP에서 영구 제외** (PR #69, [ADR-004](docs/adr/004-defer-notifications-and-fcm.md)). 알림 인박스는 DTO/mapper/datasource/repository/usecase 3개/provider/화면까지 완비돼 있었으나 **거기에 쓰는 주체가 없었다** — 리포 전체에서 `from('notifications')`는 `select`·`update(is_read)` 뿐이고 insert 0건, 서버 트리거도 없음. PRD F06이 정의한 발생 소스(컬렉션 팔로우·링크 댓글·공유 초대)에 해당하는 기능도 `lib/`에 부재해 `NotificationScreen`은 구조적으로 영구 empty state였다.
+  - 홈 탑바 알림 벨 제거 (`home_screen.dart`) — `/notifications`로 가는 유일한 진입점. 정렬 액션이 남아 `actions`가 비지 않으므로 #68의 빈 띠 케이스에는 해당하지 않으며, 회귀 테스트에 좌표 단언을 함께 넣어 고정.
+  - `Routes.notifications` 상수 + GoRoute 제거 (`routes.dart`, `app_router.dart`)
+  - `firebase_messaging` 의존성 제거 — `lib/` 사용 0건이었고, 수집하지 않는 기능이 설치돼 있으면 스토어·보안 검토 표면만 넓어짐. `pub get`으로 3개 패키지 제거(본체 + platform_interface + web)
+  - `lib/features/notification/**`과 테스트는 **dormant 보존** — unrouted, `lib/` 미참조. feature 삭제 대안은 되돌리기 비용 대비 이득이 없어 기각(ADR에 사유 기록)
+  - **재개 조건: 실제 알림 발생 이벤트(팔로우/댓글/초대)가 먼저 구현될 때.** FCM을 그 전에 배선하는 건 순서가 뒤집힌 것
+  - 컴플라이언스는 **의도적 무변경** — `docs/privacy-policy.md`의 "현재 버전은 푸시 알림 미사용"과 Play 데이터 안전의 푸시 메시지·기기 ID 미수집 선언을 그대로 유지. 이 변경으로 추가할 항목 없음
+  - 문서 정합: PRD F06·F07-5 Deferred, workflow Phase 7/8 FCM 체크리스트를 취소 섹션으로 전환(재개 시작점 목록 보존), release-checklist의 "1.1.6 미포함"을 영구 제외로 승격, store-listing "차기 버전 분리"→"미제공", README 2종
+  - 겸사겸사 기존 드리프트 정정: 탭 구성이 문서엔 5탭(알림 포함)이었으나 실제 **4탭 + 중앙 FAB**, `core/services/` 설명이 "OG 태그 파서, 알림 서비스"였으나 실제 OG + analytics뿐
+  - 684 GREEN, analyze 0, anti-pattern PASS
+
 ### Changed (컬렉션 탭 액션 정리 — 2026-07-27)
 
 - **컬렉션 탭 셸 FAB이 '컬렉션 추가'로 전환** (`lib/shared/widgets/app_scaffold_with_nav_bar.dart`) — 링크는 대부분 공유 인텐트로 자동 생성되므로 컬렉션 탭의 링크 추가 진입점은 불필요. `_branchRoutes[currentIndex] == Routes.collections` 분기로 아이콘(`create_new_folder_rounded`)·툴팁·목적지(`Routes.collectionNew`)만 교체하고, 나머지 탭은 종전대로 링크 추가(`add_rounded` / `Routes.linkAdd`). 위치는 `endFloat` 유지.
