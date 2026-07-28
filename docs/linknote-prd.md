@@ -108,14 +108,19 @@
 | F05-4 | 다른 사용자 컬렉션 조회 | Should |
 | F05-5 | 컬렉션 팔로우 | Could |
 
-#### F06 — 알림
+#### F06 — 알림 [❌ MVP 제외 — Deferred]
+
+> **결정 (2026-07-28, [ADR-004](adr/004-defer-notifications-and-fcm.md)):** LinkNote MVP 는 pull 기반 개인 아카이브다.
+> 알림을 발생시킬 소셜 그래프(팔로우/댓글/초대)가 존재하지 않으므로 F06 전체와 FCM 을 MVP 에서 제외한다.
+> **재개 조건:** 실제 알림 발생 이벤트(F05-5 팔로우 등)가 먼저 구현될 때 재평가.
+> 인앱 알림 레이어(`lib/features/notification/`)는 코드로 남아 있으나 라우트 미등록 상태이며 앱에서 도달 불가.
 
 | ID | 기능 | 우선순위 |
 |----|------|----------|
-| F06-1 | 내 컬렉션 팔로우 알림 | Should |
-| F06-2 | 내 링크 댓글 알림 | Could |
-| F06-3 | 공유 초대 알림 | Could |
-| F06-4 | FCM 기반 푸시 알림 | Should |
+| F06-1 | 내 컬렉션 팔로우 알림 | ~~Should~~ → Deferred |
+| F06-2 | 내 링크 댓글 알림 | ~~Could~~ → Deferred |
+| F06-3 | 공유 초대 알림 | ~~Could~~ → Deferred |
+| F06-4 | FCM 기반 푸시 알림 | ~~Should~~ → Deferred |
 
 ### 3.2 확장 기능 (Phase 2)
 
@@ -125,7 +130,7 @@
 | F07-2 | 오프라인 캐시 및 즐겨찾기 fallback | 높음 |
 | F07-3 | 딥링크를 통한 컬렉션/링크 직접 진입 | 높음 |
 | F07-4 | 링크 열람 히스토리 | 중간 |
-| F07-5 | 앱 아이콘 배지 (미읽 알림 수) | 중간 |
+| F07-5 | ~~앱 아이콘 배지 (미읽 알림 수)~~ → Deferred (F06 제외에 종속, [ADR-004](adr/004-defer-notifications-and-fcm.md)) | — |
 | F07-6 | 웹뷰 내 읽기 모드 | 낮음 |
 
 > **Phase 2 우선 구현 추천:** F07-1 (공유 메뉴 연동) — 네이티브 이해도를 가장 강하게 어필할 수 있음
@@ -144,7 +149,7 @@
 | 네트워크 | `dio`, `retrofit` | HTTP 통신, API 레이어 |
 | 로컬 저장소 | `isar` (or `hive`) | 오프라인 캐시, 검색 히스토리 |
 | 보안 저장소 | `flutter_secure_storage` | 토큰 보관 |
-| 알림 | `firebase_messaging` | FCM 푸시 알림 |
+| ~~알림~~ | ~~`firebase_messaging`~~ | MVP 제외 — 의존성 제거됨 ([ADR-004](adr/004-defer-notifications-and-fcm.md)) |
 | 모니터링 | `firebase_crashlytics`, `firebase_analytics` | 크래시 추적, 사용 분석 |
 
 ### 4.2 백엔드
@@ -320,7 +325,6 @@ LinkListScreen
 | `/search` | 검색 | ✓ |
 | `/collection` | 컬렉션 목록 | ✓ |
 | `/collection/:id` | 컬렉션 상세 | ✓ |
-| `/notification` | 알림 | ✓ |
 | `/profile` | 프로필 | ✓ |
 | `/settings` | 설정 | ✓ |
 
@@ -433,13 +437,13 @@ notifications (id, user_id, type, target_id, is_read, created_at)
 | Search | 실시간 검색, 최근 검색어 |
 | Collection List | 컬렉션 목록 |
 | Collection Detail | 컬렉션 내 링크 목록, 공유 |
-| Notification | 팔로우 / 댓글 알림 |
+| ~~Notification~~ | MVP 제외 — 화면 코드는 존재하나 라우트 미등록 ([ADR-004](adr/004-defer-notifications-and-fcm.md)) |
 | Profile / Settings | 사용자 정보, 테마, 로그아웃 |
 
 ### 탭 네비게이션 구성
 
 ```
-하단 탭: [ 홈 | 검색 | 컬렉션 | 알림 | 프로필 ]
+하단 탭: [ 홈 | 검색 | 컬렉션 | 프로필 ]   ← 중앙 FAB 포함 4탭 (알림 탭은 MVP 제외)
 ```
 
 ---

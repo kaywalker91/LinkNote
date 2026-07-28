@@ -16,7 +16,6 @@ import 'package:linknote/features/link/presentation/screens/home_screen.dart';
 import 'package:linknote/features/link/presentation/screens/link_add_screen.dart';
 import 'package:linknote/features/link/presentation/screens/link_detail_screen.dart';
 import 'package:linknote/features/link/presentation/screens/link_edit_screen.dart';
-import 'package:linknote/features/notification/presentation/screens/notification_screen.dart';
 import 'package:linknote/features/profile/presentation/screens/profile_screen.dart';
 import 'package:linknote/features/profile/presentation/screens/settings_screen.dart';
 import 'package:linknote/features/search/presentation/screens/search_screen.dart';
@@ -157,13 +156,6 @@ GoRouter appRouter(Ref ref) {
         builder: (context, state) => PublicCollectionDetailScreen(
           collectionId: state.pathParameters['id']!,
         ),
-      ),
-
-      // Notifications — pushed onto root navigator from AppBar bell
-      GoRoute(
-        path: Routes.notifications,
-        parentNavigatorKey: _rootNavigatorKey,
-        builder: (context, state) => const NotificationScreen(),
       ),
 
       // Shell with 4-tab bottom nav + central FAB

@@ -199,5 +199,38 @@ void main() {
       // Assert
       expect(find.byType(FloatingActionButton), findsNothing);
     });
+
+    // Notifications were deferred out of MVP (ADR-004): the bell was the only
+    // entry point to `/notifications`, and the route is gone. The sort action
+    // must survive so the top bar action row stays occupied — an empty
+    // `actions` list would collapse the row and leave a bare band.
+    testWidgets('should NOT show the notification bell (deferred, ADR-004)', (
+      tester,
+    ) async {
+      // Arrange & Act
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            linkListProvider.overrideWith(
+              () => _DataLinkList(const PaginatedState<LinkEntity>(items: [])),
+            ),
+            _zeroStatsOverride,
+          ],
+          child: const MaterialApp(home: HomeScreen()),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      // Assert
+      expect(find.byIcon(Icons.notifications_none_rounded), findsNothing);
+      expect(find.byIcon(Icons.swap_vert_rounded), findsOneWidget);
+
+      // The remaining action shares the action row with the wordmark rather
+      // than the row collapsing to an empty band.
+      final wordmark = tester.getCenter(find.byType(LinkNoteWordmark));
+      final sort = tester.getCenter(find.byIcon(Icons.swap_vert_rounded));
+      expect((sort.dy - wordmark.dy).abs(), lessThan(4));
+      expect(sort.dx, greaterThan(wordmark.dx));
+    });
   });
 }

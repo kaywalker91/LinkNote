@@ -80,7 +80,7 @@ lib/
 │   ├── error/                  # Result<T>, Failure sealed class
 │   ├── logger/                 # Logging abstraction
 │   ├── network/                # Dio client, auth/logging interceptors
-│   ├── services/               # OG tag parser, notifications
+│   ├── services/               # OG tag parser, analytics
 │   ├── storage/                # Hive CE initialization
 │   └── utils/                  # Debouncer, formatters
 ├── shared/                     # Reusable components
@@ -93,7 +93,7 @@ lib/
     ├── link/                   # Link CRUD, OG parsing, favorites
     ├── collection/             # Collection management
     ├── search/                 # Debounced search with history
-    ├── notification/           # Push notification feed
+    ├── notification/           # Dormant — deferred out of MVP (see ADR-004)
     └── profile/                # User profile, settings, theme toggle
 
 features/<feature>/
@@ -112,7 +112,7 @@ features/<feature>/
 | Network | Dio + Retrofit | Type-safe HTTP with interceptors |
 | Local Storage | Hive CE | Lightweight offline-first persistence |
 | Backend | Supabase | Auth, PostgreSQL database, storage |
-| Push Notifications | Firebase Messaging + Crashlytics | FCM + crash reporting + analytics |
+| Monitoring | Firebase Crashlytics + Analytics | Crash reporting + usage analytics |
 | Serialization | Freezed + json_serializable | Immutable data classes + JSON codegen |
 | Security | flutter_secure_storage + envied | Token storage + build-time secret obfuscation |
 | Linting | very_good_analysis + custom_lint + riverpod_lint | Strict static analysis |
@@ -129,7 +129,6 @@ Splash ─── Login ─── Signup
          ├── Home .............. Link list with favorites filter, pagination
          ├── Search ............ Real-time search, recent queries
          ├── Collections ....... Collection list → Collection detail
-         ├── Notifications ..... Push notification feed with read/unread
          └── Profile ........... User info, settings, theme toggle
               │
          Full-screen overlays
@@ -151,7 +150,6 @@ Splash ─── Login ─── Signup
 | Collection List | `/collections` | All collections with link counts |
 | Collection Detail | `/collections/:id` | Links within a collection |
 | Collection Form | `/collections/new` | Create/edit collection |
-| Notifications | `/notifications` | Notification feed, mark as read |
 | Profile | `/profile` | User stats, sign out |
 | Settings | `/profile/settings` | Theme mode selector, app info |
 

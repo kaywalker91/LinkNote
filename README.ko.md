@@ -80,7 +80,7 @@ lib/
 │   ├── error/                  # Result<T>, Failure sealed class
 │   ├── logger/                 # 로깅 추상화
 │   ├── network/                # Dio 클라이언트, 인증/로깅 인터셉터
-│   ├── services/               # OG 태그 파서, 알림 서비스
+│   ├── services/               # OG 태그 파서, 애널리틱스
 │   ├── storage/                # Hive CE 초기화
 │   └── utils/                  # Debouncer, 포매터
 ├── shared/                     # 재사용 컴포넌트
@@ -93,7 +93,7 @@ lib/
     ├── link/                   # 링크 CRUD, OG 파싱, 즐겨찾기
     ├── collection/             # 컬렉션 관리
     ├── search/                 # 디바운스 검색 + 검색 기록
-    ├── notification/           # 푸시 알림 피드
+    ├── notification/           # Dormant — MVP 제외 (ADR-004 참조)
     └── profile/                # 프로필, 설정, 테마 전환
 
 features/<feature>/
@@ -112,7 +112,7 @@ features/<feature>/
 | 네트워크 | Dio + Retrofit | 타입 안전 HTTP 클라이언트 + 인터셉터 |
 | 로컬 저장소 | Hive CE | 경량 오프라인 퍼시스턴스 |
 | 백엔드 | Supabase | 인증, PostgreSQL, 스토리지 |
-| 푸시 알림 | Firebase Messaging + Crashlytics | FCM + 크래시 리포팅 + 애널리틱스 |
+| 모니터링 | Firebase Crashlytics + Analytics | 크래시 리포팅 + 사용 분석 |
 | 직렬화 | Freezed + json_serializable | 불변 데이터 클래스 + JSON 코드 생성 |
 | 보안 | flutter_secure_storage + envied | 토큰 보관 + 빌드 타임 시크릿 난독화 |
 | 린팅 | very_good_analysis + custom_lint + riverpod_lint | 엄격한 정적 분석 |
@@ -129,7 +129,6 @@ Splash ─── Login ─── Signup
          ├── Home .............. 링크 목록, 즐겨찾기 필터, 페이지네이션
          ├── Search ............ 실시간 검색, 최근 검색어
          ├── Collections ....... 컬렉션 목록 → 컬렉션 상세
-         ├── Notifications ..... 푸시 알림 피드 (읽음/안읽음)
          └── Profile ........... 사용자 정보, 설정, 테마 전환
               │
          전체 화면 오버레이
@@ -151,7 +150,6 @@ Splash ─── Login ─── Signup
 | Collection List | `/collections` | 전체 컬렉션 + 링크 수 표시 |
 | Collection Detail | `/collections/:id` | 컬렉션 내 링크 목록 |
 | Collection Form | `/collections/new` | 컬렉션 생성/수정 |
-| Notifications | `/notifications` | 알림 피드, 읽음 처리 |
 | Profile | `/profile` | 사용자 통계, 로그아웃 |
 | Settings | `/profile/settings` | 테마 모드 선택, 앱 정보 |
 

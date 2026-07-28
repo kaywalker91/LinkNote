@@ -8,7 +8,6 @@ abstract final class Routes {
   static const String home = '/home';
   static const String search = '/search';
   static const String collections = '/collections';
-  static const String notifications = '/notifications';
   static const String profile = '/profile';
 
   // Link routes (root navigator — accessible from any tab)

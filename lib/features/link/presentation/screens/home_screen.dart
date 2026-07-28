@@ -44,12 +44,6 @@ class HomeScreen extends ConsumerWidget {
         ),
         actions: [
           LnIconBtn(
-            icon: Icons.notifications_none_rounded,
-            badge: true,
-            tooltip: '알림',
-            onPressed: () => context.push(Routes.notifications),
-          ),
-          LnIconBtn(
             icon: Icons.swap_vert_rounded,
             tooltip: '정렬',
             onPressed: () {},
