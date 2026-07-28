@@ -5,6 +5,7 @@ import 'package:linknote/core/utils/parse_rows.dart';
 import 'package:linknote/features/link/data/dto/link_dto.dart';
 import 'package:linknote/features/link/data/mapper/link_mapper.dart';
 import 'package:linknote/features/link/domain/entity/link_entity.dart';
+import 'package:linknote/features/link/domain/entity/link_sort_order.dart';
 import 'package:linknote/features/link/domain/entity/tag_entity.dart';
 import 'package:linknote/shared/models/paginated_state.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -44,6 +45,7 @@ class LinkRemoteDataSource {
     int pageSize = 20,
     bool favoritesOnly = false,
     String? collectionId,
+    LinkSortOrder sortOrder = LinkSortOrder.newest,
   }) {
     return guardSupabase<PaginatedState<LinkEntity>>(() async {
       var query = _client.from('links').select(selectQuery);
@@ -55,11 +57,17 @@ class LinkRemoteDataSource {
         query = query.eq('collection_id', collectionId);
       }
       if (cursor != null) {
-        query = query.lt('created_at', cursor);
+        query = switch (sortOrder) {
+          LinkSortOrder.newest => query.lt('created_at', cursor),
+          LinkSortOrder.oldest => query.gt('created_at', cursor),
+        };
       }
 
       final response = await query
-          .order('created_at', ascending: false)
+          .order(
+            'created_at',
+            ascending: sortOrder == LinkSortOrder.oldest,
+          )
           .limit(pageSize + 1);
 
       final hasMore = response.length > pageSize;

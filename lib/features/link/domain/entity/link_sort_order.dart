@@ -1,0 +1,4 @@
+enum LinkSortOrder {
+  newest,
+  oldest,
+}

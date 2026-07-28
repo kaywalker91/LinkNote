@@ -4,7 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:linknote/features/link/domain/entity/link_entity.dart';
+import 'package:linknote/features/link/domain/entity/link_sort_order.dart';
 import 'package:linknote/features/link/presentation/provider/link_list_provider.dart';
+import 'package:linknote/features/link/presentation/provider/link_sort_provider.dart';
 import 'package:linknote/features/link/presentation/screens/home_screen.dart';
 import 'package:linknote/features/reading_stats/domain/entity/reading_stats_entity.dart';
 import 'package:linknote/features/reading_stats/presentation/provider/link_reading_stats_provider.dart';
@@ -47,6 +49,24 @@ class _DataLinkList extends LinkList {
 
   @override
   Future<void> toggleFavorite(String id) async {}
+}
+
+class _StubLinkSortNotifier extends LinkSortNotifier {
+  _StubLinkSortNotifier(this.initialOrder);
+
+  final LinkSortOrder initialOrder;
+  int setCallCount = 0;
+  LinkSortOrder get currentOrder => state;
+
+  @override
+  LinkSortOrder build() => initialOrder;
+
+  @override
+  Future<void> setSortOrder(LinkSortOrder order) async {
+    if (state == order) return;
+    setCallCount++;
+    state = order;
+  }
 }
 
 /// Provides zero-stats for linkReadingStatsProvider so mini badge
@@ -177,6 +197,91 @@ void main() {
       // Assert
       expect(find.text('전체'), findsOneWidget);
       expect(find.text('★ 즐겨찾기'), findsOneWidget);
+    });
+
+    testWidgets('should show the current sort in the sort sheet', (
+      tester,
+    ) async {
+      final sortNotifier = _StubLinkSortNotifier(LinkSortOrder.newest);
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            linkListProvider.overrideWith(
+              () => _DataLinkList(const PaginatedState<LinkEntity>(items: [])),
+            ),
+            linkSortProvider.overrideWith(() => sortNotifier),
+            _zeroStatsOverride,
+          ],
+          child: const MaterialApp(home: HomeScreen()),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byIcon(Icons.swap_vert_rounded));
+      await tester.pumpAndSettle();
+
+      expect(find.text('링크 정렬'), findsOneWidget);
+      expect(find.text('최신순'), findsOneWidget);
+      expect(find.text('최근 저장한 링크부터 표시'), findsOneWidget);
+      expect(find.text('오래된순'), findsOneWidget);
+      expect(find.text('먼저 저장한 링크부터 표시'), findsOneWidget);
+      expect(find.byIcon(Icons.check_rounded), findsOneWidget);
+    });
+
+    testWidgets('should switch to oldest and close the sort sheet', (
+      tester,
+    ) async {
+      final sortNotifier = _StubLinkSortNotifier(LinkSortOrder.newest);
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            linkListProvider.overrideWith(
+              () => _DataLinkList(const PaginatedState<LinkEntity>(items: [])),
+            ),
+            linkSortProvider.overrideWith(() => sortNotifier),
+            _zeroStatsOverride,
+          ],
+          child: const MaterialApp(home: HomeScreen()),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byIcon(Icons.swap_vert_rounded));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const ValueKey('link-sort-oldest')));
+      await tester.pumpAndSettle();
+
+      expect(find.text('링크 정렬'), findsNothing);
+      expect(sortNotifier.currentOrder, LinkSortOrder.oldest);
+      expect(sortNotifier.setCallCount, 1);
+    });
+
+    testWidgets('should not update when the current sort is selected again', (
+      tester,
+    ) async {
+      final sortNotifier = _StubLinkSortNotifier(LinkSortOrder.newest);
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            linkListProvider.overrideWith(
+              () => _DataLinkList(const PaginatedState<LinkEntity>(items: [])),
+            ),
+            linkSortProvider.overrideWith(() => sortNotifier),
+            _zeroStatsOverride,
+          ],
+          child: const MaterialApp(home: HomeScreen()),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byIcon(Icons.swap_vert_rounded));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const ValueKey('link-sort-newest')));
+      await tester.pumpAndSettle();
+
+      expect(find.text('링크 정렬'), findsNothing);
+      expect(sortNotifier.currentOrder, LinkSortOrder.newest);
+      expect(sortNotifier.setCallCount, 0);
     });
 
     testWidgets('should NOT have its own FAB (shell provides global FAB)', (

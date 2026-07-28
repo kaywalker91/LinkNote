@@ -1,5 +1,6 @@
 import 'package:linknote/core/error/result.dart';
 import 'package:linknote/features/link/domain/entity/link_entity.dart';
+import 'package:linknote/features/link/domain/entity/link_sort_order.dart';
 import 'package:linknote/shared/models/paginated_state.dart';
 
 abstract interface class ILinkRepository {
@@ -8,6 +9,7 @@ abstract interface class ILinkRepository {
     int pageSize = 20,
     bool favoritesOnly = false,
     String? collectionId,
+    LinkSortOrder sortOrder = LinkSortOrder.newest,
   });
   Future<Result<LinkEntity>> getLinkById(String id);
 
