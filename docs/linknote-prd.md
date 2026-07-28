@@ -88,6 +88,9 @@
 | F03-4 | 링크 상세 화면 | Must |
 | F03-5 | 스켈레톤 로딩 UI | Should |
 
+> F03-2의 홈 최신순/오래된순 전환 상세 계획은
+> [`docs/prds/home-link-sorting.md`](./prds/home-link-sorting.md)를 따른다.
+
 #### F04 — 검색
 
 | ID | 기능 | 우선순위 |
