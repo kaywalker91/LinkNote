@@ -2,6 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:linknote/core/error/failure.dart';
 import 'package:linknote/core/error/result.dart';
 import 'package:linknote/features/link/domain/entity/link_entity.dart';
+import 'package:linknote/features/link/domain/entity/link_sort_order.dart';
 import 'package:linknote/features/link/domain/repository/i_link_repository.dart';
 import 'package:linknote/features/link/domain/usecase/fetch_links_usecase.dart';
 import 'package:linknote/shared/models/paginated_state.dart';
@@ -12,6 +13,10 @@ class MockLinkRepository extends Mock implements ILinkRepository {}
 void main() {
   late FetchLinksUsecase sut;
   late MockLinkRepository mockRepository;
+
+  setUpAll(() {
+    registerFallbackValue(LinkSortOrder.newest);
+  });
 
   setUp(() {
     mockRepository = MockLinkRepository();
@@ -49,6 +54,7 @@ void main() {
           pageSize: any(named: 'pageSize'),
           favoritesOnly: any(named: 'favoritesOnly'),
           collectionId: any(named: 'collectionId'),
+          sortOrder: any(named: 'sortOrder'),
         ),
       ).thenAnswer((_) async => success(tState));
 
@@ -59,9 +65,12 @@ void main() {
       expect(result.isSuccess, isTrue);
       expect(result.data!.items, equals(tLinks));
       expect(result.data!.hasMore, isTrue);
-      verify(
-        () => mockRepository.getLinks(),
-      ).called(1);
+      final capturedSortOrder = verify(
+        () => mockRepository.getLinks(
+          sortOrder: captureAny(named: 'sortOrder'),
+        ),
+      ).captured.single;
+      expect(capturedSortOrder, LinkSortOrder.newest);
     });
 
     test('should return empty list when no links exist', () async {
@@ -73,6 +82,7 @@ void main() {
           pageSize: any(named: 'pageSize'),
           favoritesOnly: any(named: 'favoritesOnly'),
           collectionId: any(named: 'collectionId'),
+          sortOrder: any(named: 'sortOrder'),
         ),
       ).thenAnswer((_) async => success(tEmptyState));
 
@@ -94,6 +104,7 @@ void main() {
           pageSize: any(named: 'pageSize'),
           favoritesOnly: any(named: 'favoritesOnly'),
           collectionId: any(named: 'collectionId'),
+          sortOrder: any(named: 'sortOrder'),
         ),
       ).thenAnswer((_) async => error(tFailure));
 
@@ -114,6 +125,7 @@ void main() {
           pageSize: any(named: 'pageSize'),
           favoritesOnly: any(named: 'favoritesOnly'),
           collectionId: any(named: 'collectionId'),
+          sortOrder: any(named: 'sortOrder'),
         ),
       ).thenAnswer((_) async => success(tState));
 
@@ -123,6 +135,7 @@ void main() {
         pageSize: 10,
         favoritesOnly: true,
         collectionId: 'col-1',
+        sortOrder: LinkSortOrder.oldest,
       );
 
       // Assert
@@ -132,6 +145,7 @@ void main() {
           pageSize: 10,
           favoritesOnly: true,
           collectionId: 'col-1',
+          sortOrder: LinkSortOrder.oldest,
         ),
       ).called(1);
     });

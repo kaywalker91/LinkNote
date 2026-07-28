@@ -5,6 +5,7 @@ import 'package:linknote/features/link/data/datasource/link_local_datasource.dar
 import 'package:linknote/features/link/data/datasource/link_remote_datasource.dart';
 import 'package:linknote/features/link/data/repository/link_repository_impl.dart';
 import 'package:linknote/features/link/domain/entity/link_entity.dart';
+import 'package:linknote/features/link/domain/entity/link_sort_order.dart';
 import 'package:linknote/shared/models/paginated_state.dart';
 import 'package:mocktail/mocktail.dart';
 
@@ -21,6 +22,7 @@ void main() {
 
   setUpAll(() {
     registerFallbackValue(FakeLinkEntity());
+    registerFallbackValue(LinkSortOrder.newest);
   });
 
   setUp(() {
@@ -61,6 +63,7 @@ void main() {
             pageSize: any(named: 'pageSize'),
             favoritesOnly: any(named: 'favoritesOnly'),
             collectionId: any(named: 'collectionId'),
+            sortOrder: any(named: 'sortOrder'),
           ),
         ).thenAnswer((_) async => success(tPaginatedState));
         when(() => mockLocal.cacheLinks(any())).thenAnswer((_) async {});
@@ -88,17 +91,19 @@ void main() {
             pageSize: any(named: 'pageSize'),
             favoritesOnly: any(named: 'favoritesOnly'),
             collectionId: any(named: 'collectionId'),
+            sortOrder: any(named: 'sortOrder'),
           ),
         ).thenAnswer((_) async => error(tFailure));
         when(
           () => mockLocal.getCachedLinks(
             favoritesOnly: any(named: 'favoritesOnly'),
             collectionId: any(named: 'collectionId'),
+            sortOrder: any(named: 'sortOrder'),
           ),
         ).thenReturn(success(tCachedState));
 
         // Act
-        final result = await sut.getLinks();
+        final result = await sut.getLinks(sortOrder: LinkSortOrder.oldest);
 
         // Assert
         expect(result.isSuccess, isTrue);
@@ -107,6 +112,7 @@ void main() {
           () => mockLocal.getCachedLinks(
             favoritesOnly: any(named: 'favoritesOnly'),
             collectionId: any(named: 'collectionId'),
+            sortOrder: LinkSortOrder.oldest,
           ),
         ).called(1);
       },
@@ -123,6 +129,7 @@ void main() {
             pageSize: any(named: 'pageSize'),
             favoritesOnly: any(named: 'favoritesOnly'),
             collectionId: any(named: 'collectionId'),
+            sortOrder: any(named: 'sortOrder'),
           ),
         ).thenAnswer((_) async => error(tFailure));
 
@@ -135,6 +142,7 @@ void main() {
           () => mockLocal.getCachedLinks(
             favoritesOnly: any(named: 'favoritesOnly'),
             collectionId: any(named: 'collectionId'),
+            sortOrder: any(named: 'sortOrder'),
           ),
         );
       },
@@ -147,6 +155,8 @@ void main() {
           cursor: any(named: 'cursor'),
           pageSize: any(named: 'pageSize'),
           favoritesOnly: any(named: 'favoritesOnly'),
+          collectionId: any(named: 'collectionId'),
+          sortOrder: any(named: 'sortOrder'),
         ),
       ).thenAnswer((_) async => success(tPaginatedState));
       when(() => mockLocal.cacheLinks(any())).thenAnswer((_) async {});
@@ -351,6 +361,7 @@ void main() {
         () => mockLocal.getCachedLinks(
           favoritesOnly: any(named: 'favoritesOnly'),
           collectionId: any(named: 'collectionId'),
+          sortOrder: any(named: 'sortOrder'),
         ),
       );
     });

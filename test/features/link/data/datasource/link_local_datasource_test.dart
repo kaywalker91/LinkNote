@@ -4,6 +4,7 @@ import 'package:linknote/core/error/failure.dart';
 import 'package:linknote/core/error/result.dart';
 import 'package:linknote/features/link/data/datasource/link_local_datasource.dart';
 import 'package:linknote/features/link/domain/entity/link_entity.dart';
+import 'package:linknote/features/link/domain/entity/link_sort_order.dart';
 import 'package:linknote/features/link/domain/entity/tag_entity.dart';
 import 'package:mocktail/mocktail.dart';
 
@@ -67,6 +68,48 @@ void main() {
       expect(items[0].id, 'link-3'); // 2026-01-03
       expect(items[1].id, 'link-1'); // 2026-01-02
       expect(items[2].id, 'link-2'); // 2026-01-01
+    });
+
+    test('should return cached links sorted by createdAt ascending', () {
+      // Arrange
+      when(() => mockBox.isEmpty).thenReturn(false);
+      when(() => mockBox.values).thenReturn([tLinkMap1, tLinkMap2, tLinkMap3]);
+
+      // Act
+      final result = sut.getCachedLinks(sortOrder: LinkSortOrder.oldest);
+
+      // Assert
+      expect(result.isSuccess, isTrue);
+      expect(
+        result.data!.items.map((link) => link.id),
+        ['link-2', 'link-1', 'link-3'],
+      );
+    });
+
+    test('should combine favorites filter with oldest sorting', () {
+      // Arrange
+      final tOlderFavorite = <dynamic, dynamic>{
+        ...tLinkMap1,
+        'id': 'link-older-favorite',
+        'createdAt': '2025-12-31T00:00:00.000',
+        'isFavorite': true,
+      };
+      when(() => mockBox.isEmpty).thenReturn(false);
+      when(
+        () => mockBox.values,
+      ).thenReturn([tLinkMap1, tLinkMap2, tLinkMap3, tOlderFavorite]);
+
+      // Act
+      final result = sut.getCachedLinks(
+        favoritesOnly: true,
+        sortOrder: LinkSortOrder.oldest,
+      );
+
+      // Assert
+      expect(
+        result.data!.items.map((link) => link.id),
+        ['link-older-favorite', 'link-2'],
+      );
     });
 
     test('should return only favorites when favoritesOnly is true', () {

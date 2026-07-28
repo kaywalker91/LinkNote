@@ -2,7 +2,7 @@
 
 > 문서 버전: 1.0
 > 작성일: 2026-07-28
-> 상태: 구현 예정
+> 상태: 구현 완료 · 자동 검증 완료 · 실기기 확인 대기
 > 적용 화면: Home (`/home`)
 
 ## 1. 한 줄 정의
@@ -292,3 +292,25 @@ flutter test --reporter=failures-only
 이는 정렬 기능 자체와 별개의 기존 정확도 문제이므로 이번 구현에서는 수정하지
 않는다. 정확한 전체 개수와 최근 7일 통계를 제공하려면 별도의 summary 조회
 설계와 Provider가 필요하다.
+
+## 13. 구현 결과
+
+2026-07-28 기준으로 다음 작업을 완료했다.
+
+- 홈 정렬 modal bottom sheet와 최신순/오래된순 선택 UI
+- `LinkSortOrder`와 Hive 기반 `LinkSortNotifier`
+- UseCase, Repository, Remote/Local DataSource 정렬 전달
+- 최신순 `DESC + < cursor`, 오래된순 `ASC + > cursor`
+- 필터/새로고침/load-more 정렬 유지
+- 이전 정렬의 늦은 load-more 응답 폐기
+- Provider, UseCase, Repository, Local DataSource, LinkList, Home 위젯 테스트
+
+자동 검증 결과:
+
+- `dart format --set-exit-if-changed lib/ test/`: 변경 없음
+- `bash tool/check_anti_patterns.sh`: PASS
+- `flutter analyze --fatal-warnings`: 0 issues
+- `flutter test --reporter=failures-only`: 696 tests passed
+
+실기기에서는 앱 재실행 후 설정 복원, 20개 초과 데이터의 양방향 페이지네이션,
+오프라인 캐시 정렬을 최종 확인한다.

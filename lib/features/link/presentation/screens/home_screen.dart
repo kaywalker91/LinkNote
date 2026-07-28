@@ -2,11 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:linknote/app/router/routes.dart';
+import 'package:linknote/app/theme/app_radius.dart';
+import 'package:linknote/app/theme/app_spacing.dart';
+import 'package:linknote/app/theme/app_text_styles.dart';
 import 'package:linknote/features/collection/domain/entity/collection_entity.dart';
 import 'package:linknote/features/collection/presentation/provider/collection_list_provider.dart';
 import 'package:linknote/features/link/domain/entity/link_entity.dart';
+import 'package:linknote/features/link/domain/entity/link_sort_order.dart';
 import 'package:linknote/features/link/presentation/provider/link_filter_provider.dart';
 import 'package:linknote/features/link/presentation/provider/link_list_provider.dart';
+import 'package:linknote/features/link/presentation/provider/link_sort_provider.dart';
 import 'package:linknote/shared/extensions/context_extensions.dart';
 import 'package:linknote/shared/utils/url_launcher_helper.dart';
 import 'package:linknote/shared/widgets/confirmation_dialog_widget.dart';
@@ -46,7 +51,7 @@ class HomeScreen extends ConsumerWidget {
           LnIconBtn(
             icon: Icons.swap_vert_rounded,
             tooltip: '정렬',
-            onPressed: () {},
+            onPressed: () => _showSortSheet(context, ref),
           ),
           const SizedBox(width: 4),
         ],
@@ -81,6 +86,98 @@ class HomeScreen extends ConsumerWidget {
     if (total == 0) return '첫 링크를 저장해 보세요';
     if (thisWeek == 0) return '저장한 링크 $total';
     return '저장한 링크 $total · 이번 주 +$thisWeek';
+  }
+
+  Future<void> _showSortSheet(BuildContext context, WidgetRef ref) async {
+    final current = ref.read(linkSortProvider);
+    final selected = await showModalBottomSheet<LinkSortOrder>(
+      context: context,
+      showDragHandle: true,
+      builder: (sheetContext) => SafeArea(
+        top: false,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(
+            AppSpacing.lg,
+            0,
+            AppSpacing.lg,
+            AppSpacing.lg,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(
+                  AppSpacing.sm,
+                  AppSpacing.xs,
+                  AppSpacing.sm,
+                  AppSpacing.md,
+                ),
+                child: Text('링크 정렬', style: AppTextStyles.heading3),
+              ),
+              _LinkSortOption(
+                order: LinkSortOrder.newest,
+                title: '최신순',
+                description: '최근 저장한 링크부터 표시',
+                selected: current == LinkSortOrder.newest,
+              ),
+              const SizedBox(height: AppSpacing.xs),
+              _LinkSortOption(
+                order: LinkSortOrder.oldest,
+                title: '오래된순',
+                description: '먼저 저장한 링크부터 표시',
+                selected: current == LinkSortOrder.oldest,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+
+    if (selected == null || !context.mounted) return;
+    if (selected == ref.read(linkSortProvider)) return;
+    await ref.read(linkSortProvider.notifier).setSortOrder(selected);
+  }
+}
+
+class _LinkSortOption extends StatelessWidget {
+  const _LinkSortOption({
+    required this.order,
+    required this.title,
+    required this.description,
+    required this.selected,
+  });
+
+  final LinkSortOrder order;
+  final String title;
+  final String description;
+  final bool selected;
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = context.palette;
+    return ListTile(
+      key: ValueKey('link-sort-${order.name}'),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(AppRadius.md),
+      ),
+      selected: selected,
+      selectedTileColor: palette.forestSoft,
+      title: Text(
+        title,
+        style: AppTextStyles.titleM.copyWith(
+          color: selected ? palette.forestInk : palette.ink,
+        ),
+      ),
+      subtitle: Text(
+        description,
+        style: AppTextStyles.caption.copyWith(color: palette.ink3),
+      ),
+      trailing: selected
+          ? Icon(Icons.check_rounded, color: palette.forest)
+          : null,
+      onTap: () => Navigator.of(context).pop(order),
+    );
   }
 }
 

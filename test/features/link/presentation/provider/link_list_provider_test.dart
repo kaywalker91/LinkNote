@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:linknote/core/error/failure.dart';
@@ -8,6 +10,7 @@ import 'package:linknote/features/collection/presentation/provider/collection_di
 import 'package:linknote/features/collection/presentation/provider/collection_list_provider.dart'
     as collection_list;
 import 'package:linknote/features/link/domain/entity/link_entity.dart';
+import 'package:linknote/features/link/domain/entity/link_sort_order.dart';
 import 'package:linknote/features/link/domain/entity/tag_entity.dart';
 import 'package:linknote/features/link/domain/usecase/delete_link_usecase.dart';
 import 'package:linknote/features/link/domain/usecase/fetch_links_usecase.dart';
@@ -17,6 +20,7 @@ import 'package:linknote/features/link/domain/usecase/update_link_usecase.dart';
 import 'package:linknote/features/link/presentation/provider/link_detail_provider.dart';
 import 'package:linknote/features/link/presentation/provider/link_di_providers.dart';
 import 'package:linknote/features/link/presentation/provider/link_list_provider.dart';
+import 'package:linknote/features/link/presentation/provider/link_sort_provider.dart';
 import 'package:linknote/features/search/data/datasource/search_remote_datasource.dart';
 import 'package:linknote/features/search/presentation/provider/search_di_providers.dart';
 import 'package:linknote/features/search/presentation/provider/user_tags_provider.dart';
@@ -39,6 +43,21 @@ class MockGetCollectionsUsecase extends Mock implements GetCollectionsUsecase {}
 class MockGetLinkDetailUsecase extends Mock implements GetLinkDetailUsecase {}
 
 class FakeLinkEntity extends Fake implements LinkEntity {}
+
+class _StubLinkSortNotifier extends LinkSortNotifier {
+  _StubLinkSortNotifier(this.initialOrder);
+
+  final LinkSortOrder initialOrder;
+
+  @override
+  LinkSortOrder build() => initialOrder;
+
+  @override
+  Future<void> setSortOrder(LinkSortOrder order) async {
+    if (state == order) return;
+    state = order;
+  }
+}
 
 void main() {
   late MockFetchLinksUsecase mockFetch;
@@ -64,6 +83,7 @@ void main() {
 
   setUpAll(() {
     registerFallbackValue(FakeLinkEntity());
+    registerFallbackValue(LinkSortOrder.newest);
   });
 
   setUp(() {
@@ -73,13 +93,17 @@ void main() {
     mockUpdate = MockUpdateLinkUsecase();
   });
 
-  ProviderContainer createContainer() {
+  ProviderContainer createContainer({
+    _StubLinkSortNotifier? sortNotifier,
+  }) {
     return ProviderContainer(
       overrides: [
         fetchLinksUsecaseProvider.overrideWithValue(mockFetch),
         deleteLinkUsecaseProvider.overrideWithValue(mockDelete),
         toggleFavoriteUsecaseProvider.overrideWithValue(mockToggle),
         updateLinkUsecaseProvider.overrideWithValue(mockUpdate),
+        if (sortNotifier != null)
+          linkSortProvider.overrideWith(() => sortNotifier),
       ],
     );
   }
@@ -200,6 +224,111 @@ void main() {
             collectionId: any(named: 'collectionId'),
           ),
         ).called(1);
+      });
+
+      test('should use the selected sort for initial and next pages', () async {
+        // Arrange
+        final sortNotifier = _StubLinkSortNotifier(LinkSortOrder.oldest);
+        final page1 = PaginatedState<LinkEntity>(
+          items: [tLink1],
+          hasMore: true,
+          nextCursor: 'oldest-cursor',
+        );
+        final page2 = PaginatedState<LinkEntity>(items: [tLink2]);
+        final cursors = <String?>[];
+        final sortOrders = <LinkSortOrder>[];
+        when(
+          () => mockFetch.call(
+            cursor: any(named: 'cursor'),
+            favoritesOnly: any(named: 'favoritesOnly'),
+            collectionId: any(named: 'collectionId'),
+            sortOrder: any(named: 'sortOrder'),
+          ),
+        ).thenAnswer((invocation) async {
+          cursors.add(invocation.namedArguments[#cursor] as String?);
+          sortOrders.add(
+            invocation.namedArguments[#sortOrder]! as LinkSortOrder,
+          );
+          return success(cursors.length == 1 ? page1 : page2);
+        });
+
+        final container = createContainer(sortNotifier: sortNotifier);
+        addTearDown(container.dispose);
+        await container.read(linkListProvider.future);
+
+        // Act
+        await container.read(linkListProvider.notifier).loadMore();
+
+        // Assert
+        expect(cursors, [null, 'oldest-cursor']);
+        expect(
+          sortOrders,
+          [LinkSortOrder.oldest, LinkSortOrder.oldest],
+        );
+      });
+
+      test('should discard a late page from the previous sort', () async {
+        // Arrange
+        final sortNotifier = _StubLinkSortNotifier(LinkSortOrder.newest);
+        final stalePageCompleter =
+            Completer<Result<PaginatedState<LinkEntity>>>();
+        final newestPage = PaginatedState<LinkEntity>(
+          items: [tLink1],
+          hasMore: true,
+          nextCursor: 'newest-cursor',
+        );
+        final oldestLink = tLink2.copyWith(id: 'oldest-link');
+        final oldestPage = PaginatedState<LinkEntity>(items: [oldestLink]);
+        final staleLink = tLink2.copyWith(id: 'stale-link');
+
+        when(
+          () => mockFetch.call(
+            cursor: any(named: 'cursor'),
+            favoritesOnly: any(named: 'favoritesOnly'),
+            collectionId: any(named: 'collectionId'),
+            sortOrder: any(named: 'sortOrder'),
+          ),
+        ).thenAnswer((invocation) {
+          final cursor = invocation.namedArguments[#cursor] as String?;
+          final sortOrder =
+              invocation.namedArguments[#sortOrder]! as LinkSortOrder;
+          if (sortOrder == LinkSortOrder.newest && cursor == null) {
+            return Future.value(success(newestPage));
+          }
+          if (sortOrder == LinkSortOrder.newest) {
+            return stalePageCompleter.future;
+          }
+          return Future.value(success(oldestPage));
+        });
+
+        final container = createContainer(sortNotifier: sortNotifier);
+        addTearDown(container.dispose);
+        await container.read(linkListProvider.future);
+        final staleLoadMore = container
+            .read(linkListProvider.notifier)
+            .loadMore();
+        await Future<void>.delayed(Duration.zero);
+
+        // Act
+        await container
+            .read(linkSortProvider.notifier)
+            .setSortOrder(LinkSortOrder.oldest);
+        final current = await container.read(linkListProvider.future);
+        stalePageCompleter.complete(
+          success(PaginatedState<LinkEntity>(items: [staleLink])),
+        );
+        await staleLoadMore;
+
+        // Assert
+        expect(current.items.map((link) => link.id), ['oldest-link']);
+        expect(
+          container
+              .read(linkListProvider)
+              .requireValue
+              .items
+              .map((link) => link.id),
+          ['oldest-link'],
+        );
       });
     });
 

@@ -2,6 +2,7 @@ import 'package:linknote/core/error/result.dart';
 import 'package:linknote/features/link/data/datasource/link_local_datasource.dart';
 import 'package:linknote/features/link/data/datasource/link_remote_datasource.dart';
 import 'package:linknote/features/link/domain/entity/link_entity.dart';
+import 'package:linknote/features/link/domain/entity/link_sort_order.dart';
 import 'package:linknote/features/link/domain/repository/i_link_repository.dart';
 import 'package:linknote/shared/models/paginated_state.dart';
 
@@ -22,12 +23,14 @@ class LinkRepositoryImpl implements ILinkRepository {
     int pageSize = 20,
     bool favoritesOnly = false,
     String? collectionId,
+    LinkSortOrder sortOrder = LinkSortOrder.newest,
   }) async {
     final remote = await _remoteDataSource.getLinks(
       cursor: cursor,
       pageSize: pageSize,
       favoritesOnly: favoritesOnly,
       collectionId: collectionId,
+      sortOrder: sortOrder,
     );
 
     if (remote.isSuccess) {
@@ -40,6 +43,7 @@ class LinkRepositoryImpl implements ILinkRepository {
       return _localDataSource.getCachedLinks(
         favoritesOnly: favoritesOnly,
         collectionId: collectionId,
+        sortOrder: sortOrder,
       );
     }
 

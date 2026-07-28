@@ -4,6 +4,7 @@ import 'package:linknote/core/error/result.dart';
 import 'package:linknote/core/logger/app_logger.dart';
 import 'package:linknote/core/storage/i_clearable_cache.dart';
 import 'package:linknote/features/link/domain/entity/link_entity.dart';
+import 'package:linknote/features/link/domain/entity/link_sort_order.dart';
 import 'package:linknote/shared/models/paginated_state.dart';
 import 'package:linknote/shared/utils/url_sanitizer.dart';
 
@@ -21,15 +22,17 @@ class LinkLocalDataSource implements IClearableCache {
   Result<PaginatedState<LinkEntity>> getCachedLinks({
     bool favoritesOnly = false,
     String? collectionId,
+    LinkSortOrder sortOrder = LinkSortOrder.newest,
   }) {
     try {
       if (_box.isEmpty) {
         return error(const Failure.cache(message: 'No cached links'));
       }
 
-      var entities =
-          _box.values.map(_mapToEntity).whereType<LinkEntity>().toList()
-            ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
+      var entities = _box.values
+          .map(_mapToEntity)
+          .whereType<LinkEntity>()
+          .toList();
 
       if (favoritesOnly) {
         entities = entities.where((e) => e.isFavorite).toList();
@@ -39,6 +42,12 @@ class LinkLocalDataSource implements IClearableCache {
             .where((e) => e.collectionId == collectionId)
             .toList();
       }
+      entities.sort(
+        switch (sortOrder) {
+          LinkSortOrder.newest => (a, b) => b.createdAt.compareTo(a.createdAt),
+          LinkSortOrder.oldest => (a, b) => a.createdAt.compareTo(b.createdAt),
+        },
+      );
 
       return success(
         PaginatedState<LinkEntity>(items: entities),

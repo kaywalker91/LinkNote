@@ -3,82 +3,124 @@ import 'package:linknote/features/collection/presentation/provider/collection_de
 import 'package:linknote/features/collection/presentation/provider/collection_links_provider.dart';
 import 'package:linknote/features/collection/presentation/provider/collection_list_provider.dart';
 import 'package:linknote/features/link/domain/entity/link_entity.dart';
+import 'package:linknote/features/link/domain/entity/link_sort_order.dart';
 import 'package:linknote/features/link/presentation/provider/link_detail_provider.dart';
 import 'package:linknote/features/link/presentation/provider/link_di_providers.dart';
 import 'package:linknote/features/link/presentation/provider/link_filter_provider.dart';
+import 'package:linknote/features/link/presentation/provider/link_sort_provider.dart';
 import 'package:linknote/features/search/presentation/provider/user_tags_provider.dart';
 import 'package:linknote/shared/models/paginated_state.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'link_list_provider.g.dart';
 
+typedef _LinkQuery = ({
+  bool favoritesOnly,
+  String? collectionId,
+  LinkSortOrder sortOrder,
+});
+
 /// Keep the global link list alive across navigation so pagination state
 /// and cached items survive brief re-subscription (e.g., push/pop detail).
 @Riverpod(keepAlive: true)
 class LinkList extends _$LinkList {
+  int _requestGeneration = 0;
+
   @override
   Future<PaginatedState<LinkEntity>> build() async {
-    final filter = ref.watch(linkFilterProvider);
-    return _fetch(
-      favoritesOnly: filter.favoritesOnly,
-      collectionId: filter.collectionId,
-    );
+    final query = _watchQuery();
+    _requestGeneration++;
+    return _fetch(query: query);
   }
 
   Future<PaginatedState<LinkEntity>> _fetch({
+    required _LinkQuery query,
     String? cursor,
-    bool favoritesOnly = false,
-    String? collectionId,
   }) async {
     final result = await ref
         .read(fetchLinksUsecaseProvider)
         .call(
           cursor: cursor,
-          favoritesOnly: favoritesOnly,
-          collectionId: collectionId,
+          favoritesOnly: query.favoritesOnly,
+          collectionId: query.collectionId,
+          sortOrder: query.sortOrder,
         );
     if (result.isSuccess) return result.data!;
     Error.throwWithStackTrace(result.failure!, StackTrace.current);
   }
 
   Future<void> refresh() async {
-    final filter = ref.read(linkFilterProvider);
+    final query = _readQuery();
+    final generation = ++_requestGeneration;
     state = const AsyncLoading();
-    state = await AsyncValue.guard(
-      () => _fetch(
-        favoritesOnly: filter.favoritesOnly,
-        collectionId: filter.collectionId,
-      ),
+    final next = await AsyncValue.guard(
+      () => _fetch(query: query),
     );
+    if (!_isCurrentRequest(query, generation)) return;
+    state = next;
   }
 
   Future<void> loadMore() async {
     final current = state.value;
     if (current == null || !current.hasMore || current.isLoadingMore) return;
+    final query = _readQuery();
+    final generation = _requestGeneration;
     state = AsyncData(current.copyWith(isLoadingMore: true));
     try {
-      final filter = ref.read(linkFilterProvider);
       final next = await _fetch(
+        query: query,
         cursor: current.nextCursor,
-        favoritesOnly: filter.favoritesOnly,
-        collectionId: filter.collectionId,
       );
+      if (!_isCurrentRequest(query, generation)) return;
+
+      final latest = state.value;
+      if (latest == null) return;
       state = AsyncData(
-        current.copyWith(
-          items: [...current.items, ...next.items],
+        latest.copyWith(
+          items: [...latest.items, ...next.items],
           hasMore: next.hasMore,
           nextCursor: next.nextCursor,
           isLoadingMore: false,
+          loadMoreError: null,
         ),
       );
     } on Object catch (e) {
+      if (!_isCurrentRequest(query, generation)) return;
+
+      final latest = state.value;
+      if (latest == null) return;
       state = AsyncData(
-        current.copyWith(
+        latest.copyWith(
           isLoadingMore: false,
           loadMoreError: e,
         ),
       );
     }
+  }
+
+  _LinkQuery _watchQuery() {
+    final filter = ref.watch(linkFilterProvider);
+    final sortOrder = ref.watch(linkSortProvider);
+    return (
+      favoritesOnly: filter.favoritesOnly,
+      collectionId: filter.collectionId,
+      sortOrder: sortOrder,
+    );
+  }
+
+  _LinkQuery _readQuery() {
+    final filter = ref.read(linkFilterProvider);
+    return (
+      favoritesOnly: filter.favoritesOnly,
+      collectionId: filter.collectionId,
+      sortOrder: ref.read(linkSortProvider),
+    );
+  }
+
+  bool _isCurrentRequest(_LinkQuery query, int generation) {
+    return ref.mounted &&
+        generation == _requestGeneration &&
+        query == _readQuery();
   }
 
   Future<void> deleteLink(String id) async {
