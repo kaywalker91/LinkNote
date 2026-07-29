@@ -1,21 +1,22 @@
 # 다음 세션 프롬프트
 
-> **⚠️ 최신 상태 (2026-07-28 갱신)**
+> **⚠️ 최신 상태 (2026-07-29 갱신)**
 >
-> **진행 중**: PR #69 `chore/defer-notifications-fcm` → main (open, CI 확인 대기)
+> **완료**
+> - PR #69 `chore(notification): defer notifications + FCM out of MVP` → main 병합
 > - 알림(F06) + FCM **MVP 영구 제외** — 근거·기각 대안·재개 조건은 [`docs/adr/004-defer-notifications-and-fcm.md`](./adr/004-defer-notifications-and-fcm.md)
 > - 홈 탑바 벨 · `/notifications` 라우트 · `firebase_messaging` 제거. `lib/features/notification/**`은 **dormant 보존**(unrouted)
 > - **재개 조건**: 알림 발생 이벤트(팔로우/댓글/초대)가 먼저 구현될 때. 그 전에 FCM 배선 금지
 > - 개인정보 처리방침 · Play 데이터 안전은 **의도적 무변경** — 푸시 토큰 항목 추가하지 말 것
-> - 커밋 2개: `a2fc15c`(실코드+문서) · `e8034ca`(daily_task_log 연월 재구성, 순수 rename)
+> - PR #70 `feat(link): add home link sorting toggle` → main 병합
+> - 홈 링크 최신순/오래된순 전환, 선택값 영속화, 정렬별 keyset pagination 구현
+> - 내부 테스트용 `1.1.6+13` AAB 생성 및 동작 검증 완료
 >
 > **다음 세션 우선순위**
-> 1. PR #69 CI 결과 확인 → main 머지
-> 2. 머지 후 Play Store 내부 테스트 트랙 배포 (Phase 7 → 7.5)
-> 3. 트랙 합의 후 착수 — A 신규 기능(warm-share bottom sheet 등) / B 인프라·검증(iOS 서명 등). **임의 트랙 창작 금지**
+> 1. 다음 작업 트랙을 사용자와 합의
+> 2. 합의 후 신규 기능 또는 인프라·검증 작업 착수
 >
 > **알려진 후속 (미처리)**
-> - `home_screen.dart:52` 정렬 버튼이 `onPressed: () {}` no-op — 벨 제거 후 탑바에 남은 유일한 액션이 죽은 버튼
 > - public-collection 딥링크 redirect에 share-intent와 동일한 latent race 잔존 (PR #67 후속)
 >
 > 아래 본문(Session 65 프롬프트)은 **stale** 백업. 신규 작업 시작 시 위 내용을 우선한다.
