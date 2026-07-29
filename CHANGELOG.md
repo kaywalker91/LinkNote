@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- **홈 컬렉션 이동 피커 간헐 빈 목록** (`home_screen.dart`):
+  `collectionListProvider`를 시트 오픈 시점 스냅샷(`ref.read` + `value ?? []`)으로
+  고정해 autoDispose/invalidate/cold-open 시 Loading이면 목록이 비던 문제 수정.
+  시트 내부 `ref.watch` + `AsyncValue.when`(loading/error/data)으로 전환.
+  더보기 시트에서 move 액션을 result로 pop한 뒤 피커를 push해 같은 callback의
+  연속 bottom sheet 조작도 제거.
+
 ### Removed (알림·FCM MVP 제외 — 2026-07-28)
 
 - **알림 기능(F06)과 FCM 푸시를 MVP에서 영구 제외** (PR #69, [ADR-004](docs/adr/004-defer-notifications-and-fcm.md)). 알림 인박스는 DTO/mapper/datasource/repository/usecase 3개/provider/화면까지 완비돼 있었으나 **거기에 쓰는 주체가 없었다** — 리포 전체에서 `from('notifications')`는 `select`·`update(is_read)` 뿐이고 insert 0건, 서버 트리거도 없음. PRD F06이 정의한 발생 소스(컬렉션 팔로우·링크 댓글·공유 초대)에 해당하는 기능도 `lib/`에 부재해 `NotificationScreen`은 구조적으로 영구 empty state였다.

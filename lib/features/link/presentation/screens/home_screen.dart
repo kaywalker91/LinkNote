@@ -5,7 +5,6 @@ import 'package:linknote/app/router/routes.dart';
 import 'package:linknote/app/theme/app_radius.dart';
 import 'package:linknote/app/theme/app_spacing.dart';
 import 'package:linknote/app/theme/app_text_styles.dart';
-import 'package:linknote/features/collection/domain/entity/collection_entity.dart';
 import 'package:linknote/features/collection/presentation/provider/collection_list_provider.dart';
 import 'package:linknote/features/link/domain/entity/link_entity.dart';
 import 'package:linknote/features/link/domain/entity/link_sort_order.dart';
@@ -236,7 +235,7 @@ class _LinkListBody extends ConsumerWidget {
     WidgetRef ref,
     String linkId,
   ) async {
-    await showModalBottomSheet<void>(
+    final action = await showModalBottomSheet<_MoreAction>(
       context: context,
       builder: (sheetContext) => SafeArea(
         child: Column(
@@ -261,10 +260,8 @@ class _LinkListBody extends ConsumerWidget {
             ListTile(
               leading: const Icon(Icons.folder_outlined),
               title: const Text('컬렉션으로 이동'),
-              onTap: () async {
-                Navigator.of(sheetContext).pop();
-                await _showCollectionPicker(context, ref, linkId);
-              },
+              onTap: () =>
+                  Navigator.of(sheetContext).pop(_MoreAction.moveToCollection),
             ),
             ListTile(
               leading: Icon(Icons.delete_outline, color: context.palette.rose),
@@ -290,6 +287,12 @@ class _LinkListBody extends ConsumerWidget {
         ),
       ),
     );
+
+    // Awaits Route.popped (result delivery), not the full reverse animation.
+    // Still prevents pop + picker push from running in the same onTap callback.
+    if (action == _MoreAction.moveToCollection && context.mounted) {
+      await _showCollectionPicker(context, ref, linkId);
+    }
   }
 
   Future<void> _showCollectionPicker(
@@ -297,35 +300,9 @@ class _LinkListBody extends ConsumerWidget {
     WidgetRef ref,
     String linkId,
   ) async {
-    final collectionsAsync = ref.read(collectionListProvider);
-    final items = collectionsAsync.value?.items ?? <CollectionEntity>[];
-
     final selected = await showModalBottomSheet<_CollectionPick>(
       context: context,
-      builder: (sheetContext) => SafeArea(
-        child: ListView(
-          shrinkWrap: true,
-          children: [
-            ListTile(
-              leading: const Icon(Icons.folder_off_outlined),
-              title: const Text('없음'),
-              onTap: () => Navigator.of(sheetContext).pop(
-                const _CollectionPick(id: null),
-              ),
-            ),
-            const Divider(height: 1),
-            ...items.map(
-              (c) => ListTile(
-                leading: const Icon(Icons.folder_outlined),
-                title: Text(c.name),
-                onTap: () => Navigator.of(sheetContext).pop(
-                  _CollectionPick(id: c.id),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
+      builder: (_) => const _CollectionPickerSheet(),
     );
 
     if (selected == null || !context.mounted) return;
@@ -346,6 +323,66 @@ class _LinkListBody extends ConsumerWidget {
         context.showErrorSnackBar('Move failed');
       }
     }
+  }
+}
+
+enum _MoreAction { moveToCollection }
+
+class _CollectionPickerSheet extends ConsumerWidget {
+  const _CollectionPickerSheet();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final async = ref.watch(collectionListProvider);
+
+    return SafeArea(
+      child: async.when(
+        // Riverpod 3.1 defaults skipLoadingOnRefresh to true. Explicitly
+        // render the loading branch for invalidate/refresh as required by DoD.
+        skipLoadingOnRefresh: false,
+        loading: () => const SizedBox(
+          height: 160,
+          child: Center(child: CircularProgressIndicator()),
+        ),
+        error: (error, _) => Padding(
+          padding: const EdgeInsets.all(AppSpacing.lg),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text('컬렉션을 불러오지 못했습니다'),
+              const SizedBox(height: AppSpacing.sm),
+              TextButton(
+                onPressed: () =>
+                    ref.read(collectionListProvider.notifier).refresh(),
+                child: const Text('다시 시도'),
+              ),
+            ],
+          ),
+        ),
+        data: (page) => ListView(
+          shrinkWrap: true,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.folder_off_outlined),
+              title: const Text('없음'),
+              onTap: () => Navigator.of(context).pop(
+                const _CollectionPick(id: null),
+              ),
+            ),
+            const Divider(height: 1),
+            ...page.items.map(
+              (c) => ListTile(
+                leading: const Icon(Icons.folder_outlined),
+                title: Text(c.name),
+                onTap: () => Navigator.of(context).pop(
+                  _CollectionPick(id: c.id),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }
 
