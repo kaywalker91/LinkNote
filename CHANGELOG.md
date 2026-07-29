@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- **홈 컬렉션 이동 피커 간헐 빈 목록** (`home_screen.dart`):
+  `collectionListProvider`를 시트 오픈 시점 스냅샷(`ref.read` + `value ?? []`)으로
+  고정해 autoDispose/invalidate/cold-open 시 Loading이면 목록이 비던 문제 수정.
+  시트 내부 `ref.watch` + `AsyncValue.when`(loading/error/data)으로 전환.
+  더보기 시트에서 move 액션을 result로 pop한 뒤 피커를 push해 같은 callback의
+  연속 bottom sheet 조작도 제거.
+
 ### Changed (컬렉션 탭 액션 정리 — 2026-07-27)
 
 - **컬렉션 탭 셸 FAB이 '컬렉션 추가'로 전환** (`lib/shared/widgets/app_scaffold_with_nav_bar.dart`) — 링크는 대부분 공유 인텐트로 자동 생성되므로 컬렉션 탭의 링크 추가 진입점은 불필요. `_branchRoutes[currentIndex] == Routes.collections` 분기로 아이콘(`create_new_folder_rounded`)·툴팁·목적지(`Routes.collectionNew`)만 교체하고, 나머지 탭은 종전대로 링크 추가(`add_rounded` / `Routes.linkAdd`). 위치는 `endFloat` 유지.

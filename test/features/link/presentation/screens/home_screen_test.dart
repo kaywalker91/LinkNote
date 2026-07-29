@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:linknote/features/collection/domain/entity/collection_entity.dart';
 import 'package:linknote/features/collection/presentation/provider/collection_list_provider.dart';
@@ -141,15 +142,15 @@ class _DeferredCollectionList extends CollectionList {
 
 Future<void> _openMovePicker(
   WidgetTester tester,
-  List extra, {
+  List<Override> extra, {
   bool preloadCollections = false,
 }) async {
   final link = LinkEntity(
     id: 'link-1',
     url: 'https://example.com',
     title: 'Example',
-    createdAt: DateTime(2026, 1, 1),
-    updatedAt: DateTime(2026, 1, 1),
+    createdAt: DateTime(2026),
+    updatedAt: DateTime(2026),
   );
   await tester.pumpWidget(
     ProviderScope(
@@ -459,14 +460,14 @@ void main() {
               CollectionEntity(
                 id: 'c1',
                 name: 'Work',
-                createdAt: DateTime(2026, 1, 1),
-                updatedAt: DateTime(2026, 1, 1),
+                createdAt: DateTime(2026),
+                updatedAt: DateTime(2026),
               ),
               CollectionEntity(
                 id: 'c2',
                 name: 'Read Later',
-                createdAt: DateTime(2026, 1, 1),
-                updatedAt: DateTime(2026, 1, 1),
+                createdAt: DateTime(2026),
+                updatedAt: DateTime(2026),
               ),
             ],
           );
@@ -523,8 +524,8 @@ void main() {
               CollectionEntity(
                 id: 'c1',
                 name: 'Recovered',
-                createdAt: DateTime(2026, 1, 1),
-                updatedAt: DateTime(2026, 1, 1),
+                createdAt: DateTime(2026),
+                updatedAt: DateTime(2026),
               ),
             ],
           ),
@@ -563,8 +564,8 @@ void main() {
                 CollectionEntity(
                   id: 'c1',
                   name: 'Inbox',
-                  createdAt: DateTime(2026, 1, 1),
-                  updatedAt: DateTime(2026, 1, 1),
+                  createdAt: DateTime(2026),
+                  updatedAt: DateTime(2026),
                 ),
               ],
             ),
