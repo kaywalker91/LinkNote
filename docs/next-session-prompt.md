@@ -1,11 +1,25 @@
 # 다음 세션 프롬프트
 
-> **⚠️ 최신 상태 (2026-07-22 갱신)** — **활성 핸드오프**:
-> - 🔴 **YouTube Share Intent URL 미유입 (미해결)** → [`docs/handoffs/2026-07-22-share-intent-youtube.md`](./handoffs/2026-07-22-share-intent-youtube.md)  
->   Phase A 코드(+5/+6 내부테스트) 후에도 YouTube 공유 시 앱만 열리고 prefill 실패. 다음 세션은 raw intent 계측 우선.
-> - PRD: `docs/prds/share-intent.md` v2.1 · 워킹트리 Phase A 변경 **미커밋** · version `1.1.6+6`
+> **⚠️ 최신 상태 (2026-07-29 갱신)**
 >
-> 아래 본문(Session 65 프롬프트)은 **stale** 백업. 신규 작업 시작 시 위 핸드오프를 우선한다.
+> **완료**
+> - PR #69 `chore(notification): defer notifications + FCM out of MVP` → main 병합
+> - 알림(F06) + FCM **MVP 영구 제외** — 근거·기각 대안·재개 조건은 [`docs/adr/004-defer-notifications-and-fcm.md`](./adr/004-defer-notifications-and-fcm.md)
+> - 홈 탑바 벨 · `/notifications` 라우트 · `firebase_messaging` 제거. `lib/features/notification/**`은 **dormant 보존**(unrouted)
+> - **재개 조건**: 알림 발생 이벤트(팔로우/댓글/초대)가 먼저 구현될 때. 그 전에 FCM 배선 금지
+> - 개인정보 처리방침 · Play 데이터 안전은 **의도적 무변경** — 푸시 토큰 항목 추가하지 말 것
+> - PR #70 `feat(link): add home link sorting toggle` → main 병합
+> - 홈 링크 최신순/오래된순 전환, 선택값 영속화, 정렬별 keyset pagination 구현
+> - 내부 테스트용 `1.1.6+13` AAB 생성 및 동작 검증 완료
+>
+> **다음 세션 우선순위**
+> 1. 다음 작업 트랙을 사용자와 합의
+> 2. 합의 후 신규 기능 또는 인프라·검증 작업 착수
+>
+> **알려진 후속 (미처리)**
+> - public-collection 딥링크 redirect에 share-intent와 동일한 latent race 잔존 (PR #67 후속)
+>
+> 아래 본문(Session 65 프롬프트)은 **stale** 백업. 신규 작업 시작 시 위 내용을 우선한다.
 
 ---
 
