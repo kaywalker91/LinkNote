@@ -1,8 +1,36 @@
 # 다음 세션 프롬프트
 
-> **⚠️ 최신 상태 (2026-07-29 갱신)**
+> **⚠️ 최신 상태 (2026-07-30 세션 · 2026-08-03 갱신)**
 >
-> **완료**
+> **2026-07-30 완료**
+> - **PR #73 `feat(link): pick a collection while saving a link` → main squash 머지 (`7c1087c`).** CI 4/4 GREEN. 커밋 3건 분리: `acdae92` docs / `fba4df4` feat / `c916b43` chore(1.1.7+15)
+> - 링크 추가/편집 폼에서 **컬렉션 선택** 가능 — 종전엔 저장 후 홈 카드 `⋯ → 컬렉션 이동`으로 별도 이동해야 했음
+> - 핵심: **data/domain 변경 0줄**. `collectionId`의 상태·submit·엔티티 경로와 provider 테스트가 이미 있었고 `updateCollectionId()` 호출 UI만 없었음(배선 누락). 요청 견적 전 mutator 호출처 grep이 스코프를 크게 줄임
+> - 홈의 private `_CollectionPickerSheet` → 공용 `CollectionPickerSheet` + `showCollectionPickerSheet()` 승격(재사용, home_screen −68줄) + 컬렉션 0개 힌트 추가
+> - 필드를 `LinkFormFields`(추가/편집 공용)에 배치 → 편집 화면·공유 인텐트 저장 경로 동시 커버
+> - **폼에서 새 컬렉션 즉석 생성은 의도적 제외**(사용자 결정) — 생성은 컬렉션 탭에서. 재도입 시 별도 합의
+> - 714 GREEN(신규 13), analyze 0, format clean, anti-pattern PASS
+> - **AAB `1.1.7+15` prod release 빌드 → Play 내부 테스트 업로드 → 사용자 확인 완료.** 서명 `jar verified`/`CN=Kaywalker`, versionCode 15는 merged manifest로 실측
+>
+> **알려진 후속 (미처리)**
+> - **컬렉션 피커 첫 페이지 20개 한계** (PR #72 시트 승계, loadMore 없음) — 20개 초과 시 뒤 항목 선택 불가, 편집 모드에서 첫 페이지 밖 컬렉션은 라벨이 `선택한 컬렉션`(선택값은 유지·저장). 페이지네이션 도입 여부 미결
+> - public-collection 딥링크 redirect에 share-intent와 동일한 latent race 잔존 (PR #67 후속)
+>
+> **문서 반영 경위 (2026-08-03)**
+> - 이 3개 문서(CHANGELOG / 07-30 세션 로그 / 이 파일)는 PR #73에 동봉하려 했으나 **머지 레이스로 약 9분 늦어** 닫힌 PR 브랜치(`4e82b73`)에 남았다. main 기준 `docs/session-2026-07-30` 브랜치로 cherry-pick 해 별도 PR로 후행 반영
+> - 교훈: 열린 PR에 커밋을 얹기 전 `gh pr view <n> --json state` 재확인. 반영 검증은 PR API가 아니라 `git cat-file -e origin/main:<path>` 로 **main 기준**
+>
+> **릴리스 검증 절차 (2026-07-30 확립)**
+> - versionCode는 AAB 내부 매니페스트(protobuf)에서 `strings`로 안 보임 → `build/app/intermediates/merged_manifests/prodRelease/processProdReleaseManifest/AndroidManifest.xml` 평문 XML에서 확인. `package=`에 flavor suffix 없는지도 함께 확인
+> - `jarsigner -verify -certs`의 `PKIX path building failed`는 self-signed 업로드 키의 **정상** 경고 — 판정 근거는 `jar verified` + `CN=`
+> - 난독화 env는 디코드된 **값의 shape**만 임시 테스트로 검증(placeholder 아님), 값 출력 금지 후 테스트 파일 삭제
+>
+> **다음 세션 우선순위**
+> 1. 다음 작업 트랙을 사용자와 합의 (피커 페이지네이션 / warm-share bottom sheet / iOS 서명 등)
+>
+> ---
+>
+> **이전 완료 (2026-07-29)**
 > - PR #69 `chore(notification): defer notifications + FCM out of MVP` → main 병합
 > - 알림(F06) + FCM **MVP 영구 제외** — 근거·기각 대안·재개 조건은 [`docs/adr/004-defer-notifications-and-fcm.md`](./adr/004-defer-notifications-and-fcm.md)
 > - 홈 탑바 벨 · `/notifications` 라우트 · `firebase_messaging` 제거. `lib/features/notification/**`은 **dormant 보존**(unrouted)
@@ -11,13 +39,7 @@
 > - PR #70 `feat(link): add home link sorting toggle` → main 병합
 > - 홈 링크 최신순/오래된순 전환, 선택값 영속화, 정렬별 keyset pagination 구현
 > - 내부 테스트용 `1.1.6+13` AAB 생성 및 동작 검증 완료
->
-> **다음 세션 우선순위**
-> 1. 다음 작업 트랙을 사용자와 합의
-> 2. 합의 후 신규 기능 또는 인프라·검증 작업 착수
->
-> **알려진 후속 (미처리)**
-> - public-collection 딥링크 redirect에 share-intent와 동일한 latent race 잔존 (PR #67 후속)
+> - PR #72 `fix: collection move picker empty list` → main 병합(`4677a03`) — 홈 이동 피커를 `ref.watch` + `AsyncValue.when`으로 전환. **이 시트가 PR #73에서 공용 위젯이 됐고, 첫 페이지 20개 한계도 여기서 승계됨**
 >
 > 아래 본문(Session 65 프롬프트)은 **stale** 백업. 신규 작업 시작 시 위 내용을 우선한다.
 

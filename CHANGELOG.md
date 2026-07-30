@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added (링크 저장 시 컬렉션 선택 — 2026-07-30)
+
+- **링크 추가/편집 폼에서 컬렉션을 바로 선택** (PR #73). 종전에는 저장을 마친 뒤 홈 카드 `⋯ → 컬렉션 이동`으로 한 번 더 옮겨야 했다.
+  - 도메인·데이터 레이어는 **변경 0줄**. `LinkFormState.collectionId` → `submit()` → `LinkEntity` 경로와 provider 테스트가 이미 존재했고, `updateCollectionId()`를 호출하는 UI만 없었다(호출처 grep 결과가 정의 1 + 테스트 2). 즉 미구현이 아니라 배선 누락이었다.
+  - `home_screen.dart`의 private `_CollectionPickerSheet`/`_CollectionPick`을 `lib/features/collection/presentation/widgets/collection_picker_sheet.dart`의 공용 `CollectionPickerSheet` + `CollectionPick` + `showCollectionPickerSheet()`로 승격. 홈의 이동 액션은 헬퍼 호출로 교체(동작 동일, home_screen −68줄).
+  - 피커에 **컬렉션 0개일 때 `컬렉션이 없어요` 힌트** 추가 — 종전에는 '없음' 아래가 빈 공백이었다.
+  - 필드를 `LinkFormFields`(추가/편집 공용)에 넣어 **편집 화면과 공유 인텐트 저장 플로우도 함께 커버**.
+  - 시트를 그냥 닫으면 기존 선택 유지, '없음' 선택은 해제 — `CollectionPick` 래퍼로 "없음 선택"과 "닫기"를 구분(둘 다 `null` id로 뭉개지지 않도록).
+  - **알려진 한계(PR #72 시트 승계)**: 피커는 컬렉션 **첫 페이지 20개만** 표시하며 loadMore가 없다. 편집 모드에서 선택된 컬렉션이 첫 페이지 밖이면 타일 라벨이 이름 대신 `선택한 컬렉션`으로 표시된다 — 선택값 자체는 유지·저장되며, '없음'으로 잘못 표기하지 않기 위한 의도된 중립 라벨이다.
+  - 폼에서 새 컬렉션을 즉석 생성하는 동선은 이번 스코프에서 **의도적으로 제외**(사용자 결정) — 생성은 컬렉션 탭에서.
+  - 714 GREEN (신규 13: 시트 7 / 폼 배선 5 / submit `collectionId` 전달 1), analyze 0, anti-pattern PASS.
+
+### Changed
+- 버전 `1.1.6+14` → `1.1.7+15` (Play 내부 테스트 트랙).
+- AI 에이전트 규칙을 `docs/ai-guidelines.md` 단일 정본으로 정리하고 `AGENTS.md`(Codex 진입점) 신설. `CLAUDE.md`는 포인터만 유지.
+
 ### Fixed
 - **홈 컬렉션 이동 피커 간헐 빈 목록** (`home_screen.dart`):
   `collectionListProvider`를 시트 오픈 시점 스냅샷(`ref.read` + `value ?? []`)으로
