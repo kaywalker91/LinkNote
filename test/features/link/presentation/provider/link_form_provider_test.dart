@@ -138,6 +138,31 @@ void main() {
         verifyNever(() => mockUpdate.call(any()));
       });
 
+      test(
+        'should carry the selected collectionId into the new link',
+        () async {
+          when(() => mockCreate.call(any())).thenAnswer(
+            (_) async => success(tExistingLink),
+          );
+
+          final container = createContainer();
+          addTearDown(container.dispose);
+          await container.read(linkFormProvider(null).future);
+
+          final notifier = container.read(linkFormProvider(null).notifier)
+            ..updateUrl('https://new.com')
+            ..updateTitle('New Link')
+            ..updateCollectionId('col-9');
+
+          // Act
+          await notifier.submit();
+
+          // Assert — picked at save time, not moved afterwards.
+          final captured = verify(() => mockCreate.call(captureAny())).captured;
+          expect((captured.first as LinkEntity).collectionId, 'col-9');
+        },
+      );
+
       test('should call updateLinkUsecase when linkId is not null', () async {
         when(() => mockUpdate.call(any())).thenAnswer(
           (_) async => success(tExistingLink),

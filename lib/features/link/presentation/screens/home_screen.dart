@@ -5,7 +5,7 @@ import 'package:linknote/app/router/routes.dart';
 import 'package:linknote/app/theme/app_radius.dart';
 import 'package:linknote/app/theme/app_spacing.dart';
 import 'package:linknote/app/theme/app_text_styles.dart';
-import 'package:linknote/features/collection/presentation/provider/collection_list_provider.dart';
+import 'package:linknote/features/collection/presentation/widgets/collection_picker_sheet.dart';
 import 'package:linknote/features/link/domain/entity/link_entity.dart';
 import 'package:linknote/features/link/domain/entity/link_sort_order.dart';
 import 'package:linknote/features/link/presentation/provider/link_filter_provider.dart';
@@ -300,10 +300,7 @@ class _LinkListBody extends ConsumerWidget {
     WidgetRef ref,
     String linkId,
   ) async {
-    final selected = await showModalBottomSheet<_CollectionPick>(
-      context: context,
-      builder: (_) => const _CollectionPickerSheet(),
-    );
+    final selected = await showCollectionPickerSheet(context);
 
     if (selected == null || !context.mounted) return;
 
@@ -327,66 +324,3 @@ class _LinkListBody extends ConsumerWidget {
 }
 
 enum _MoreAction { moveToCollection }
-
-class _CollectionPickerSheet extends ConsumerWidget {
-  const _CollectionPickerSheet();
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final async = ref.watch(collectionListProvider);
-
-    return SafeArea(
-      child: async.when(
-        // Riverpod 3.1 defaults skipLoadingOnRefresh to true. Explicitly
-        // render the loading branch for invalidate/refresh as required by DoD.
-        skipLoadingOnRefresh: false,
-        loading: () => const SizedBox(
-          height: 160,
-          child: Center(child: CircularProgressIndicator()),
-        ),
-        error: (error, _) => Padding(
-          padding: const EdgeInsets.all(AppSpacing.lg),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Text('컬렉션을 불러오지 못했습니다'),
-              const SizedBox(height: AppSpacing.sm),
-              TextButton(
-                onPressed: () =>
-                    ref.read(collectionListProvider.notifier).refresh(),
-                child: const Text('다시 시도'),
-              ),
-            ],
-          ),
-        ),
-        data: (page) => ListView(
-          shrinkWrap: true,
-          children: [
-            ListTile(
-              leading: const Icon(Icons.folder_off_outlined),
-              title: const Text('없음'),
-              onTap: () => Navigator.of(context).pop(
-                const _CollectionPick(id: null),
-              ),
-            ),
-            const Divider(height: 1),
-            ...page.items.map(
-              (c) => ListTile(
-                leading: const Icon(Icons.folder_outlined),
-                title: Text(c.name),
-                onTap: () => Navigator.of(context).pop(
-                  _CollectionPick(id: c.id),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _CollectionPick {
-  const _CollectionPick({required this.id});
-  final String? id;
-}

@@ -2,6 +2,9 @@
 
 모바일 북마크 서비스 - 웹 링크/유튜브/아티클/메모를 저장, 태그/컬렉션/검색으로 관리, 공유.
 
+> **Canonical AI rules**: [`docs/ai-guidelines.md`](docs/ai-guidelines.md)  
+> **Codex entry**: [`AGENTS.md`](AGENTS.md)
+
 ## Key Commands
 
 ```bash
