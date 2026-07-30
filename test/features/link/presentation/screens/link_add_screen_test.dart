@@ -4,13 +4,38 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:linknote/core/error/result.dart';
 import 'package:linknote/core/services/analytics_service.dart';
 import 'package:linknote/core/services/og_tag_service.dart';
+import 'package:linknote/features/collection/domain/entity/collection_entity.dart';
+import 'package:linknote/features/collection/presentation/provider/collection_list_provider.dart';
+import 'package:linknote/features/link/presentation/provider/link_form_provider.dart';
 import 'package:linknote/features/link/presentation/screens/link_add_screen.dart';
 import 'package:linknote/features/share_intent/presentation/provider/pending_shared_url_provider.dart';
+import 'package:linknote/shared/models/paginated_state.dart';
 import 'package:mocktail/mocktail.dart';
 
 class MockOgTagService extends Mock implements OgTagService {}
 
 class MockAnalyticsService extends Mock implements AnalyticsService {}
+
+class _DataCollectionList extends CollectionList {
+  _DataCollectionList(this._items);
+
+  final List<CollectionEntity> _items;
+
+  @override
+  Future<PaginatedState<CollectionEntity>> build() async =>
+      PaginatedState<CollectionEntity>(items: _items);
+
+  @override
+  Future<void> refresh() async {}
+
+  @override
+  Future<void> loadMore() async {}
+}
+
+CollectionEntity _collection(String id, String name) {
+  final now = DateTime(2026);
+  return CollectionEntity(id: id, name: name, createdAt: now, updatedAt: now);
+}
 
 void main() {
   late MockOgTagService mockOg;
@@ -222,5 +247,136 @@ void main() {
         expect(container.read(pendingSharedUrlProvider), isNull);
       },
     );
+
+    group('collection field', () {
+      ProviderContainer createContainer(List<CollectionEntity> collections) {
+        final container = ProviderContainer(
+          overrides: [
+            ogTagServiceProvider.overrideWithValue(mockOg),
+            analyticsServiceProvider.overrideWithValue(mockAnalytics),
+            collectionListProvider.overrideWith(
+              () => _DataCollectionList(collections),
+            ),
+          ],
+        );
+        addTearDown(container.dispose);
+        return container;
+      }
+
+      Widget buildWith(ProviderContainer container) {
+        return UncontrolledProviderScope(
+          container: container,
+          child: const MaterialApp(home: LinkAddScreen()),
+        );
+      }
+
+      /// Scrolls the collection tile into view and taps it.
+      Future<void> openPicker(WidgetTester tester) async {
+        await tester.ensureVisible(find.text('컬렉션'));
+        await tester.pumpAndSettle();
+        await tester.tap(find.text('컬렉션'));
+        await tester.pumpAndSettle();
+      }
+
+      testWidgets('should default to 없음 before anything is picked', (
+        tester,
+      ) async {
+        // Arrange & Act
+        await tester.pumpWidget(
+          buildWith(createContainer([_collection('c1', '개발')])),
+        );
+        await tester.pumpAndSettle();
+
+        // Assert
+        expect(find.text('컬렉션'), findsOneWidget);
+        expect(find.text('없음'), findsOneWidget);
+      });
+
+      testWidgets('should show the picked collection name on the tile', (
+        tester,
+      ) async {
+        // Arrange
+        await tester.pumpWidget(
+          buildWith(createContainer([_collection('c1', '개발')])),
+        );
+        await tester.pumpAndSettle();
+
+        // Act
+        await openPicker(tester);
+        await tester.tap(find.text('개발'));
+        await tester.pumpAndSettle();
+
+        // Assert — sheet closed, tile now reflects the choice.
+        expect(find.text('개발'), findsOneWidget);
+        expect(find.text('없음'), findsNothing);
+      });
+
+      testWidgets('should write the picked id into the form state', (
+        tester,
+      ) async {
+        // Arrange
+        final container = createContainer([_collection('c1', '개발')]);
+        await tester.pumpWidget(buildWith(container));
+        await tester.pumpAndSettle();
+
+        // Act
+        await openPicker(tester);
+        await tester.tap(find.text('개발'));
+        await tester.pumpAndSettle();
+
+        // Assert — submit() reads collectionId straight off this state.
+        expect(
+          container.read(linkFormProvider(null)).value?.collectionId,
+          'c1',
+        );
+      });
+
+      testWidgets('should clear the selection when 없음 is picked', (
+        tester,
+      ) async {
+        // Arrange
+        final container = createContainer([_collection('c1', '개발')]);
+        await tester.pumpWidget(buildWith(container));
+        await tester.pumpAndSettle();
+        await openPicker(tester);
+        await tester.tap(find.text('개발'));
+        await tester.pumpAndSettle();
+
+        // Act
+        await openPicker(tester);
+        await tester.tap(find.text('없음'));
+        await tester.pumpAndSettle();
+
+        // Assert
+        expect(
+          container.read(linkFormProvider(null)).value?.collectionId,
+          isNull,
+        );
+        expect(find.text('없음'), findsOneWidget);
+      });
+
+      testWidgets('should keep the selection when the sheet is dismissed', (
+        tester,
+      ) async {
+        // Arrange
+        final container = createContainer([_collection('c1', '개발')]);
+        await tester.pumpWidget(buildWith(container));
+        await tester.pumpAndSettle();
+        await openPicker(tester);
+        await tester.tap(find.text('개발'));
+        await tester.pumpAndSettle();
+
+        // Act — dismiss via the barrier instead of picking.
+        await openPicker(tester);
+        await tester.tapAt(const Offset(400, 20));
+        await tester.pumpAndSettle();
+
+        // Assert
+        expect(
+          container.read(linkFormProvider(null)).value?.collectionId,
+          'c1',
+        );
+      });
+    });
   });
 }

@@ -3,6 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:linknote/app/theme/app_colors.dart';
 import 'package:linknote/app/theme/app_radius.dart';
 import 'package:linknote/app/theme/app_spacing.dart';
+import 'package:linknote/features/collection/domain/entity/collection_entity.dart';
+import 'package:linknote/features/collection/presentation/provider/collection_list_provider.dart';
+import 'package:linknote/features/collection/presentation/widgets/collection_picker_sheet.dart';
 import 'package:linknote/features/link/domain/entity/tag_entity.dart';
 import 'package:linknote/features/link/presentation/provider/link_form_provider.dart';
 import 'package:linknote/shared/extensions/context_extensions.dart';
@@ -61,6 +64,30 @@ class _LinkFormFieldsState extends ConsumerState<LinkFormFields> {
     );
   }
 
+  /// Opens the shared picker and writes the choice into the form state.
+  /// Dismissing the sheet leaves the current selection untouched.
+  Future<void> _pickCollection() async {
+    final pick = await showCollectionPickerSheet(context);
+    if (pick == null || !mounted) return;
+    ref
+        .read(linkFormProvider(widget.linkId).notifier)
+        .updateCollectionId(pick.id);
+  }
+
+  /// Label for the collection tile.
+  ///
+  /// [items] is the first page of collections only, so a selected id that lives
+  /// beyond it stays unresolved — fall back to a neutral label rather than
+  /// claiming the link has no collection.
+  static String _collectionLabel(
+    List<CollectionEntity> items,
+    String? collectionId,
+  ) {
+    if (collectionId == null) return '없음';
+    final match = items.where((c) => c.id == collectionId).firstOrNull;
+    return match?.name ?? '선택한 컬렉션';
+  }
+
   void _addTag() {
     final text = _tagController.text.trim();
     if (text.isEmpty) return;
@@ -86,6 +113,13 @@ class _LinkFormFieldsState extends ConsumerState<LinkFormFields> {
       _mirror(_descController, state.description);
       _mirror(_memoController, state.memo);
     });
+
+    // Watched before the early return so the dependency is registered on every
+    // build. Loading/error degrade to an empty list — the tile still opens the
+    // picker, which renders those states itself.
+    final collections =
+        ref.watch(collectionListProvider).value?.items ??
+        const <CollectionEntity>[];
 
     final formAsync = ref.watch(linkFormProvider(widget.linkId));
     final formState = formAsync.value;
@@ -134,6 +168,28 @@ class _LinkFormFieldsState extends ConsumerState<LinkFormFields> {
             ),
           ),
           onChanged: notifier.updateMemo,
+        ),
+        const SizedBox(height: AppSpacing.md),
+        InkWell(
+          onTap: _pickCollection,
+          borderRadius: BorderRadius.circular(AppRadius.input),
+          child: InputDecorator(
+            decoration: const InputDecoration(
+              labelText: '컬렉션',
+              prefixIcon: Icon(Icons.folder_outlined),
+            ),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    _collectionLabel(collections, formState.collectionId),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                const Icon(Icons.chevron_right),
+              ],
+            ),
+          ),
         ),
         const SizedBox(height: AppSpacing.lg),
         if (formState.tags.isNotEmpty) ...[
