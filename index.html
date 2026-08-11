@@ -1,68 +1,633 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ko">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>LinkNote</title>
-<style>
-  :root {
-    --bg:#f4f7f4; --surface:#ffffff; --ink:#14201a; --ink-soft:#47564e; --ink-faint:#7a887f;
-    --line:#dbe4dd; --accent:#1f7a4d; --accent-ink:#155c39; --accent-wash:#e4f1e9;
-    --shadow:0 1px 2px rgba(20,32,26,.05), 0 8px 24px -12px rgba(20,32,26,.14);
-    --mono: ui-monospace,"SF Mono",Menlo,monospace;
-    --sans:-apple-system,BlinkMacSystemFont,"Segoe UI","Pretendard","Noto Sans KR",system-ui,sans-serif;
-  }
-  @media (prefers-color-scheme: dark){
-    :root { --bg:#0d120f; --surface:#141b16; --ink:#e6efe8; --ink-soft:#a4b3a9; --ink-faint:#6f7f74;
-      --line:#26332a; --accent:#4bbd80; --accent-ink:#8fe0b0; --accent-wash:#16281d;
-      --shadow:0 1px 2px rgba(0,0,0,.3), 0 10px 30px -14px rgba(0,0,0,.6); }
-  }
-  :root[data-theme="light"]{ --bg:#f4f7f4; --surface:#ffffff; --ink:#14201a; --ink-soft:#47564e; --ink-faint:#7a887f; --line:#dbe4dd; --accent:#1f7a4d; --accent-ink:#155c39; --accent-wash:#e4f1e9; }
-  :root[data-theme="dark"]{ --bg:#0d120f; --surface:#141b16; --ink:#e6efe8; --ink-soft:#a4b3a9; --ink-faint:#6f7f74; --line:#26332a; --accent:#4bbd80; --accent-ink:#8fe0b0; --accent-wash:#16281d; }
-
-  * { box-sizing:border-box; }
-  body { margin:0; background:var(--bg); color:var(--ink); font-family:var(--sans); line-height:1.6; -webkit-font-smoothing:antialiased; min-height:100vh; display:grid; place-items:center; padding: 40px 24px; }
-  .card { width:100%; max-width: 560px; }
-  .kicker { font-family:var(--mono); font-size:12px; letter-spacing:.16em; text-transform:uppercase; color:var(--accent-ink); display:inline-flex; align-items:center; gap:9px; margin:0 0 16px; }
-  .kicker .dot { width:7px; height:7px; border-radius:50%; background:var(--accent); box-shadow:0 0 0 4px var(--accent-wash); }
-  h1 { font-size: clamp(30px,6vw,42px); letter-spacing:-.02em; margin:0 0 10px; font-weight:780; }
-  .tag { color:var(--ink-soft); margin:0 0 34px; font-size:16px; }
-  .links { display:flex; flex-direction:column; gap:12px; }
-  a.tile { display:flex; align-items:center; gap:16px; text-decoration:none; color:inherit;
-    background:var(--surface); border:1px solid var(--line); border-radius:14px; padding: 18px 20px;
-    box-shadow:var(--shadow); transition: border-color .15s, transform .15s; }
-  a.tile:hover { border-color:var(--accent); transform: translateY(-1px); }
-  a.tile .em { font-size:24px; flex:none; }
-  a.tile .t { font-weight:670; font-size:16px; margin:0; }
-  a.tile .d { color:var(--ink-faint); font-size:13.5px; margin:2px 0 0; }
-  a.tile .arw { margin-left:auto; color:var(--ink-faint); font-family:var(--mono); }
-  footer { margin-top:32px; font-family:var(--mono); font-size:12px; color:var(--ink-faint); }
-  :focus-visible { outline:2px solid var(--accent); outline-offset:3px; border-radius:8px; }
-</style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LinkNote — Flutter 북마크 앱 엔지니어링 케이스 스터디</title>
+<meta name="description" content="LinkNote는 웹 링크·영상·메모를 저장하고 태그·컬렉션·검색으로 관리하는 Flutter 북마크 앱입니다. Clean Architecture, Riverpod 코드 생성, 714개 테스트와 4잡 CI 파이프라인으로 만든 개인 프로젝트의 엔지니어링 기록.">
+<meta property="og:type" content="website">
+<meta property="og:title" content="LinkNote — Flutter 북마크 앱 엔지니어링 케이스 스터디">
+<meta property="og:description" content="Clean Architecture · Riverpod 코드 생성 · 714 테스트 · 4잡 CI. 기능 목록이 아니라 설계 판단과 검증 과정을 기록한 프로젝트 소개.">
+<meta property="og:url" content="https://kaywalker91.github.io/LinkNote/">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div class="card">
-    <p class="kicker"><span class="dot"></span> LinkNote</p>
-    <h1>LinkNote</h1>
-    <p class="tag">웹 링크·영상·메모를 한곳에 저장하고 태그·컬렉션·검색으로 정리하는 북마크 앱.</p>
-    <div class="links">
-      <a class="tile" href="./privacy-policy.html">
-        <span class="em">🔒</span>
-        <span><span class="t">개인정보 처리방침</span><span class="d">수집 항목·이용 목적·문의처</span></span>
-        <span class="arw">→</span>
-      </a>
-      <a class="tile" href="./data-deletion.html">
-        <span class="em">🗑️</span>
-        <span><span class="t">데이터 및 계정 삭제 요청</span><span class="d">삭제 방법·처리 기간·보관 정책</span></span>
-        <span class="arw">→</span>
-      </a>
-      <a class="tile" href="./play-store-guide.html">
-        <span class="em">🚀</span>
-        <span><span class="t">Google Play 출시 가이드</span><span class="d">등록 절차 8단계 (운영용)</span></span>
-        <span class="arw">→</span>
-      </a>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <a class="nav-brand" href="#top"><span class="dot"></span> LinkNote</a>
+    <div class="nav-links">
+      <a href="#metrics">지표</a>
+      <a href="#architecture">아키텍처</a>
+      <a href="#engineering">엔지니어링</a>
+      <a href="#screens">화면</a>
+      <a href="#tech">기술 스택</a>
+      <a href="#scope">범위</a>
+      <a class="ext" href="https://github.com/kaywalker91/LinkNote" target="_blank" rel="noopener">GitHub ↗</a>
     </div>
-    <footer>app.kaywalker.linknote</footer>
   </div>
+</nav>
+
+<header class="hero" id="top">
+  <div class="container">
+    <p class="kicker"><span>Flutter · 개인 프로젝트</span></p>
+    <h1>링크를 저장하는 앱, <em>그걸 지탱하는 설계</em></h1>
+    <p class="hero-lead">
+      웹 링크·영상·메모를 저장하고 태그·컬렉션·검색으로 관리하는 모바일 북마크 앱입니다.
+      Android 공유 시트에서 바로 저장되고, 네트워크가 끊겨도 캐시로 동작합니다.
+    </p>
+    <p class="hero-sub">
+      이 페이지는 기능 소개가 아니라 <strong>설계 판단과 그 검증 과정</strong>을 기록합니다.
+      아래 모든 주장에는 저장소 코드·ADR·CI 링크가 붙어 있습니다.
+    </p>
+    <div class="hero-buttons">
+      <a class="btn btn-primary" href="https://github.com/kaywalker91/LinkNote" target="_blank" rel="noopener">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+        저장소 보기
+      </a>
+      <a class="btn btn-secondary" href="#engineering">엔지니어링 사례 보기</a>
+    </div>
+  </div>
+</header>
+
+<section class="metrics" id="metrics">
+  <div class="container">
+    <div class="metrics-grid">
+      <div class="metric">
+        <span class="metric-value">714</span>
+        <span class="metric-label">테스트 전부 통과</span>
+        <span class="metric-note">119개 파일 · 단위/위젯/골든</span>
+      </div>
+      <div class="metric">
+        <span class="metric-value">4</span>
+        <span class="metric-label">병렬 CI 잡</span>
+        <span class="metric-note">분석 · 테스트 · 빌드 · 보안</span>
+      </div>
+      <div class="metric">
+        <span class="metric-value">9</span>
+        <span class="metric-label">피처 모듈</span>
+        <span class="metric-note">각 3계층 분리</span>
+      </div>
+      <div class="metric">
+        <span class="metric-value">16</span>
+        <span class="metric-label">화면</span>
+        <span class="metric-note">4탭 셸 + 전체화면 오버레이</span>
+      </div>
+      <div class="metric">
+        <span class="metric-value">4</span>
+        <span class="metric-label">아키텍처 결정 기록</span>
+        <span class="metric-note">ADR 문서화</span>
+      </div>
+    </div>
+    <p class="metrics-caption">
+      2026-08-11 실측 · <code>flutter test</code> 714/714 통과 · 생성 파일(<code>*.g.dart</code>, <code>*.freezed.dart</code>) 제외 Dart 소스 209개
+    </p>
+  </div>
+</section>
+
+<section class="section" id="architecture">
+  <div class="container">
+    <div class="section-head">
+      <p class="section-eyebrow">Architecture</p>
+      <h2 class="section-title">피처 우선 + Clean Architecture</h2>
+      <p class="section-desc">
+        각 피처는 <code>presentation</code> / <code>domain</code> / <code>data</code> 세 레이어로 나뉜 독립 모듈입니다.
+        화면은 provider를 구독하기만 하고, 상태 변경은 전부 Notifier 안에서만 일어납니다.
+      </p>
+    </div>
+
+    <div class="arch-wrap">
+      <div class="arch-figure">
+        <svg viewBox="0 0 460 328" role="img" aria-label="레이어 구조 다이어그램: 화면에서 Notifier, UseCase, Repository를 거쳐 원격 및 로컬 데이터소스로 이어지는 단방향 흐름">
+          <defs>
+            <marker id="arw" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+              <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--ink-4)"/>
+            </marker>
+          </defs>
+
+          <text x="4" y="34" font-size="10" font-family="ui-monospace, monospace" fill="var(--ink-4)" letter-spacing="1">presentation</text>
+          <text x="4" y="158" font-size="10" font-family="ui-monospace, monospace" fill="var(--ink-4)" letter-spacing="1">domain</text>
+          <text x="4" y="280" font-size="10" font-family="ui-monospace, monospace" fill="var(--ink-4)" letter-spacing="1">data</text>
+
+          <rect x="96" y="8" width="264" height="46" rx="11" fill="var(--surface-sunk)" stroke="var(--line-strong)"/>
+          <text x="228" y="30" text-anchor="middle" font-size="14" font-weight="600" fill="var(--ink)">Screen Widget</text>
+          <text x="228" y="45" text-anchor="middle" font-size="11" fill="var(--ink-3)">ConsumerWidget — 구독만</text>
+
+          <line x1="228" y1="54" x2="228" y2="76" stroke="var(--ink-4)" stroke-width="1.4" marker-end="url(#arw)"/>
+
+          <rect x="96" y="76" width="264" height="46" rx="11" fill="var(--forest-soft)" stroke="var(--forest)"/>
+          <text x="228" y="98" text-anchor="middle" font-size="14" font-weight="600" fill="var(--forest-ink)">Riverpod AsyncNotifier</text>
+          <text x="228" y="113" text-anchor="middle" font-size="11" fill="var(--forest-ink)">@riverpod 코드 생성 · 상태 변경 단일 지점</text>
+
+          <line x1="228" y1="122" x2="228" y2="144" stroke="var(--ink-4)" stroke-width="1.4" marker-end="url(#arw)"/>
+
+          <rect x="96" y="144" width="264" height="40" rx="11" fill="var(--surface-sunk)" stroke="var(--line-strong)"/>
+          <text x="228" y="169" text-anchor="middle" font-size="14" font-weight="600" fill="var(--ink)">UseCase</text>
+
+          <line x1="228" y1="184" x2="228" y2="206" stroke="var(--ink-4)" stroke-width="1.4" marker-end="url(#arw)"/>
+
+          <rect x="96" y="206" width="264" height="40" rx="11" fill="var(--surface-sunk)" stroke="var(--line-strong)"/>
+          <text x="228" y="231" text-anchor="middle" font-size="14" font-weight="600" fill="var(--ink)">Repository (interface)</text>
+
+          <path d="M 228 246 L 228 262 L 158 262 L 158 276" fill="none" stroke="var(--ink-4)" stroke-width="1.4" marker-end="url(#arw)"/>
+          <path d="M 228 246 L 228 262 L 298 262 L 298 276" fill="none" stroke="var(--ink-4)" stroke-width="1.4" marker-end="url(#arw)"/>
+
+          <rect x="96" y="276" width="124" height="44" rx="11" fill="var(--surface-sunk)" stroke="var(--line-strong)"/>
+          <text x="158" y="296" text-anchor="middle" font-size="12.5" font-weight="600" fill="var(--ink)">Remote</text>
+          <text x="158" y="310" text-anchor="middle" font-size="10.5" fill="var(--ink-3)">Supabase</text>
+
+          <rect x="236" y="276" width="124" height="44" rx="11" fill="var(--surface-sunk)" stroke="var(--line-strong)"/>
+          <text x="298" y="296" text-anchor="middle" font-size="12.5" font-weight="600" fill="var(--ink)">Local</text>
+          <text x="298" y="310" text-anchor="middle" font-size="10.5" fill="var(--ink-3)">Hive CE 캐시</text>
+        </svg>
+      </div>
+
+      <div class="arch-notes">
+        <div class="arch-note">
+          <h4>예외 대신 <code>Result&lt;T&gt;</code></h4>
+          <p>
+            비즈니스 로직은 예외를 던지지 않습니다. 모든 경로가 <code>Result&lt;T&gt;</code> record를 반환하고,
+            실패는 Freezed sealed class <code>Failure</code>로 표현됩니다. 처리하지 않은 실패 분기는 컴파일 단계에서 드러납니다.
+          </p>
+        </div>
+        <div class="arch-note">
+          <h4>수기 provider 0개</h4>
+          <p>
+            상태 관리는 전부 <code>@riverpod</code> 애노테이션 코드 생성으로만 작성했습니다.
+            provider 타입·의존성·auto-dispose 규칙이 손으로 흔들릴 여지를 없앴습니다.
+          </p>
+        </div>
+        <div class="arch-note">
+          <h4>오프라인 우선</h4>
+          <p>
+            Repository가 원격 실패 시 Hive CE 캐시로 물러납니다. 목록 조회는 행 단위 <code>try/catch</code>로
+            파싱해, 한 행이 깨져도 나머지 데이터가 사라지지 않습니다.
+          </p>
+        </div>
+        <div class="arch-note">
+          <h4>경계를 코드로 강제</h4>
+          <p>
+            <code>tool/check_anti_patterns.sh</code>가 CI 분석 잡에서 함께 돌며, 한번 고친 안티패턴이
+            다시 들어오면 머지 전에 실패합니다. 규칙을 문서가 아니라 게이트로 고정했습니다.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section section-alt" id="engineering">
+  <div class="container">
+    <div class="section-head">
+      <p class="section-eyebrow">Engineering</p>
+      <h2 class="section-title">무엇을 어떻게 판단했는가</h2>
+      <p class="section-desc">
+        기능을 나열하는 대신, 실제로 막혔던 문제와 그때 내린 결정·검증 방법을 남깁니다.
+        각 사례는 저장소의 PR·ADR로 이어집니다.
+      </p>
+    </div>
+
+    <div class="case-grid">
+
+      <article class="case">
+        <span class="case-tag tag-routing">Routing · P0</span>
+        <h3>공유하기로 저장이 안 되던 버그 — 원인은 URL 파싱이 아니라 라우터였다</h3>
+        <dl>
+          <div>
+            <dt>문제</dt>
+            <dd>YouTube에서 공유해도 링크 추가 화면이 열리지 않고 홈으로 떨어졌습니다.</dd>
+          </div>
+          <div>
+            <dt>진단</dt>
+            <dd>
+              <code>GoRouter</code> redirect 안에서 공유 URL을 <strong>소비(consume)</strong>하고 있었습니다.
+              인증이 확정될 때 <code>refreshListenable</code>이 연속으로 여러 번 펄스되면서 redirect가 splash에서 반복 평가되고,
+              1차 통과가 값을 소비해버려 후속 통과는 <code>null</code>을 보고 홈으로 보냈습니다.
+            </dd>
+          </div>
+          <div>
+            <dt>결정</dt>
+            <dd>
+              redirect를 <strong>부수효과 없는 순수 함수</strong>로 되돌리고, 일회성 소비는 도착 화면의 post-frame으로 옮겼습니다.
+              몇 번 평가되든 같은 결론이 나옵니다.
+            </dd>
+          </div>
+          <div>
+            <dt>검증</dt>
+            <dd>cold-start·warm·미인증 경로별 테스트 + 실기기 YouTube 공유 확인.</dd>
+          </div>
+        </dl>
+        <div class="evidence">
+          <a href="https://github.com/kaywalker91/LinkNote/pull/67" target="_blank" rel="noopener">PR #67</a>
+          <span>lib/app/router/</span>
+        </div>
+      </article>
+
+      <article class="case">
+        <span class="case-tag tag-data">Data Integrity</span>
+        <h3>링크를 지워도 태그가 남는 문제 — 4개 계층에서 동시에 막기</h3>
+        <dl>
+          <div>
+            <dt>문제</dt>
+            <dd>링크를 삭제하면 조인 행은 지워지지만 <code>tags</code> 행이 남아, 검색 탭에 유령 태그가 계속 보였습니다.</dd>
+          </div>
+          <div>
+            <dt>결정</dt>
+            <dd>
+              한 곳만 고치면 기존 데이터·경쟁 상태 중 하나가 새기 때문에 네 계층에 나눠 배치했습니다 —
+              <strong>조회</strong>는 inner join으로 연결된 태그만, <strong>동기화</strong>는 삭제 후 삽입이 아니라
+              <strong>먼저 연결하고 나중에 정리</strong>하는 순서로, <strong>DB</strong>는 <code>AFTER DELETE</code> 트리거로 원천 차단,
+              <strong>UI</strong>는 provider invalidate로 즉시 갱신.
+            </dd>
+          </div>
+          <div>
+            <dt>왜 순서를 바꿨나</dt>
+            <dd>“전체 삭제 후 재삽입”은 유지되는 태그의 조인 행까지 잠깐 지워, 새로 넣은 트리거가 그 틈에 태그를 정리해버립니다.</dd>
+          </div>
+          <div>
+            <dt>검증</dt>
+            <dd>멱등 마이그레이션 스크립트 실행 + 실기기(내부 테스트)에서 유령 태그 소멸 확인.</dd>
+          </div>
+        </dl>
+        <div class="evidence">
+          <a href="https://github.com/kaywalker91/LinkNote/pull/63" target="_blank" rel="noopener">PR #63</a>
+          <span>scripts/migration_66_orphan_tags.sql</span>
+        </div>
+      </article>
+
+      <article class="case">
+        <span class="case-tag tag-scope">Scope · ADR</span>
+        <h3>완성된 알림 기능을 MVP에서 걷어낸 이유</h3>
+        <dl>
+          <div>
+            <dt>상황</dt>
+            <dd>알림 인박스는 DTO·매퍼·데이터소스·UseCase·화면까지 전부 구현돼 있었습니다.</dd>
+          </div>
+          <div>
+            <dt>발견</dt>
+            <dd>
+              그런데 <strong>알림을 만드는 주체가 없었습니다.</strong> 저장소 전체에서 알림 테이블에 insert하는 코드는 0건,
+              서버 트리거도 없었습니다. 화면은 구조적으로 영원히 빈 상태였습니다.
+            </dd>
+          </div>
+          <div>
+            <dt>결정</dt>
+            <dd>
+              진입점과 라우트를 제거하고 <code>firebase_messaging</code> 의존성도 삭제했습니다.
+              쓰지 않는 기능이 설치돼 있으면 스토어 심사와 보안 검토 표면만 넓어집니다.
+              코드는 <strong>삭제 대신 dormant 보존</strong> — 되돌리기 비용 대비 이득이 없다고 판단하고 ADR에 사유를 남겼습니다.
+            </dd>
+          </div>
+          <div>
+            <dt>재개 조건</dt>
+            <dd>알림을 발생시킬 이벤트(팔로우·댓글·초대)가 먼저 구현될 때. FCM을 그 전에 붙이는 건 순서가 뒤집힌 것입니다.</dd>
+          </div>
+        </dl>
+        <div class="evidence">
+          <a href="https://github.com/kaywalker91/LinkNote/blob/main/docs/adr/004-defer-notifications-and-fcm.md" target="_blank" rel="noopener">ADR-004</a>
+          <a href="https://github.com/kaywalker91/LinkNote/pull/69" target="_blank" rel="noopener">PR #69</a>
+        </div>
+      </article>
+
+      <article class="case">
+        <span class="case-tag tag-quality">Quality Gate</span>
+        <h3>같은 실수를 두 번 하지 않게 만드는 방법</h3>
+        <dl>
+          <div>
+            <dt>문제</dt>
+            <dd>
+              Dart에서 <code>on Exception catch</code>는 <code>Error</code>를 잡지 못합니다.
+              DTO 캐스팅·Hive 역직렬화 경계에서 이 구분을 놓친 곳이 34군데 남아 있었습니다.
+            </dd>
+          </div>
+          <div>
+            <dt>결정</dt>
+            <dd>
+              전수 수정만으로는 다음 PR에서 다시 들어옵니다. <code>tool/check_anti_patterns.sh</code>를 만들어
+              CI 분석 잡에 붙이고, 이 패턴이 재등장하면 <strong>머지 전에 실패</strong>하도록 고정했습니다.
+            </dd>
+          </div>
+          <div>
+            <dt>같은 게이트에 묶은 것들</dt>
+            <dd>
+              <code>dart format</code> 검사(<code>flutter analyze</code>는 포맷을 보지 않아 CI를 두 번 떨어뜨린 적이 있습니다),
+              행 단위 파싱 관용성, 레이어 경계 위반.
+            </dd>
+          </div>
+          <div>
+            <dt>결과</dt>
+            <dd><code>lib/</code> 전체에서 해당 패턴 0건 유지.</dd>
+          </div>
+        </dl>
+        <div class="evidence">
+          <a href="https://github.com/kaywalker91/LinkNote/blob/main/.github/workflows/ci.yml" target="_blank" rel="noopener">ci.yml</a>
+          <span>tool/check_anti_patterns.sh</span>
+        </div>
+      </article>
+
+      <article class="case">
+        <span class="case-tag tag-ux">UI Regression</span>
+        <h3>“없어졌는지”만 확인하는 테스트는 빈 자리를 못 잡는다</h3>
+        <dl>
+          <div>
+            <dt>문제</dt>
+            <dd>
+              상단 바의 마지막 액션 버튼을 제거했더니, 컴포넌트가 56px 행을 계속 예약해 화면 위에 빈 띠가 남았습니다.
+            </dd>
+          </div>
+          <div>
+            <dt>왜 안 잡혔나</dt>
+            <dd>
+              <code>findsNothing</code> 단언은 통과합니다 — 버튼은 실제로 사라졌으니까요.
+              사라진 것과 <strong>그 자리가 회수된 것</strong>은 다른 조건입니다.
+            </dd>
+          </div>
+          <div>
+            <dt>결정</dt>
+            <dd>
+              채울 내용이 없으면 행 대신 여백만 두도록 <code>preferredSize</code>까지 함께 줄이고,
+              회귀 테스트에 <strong>좌표 단언</strong>을 넣었습니다.
+            </dd>
+          </div>
+          <div>
+            <dt>검증</dt>
+            <dd>레이아웃 테스트 4건 + 기존 렌더 경로 불변 확인(다른 화면은 항상 액션을 가지므로 영향 없음).</dd>
+          </div>
+        </dl>
+        <div class="evidence">
+          <a href="https://github.com/kaywalker91/LinkNote/pull/68" target="_blank" rel="noopener">PR #68</a>
+          <span>lib/shared/widgets/ln/ln_top_bar.dart</span>
+        </div>
+      </article>
+
+      <article class="case">
+        <span class="case-tag tag-quality">Release Engineering</span>
+        <h3>빌드에 박히는 값과 런타임에 읽는 값을 구분하기</h3>
+        <dl>
+          <div>
+            <dt>문제</dt>
+            <dd>prod 빌드에서 로그인이 실패했습니다. 서버 주소가 placeholder 그대로였습니다.</dd>
+          </div>
+          <div>
+            <dt>원인</dt>
+            <dd>
+              <code>envied</code>는 <code>.env</code>를 런타임에 읽지 않습니다. 코드 생성 시점에 값을 <strong>생성 파일에 굽습니다.</strong>
+              커밋된 placeholder가 그대로 빌드에 들어갔고, 로컬 <code>.env</code>를 고쳐도 재생성 전에는 반영되지 않았습니다.
+            </dd>
+          </div>
+          <div>
+            <dt>결정</dt>
+            <dd>
+              공개용 anon 키는 생성 파일에 커밋하도록 정책을 바꿔 함정 자체를 제거했습니다.
+              대신 특권 자격증명은 <strong>클라이언트에 두지 않는다</strong>는 경계를 문서화했습니다 —
+              난독화는 APK에서 복원 가능하므로 비밀 보호 수단이 아닙니다.
+            </dd>
+          </div>
+          <div>
+            <dt>실제 방어선</dt>
+            <dd>Google Cloud 콘솔의 앱 서명(SHA-1) 제한과 API 화이트리스트, 과금성 API 미활성화.</dd>
+          </div>
+        </dl>
+        <div class="evidence">
+          <a href="https://github.com/kaywalker91/LinkNote/blob/main/CLAUDE.md" target="_blank" rel="noopener">환경 변수 정책</a>
+          <span>envied · flutter_secure_storage</span>
+        </div>
+      </article>
+
+    </div>
+  </div>
+</section>
+
+<section class="section" id="highlights">
+  <div class="container">
+    <div class="section-head">
+      <p class="section-eyebrow">Highlights</p>
+      <h2 class="section-title">핵심 역량 다섯 가지</h2>
+    </div>
+
+    <div class="highlight-grid">
+      <div class="highlight">
+        <span class="highlight-rank">01</span>
+        <h3>테스트와 CI를 실제 게이트로 운영</h3>
+        <p>
+          714개 테스트가 전부 통과한 상태를 유지합니다. CI는 4개 잡이 병렬로 돌며
+          포맷·정적 분석·안티패턴 스크립트, 테스트와 커버리지, APK 빌드 검증,
+          Semgrep OWASP 보안 스캔을 각각 담당합니다.
+        </p>
+        <div class="evidence">
+          <a href="https://github.com/kaywalker91/LinkNote/blob/main/.github/workflows/ci.yml" target="_blank" rel="noopener">ci.yml</a>
+          <span>단위 · 위젯 · 골든</span>
+        </div>
+      </div>
+
+      <div class="highlight">
+        <span class="highlight-rank">02</span>
+        <h3>피처 우선 Clean Architecture</h3>
+        <p>
+          9개 피처가 각각 <code>presentation</code>/<code>domain</code>/<code>data</code> 3계층으로 나뉩니다.
+          공용 컴포넌트는 <code>shared/</code>, 횡단 관심사는 <code>core/</code>로 빼고,
+          피처 사이는 도메인 엔티티와 provider를 통해 연결됩니다.
+        </p>
+        <div class="evidence">
+          <a href="https://github.com/kaywalker91/LinkNote/blob/main/docs/adr/003-feature-first-architecture.md" target="_blank" rel="noopener">ADR-003</a>
+        </div>
+      </div>
+
+      <div class="highlight">
+        <span class="highlight-rank">03</span>
+        <h3>타입으로 강제한 에러 처리</h3>
+        <p>
+          <code>Result&lt;T&gt;</code> record와 Freezed sealed <code>Failure</code>로 실패를 값으로 다룹니다.
+          비즈니스 로직에 throw가 없고, 새로운 실패 종류를 추가하면 처리하지 않은 분기가 컴파일 단계에서 드러납니다.
+        </p>
+        <div class="evidence"><span>lib/core/error/</span></div>
+      </div>
+
+      <div class="highlight">
+        <span class="highlight-rank">04</span>
+        <h3>플랫폼 연동과 엣지 케이스</h3>
+        <p>
+          Android 공유 인텐트를 받아 저장 파이프라인으로 태우고, <code>linknote://</code> 커스텀 스킴 딥링크를
+          cold-start 큐로 처리합니다. 앱이 아직 뜨지 않은 상태에서 들어온 요청도 잃지 않습니다.
+        </p>
+        <div class="evidence">
+          <a href="https://github.com/kaywalker91/LinkNote/blob/main/docs/prds/share-intent.md" target="_blank" rel="noopener">share-intent PRD</a>
+        </div>
+      </div>
+
+      <div class="highlight">
+        <span class="highlight-rank">05</span>
+        <h3>출시까지 끌고 간 운영</h3>
+        <p>
+          Crashlytics·Analytics 계측, Remote Config 기반 인앱 업데이트 정책 게이트, Android 릴리스 서명,
+          개인정보 처리방침과 데이터 삭제 페이지까지 스토어 제출에 필요한 것을 직접 준비했습니다.
+        </p>
+        <div class="evidence">
+          <a href="./privacy-policy.html">개인정보 처리방침</a>
+          <a href="./data-deletion.html">데이터 삭제</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section section-alt" id="screens">
+  <div class="container">
+    <div class="section-head">
+      <p class="section-eyebrow">Screens</p>
+      <h2 class="section-title">화면</h2>
+      <p class="section-desc">
+        Material 3 디자인 토큰 기반의 라이트/다크 테마. 색상·간격·타이포는 전부 토큰으로 관리하고
+        골든 테스트로 두 테마의 렌더 결과를 고정합니다.
+      </p>
+    </div>
+
+    <div class="shot-grid">
+      <figure class="shot">
+        <img src="assets/screenshots/01_home.png" alt="LinkNote 홈 화면 — 저장한 링크 목록" loading="lazy" width="537" height="1200">
+        <p>홈 <span>링크 목록 · 정렬 · 즐겨찾기</span></p>
+      </figure>
+      <figure class="shot">
+        <img src="assets/screenshots/02_search.png" alt="LinkNote 검색 화면 — 검색어가 하이라이트된 결과 목록" loading="lazy" width="537" height="1200">
+        <p>검색 <span>디바운스 · 검색어 하이라이트</span></p>
+      </figure>
+      <figure class="shot">
+        <img src="assets/screenshots/03_collections.png" alt="LinkNote 컬렉션 목록 화면" loading="lazy" width="537" height="1200">
+        <p>컬렉션 <span>폴더 관리 · 링크 수 집계</span></p>
+      </figure>
+      <figure class="shot">
+        <img src="assets/screenshots/05_form.png" alt="LinkNote 링크 추가 화면 — URL 입력만으로 제목과 설명이 자동 채워진 상태" loading="lazy" width="537" height="1200">
+        <p>링크 추가 <span>URL만 넣으면 OG 태그 자동 추출</span></p>
+      </figure>
+      <figure class="shot">
+        <img src="assets/screenshots/06_collection_dark.png" alt="LinkNote 컬렉션 상세 화면 (다크 모드) — 공개·잠금 토글" loading="lazy" width="537" height="1200">
+        <p>컬렉션 상세 <span>공개 · 잠금 토글 · 다크 모드</span></p>
+      </figure>
+      <figure class="shot">
+        <img src="assets/screenshots/07_home_dark.png" alt="LinkNote 홈 화면 (다크 모드)" loading="lazy" width="537" height="1200">
+        <p>홈 <span>같은 화면의 다크 테마</span></p>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="tech">
+  <div class="container">
+    <div class="section-head">
+      <p class="section-eyebrow">Tech Stack</p>
+      <h2 class="section-title">기술 스택</h2>
+    </div>
+
+    <div class="tech-grid">
+      <div class="tech-item">
+        <span class="tech-label">Framework</span>
+        <span class="tech-value">Flutter 3.41.4 / Dart 3.11.1</span>
+      </div>
+      <div class="tech-item">
+        <span class="tech-label">State</span>
+        <span class="tech-value">Riverpod 3.x</span>
+        <span class="tech-note">전량 <code>@riverpod</code> 코드 생성</span>
+      </div>
+      <div class="tech-item">
+        <span class="tech-label">Routing</span>
+        <span class="tech-value">GoRouter</span>
+        <span class="tech-note">StatefulShellRoute · 커스텀 스킴 딥링크</span>
+      </div>
+      <div class="tech-item">
+        <span class="tech-label">Backend</span>
+        <span class="tech-value">Supabase</span>
+        <span class="tech-note">Auth · PostgreSQL · Storage</span>
+      </div>
+      <div class="tech-item">
+        <span class="tech-label">Local</span>
+        <span class="tech-value">Hive CE</span>
+        <span class="tech-note">오프라인 우선 캐시</span>
+      </div>
+      <div class="tech-item">
+        <span class="tech-label">Network</span>
+        <span class="tech-value">Dio + Retrofit</span>
+        <span class="tech-note">타입 세이프 HTTP · 인터셉터</span>
+      </div>
+      <div class="tech-item">
+        <span class="tech-label">Codegen</span>
+        <span class="tech-value">Freezed · json_serializable</span>
+        <span class="tech-note">불변 데이터 클래스</span>
+      </div>
+      <div class="tech-item">
+        <span class="tech-label">Monitoring</span>
+        <span class="tech-value">Firebase Crashlytics · Analytics</span>
+        <span class="tech-note">Remote Config 업데이트 게이트</span>
+      </div>
+      <div class="tech-item">
+        <span class="tech-label">Testing</span>
+        <span class="tech-value">flutter_test · mocktail · Alchemist</span>
+        <span class="tech-note">단위 · 위젯 · 골든</span>
+      </div>
+      <div class="tech-item">
+        <span class="tech-label">Security</span>
+        <span class="tech-value">flutter_secure_storage · envied</span>
+        <span class="tech-note">CI Semgrep OWASP 스캔</span>
+      </div>
+      <div class="tech-item">
+        <span class="tech-label">Lint</span>
+        <span class="tech-value">very_good_analysis</span>
+        <span class="tech-note">custom_lint · riverpod_lint</span>
+      </div>
+      <div class="tech-item">
+        <span class="tech-label">CI/CD</span>
+        <span class="tech-value">GitHub Actions</span>
+        <span class="tech-note">4잡 병렬 · Codecov</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section section-alt" id="scope">
+  <div class="container">
+    <div class="section-head">
+      <p class="section-eyebrow">Scope</p>
+      <h2 class="section-title">범위와 한계</h2>
+      <p class="section-desc">지금 어디까지 됐고 무엇을 의도적으로 하지 않았는지 그대로 적습니다.</p>
+    </div>
+
+    <div class="scope-grid">
+      <div class="scope done">
+        <h4>Android — 릴리스 준비 완료</h4>
+        <p>릴리스 서명, 난독화 규칙, 스토어 제출용 문서까지 마쳤고 내부 테스트 트랙을 운영 중입니다.</p>
+      </div>
+      <div class="scope partial">
+        <h4>iOS — 미착수</h4>
+        <p>코드는 크로스 플랫폼이지만 서명·심사 준비를 하지 않았습니다. 플랫폼을 하나씩 끝내는 순서를 택했습니다.</p>
+      </div>
+      <div class="scope out">
+        <h4>알림 · FCM — 의도적 제외</h4>
+        <p>알림을 발생시킬 이벤트가 없어 MVP에서 걷어냈습니다. 사유와 재개 조건은 ADR-004에 있습니다.</p>
+      </div>
+      <div class="scope out">
+        <h4>컬렉션 선택 — 알려진 한계</h4>
+        <p>피커가 첫 페이지 20개만 표시하며 더보기가 없습니다. 선택값은 유지되지만 라벨이 중립 문구로 표시됩니다.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer class="footer">
+  <div class="container">
+    <div class="footer-inner">
+      <div class="footer-links">
+        <a href="https://github.com/kaywalker91/LinkNote" target="_blank" rel="noopener">GitHub</a>
+        <a href="./privacy-policy.html">개인정보 처리방침</a>
+        <a href="./data-deletion.html">데이터 및 계정 삭제</a>
+        <a href="./play-store-guide.html">릴리스 가이드</a>
+      </div>
+      <p class="footer-meta">© 2026 LinkNote · Built with Flutter</p>
+    </div>
+  </div>
+</footer>
+
 </body>
 </html>
