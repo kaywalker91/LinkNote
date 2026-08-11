@@ -16,7 +16,7 @@ A mobile bookmark manager that auto-extracts metadata from any URL — save, org
 
 ## Highlights
 
-- **Feature-first Clean Architecture** — 6 independent feature modules with strict `presentation → domain → data` layer boundaries; zero cross-feature imports
+- **Feature-first Clean Architecture** — 9 feature modules, each split into `presentation → domain → data`; cross-feature wiring goes through domain entities and providers, with `shared/` and `core/` holding everything common
 - **Type-safe Error Handling** — `Result<T>` record type + `Failure` sealed class (Freezed). No thrown exceptions in business logic
 - **Riverpod 3.x Code Generation** — `@riverpod` annotation throughout; zero hand-written providers. AsyncNotifier for 3-state (loading/data/error) management
 - **4-Job CI Pipeline** — GitHub Actions: format + lint, test + coverage, build verification, Semgrep OWASP security scan
@@ -205,14 +205,19 @@ dart run build_runner build --delete-conflicting-outputs
 
 ## Testing
 
-Three-layer testing strategy with `mocktail` for mocking at boundary layers.
+Layered testing strategy with `mocktail` for mocking at boundary layers, plus Alchemist goldens
+pinning light/dark render output.
 
-| Layer | Tests | Scope |
-|-------|------:|-------|
-| Unit | 16 | UseCases, Repositories, Mappers |
-| Widget | 25 | Screen rendering, user interactions |
-| Integration | 19 | Multi-screen flows (login → add link, search → detail, collection create) |
-| **Total** | **60** | |
+| Layer | Tests | Files | Scope |
+|-------|------:|------:|-------|
+| Unit | 314 | 58 | UseCases, Repositories, Mappers, DataSources |
+| Widget | 376 | 55 | Screen rendering, user interactions, shared components |
+| Integration | 14 | 3 | Multi-screen flows (login → add link, search → detail, collection create) |
+| Golden | variant-driven | 3 | Light/dark render snapshots (Alchemist) |
+| **Total executed** | **714** | **119** | |
+
+> Layer counts are static `test(` / `testWidgets(` declarations; goldens expand at runtime via
+> variants, so the executed total (714) exceeds the sum of declarations. Measured 2026-08-11.
 
 ```bash
 # Run all tests
@@ -263,7 +268,7 @@ Phase 1  UI Screens (13 screens)    ████████████  Done
 Phase 2  CRUD & Interactions        ████████████  Done
 Phase 3  Backend Integration        ████████████  Done
 Phase 4  Local Cache & Performance  ████████████  Done
-Phase 5  Test Suite (52 tests)      ████████████  Done
+Phase 5  Test Suite                 ████████████  Done
 Phase 6  CI/CD & Release            ████████████  Done
 ```
 
@@ -275,13 +280,15 @@ Phase 6  CI/CD & Release            ████████████  Done
 
 | Metric | Value |
 |--------|-------|
-| Dart source files | 156 |
-| Feature modules | 6 |
-| Screens | 13 |
-| Shared widgets | 13 reusable components |
-| Test suites | 13 files, 60 test cases |
+| Dart source files | 209 (generated files excluded) |
+| Feature modules | 9 |
+| Screens | 16 |
+| Shared widgets | 28 reusable components |
+| Test suites | 119 files, 714 test cases |
 | CI pipeline jobs | 4 parallel |
-| Dependencies | 21 prod + 10 dev |
+| Dependencies | 31 prod + 18 dev |
+
+> Measured 2026-08-11 on `main`.
 
 ---
 

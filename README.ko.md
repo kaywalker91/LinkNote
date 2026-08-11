@@ -16,7 +16,7 @@ URL을 붙여넣으면 메타데이터를 자동 추출하는 모바일 북마�
 
 ## 엔지니어링 하이라이트
 
-- **Feature-first Clean Architecture** — 6개 독립 feature 모듈, `presentation → domain → data` 레이어 경계 엄격 준수. 크로스 feature import 없음
+- **Feature-first Clean Architecture** — 9개 feature 모듈이 각각 `presentation → domain → data` 3계층으로 분리. feature 사이는 도메인 엔티티와 provider를 통해 연결하고, 공용 컴포넌트는 `shared/`·횡단 관심사는 `core/`로 분리
 - **타입 안전 에러 처리** — `Result<T>` 레코드 타입 + `Failure` sealed class (Freezed). 비즈니스 로직에서 예외를 던지지 않고 명시적으로 실패를 전파
 - **Riverpod 3.x 코드 생성** — `@riverpod` 어노테이션 전면 적용, 수동 작성 프로바이더 0개. AsyncNotifier로 loading/data/error 3-state 관리
 - **4-Job CI 파이프라인** — GitHub Actions: format + lint, test + coverage, build 검증, Semgrep OWASP 보안 스캔
@@ -205,14 +205,18 @@ dart run build_runner build --delete-conflicting-outputs
 
 ## 테스트
 
-3-layer 테스트 전략, `mocktail`로 경계 레이어 모킹.
+레이어별 테스트 전략, `mocktail`로 경계 레이어 모킹. Alchemist 골든으로 라이트/다크 렌더 결과 고정.
 
-| 레이어 | 테스트 수 | 범위 |
-|--------|----------:|------|
-| Unit | 14 | UseCase, Repository, Mapper |
-| Widget | 19 | 화면 렌더링, 사용자 인터랙션 |
-| Integration | 19 | 멀티 화면 플로우 (로그인 → 링크 추가, 검색 → 상세, 컬렉션 생성) |
-| **합계** | **52** | |
+| 레이어 | 테스트 수 | 파일 | 범위 |
+|--------|----------:|-----:|------|
+| Unit | 314 | 58 | UseCase, Repository, Mapper, DataSource |
+| Widget | 376 | 55 | 화면 렌더링, 사용자 인터랙션, 공용 컴포넌트 |
+| Integration | 14 | 3 | 멀티 화면 플로우 (로그인 → 링크 추가, 검색 → 상세, 컬렉션 생성) |
+| Golden | variant 기반 | 3 | 라이트/다크 렌더 스냅샷 (Alchemist) |
+| **실행 합계** | **714** | **119** | |
+
+> 레이어별 수치는 `test(` / `testWidgets(` 정적 선언 기준이다. 골든은 런타임에 variant로 확장되므로
+> 실제 실행 합계(714)가 선언 합보다 크다. 2026-08-11 실측.
 
 ```bash
 # 전체 테스트 실행
@@ -263,7 +267,7 @@ Phase 1  UI 화면 (13개 화면)         ████████████  
 Phase 2  CRUD & 인터랙션             ████████████  완료
 Phase 3  백엔드 연동                 ████████████  완료
 Phase 4  로컬 캐시 & 성능 최적화      ████████████  완료
-Phase 5  테스트 (52개)               ████████████  완료
+Phase 5  테스트                      ████████████  완료
 Phase 6  CI/CD & 릴리스              ████████████  완료
 ```
 
@@ -275,13 +279,15 @@ Phase 6  CI/CD & 릴리스              ████████████  �
 
 | 지표 | 값 |
 |------|-----|
-| Dart 소스 파일 | 156개 |
-| Feature 모듈 | 6개 |
-| 화면 수 | 13개 |
-| 공유 위젯 | 13개 재사용 컴포넌트 |
-| 테스트 | 10개 파일, 52개 테스트 케이스 |
+| Dart 소스 파일 | 209개 (생성 파일 제외) |
+| Feature 모듈 | 9개 |
+| 화면 수 | 16개 |
+| 공유 위젯 | 28개 재사용 컴포넌트 |
+| 테스트 | 119개 파일, 714개 테스트 케이스 |
 | CI 파이프라인 job | 4개 병렬 |
-| 의존성 | 21개 (prod) + 10개 (dev) |
+| 의존성 | 31개 (prod) + 18개 (dev) |
+
+> 2026-08-11 `main` 기준 실측.
 
 ---
 
