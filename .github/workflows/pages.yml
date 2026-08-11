@@ -1,0 +1,96 @@
+name: Pages
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'site/**'
+      - '.github/workflows/pages.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: pages-deploy
+  cancel-in-progress: false
+
+env:
+  # Play Console에 등록된 URL. 경로가 바뀌면 스토어 정책 위반이므로 배포 전후로 검사한다.
+  LEGAL_PAGES: 'privacy-policy.html data-deletion.html'
+  SITE_URL: 'https://kaywalker91.github.io/LinkNote'
+
+jobs:
+  deploy:
+    name: Deploy site/ to gh-pages
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      # ── 사전 계약 검사 ────────────────────────────────────────────────────
+      # legal 파일이 site/ 에서 빠진 채로 배포되면 살아 있는 URL이 404가 된다.
+      - name: Verify legal pages are present
+        run: |
+          missing=0
+          for f in $LEGAL_PAGES play-store-guide.html index.html style.css .nojekyll; do
+            if [ ! -f "site/$f" ]; then
+              echo "::error::site/$f 누락 — 배포 중단"
+              missing=1
+            fi
+          done
+          [ "$missing" -eq 0 ] || exit 1
+
+      - name: Verify legal pages are non-empty
+        run: |
+          for f in $LEGAL_PAGES; do
+            if [ "$(wc -c < "site/$f")" -lt 500 ]; then
+              echo "::error::site/$f 가 비정상적으로 작음 — 배포 중단"
+              exit 1
+            fi
+          done
+
+      # ── 배포 ─────────────────────────────────────────────────────────────
+      - name: Push site/ to gh-pages
+        run: |
+          git config user.name  'github-actions[bot]'
+          git config user.email 'github-actions[bot]@users.noreply.github.com'
+
+          git fetch origin gh-pages --depth=1 || true
+          git worktree add /tmp/pages gh-pages 2>/dev/null \
+            || git worktree add --orphan -b gh-pages /tmp/pages
+
+          find /tmp/pages -mindepth 1 -maxdepth 1 -not -name '.git' -exec rm -rf {} +
+          cp -R site/. /tmp/pages/
+
+          cd /tmp/pages
+          git add --all
+          if git diff --cached --quiet; then
+            echo "변경 없음 — 커밋 생략"
+            exit 0
+          fi
+          git commit -m "deploy: ${GITHUB_SHA::7}"
+          git push origin gh-pages
+
+      # ── 사후 스모크 체크 ──────────────────────────────────────────────────
+      # Pages 반영에 시간이 걸리므로 재시도한다. legal URL 이 최우선.
+      - name: Smoke check live URLs
+        run: |
+          check() {
+            url="$1"; needle="$2"
+            for attempt in $(seq 1 10); do
+              code=$(curl -sS -o /tmp/body -w '%{http_code}' "$url" || echo 000)
+              if [ "$code" = "200" ] && grep -q "$needle" /tmp/body; then
+                echo "OK   $url ($code)"
+                return 0
+              fi
+              echo "...  $url → $code (재시도 $attempt/10)"
+              sleep 15
+            done
+            echo "::error::$url 검증 실패 (마지막 응답 $code)"
+            return 1
+          }
+
+          rc=0
+          check "$SITE_URL/privacy-policy.html" '개인정보'      || rc=1
+          check "$SITE_URL/data-deletion.html"  '삭제'          || rc=1
+          check "$SITE_URL/"                    'LinkNote'      || rc=1
+          exit $rc

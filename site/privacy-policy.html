@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LinkNote 개인정보 처리방침</title>
+<style>
+  :root {
+    --bg:#f4f7f4; --surface:#ffffff; --surface-2:#eef2ee; --ink:#14201a; --ink-soft:#47564e;
+    --ink-faint:#7a887f; --line:#dbe4dd; --line-soft:#e8eee9; --accent:#1f7a4d; --accent-ink:#155c39;
+    --accent-wash:#e4f1e9; --shadow:0 1px 2px rgba(20,32,26,.05), 0 8px 24px -12px rgba(20,32,26,.14);
+    --mono: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, monospace;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "Pretendard", "Noto Sans KR", system-ui, sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg:#0d120f; --surface:#141b16; --surface-2:#1a231d; --ink:#e6efe8; --ink-soft:#a4b3a9;
+      --ink-faint:#6f7f74; --line:#26332a; --line-soft:#1e2921; --accent:#4bbd80; --accent-ink:#8fe0b0;
+      --accent-wash:#16281d; --shadow:0 1px 2px rgba(0,0,0,.3), 0 10px 30px -14px rgba(0,0,0,.6);
+    }
+  }
+  :root[data-theme="light"] {
+    --bg:#f4f7f4; --surface:#ffffff; --surface-2:#eef2ee; --ink:#14201a; --ink-soft:#47564e;
+    --ink-faint:#7a887f; --line:#dbe4dd; --line-soft:#e8eee9; --accent:#1f7a4d; --accent-ink:#155c39;
+    --accent-wash:#e4f1e9;
+  }
+  :root[data-theme="dark"] {
+    --bg:#0d120f; --surface:#141b16; --surface-2:#1a231d; --ink:#e6efe8; --ink-soft:#a4b3a9;
+    --ink-faint:#6f7f74; --line:#26332a; --line-soft:#1e2921; --accent:#4bbd80; --accent-ink:#8fe0b0;
+    --accent-wash:#16281d;
+  }
+
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink); font-family:var(--sans); line-height:1.68; -webkit-font-smoothing:antialiased; font-size:16px; }
+  .wrap { max-width: 760px; margin:0 auto; padding: 0 24px 96px; }
+
+  header.mast { padding: 60px 0 30px; border-bottom:1px solid var(--line); margin-bottom: 40px; }
+  .kicker { font-family:var(--mono); font-size:12px; letter-spacing:.16em; text-transform:uppercase; color:var(--accent-ink); display:inline-flex; align-items:center; gap:9px; margin:0 0 18px; }
+  .kicker .dot { width:7px; height:7px; border-radius:50%; background:var(--accent); box-shadow:0 0 0 4px var(--accent-wash); }
+  h1 { font-size: clamp(28px, 5vw, 40px); line-height:1.1; letter-spacing:-.02em; margin:0 0 16px; font-weight:770; text-wrap:balance; }
+  .meta { display:flex; flex-wrap:wrap; gap:8px 10px; font-family:var(--mono); font-size:12.5px; }
+  .meta .chip { display:inline-flex; align-items:center; gap:7px; padding:5px 11px; border-radius:999px; border:1px solid var(--line); background:var(--surface); color:var(--ink-soft); }
+  .meta .chip .v { color:var(--ink); }
+  .intro { color:var(--ink-soft); font-size:16.5px; max-width:64ch; margin: 24px 0 0; }
+
+  section { margin: 0 0 40px; scroll-margin-top:16px; }
+  h2 { font-size:20px; letter-spacing:-.01em; margin:0 0 14px; font-weight:700; display:flex; align-items:baseline; gap:12px; }
+  h2 .no { font-family:var(--mono); font-size:13px; font-weight:700; color:var(--accent); flex:none; }
+  h3 { font-size:15px; margin: 22px 0 10px; color:var(--ink); font-weight:670; }
+  p { margin:0 0 14px; color:var(--ink-soft); }
+  p b, li b { color:var(--ink); font-weight:620; }
+  a { color:var(--accent); text-decoration:none; border-bottom:1px solid color-mix(in srgb,var(--accent) 32%, transparent); word-break:break-all; }
+  a:hover { border-bottom-color:var(--accent); }
+
+  ul.plain { margin:0 0 14px; padding:0; list-style:none; display:flex; flex-direction:column; gap:9px; }
+  ul.plain li { display:flex; gap:11px; align-items:flex-start; color:var(--ink-soft); }
+  ul.plain li::before { content:""; flex:none; width:6px; height:6px; border-radius:50%; background:var(--accent); margin-top:9px; }
+  ul.no li::before { background:var(--ink-faint); }
+
+  .tbl-wrap { overflow-x:auto; margin: 6px 0 8px; border:1px solid var(--line); border-radius:11px; box-shadow:var(--shadow); background:var(--surface); }
+  table { border-collapse:collapse; width:100%; font-size:14px; min-width: 480px; }
+  th, td { text-align:left; padding: 11px 15px; border-bottom:1px solid var(--line-soft); vertical-align:top; }
+  th { font-family:var(--mono); font-size:11.5px; letter-spacing:.05em; text-transform:uppercase; color:var(--ink-faint); background:var(--surface-2); font-weight:700; }
+  tr:last-child td { border-bottom:none; }
+  td b { color:var(--ink); }
+  td.k { color:var(--ink); font-weight:600; white-space:nowrap; }
+
+  .contact { background:var(--accent-wash); border:1px solid color-mix(in srgb,var(--accent) 30%, transparent); border-radius:13px; padding: 20px 22px; }
+  .contact h2 { margin-top:0; }
+  .contact .mail { font-family:var(--mono); font-size:16px; color:var(--accent-ink); font-weight:600; }
+  .contact a { border-bottom-color: color-mix(in srgb,var(--accent-ink) 40%, transparent); }
+
+  hr { border:none; border-top:1px solid var(--line); margin: 40px 0; }
+  footer { margin-top: 8px; padding-top:24px; border-top:1px solid var(--line); color:var(--ink-faint); font-size:13px; font-family:var(--mono); display:flex; flex-wrap:wrap; gap:8px 18px; justify-content:space-between; }
+  footer a { color:var(--accent); }
+  :focus-visible { outline:2px solid var(--accent); outline-offset:2px; border-radius:4px; }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <header class="mast">
+      <p class="kicker"><span class="dot"></span> Privacy Policy</p>
+      <h1>LinkNote 개인정보 처리방침</h1>
+      <div class="meta">
+        <span class="chip">최종 업데이트 <span class="v">2026-07-04</span></span>
+        <span class="chip">적용 버전 <span class="v">1.1.6 이상</span></span>
+      </div>
+      <p class="intro">
+        LinkNote(이하 "본 앱")는 이용자의 개인정보를 중요하게 생각하며, 아래와 같이
+        수집·이용·보관·파기 정책을 안내합니다. 본 방침은 Google Play 스토어 등록 시 요구되는
+        개인정보 처리방침이며, <b>실제 수집 항목만을 정직하게 기재</b>합니다.
+      </p>
+    </header>
+
+    <section>
+      <h2><span class="no">01</span> 수집하는 항목</h2>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th>분류</th><th>항목</th><th>수집 시점</th><th>처리 주체</th></tr></thead>
+          <tbody>
+            <tr><td class="k">계정 정보</td><td>이메일 주소</td><td>회원가입 / 로그인</td><td>Supabase (인증)</td></tr>
+            <tr><td class="k">사용자 콘텐츠</td><td>저장한 링크 URL·제목·메모·태그·컬렉션</td><td>앱 사용 중</td><td>Supabase (저장)</td></tr>
+            <tr><td class="k">사용 분석</td><td>화면 조회·세션 등 익명 사용 통계</td><td>앱 사용 중</td><td>Google Firebase Analytics</td></tr>
+            <tr><td class="k">진단 정보</td><td>비정상 종료(크래시) 로그, 기기/OS 종류</td><td>비정상 종료 시</td><td>Google Firebase Crashlytics</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <h3>수집하지 않는 항목</h3>
+      <ul class="plain no">
+        <li>위치 정보, 연락처, 사진/미디어 라이브러리</li>
+        <li>결제·금융 정보 (본 앱은 결제 기능 없음)</li>
+        <li>푸시 알림 토큰 (현재 버전은 푸시 알림 미사용)</li>
+        <li>광고 식별자 (본 앱은 광고 미게재)</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2><span class="no">02</span> 이용 목적</h2>
+      <ul class="plain">
+        <li><b>계정 정보</b> — 본인 인증 및 이용자별 데이터 동기화</li>
+        <li><b>사용자 콘텐츠</b> — 저장한 북마크의 보관·정리·검색·공유 기능 제공</li>
+        <li><b>사용 분석</b> — 기능 개선을 위한 익명 통계 분석</li>
+        <li><b>진단 정보</b> — 앱 안정성 개선 및 오류 원인 파악. 진단 정보 수집은 <b>디버그 빌드에서 비활성화</b>되며, 배포 빌드에서만 동작합니다.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2><span class="no">03</span> 제3자 제공 및 처리 위탁</h2>
+      <p>본 앱은 이용자의 개인정보를 별도로 판매하거나 제3자에게 제공하지 않습니다. 다만 서비스 운영을 위해 아래 인프라 제공자에게 처리를 위탁합니다.</p>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th>수탁자</th><th>위탁 범위</th><th>개인정보 처리방침</th></tr></thead>
+          <tbody>
+            <tr><td class="k">Supabase Inc.</td><td>인증·데이터베이스 저장</td><td><a href="https://supabase.com/privacy">supabase.com/privacy</a></td></tr>
+            <tr><td class="k">Google (Firebase)</td><td>사용 분석·크래시 진단</td><td><a href="https://firebase.google.com/support/privacy">firebase.google.com/support/privacy</a></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section>
+      <h2><span class="no">04</span> 데이터 접근 범위 (공유 기능)</h2>
+      <ul class="plain">
+        <li>저장한 컬렉션·링크는 기본적으로 <b>비공개</b>이며 본인만 열람할 수 있습니다.</li>
+        <li>이용자가 컬렉션을 <b>공개(public)</b>로 전환하면, 해당 컬렉션과 그 안의 링크는 <b>로그인한 다른 이용자</b>가 딥링크를 통해 <b>읽기 전용</b>으로 열람할 수 있습니다.</li>
+        <li>공개 컬렉션을 비공개로 다시 전환하면 타인의 열람이 즉시 차단됩니다.</li>
+        <li>타인은 본인의 데이터를 <b>수정·삭제할 수 없습니다</b> (읽기 전용).</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2><span class="no">05</span> 보관 및 파기</h2>
+      <ul class="plain">
+        <li>개인정보는 회원 탈퇴 또는 데이터 삭제 요청 시까지 보관합니다.</li>
+        <li>이용자는 앱 내에서 저장한 콘텐츠를 직접 삭제할 수 있습니다.</li>
+        <li>계정 삭제를 원하는 경우 아래 문의처로 요청하면 관련 데이터를 파기합니다.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2><span class="no">06</span> 이용자의 권리</h2>
+      <ul class="plain">
+        <li>본인 데이터의 열람·수정·삭제를 요청할 수 있습니다.</li>
+        <li>진단/분석 정보 수집에 동의하지 않을 경우, 앱 사용을 중단할 수 있습니다.</li>
+      </ul>
+    </section>
+
+    <section class="contact">
+      <h2><span class="no">07</span> 문의처</h2>
+      <p style="margin-bottom:8px">개인정보 관련 문의는 아래로 연락해 주십시오.</p>
+      <p style="margin:0">이메일 · <a class="mail" href="mailto:rikygak@gmail.com">rikygak@gmail.com</a></p>
+    </section>
+
+    <section>
+      <h2><span class="no">08</span> 고지</h2>
+      <p style="margin:0">본 방침은 법령·서비스 변경에 따라 개정될 수 있으며, 개정 시 본 문서의 "최종 업데이트" 일자를 갱신합니다.</p>
+    </section>
+
+    <footer>
+      <span>LinkNote · app.kaywalker.linknote</span>
+      <span><a href="./">홈</a> · <a href="./play-store-guide.html">출시 가이드</a></span>
+    </footer>
+  </div>
+</body>
+</html>
