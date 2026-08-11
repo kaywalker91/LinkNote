@@ -89,8 +89,29 @@ jobs:
             return 1
           }
 
+          # HTTP 200 만 확인하면 되는 정적 에셋(본문 대조 불가)
+          check_asset() {
+            url="$1"
+            for attempt in $(seq 1 10); do
+              code=$(curl -sS -o /dev/null -w '%{http_code}' "$url" || echo 000)
+              if [ "$code" = "200" ]; then
+                echo "OK   $url ($code)"
+                return 0
+              fi
+              echo "...  $url → $code (재시도 $attempt/10)"
+              sleep 15
+            done
+            echo "::error::$url 검증 실패 (마지막 응답 $code)"
+            return 1
+          }
+
           rc=0
+          # Play Console 등록 URL — 최우선
           check "$SITE_URL/privacy-policy.html" '개인정보'      || rc=1
           check "$SITE_URL/data-deletion.html"  '삭제'          || rc=1
+          # 랜딩 페이지 + 렌더에 필요한 에셋. 이게 빠지면 스타일·이미지 없는
+          # 페이지가 초록불로 배포되므로 함께 검사한다.
           check "$SITE_URL/"                    'LinkNote'      || rc=1
+          check_asset "$SITE_URL/style.css"                     || rc=1
+          check_asset "$SITE_URL/assets/screenshots/01_home.png" || rc=1
           exit $rc
