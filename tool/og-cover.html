@@ -1,0 +1,176 @@
+<!--
+  og:image 커버 소스 — 산출물은 site/assets/og-cover.png (1200x630)
+  빌드 소스이므로 tool/ 에 둔다. site/ 는 gh-pages 로 전량 배포되어 공개된다.
+
+  재현 절차 — **저장소 루트에서** 실행.
+  (반드시 2x 렌더 후 다운샘플. 1x 는 SNS 재인코딩에서 한글 획이 무너진다)
+
+    CHROME="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
+    "$CHROME" --headless=new --disable-gpu --hide-scrollbars \
+      --allow-file-access-from-files --force-device-scale-factor=2 \
+      --window-size=1200,630 --virtual-time-budget=10000 \
+      --screenshot=site/assets/og-cover.png tool/og-cover.html
+    sips -z 630 1200 site/assets/og-cover.png --out site/assets/og-cover.png
+
+  타이포 규율: 피드 카드는 폭 약 552px 로 축소 표시되어 배율이 0.46 이다.
+  소형 텍스트는 25px 이상으로 잡고, 판정은 552x290 으로 축소해서 한다.
+  원본에서 읽히는 것은 근거가 아니다.
+-->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500&family=IBM+Plex+Sans+KR:wght@400;500;600;700&family=IBM+Plex+Serif:ital,wght@0,600;1,600&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html, body { width: 1200px; height: 630px; overflow: hidden; }
+
+  body {
+    position: relative;
+    background:
+      radial-gradient(760px 520px at 88% 6%, rgba(75,189,128,.20), transparent 62%),
+      linear-gradient(142deg, #16523D 0%, #0F3A2B 34%, #0D120F 78%);
+    font-family: "IBM Plex Sans KR", -apple-system, system-ui, sans-serif;
+    color: #E6EFE8;
+  }
+
+  /* 미세한 격자 — 엔지니어링 문서의 결 */
+  .grid {
+    position: absolute; inset: 0;
+    background-image:
+      linear-gradient(rgba(143,224,176,.055) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(143,224,176,.055) 1px, transparent 1px);
+    background-size: 48px 48px;
+    mask-image: linear-gradient(105deg, #000 0%, transparent 68%);
+    -webkit-mask-image: linear-gradient(105deg, #000 0%, transparent 68%);
+  }
+
+  .stage { position: relative; width: 100%; height: 100%; }
+
+  /* ── 좌측 텍스트 ───────────────────────────────────────────── */
+  .copy {
+    position: absolute;
+    left: 76px; top: 50%;
+    transform: translateY(-50%);
+    width: 600px;
+    display: flex; flex-direction: column;
+    gap: 24px;
+  }
+
+  .brand { display: flex; align-items: center; gap: 11px; }
+  .brand .dot {
+    width: 11px; height: 11px; border-radius: 50%;
+    background: #4BBD80;
+    box-shadow: 0 0 0 5px rgba(75,189,128,.16);
+  }
+  .brand .mark {
+    font-family: "IBM Plex Serif", Georgia, serif;
+    font-size: 33px; font-weight: 600; letter-spacing: -.01em;
+    color: #F2F8F4;
+  }
+  .brand .mark i { font-style: italic; color: #8FE0B0; }
+
+  h1 {
+    font-size: 55px;
+    font-weight: 600;
+    line-height: 1.26;
+    letter-spacing: -.032em;
+    text-wrap: balance;
+    color: #FFFFFF;
+  }
+  h1 .accent { color: #8FE0B0; }
+
+  .sub {
+    font-size: 26px;
+    font-weight: 400;
+    line-height: 1.55;
+    color: #A7BCAF;
+    letter-spacing: -.01em;
+  }
+
+  .chips { display: flex; gap: 12px; margin-top: 2px; }
+  .chip {
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: 25px; font-weight: 500;
+    letter-spacing: .01em;
+    color: #8FE0B0;
+    background: rgba(75,189,128,.10);
+    border: 1px solid rgba(143,224,176,.30);
+    border-radius: 11px;
+    padding: 10px 18px;
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .url {
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: 25px;
+    color: #8AA095;
+    letter-spacing: .015em;
+    margin-top: 4px;
+  }
+
+  /* ── 우측 단말기 ───────────────────────────────────────────── */
+  .phones { position: absolute; right: 0; top: 0; width: 540px; height: 630px; }
+
+  .phone {
+    position: absolute;
+    width: 232px;
+    border-radius: 22px;
+    overflow: hidden;
+    background: #FAFAF7;
+    border: 1px solid rgba(230,239,232,.16);
+    box-shadow:
+      0 2px 6px rgba(0,0,0,.34),
+      0 34px 70px -26px rgba(0,0,0,.78);
+  }
+  .phone img { display: block; width: 100%; height: auto; }
+
+  .p1 { left:  -6px; top: 118px; transform: rotate(-6.5deg); z-index: 1; }
+  .p2 { left: 150px; top:  72px; transform: rotate(-2.2deg); z-index: 3; }
+  .p3 { left: 310px; top: 126px; transform: rotate( 2.6deg); z-index: 2; }
+
+  /* 우측 하단으로 자연스럽게 사라지도록 */
+  .fade {
+    position: absolute; inset: 0;
+    background: linear-gradient(to top, rgba(13,18,15,.92) 0%, rgba(13,18,15,0) 26%);
+    z-index: 5; pointer-events: none;
+  }
+</style>
+</head>
+<body>
+  <div class="grid"></div>
+  <div class="stage">
+
+    <div class="phones">
+      <div class="phone p1"><img src="../site/assets/screenshots/03_collections.png" alt=""></div>
+      <div class="phone p2"><img src="../site/assets/screenshots/01_home.png" alt=""></div>
+      <div class="phone p3"><img src="../site/assets/screenshots/05_form.png" alt=""></div>
+      <div class="fade"></div>
+    </div>
+
+    <div class="copy">
+      <div class="brand">
+        <span class="dot"></span>
+        <span class="mark">link<i>note</i></span>
+      </div>
+
+      <h1>북마크 앱을 만들며<br>내린 <span class="accent">설계 판단</span>의 기록</h1>
+
+      <p class="sub">Flutter · Clean Architecture · Riverpod<br>1인 개발 · 5개월 엔지니어링 기록</p>
+
+      <div class="chips">
+        <span class="chip">714 tests</span>
+        <span class="chip">9 modules</span>
+        <span class="chip">4-job CI</span>
+      </div>
+
+      <p class="url">kaywalker91.github.io/LinkNote</p>
+    </div>
+
+  </div>
+</body>
+</html>
