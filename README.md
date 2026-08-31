@@ -12,6 +12,8 @@ A mobile bookmark manager that auto-extracts metadata from any URL — save, org
 ![Platform](https://img.shields.io/badge/Platform-Android%20%7C%20iOS-lightgrey)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
+**[Project Case Study](https://kaywalker91.github.io/LinkNote/)** · [Architecture Decisions](docs/adr) · [5-Month Retrospective](docs/retrospective/2026-08-19-development-retrospective.md)
+
 ---
 
 ## Highlights

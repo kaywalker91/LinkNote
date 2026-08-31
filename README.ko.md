@@ -12,6 +12,8 @@ URL을 붙여넣으면 메타데이터를 자동 추출하는 모바일 북마�
 ![Platform](https://img.shields.io/badge/Platform-Android%20%7C%20iOS-lightgrey)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
+**[프로젝트 소개 사이트](https://kaywalker91.github.io/LinkNote/)** · [아키텍처 결정 기록](docs/adr) · [5개월 개발 회고록](docs/retrospective/2026-08-19-development-retrospective.md)
+
 ---
 
 ## 엔지니어링 하이라이트
