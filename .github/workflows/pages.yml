@@ -114,4 +114,5 @@ jobs:
           check "$SITE_URL/"                    'LinkNote'      || rc=1
           check_asset "$SITE_URL/style.css"                     || rc=1
           check_asset "$SITE_URL/assets/screenshots/01_home.png" || rc=1
+          check_asset "$SITE_URL/assets/og-cover.png"            || rc=1
           exit $rc
