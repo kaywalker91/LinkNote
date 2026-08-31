@@ -1,16 +1,24 @@
 <!--
-  og:image 커버 소스 — 산출물은 site/assets/og-cover-v2.png (1200x630)
+  og:image 커버 소스 — 산출물은 site/assets/og-cover-v3.jpg (1200x630)
   빌드 소스이므로 tool/ 에 둔다. site/ 는 gh-pages 로 전량 배포되어 공개된다.
 
   재현 절차 — **저장소 루트에서** 실행.
-  (반드시 2x 렌더 후 다운샘플. 1x 는 SNS 재인코딩에서 한글 획이 무너진다)
 
     CHROME="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
     "$CHROME" --headless=new --disable-gpu --hide-scrollbars \
       --allow-file-access-from-files --force-device-scale-factor=2 \
       --window-size=1200,630 --virtual-time-budget=10000 \
-      --screenshot=site/assets/og-cover-v2.png tool/og-cover.html
-    sips -z 630 1200 site/assets/og-cover-v2.png --out site/assets/og-cover-v2.png
+      --screenshot=/tmp/og-2x.png tool/og-cover.html
+    sips -z 630 1200 /tmp/og-2x.png --out /tmp/og-1x.png
+    sips -s format jpeg -s formatOptions 95 /tmp/og-1x.png \
+      --out site/assets/og-cover-v3.jpg
+
+  세 단계 모두 이유가 있다:
+  - 2x 렌더: 1x 는 안티앨리어싱 여유가 없어 SNS 재인코딩에서 한글 획이 무너진다
+  - 다운샘플: 선언 크기(1200x630)와 실제 화소를 일치시킨다
+  - JPEG(q95): 460KB PNG 는 링크드인이 수집하지 않았다. JPEG 170KB 로 해결.
+    내용을 바꾸면 **파일명도 반드시 바꿀 것** — 크롤러는 이미지도 URL 단위로
+    캐시하므로 경로가 같으면 옛 사본을 계속 쓴다
 
   타이포 규율: 피드 카드는 폭 약 552px 로 축소 표시되어 배율이 0.46 이다.
   소형 텍스트는 25px 이상으로 잡고, 판정은 552x290 으로 축소해서 한다.
