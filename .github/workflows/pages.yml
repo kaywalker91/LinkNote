@@ -31,7 +31,8 @@ jobs:
       - name: Verify legal pages are present
         run: |
           missing=0
-          for f in $LEGAL_PAGES play-store-guide.html index.html style.css .nojekyll; do
+          for f in $LEGAL_PAGES play-store-guide.html index.html style.css .nojekyll \
+                   favicon.ico favicon.svg apple-touch-icon.png; do
             if [ ! -f "site/$f" ]; then
               echo "::error::site/$f 누락 — 배포 중단"
               missing=1
@@ -115,4 +116,5 @@ jobs:
           check_asset "$SITE_URL/style.css"                     || rc=1
           check_asset "$SITE_URL/assets/screenshots/01_home.png" || rc=1
           check_asset "$SITE_URL/assets/og-cover-v3.jpg"            || rc=1
+          check_asset "$SITE_URL/favicon.ico"                    || rc=1
           exit $rc
